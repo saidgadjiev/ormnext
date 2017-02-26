@@ -19,6 +19,11 @@ public class Main {
     public static void main(String[] args) throws SQLException {
         JDBCConnectionSource connectionSource = new SQLiteConnectionSource("jdbc:sqlite:test.sqlite");
         Dao<Test> dao = new DaoImpl<Test>(connectionSource, Test.class);
-        TableUtils.createTable(connectionSource, Test.class);
+        Test test = new Test();
+
+        test.setName("test");
+        dao.create(test);
+        System.out.println("YES");
+        //TableUtils.clearTable(connectionSource, Test.class);
     }
 }
