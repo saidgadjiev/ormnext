@@ -16,10 +16,10 @@ public class SQLiteConnectionSource implements JDBCConnectionSource {
 
     public SQLiteConnectionSource(String url) throws SQLException {
         this.URL = url;
-        loadDriver(url);
+        loadDriver();
     }
 
-    private void loadDriver(String url) throws SQLException {
+    private void loadDriver() throws SQLException {
         try {
             Class.forName(DRIVER_NAME);
         } catch (ClassNotFoundException e) {
@@ -34,6 +34,5 @@ public class SQLiteConnectionSource implements JDBCConnectionSource {
     public void releaseConnection(Connection connection) throws SQLException {
         connection.close();
     }
-
 
 }

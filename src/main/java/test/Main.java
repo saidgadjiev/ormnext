@@ -1,5 +1,7 @@
 package test;
 
+import clause.Update;
+import clause.Where;
 import dao.Dao;
 import dao.DaoImpl;
 import support.JDBCConnectionSource;
@@ -8,6 +10,7 @@ import org.apache.log4j.Logger;
 import utils.TableUtils;
 
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  * Created by said on 25.02.17.
@@ -19,11 +22,15 @@ public class Main {
     public static void main(String[] args) throws SQLException {
         JDBCConnectionSource connectionSource = new SQLiteConnectionSource("jdbc:sqlite:test.sqlite");
         Dao<Test> dao = new DaoImpl<Test>(connectionSource, Test.class);
-        Test test = new Test();
+        Update update = new Update();
+        Where where = new Where();
 
-        test.setName("test");
-        dao.create(test);
-        System.out.println("YES");
-        //TableUtils.clearTable(connectionSource, Test.class);
+        where.addEqClause("test_name", "test");
+        update.setWhere(where);
+        update.addUpdateColumn("test_name", "test2");
+
+        int count = dao.queryForUpdate(update);
+
+        System.out.println(count);
     }
 }
