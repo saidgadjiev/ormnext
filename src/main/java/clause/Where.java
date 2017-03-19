@@ -14,8 +14,7 @@ public class Where {
         eq.put(name, value);
     }
 
-    @Override
-    public String toString() {
+    public String getStringQuery() {
         StringBuilder sb = new StringBuilder();
 
         sb.append("WHERE ");
@@ -25,5 +24,12 @@ public class Where {
         sb.replace(sb.length() - 5, sb.length(), "");
 
         return sb.toString();
+    }
+
+    @Override
+    public String toString() {
+        return "Where{" +
+                "eq=" + eq +
+                '}';
     }
 }

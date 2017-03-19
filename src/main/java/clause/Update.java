@@ -19,8 +19,7 @@ public class Update {
         this.where = where;
     }
 
-    @Override
-    public String toString() {
+    public String getStringQuery() {
         StringBuilder sb = new StringBuilder();
 
         sb.append("SET ");
@@ -31,5 +30,13 @@ public class Update {
         sb.append(" " ).append(where.toString());
 
         return sb.toString();
+    }
+
+    @Override
+    public String toString() {
+        return "Update{" +
+                "updateColumns=" + updateColumns +
+                ", where=" + where +
+                '}';
     }
 }

@@ -1,5 +1,6 @@
 package dao;
 
+import clause.QueryBuilder;
 import clause.Update;
 import clause.Where;
 
@@ -17,6 +18,8 @@ public interface Dao<T> {
 
     List<T> queryForAll() throws SQLException;
 
+    List<T> queryForAll(String sql) throws SQLException;
+
     void update(T object);
 
     void delete(T object);
@@ -26,4 +29,6 @@ public interface Dao<T> {
     int queryForUpdate(Update update) throws SQLException;
 
     boolean deleteForWhere(Where where) throws SQLException;
+
+    QueryBuilder<T> queryBuilder();
 }

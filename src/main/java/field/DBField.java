@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Field {
+public @interface DBField {
     String fieldName() default "";
 
     String defaultValue() default "";
@@ -23,4 +23,6 @@ public @interface Field {
     boolean canBeNull() default true;
 
     DataType dataType() default DataType.UNKNOWN;
+
+    boolean foreignKey() default false;
 }
