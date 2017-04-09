@@ -1,6 +1,7 @@
 package table;
 
 import field.DBField;
+import field.ManyToOne;
 import field.OneToMany;
 import field.OneToOne;
 
@@ -17,23 +18,26 @@ public class TableInfo<T> {
     private String name;
     private List<Field> oneToOneRelations = new ArrayList<>();
     private List<Field> oneToManyRelations = new ArrayList<>();
+    private List<Field> manyToOneRelations = new ArrayList<>();
     private List<Field> fields = new ArrayList<>();
     private Class<T> table;
 
     public TableInfo(Class<T> dbTable) {
         this.name = dbTable.getAnnotation(DBTable.class).name();
         this.table = dbTable;
-        for (Field field: dbTable.getDeclaredFields()) {
+        for (Field field : dbTable.getDeclaredFields()) {
             if (field.isAnnotationPresent(DBField.class)) {
-                 if (field.getAnnotation(DBField.class).id()) {
-                     id = field;
-                 } else if (field.isAnnotationPresent(OneToOne.class)) {
-                     oneToOneRelations.add(field);
-                 } else if (field.isAnnotationPresent(OneToMany.class)) {
-                     oneToManyRelations.add(field);
-                 } else {
-                     fields.add(field);
-                 }
+                if (field.getAnnotation(DBField.class).id()) {
+                    id = field;
+                } else if (field.isAnnotationPresent(OneToOne.class)) {
+                    oneToOneRelations.add(field);
+                } else if (field.isAnnotationPresent(ManyToOne.class)) {
+                    manyToOneRelations.add(field);
+                } else {
+                    fields.add(field);
+                }
+            } else if (field.isAnnotationPresent(OneToMany.class)) {
+                oneToManyRelations.add(field);
             }
         }
     }
@@ -50,6 +54,10 @@ public class TableInfo<T> {
         return oneToManyRelations;
     }
 
+    public List<Field> getManyToOneRelations() {
+        return manyToOneRelations;
+    }
+
     public String getTableName() {
         return name;
     }
@@ -60,5 +68,25 @@ public class TableInfo<T> {
 
     public Class<T> getTable() {
         return table;
+    }
+
+    public Field getFieldByMappedByNameInParent(String name) {
+        for (Field field : oneToManyRelations) {
+            if (field.getAnnotation(OneToMany.class).mappedBy().equals(name)) {
+                return field;
+            }
+        }
+
+        return null;
+    }
+
+    public Field getFieldByMappedByNameInChild(String name) {
+        for (Field field : manyToOneRelations) {
+            if (field.getName().equals(name)) {
+                return field;
+            }
+        }
+
+        return null;
     }
 }

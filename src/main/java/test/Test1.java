@@ -2,6 +2,7 @@ package test;
 
 import field.DBField;
 import field.DataType;
+import field.ManyToOne;
 import table.DBTable;
 
 /**
@@ -17,6 +18,10 @@ public class Test1 {
     @DBField(dataType = DataType.STRING, fieldName = "test_name")
     private String name;
 
+    @ManyToOne
+    @DBField(canBeNull = false, dataType = DataType.INTEGER, fieldName = "test_id")
+    Test test;
+
     public long getId() {
         return id;
     }
@@ -31,6 +36,14 @@ public class Test1 {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Test getTest() {
+        return test;
+    }
+
+    public void setTest(Test test) {
+        this.test = test;
     }
 
     @Override

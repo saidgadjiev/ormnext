@@ -14,6 +14,7 @@ import utils.StatementExecutor;
 import utils.TableUtils;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -29,12 +30,12 @@ public class DaoImpl<T> implements Dao<T> {
 
     private JDBCConnectionSource connectionSource;
     private final TableInfo<T> tableInfo;
-    private StatementExecutor<T> statementExecutor;
+    private StatementExecutor statementExecutor;
 
     public DaoImpl(JDBCConnectionSource connectionSource, Class<T> dbTable) {
         this.connectionSource = connectionSource;
         this.tableInfo = new TableInfo<>(dbTable);
-        this.statementExecutor = new StatementExecutor<>(connectionSource);
+        this.statementExecutor = new StatementExecutor(connectionSource);
     }
 
     public void create(T object) throws SQLException {
@@ -50,6 +51,9 @@ public class DaoImpl<T> implements Dao<T> {
                 sb.append(field.getAnnotation(DBField.class).fieldName()).append(",");
             }
             for (Field field : tableInfo.getOneToOneRelations()) {
+                sb.append(field.getAnnotation(DBField.class).fieldName()).append(",");
+            }
+            for (Field field : tableInfo.getManyToOneRelations()) {
                 sb.append(field.getAnnotation(DBField.class).fieldName()).append(",");
             }
             sb.replace(sb.length() - 1, sb.length(), ")");
@@ -69,17 +73,25 @@ public class DaoImpl<T> implements Dao<T> {
                 try {
                     Method method = ReflectionUtils.getDeclaredMethod(tableInfo.getTable(), "get" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1), null);
                     Object foreignObject = method.invoke(object);
-                    TableInfo<?> tableInfo = new TableInfo<>(foreignObject.getClass());
-                    String idFieldName = tableInfo.getId().getName();
-                    String methodName = "get" + idFieldName.substring(0, 1).toUpperCase() + idFieldName.substring(1);
-                    method = ReflectionUtils.getDeclaredMethod(foreignObject.getClass(), methodName, null);
-                    sb.append(method.invoke(foreignObject)).append(",");
+                    appendForeignObjectId(sb, foreignObject);
+                } catch (Exception ignore) {
+                    throw new SQLException("No getter for " + fieldName);
+                }
+            }
+            for (Field field : tableInfo.getManyToOneRelations()) {
+                String fieldName = field.getName();
+
+                try {
+                    Method method = ReflectionUtils.getDeclaredMethod(tableInfo.getTable(), "get" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1), null);
+                    Object foreignObject = method.invoke(object);
+                    appendForeignObjectId(sb, foreignObject);
                 } catch (Exception ignore) {
                     throw new SQLException("No getter for " + fieldName);
                 }
             }
             sb.replace(sb.length() - 1, sb.length(), ")");
             statement.execute(sb.toString());
+            //TODO: добавить в инсерт test_id
             Field idField = tableInfo.getId();
 
             if (idField != null) {
@@ -94,12 +106,38 @@ public class DaoImpl<T> implements Dao<T> {
                     throw new SQLException("No setter for " + fieldName);
                 }
             }
+            for (Field field : tableInfo.getManyToOneRelations()) {
+                String fieldName = field.getName();
+
+                try {
+                    Method method = ReflectionUtils.getDeclaredMethod(tableInfo.getTable(), "get" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1), null);
+                    Object foreignObject = method.invoke(object);
+                    TableInfo<?> tableInfo1 = new TableInfo<>(foreignObject.getClass());
+                    Field mappedBy = tableInfo1.getFieldByMappedByNameInParent(fieldName);
+                    String mappedByFieldName = mappedBy.getName();
+                    String methodName = "get" + mappedByFieldName.substring(0, 1).toUpperCase() + mappedByFieldName.substring(1);
+
+                    method = ReflectionUtils.getDeclaredMethod(foreignObject.getClass(), methodName, null);
+                    ((List<T>) method.invoke(foreignObject)).add(object);
+                } catch (Exception ignore) {
+                    throw new SQLException("No getter for " + fieldName);
+                }
+            }
         } finally {
             if (statement != null) {
                 statement.close();
             }
             connectionSource.releaseConnection(connection);
         }
+    }
+
+    private void appendForeignObjectId(StringBuilder sb, Object foreignObject) throws Exception {
+        TableInfo<?> tableInfo1 = new TableInfo<>(foreignObject.getClass());
+        String idFieldName = tableInfo1.getId().getName();
+        String methodName = "get" + idFieldName.substring(0, 1).toUpperCase() + idFieldName.substring(1);
+
+        Method method = ReflectionUtils.getDeclaredMethod(foreignObject.getClass(), methodName, null);
+        sb.append(method.invoke(foreignObject)).append(",");
     }
 
     @Override
@@ -130,7 +168,7 @@ public class DaoImpl<T> implements Dao<T> {
                         String methodName = "set" + field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1);
                         ReflectionUtils.invokeMethod(tableInfo.getTable(), methodName, field.getType(), result, resultSet.getObject(field.getAnnotation(DBField.class).fieldName()));
                     }
-                    for (Field field: tableInfo.getOneToOneRelations()) {
+                    for (Field field : tableInfo.getOneToOneRelations()) {
                         String methodName = "set" + field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1);
                         ReflectionUtils.invokeMethod(tableInfo.getTable(), methodName, field.getType(), result, resultSet.getObject(field.getAnnotation(DBField.class).fieldName()));
 
@@ -313,4 +351,6 @@ public class DaoImpl<T> implements Dao<T> {
             }
         }
     }
+
+
 }

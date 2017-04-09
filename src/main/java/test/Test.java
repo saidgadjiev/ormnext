@@ -2,8 +2,13 @@ package test;
 
 import field.DBField;
 import field.DataType;
+import field.OneToMany;
 import field.OneToOne;
+import support.ForeignCollection;
 import table.DBTable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by said on 25.02.17.
@@ -17,9 +22,8 @@ public class Test {
     @DBField(dataType = DataType.STRING, fieldName = "test_name")
     private String name;
 
-    @OneToOne
-    @DBField(canBeNull = false, dataType = DataType.INTEGER, fieldName = "test1_id")
-    private Test1 test1;
+    @OneToMany(mappedBy = "test")
+    private List<Test1> test1Coll = new ArrayList<>();
 
     public long getId() {
         return id;
@@ -42,15 +46,10 @@ public class Test {
         return "Test{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", test1=" + test1 +
                 '}';
     }
 
-    public Test1 getTest1() {
-        return test1;
-    }
-
-    public void setTest1(Test1 test1) {
-        this.test1 = test1;
+    public List<Test1> getTest1Coll() {
+        return test1Coll;
     }
 }
