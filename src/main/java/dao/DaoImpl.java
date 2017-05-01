@@ -46,7 +46,7 @@ public class DaoImpl<T> implements Dao<T> {
     public T queryForId(long id) throws SQLException {
         T result = (T) statementExecutor.queryForId(tableInfo, id);
         for (Field field: tableInfo.getManyToManyRelations()) {
-            statementExecutor.fillManyToMany(tableInfo, new TableInfo(ReflectionUtils.getCollectionGenericClass(field)), field, result);
+            statementExecutor.fillManyToMany(tableInfo, new TableInfo<>(ReflectionUtils.getCollectionGenericClass(field)), field, result);
         }
 
         return result;

@@ -82,7 +82,7 @@ public class TableUtils {
     }
 
     private static void appendForeignKey(Field field, StringBuilder sb) {
-        TableInfo tableInfo = new TableInfo(field.getType());
+        TableInfo tableInfo = new TableInfo<>(field.getType());
 
         sb.append("FOREIGN KEY ")
                 .append("(")

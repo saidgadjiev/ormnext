@@ -171,7 +171,7 @@ public class StatementExecutor {
     public void create(Object object) throws SQLException {
         Statement statement = null;
         Connection connection = connectionSource.getConnection();
-        TableInfo tableInfo = new TableInfo(object.getClass());
+        TableInfo tableInfo = new TableInfo<>(object.getClass());
 
         try {
             statement = connection.createStatement();
@@ -255,7 +255,7 @@ public class StatementExecutor {
                 }
             }
             for (Field field : (List<Field>) tableInfo.getManyToManyRelations()) {
-                TableInfo tableInfo1 = new TableInfo(ReflectionUtils.getCollectionGenericClass(field));
+                TableInfo tableInfo1 = new TableInfo<>(ReflectionUtils.getCollectionGenericClass(field));
                 TableUtils.createManyToManyTable(connectionSource, tableInfo, tableInfo1);
                 String fieldName = field.getName();
 

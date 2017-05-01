@@ -19,7 +19,7 @@ public class SQLiteConnectionSource implements JDBCConnectionSource {
         loadDriver();
     }
 
-    private void loadDriver() throws SQLException {
+    protected void loadDriver() throws SQLException {
         try {
             Class.forName(DRIVER_NAME);
         } catch (ClassNotFoundException e) {
