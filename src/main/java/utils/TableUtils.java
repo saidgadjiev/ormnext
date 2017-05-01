@@ -3,6 +3,7 @@ package utils;
 import com.sun.javadoc.FieldDoc;
 import field.DBField;
 import field.OneToOne;
+import jdk.nashorn.internal.scripts.JD;
 import org.apache.log4j.Logger;
 import support.JDBCConnectionSource;
 import table.DBTable;
@@ -92,6 +93,55 @@ public class TableUtils {
                 .append("(")
                 .append(tableInfo.getId().getAnnotation(DBField.class).fieldName())
                 .append("));");
+    }
+
+    public static boolean isExistTable(JDBCConnectionSource connectionSource, String tableName) throws SQLException {
+        String sql = "SELECT name FROM sqlite_master WHERE type='table' AND name='" + tableName + "'";
+        Statement statement = null;
+        Connection connection = connectionSource.getConnection();
+
+        try {
+            statement = connection.createStatement();
+            ResultSet resultSet = null;
+
+            try {
+                resultSet = statement.executeQuery(sql);
+                if (resultSet.next()) {
+                    return !resultSet.getString("name").isEmpty();
+                }
+            } finally {
+              if (resultSet != null) {
+                  resultSet.close();
+              }
+            }
+        } finally {
+            if (statement != null) {
+                statement.close();
+            }
+        }
+        return false;
+    }
+
+    public static void createManyToManyTable(JDBCConnectionSource connectionSource, TableInfo tableInfo, TableInfo tableInfo1) throws SQLException {
+        String manyToManyTableName1 = tableInfo.getTableName() + "_" + tableInfo1.getTableName();
+        String manyToManyTableName2 =  tableInfo1.getTableName() + "_"  + tableInfo.getTableName();
+
+        if (!isExistTable(connectionSource, manyToManyTableName1) && !isExistTable(connectionSource, manyToManyTableName2)) {
+            String sql = "CREATE TABLE " + manyToManyTableName1 + "(" + tableInfo.getTableName() + "_id INTEGER NOT NULL, " + tableInfo1.getTableName() + "_id INTEGER NOT NULL)";
+
+            StatementExecutor.execute(connectionSource, sql);
+        }
+    }
+
+    public static String getManyToManyRelationTableName(JDBCConnectionSource jdbcConnectionSource, String table1, String table2) throws SQLException {
+        if (TableUtils.isExistTable(jdbcConnectionSource, table1 + "_" + table2)) {
+            return table1 + "_" + table2;
+        }
+        if (TableUtils.isExistTable(jdbcConnectionSource, table2 + "_" + table1)) {
+            return table2 + "_" + table1;
+        }
+
+        throw new SQLException("Relation table not found");
     }
 
     public static <T> void dropTable(JDBCConnectionSource connectionSource, Class<T> dbTable) throws SQLException {

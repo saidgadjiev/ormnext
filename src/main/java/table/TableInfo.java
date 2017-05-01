@@ -1,11 +1,10 @@
 package table;
 
-import field.DBField;
-import field.ManyToOne;
-import field.OneToMany;
-import field.OneToOne;
+import field.*;
+import utils.ReflectionUtils;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +18,7 @@ public class TableInfo<T> {
     private List<Field> oneToOneRelations = new ArrayList<>();
     private List<Field> oneToManyRelations = new ArrayList<>();
     private List<Field> manyToOneRelations = new ArrayList<>();
+    private List<Field> manyToManyRelations = new ArrayList<>();
     private List<Field> fields = new ArrayList<>();
     private Class<T> table;
 
@@ -38,6 +38,8 @@ public class TableInfo<T> {
                 }
             } else if (field.isAnnotationPresent(OneToMany.class)) {
                 oneToManyRelations.add(field);
+            } else if (field.isAnnotationPresent(ManyToMany.class)) {
+                manyToManyRelations.add(field);
             }
         }
     }
@@ -52,6 +54,10 @@ public class TableInfo<T> {
 
     public List<Field> getOneToManyRelations() {
         return oneToManyRelations;
+    }
+
+    public List<Field> getManyToManyRelations() {
+        return manyToManyRelations;
     }
 
     public List<Field> getManyToOneRelations() {
@@ -70,7 +76,7 @@ public class TableInfo<T> {
         return table;
     }
 
-    public Field getFieldByMappedByNameInParent(String name) {
+    public Field getFieldByMappedNameInOneToManyRelation(String name) {
         for (Field field : oneToManyRelations) {
             if (field.getAnnotation(OneToMany.class).mappedBy().equals(name)) {
                 return field;
@@ -89,4 +95,15 @@ public class TableInfo<T> {
 
         return null;
     }
+
+    public Field getFieldByNameInManyToManyRelation(String name) {
+        for (Field field : manyToManyRelations) {
+            if (field.getName().equals(name)) {
+                return field;
+            }
+        }
+
+        return null;
+    }
+
 }

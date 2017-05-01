@@ -1,13 +1,10 @@
 package utils;
 
-import clause.Where;
 import field.DBField;
-import field.ManyToOne;
+import field.ManyToMany;
 import field.OneToMany;
 import org.apache.log4j.Logger;
-import org.sqlite.core.DB;
 import support.JDBCConnectionSource;
-import table.DBTable;
 import table.TableInfo;
 
 import java.lang.reflect.Field;
@@ -33,6 +30,22 @@ public class StatementExecutor {
         this.connectionSource = connectionSource;
     }
 
+    public static void execute(JDBCConnectionSource connectionSource, String sql) throws SQLException {
+        Statement statement = null;
+        Connection connection = connectionSource.getConnection();
+
+        try {
+            statement = connection.createStatement();
+            statement.execute(sql);
+            LOGGER.debug(sql);
+        } finally {
+            if (statement != null) {
+                statement.close();
+            }
+            connectionSource.releaseConnection(connection);
+        }
+    }
+
     public Object queryForId(TableInfo<?> tableInfo, long id) throws SQLException {
         Statement statement = null;
         Connection connection = connectionSource.getConnection();
@@ -53,14 +66,14 @@ public class StatementExecutor {
                         String methodName = "set" + field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1);
                         ReflectionUtils.invokeMethod(tableInfo.getTable(), methodName, field.getType(), result, resultSet.getObject(field.getAnnotation(DBField.class).fieldName()));
                     }
-                    for (Field field: tableInfo.getOneToOneRelations()) {
+                    for (Field field : tableInfo.getOneToOneRelations()) {
                         String methodName = "set" + field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1);
                         TableInfo<?> tableInfo1 = new TableInfo<>(field.getType());
                         Object tmp = queryForId(tableInfo1, resultSet.getLong(tableInfo.getId().getAnnotation(DBField.class).fieldName()));
 
                         ReflectionUtils.invokeMethod(tableInfo.getTable(), methodName, field.getType(), result, tmp);
                     }
-                    for (Field field: tableInfo.getOneToManyRelations()) {
+                    for (Field field : tableInfo.getOneToManyRelations()) {
                         Field idField = tableInfo.getId();
                         String getIdMethod = "get" + idField.getName().substring(0, 1).toUpperCase() + idField.getName().substring(1);
                         Long mainId = (Long) ReflectionUtils.getDeclaredMethod(tableInfo.getTable(), getIdMethod, null).invoke(result);
@@ -108,19 +121,260 @@ public class StatementExecutor {
         }
     }
 
-    public static void execute(JDBCConnectionSource connectionSource, String sql) throws SQLException {
+    public void fillManyToMany(TableInfo<?> tableInfo, TableInfo<?> tableInfo1, Field field, Object result) throws SQLException {
+        try {
+            String manyToManyTableName = TableUtils.getManyToManyRelationTableName(connectionSource, tableInfo.getTableName(), tableInfo1.getTableName());
+            String fieldId1 = manyToManyTableName.substring(0, manyToManyTableName.indexOf("_")) + "_id";
+            String fieldId2 = manyToManyTableName.substring(manyToManyTableName.indexOf("_") + 1) + "_id";
+
+            if (manyToManyTableName.endsWith(tableInfo.getTableName())) {
+                String tmp = fieldId1;
+
+                fieldId1 = fieldId2;
+                fieldId2 = tmp;
+            }
+            String sql = "SELECT " + fieldId2 + " FROM " + manyToManyTableName + " WHERE " + fieldId1 + "=" + getIdValue(tableInfo, result);
+
+            Statement statement = null;
+            Connection connection = connectionSource.getConnection();
+            ResultSet resultSet = null;
+
+            try {
+                statement = connection.createStatement();
+                resultSet = statement.executeQuery(sql);
+
+                while (resultSet.next()) {
+                    Object tmp = queryForId(tableInfo1, resultSet.getLong(fieldId2));
+                    Field manyToManyField = tableInfo1.getFieldByNameInManyToManyRelation(field.getAnnotation(ManyToMany.class).mappedBy());
+                    String manyToManyFieldName = manyToManyField.getName();
+                    Method methodRelations1 = ReflectionUtils.getDeclaredMethod(tableInfo1.getTable(), "get" + manyToManyFieldName.substring(0, 1).toUpperCase() + manyToManyFieldName.substring(1), null);
+
+                    ((List<Object>) methodRelations1.invoke(tmp)).add(result);
+                    Method methodRelations2 = ReflectionUtils.getDeclaredMethod(tableInfo.getTable(), "get" + field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1), null);
+
+                    ((List<Object>) methodRelations2.invoke(result)).add(tmp);
+                }
+            } finally {
+                if (statement != null) {
+                    statement.close();
+                }
+                if (resultSet != null) {
+                    resultSet.close();
+                }
+                connectionSource.releaseConnection(connection);
+            }
+        } catch (Exception ex) {
+            throw new SQLException(ex);
+        }
+    }
+
+    public void create(Object object) throws SQLException {
         Statement statement = null;
         Connection connection = connectionSource.getConnection();
+        TableInfo tableInfo = new TableInfo(object.getClass());
 
         try {
             statement = connection.createStatement();
-            statement.execute(sql);
-            LOGGER.debug(sql);
-        } finally {
+            StringBuilder sb = new StringBuilder();
+
+            sb.append("INSERT INTO ").append(tableInfo.getTableName()).append("(");
+            for (Field field : (List<Field>) tableInfo.getFields()) {
+                sb.append(field.getAnnotation(DBField.class).fieldName()).append(",");
+            }
+            for (Field field : (List<Field>) tableInfo.getOneToOneRelations()) {
+                sb.append(field.getAnnotation(DBField.class).fieldName()).append(",");
+            }
+            for (Field field : (List<Field>) tableInfo.getManyToOneRelations()) {
+                sb.append(field.getAnnotation(DBField.class).fieldName()).append(",");
+            }
+            sb.replace(sb.length() - 1, sb.length(), ")");
+            sb.append(" VALUES(");
+            for (Field field : (List<Field>) tableInfo.getFields()) {
+                String fieldName = field.getName();
+                try {
+                    Method method = ReflectionUtils.getDeclaredMethod(tableInfo.getTable(), "get" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1), null);
+                    sb.append("'").append(method.invoke(object)).append("'").append(",");
+                } catch (Exception ignore) {
+                    throw new SQLException("No getter for " + fieldName);
+                }
+            }
+            for (Field field : (List<Field>) tableInfo.getOneToOneRelations()) {
+                String fieldName = field.getName();
+
+                try {
+                    Method method = ReflectionUtils.getDeclaredMethod(tableInfo.getTable(), "get" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1), null);
+                    Object foreignObject = method.invoke(object);
+                    appendForeignObjectId(sb, foreignObject);
+                } catch (Exception ignore) {
+                    throw new SQLException("No getter for " + fieldName);
+                }
+            }
+            for (Field field : (List<Field>) tableInfo.getManyToOneRelations()) {
+                String fieldName = field.getName();
+
+                try {
+                    Method method = ReflectionUtils.getDeclaredMethod(tableInfo.getTable(), "get" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1), null);
+                    Object foreignObject = method.invoke(object);
+                    appendForeignObjectId(sb, foreignObject);
+                } catch (Exception ignore) {
+                    throw new SQLException("No getter for " + fieldName);
+                }
+            }
+            sb.replace(sb.length() - 1, sb.length(), ")");
+            statement.execute(sb.toString());
+            Field idField = tableInfo.getId();
+
+            if (idField != null) {
+                int lastInsertRowId = getLastInsertRowId(statement);
+                String fieldName = idField.getName();
+
+                try {
+                    String methodName = "set" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
+                    Method method = ReflectionUtils.getDeclaredMethod(tableInfo.getTable(), methodName, long.class);
+                    method.invoke(object, lastInsertRowId);
+                } catch (Exception ignore) {
+                    throw new SQLException("No setter for " + fieldName);
+                }
+            }
+            //Для сетинга зависимого объекта при связи ManyToOne
+            for (Field field : (List<Field>) tableInfo.getManyToOneRelations()) {
+                String fieldName = field.getName();
+
+                try {
+                    Method method = ReflectionUtils.getDeclaredMethod(tableInfo.getTable(), "get" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1), null);
+                    Object foreignObject = method.invoke(object);
+                    TableInfo<?> tableInfo1 = new TableInfo<>(foreignObject.getClass());
+                    Field mappedBy = tableInfo1.getFieldByMappedNameInOneToManyRelation(fieldName);
+                    String mappedByFieldName = mappedBy.getName();
+                    String methodName = "get" + mappedByFieldName.substring(0, 1).toUpperCase() + mappedByFieldName.substring(1);
+
+                    method = ReflectionUtils.getDeclaredMethod(foreignObject.getClass(), methodName, null);
+                    ((List<Object>) method.invoke(foreignObject)).add(object);
+                } catch (Exception ignore) {
+                    throw new SQLException("No getter for " + fieldName);
+                }
+            }
+            for (Field field : (List<Field>) tableInfo.getManyToManyRelations()) {
+                TableInfo tableInfo1 = new TableInfo(ReflectionUtils.getCollectionGenericClass(field));
+                TableUtils.createManyToManyTable(connectionSource, tableInfo, tableInfo1);
+                String fieldName = field.getName();
+
+                try {
+                    Method method = ReflectionUtils.getDeclaredMethod(tableInfo.getTable(), "get" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1), null);
+                    List<Object> objects = ((List) method.invoke(object));
+                    Long id = getIdValue(tableInfo, object);
+
+                    for (Object relationObject : objects) {
+                        Long idForeign = getIdValue(tableInfo1, relationObject);
+
+                        insertManyToManyRelation(id, idForeign, tableInfo, tableInfo1);
+                        Field manyToManyField = tableInfo1.getFieldByNameInManyToManyRelation(field.getAnnotation(ManyToMany.class).mappedBy());
+                        String manyToManyFieldName = manyToManyField.getName();
+
+                        try {
+                            Method methodRelations = ReflectionUtils.getDeclaredMethod(tableInfo1.getTable(), "get" + manyToManyFieldName.substring(0, 1).toUpperCase() + manyToManyFieldName.substring(1), null);
+
+                            ((List<Object>) methodRelations.invoke(relationObject)).add(object);
+                        } catch (Exception ignore) {
+                            throw new SQLException("No getter for " + fieldName);
+                        }
+                    }
+
+                } catch (Exception ignore) {
+                    throw new SQLException("No getter for " + fieldName);
+                }
+            }
+        } finally
+
+        {
             if (statement != null) {
                 statement.close();
             }
             connectionSource.releaseConnection(connection);
         }
+
+    }
+
+    private void appendForeignObjectId(StringBuilder sb, Object foreignObject) throws Exception {
+        TableInfo<?> tableInfo1 = new TableInfo<>(foreignObject.getClass());
+        String idFieldName = tableInfo1.getId().getName();
+        String methodName = "get" + idFieldName.substring(0, 1).toUpperCase() + idFieldName.substring(1);
+
+        Method method = ReflectionUtils.getDeclaredMethod(foreignObject.getClass(), methodName, null);
+        sb.append(method.invoke(foreignObject)).append(",");
+    }
+
+    private int getLastInsertRowId(Statement statement) throws SQLException {
+        String lastInsertRowId = "SELECT last_insert_rowid() AS last_id";
+        ResultSet resultSet = null;
+
+        try {
+            resultSet = statement.executeQuery(lastInsertRowId);
+            resultSet.next();
+            int lastId = resultSet.getInt("last_id");
+
+            return lastId;
+        } finally {
+            if (resultSet != null) {
+                resultSet.close();
+            }
+        }
+    }
+
+    private void insertManyToManyRelation(long id1, long id2, TableInfo tableInfo, TableInfo tableInfo1) throws SQLException {
+        String manyToManyTableName = TableUtils.getManyToManyRelationTableName(connectionSource, tableInfo.getTableName(), tableInfo1.getTableName());
+        String fieldId1 = manyToManyTableName.substring(0, manyToManyTableName.indexOf("_")) + "_id";
+        String fieldId2 = manyToManyTableName.substring(manyToManyTableName.indexOf("_") + 1) + "_id";
+
+        if (manyToManyTableName.endsWith(tableInfo.getTableName())) {
+            long tmp = id1;
+
+            id1 = id2;
+            id2 = tmp;
+        }
+        if (isExistRelation(id1, id2, manyToManyTableName)) {
+            return;
+        }
+
+        String sql = "INSERT INTO " + manyToManyTableName + "(" + fieldId1 + "," + fieldId2 + ") VALUES(" + id1 + ", " + id2 + ")";
+
+        execute(connectionSource, sql);
+    }
+
+    private boolean isExistRelation(long id1, long id2, String tableName) throws SQLException {
+        String fieldId1 = tableName.substring(0, tableName.indexOf("_")) + "_id";
+        String fieldId2 = tableName.substring(tableName.indexOf("_") + 1) + "_id";
+        String sql = "SELECT * from " + tableName + " WHERE " + fieldId1 + "=" + id1 + " AND " + fieldId2 + "=" + id2;
+
+        Statement statement = null;
+        Connection connection = connectionSource.getConnection();
+        ResultSet resultSet = null;
+
+        try {
+            statement = connection.createStatement();
+            resultSet = statement.executeQuery(sql);
+
+            if (resultSet.next()) {
+                return true;
+            }
+            return false;
+        } finally {
+            if (statement != null) {
+                statement.close();
+            }
+            if (resultSet != null) {
+                resultSet.close();
+            }
+            connectionSource.releaseConnection(connection);
+        }
+    }
+
+    public long getIdValue(TableInfo tableInfo, Object object) throws Exception {
+        Field idField = tableInfo.getId();
+        String idFieldName = idField.getName();
+        String methodName = "get" + idFieldName.substring(0, 1).toUpperCase() + idFieldName.substring(1);
+        Method methodGetId = ReflectionUtils.getDeclaredMethod(tableInfo.getTable(), methodName, null);
+
+        return (Long) methodGetId.invoke(object);
     }
 }

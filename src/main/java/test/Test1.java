@@ -2,8 +2,12 @@ package test;
 
 import field.DBField;
 import field.DataType;
+import field.ManyToMany;
 import field.ManyToOne;
 import table.DBTable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by said on 18.03.17.
@@ -18,9 +22,9 @@ public class Test1 {
     @DBField(dataType = DataType.STRING, fieldName = "test_name")
     private String name;
 
-    @ManyToOne
-    @DBField(canBeNull = false, dataType = DataType.INTEGER, fieldName = "test_id")
-    Test test;
+
+    @ManyToMany(mappedBy = "test1Coll")
+    List<Test> testColl = new ArrayList<>();
 
     public long getId() {
         return id;
@@ -38,12 +42,8 @@ public class Test1 {
         this.name = name;
     }
 
-    public Test getTest() {
-        return test;
-    }
-
-    public void setTest(Test test) {
-        this.test = test;
+    public List<Test> getTestColl() {
+        return testColl;
     }
 
     @Override

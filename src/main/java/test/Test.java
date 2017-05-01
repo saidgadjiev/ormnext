@@ -1,9 +1,6 @@
 package test;
 
-import field.DBField;
-import field.DataType;
-import field.OneToMany;
-import field.OneToOne;
+import field.*;
 import support.ForeignCollection;
 import table.DBTable;
 
@@ -22,7 +19,7 @@ public class Test {
     @DBField(dataType = DataType.STRING, fieldName = "test_name")
     private String name;
 
-    @OneToMany(mappedBy = "test")
+    @ManyToMany(mappedBy = "testColl")
     private List<Test1> test1Coll = new ArrayList<>();
 
     public long getId() {
@@ -41,6 +38,10 @@ public class Test {
         this.name = name;
     }
 
+    public List<Test1> getTest1Coll() {
+        return test1Coll;
+    }
+
     @Override
     public String toString() {
         return "Test{" +
@@ -49,7 +50,4 @@ public class Test {
                 '}';
     }
 
-    public List<Test1> getTest1Coll() {
-        return test1Coll;
-    }
 }

@@ -39,110 +39,17 @@ public class DaoImpl<T> implements Dao<T> {
     }
 
     public void create(T object) throws SQLException {
-        Statement statement = null;
-        Connection connection = connectionSource.getConnection();
-
-        try {
-            statement = connection.createStatement();
-            StringBuilder sb = new StringBuilder();
-
-            sb.append("INSERT INTO ").append(tableInfo.getTableName()).append("(");
-            for (Field field : tableInfo.getFields()) {
-                sb.append(field.getAnnotation(DBField.class).fieldName()).append(",");
-            }
-            for (Field field : tableInfo.getOneToOneRelations()) {
-                sb.append(field.getAnnotation(DBField.class).fieldName()).append(",");
-            }
-            for (Field field : tableInfo.getManyToOneRelations()) {
-                sb.append(field.getAnnotation(DBField.class).fieldName()).append(",");
-            }
-            sb.replace(sb.length() - 1, sb.length(), ")");
-            sb.append(" VALUES(");
-            for (Field field : tableInfo.getFields()) {
-                String fieldName = field.getName();
-                try {
-                    Method method = ReflectionUtils.getDeclaredMethod(tableInfo.getTable(), "get" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1), null);
-                    sb.append("'").append(method.invoke(object)).append("'").append(",");
-                } catch (Exception ignore) {
-                    throw new SQLException("No getter for " + fieldName);
-                }
-            }
-            for (Field field : tableInfo.getOneToOneRelations()) {
-                String fieldName = field.getName();
-
-                try {
-                    Method method = ReflectionUtils.getDeclaredMethod(tableInfo.getTable(), "get" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1), null);
-                    Object foreignObject = method.invoke(object);
-                    appendForeignObjectId(sb, foreignObject);
-                } catch (Exception ignore) {
-                    throw new SQLException("No getter for " + fieldName);
-                }
-            }
-            for (Field field : tableInfo.getManyToOneRelations()) {
-                String fieldName = field.getName();
-
-                try {
-                    Method method = ReflectionUtils.getDeclaredMethod(tableInfo.getTable(), "get" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1), null);
-                    Object foreignObject = method.invoke(object);
-                    appendForeignObjectId(sb, foreignObject);
-                } catch (Exception ignore) {
-                    throw new SQLException("No getter for " + fieldName);
-                }
-            }
-            sb.replace(sb.length() - 1, sb.length(), ")");
-            statement.execute(sb.toString());
-            //TODO: добавить в инсерт test_id
-            Field idField = tableInfo.getId();
-
-            if (idField != null) {
-                int lastInsertRowId = getLastInsertRowId(statement);
-                String fieldName = idField.getName();
-
-                try {
-                    String methodName = "set" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
-                    Method method = ReflectionUtils.getDeclaredMethod(tableInfo.getTable(), methodName, long.class);
-                    method.invoke(object, lastInsertRowId);
-                } catch (Exception ignore) {
-                    throw new SQLException("No setter for " + fieldName);
-                }
-            }
-            for (Field field : tableInfo.getManyToOneRelations()) {
-                String fieldName = field.getName();
-
-                try {
-                    Method method = ReflectionUtils.getDeclaredMethod(tableInfo.getTable(), "get" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1), null);
-                    Object foreignObject = method.invoke(object);
-                    TableInfo<?> tableInfo1 = new TableInfo<>(foreignObject.getClass());
-                    Field mappedBy = tableInfo1.getFieldByMappedByNameInParent(fieldName);
-                    String mappedByFieldName = mappedBy.getName();
-                    String methodName = "get" + mappedByFieldName.substring(0, 1).toUpperCase() + mappedByFieldName.substring(1);
-
-                    method = ReflectionUtils.getDeclaredMethod(foreignObject.getClass(), methodName, null);
-                    ((List<T>) method.invoke(foreignObject)).add(object);
-                } catch (Exception ignore) {
-                    throw new SQLException("No getter for " + fieldName);
-                }
-            }
-        } finally {
-            if (statement != null) {
-                statement.close();
-            }
-            connectionSource.releaseConnection(connection);
-        }
-    }
-
-    private void appendForeignObjectId(StringBuilder sb, Object foreignObject) throws Exception {
-        TableInfo<?> tableInfo1 = new TableInfo<>(foreignObject.getClass());
-        String idFieldName = tableInfo1.getId().getName();
-        String methodName = "get" + idFieldName.substring(0, 1).toUpperCase() + idFieldName.substring(1);
-
-        Method method = ReflectionUtils.getDeclaredMethod(foreignObject.getClass(), methodName, null);
-        sb.append(method.invoke(foreignObject)).append(",");
+        statementExecutor.create(object);
     }
 
     @Override
     public T queryForId(long id) throws SQLException {
-        return (T) statementExecutor.queryForId(tableInfo, id);
+        T result = (T) statementExecutor.queryForId(tableInfo, id);
+        for (Field field: tableInfo.getManyToManyRelations()) {
+            statementExecutor.fillManyToMany(tableInfo, new TableInfo(ReflectionUtils.getCollectionGenericClass(field)), field, result);
+        }
+
+        return result;
     }
 
     @Override
@@ -334,23 +241,5 @@ public class DaoImpl<T> implements Dao<T> {
     public QueryBuilder<T> queryBuilder() {
         return new QueryBuilder<>(tableInfo.getTable(), this);
     }
-
-    private int getLastInsertRowId(Statement statement) throws SQLException {
-        String lastInsertRowId = "SELECT last_insert_rowid() AS last_id";
-        ResultSet resultSet = null;
-
-        try {
-            resultSet = statement.executeQuery(lastInsertRowId);
-            resultSet.next();
-            int lastId = resultSet.getInt("last_id");
-
-            return lastId;
-        } finally {
-            if (resultSet != null) {
-                resultSet.close();
-            }
-        }
-    }
-
 
 }
