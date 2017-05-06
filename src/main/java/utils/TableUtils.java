@@ -118,6 +118,7 @@ public class TableUtils {
             if (statement != null) {
                 statement.close();
             }
+            connectionSource.releaseConnection(connection);
         }
         return false;
     }

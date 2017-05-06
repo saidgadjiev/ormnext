@@ -69,7 +69,7 @@ public class StatementExecutor {
                     for (Field field : tableInfo.getOneToOneRelations()) {
                         String methodName = "set" + field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1);
                         TableInfo<?> tableInfo1 = new TableInfo<>(field.getType());
-                        Object tmp = queryForId(tableInfo1, resultSet.getLong(tableInfo.getId().getAnnotation(DBField.class).fieldName()));
+                        Object tmp = queryForId(tableInfo1, resultSet.getLong(field.getAnnotation(DBField.class).fieldName()));
 
                         ReflectionUtils.invokeMethod(tableInfo.getTable(), methodName, field.getType(), result, tmp);
                     }
@@ -305,7 +305,7 @@ public class StatementExecutor {
     }
 
     private int getLastInsertRowId(Statement statement) throws SQLException {
-        String lastInsertRowId = "SELECT last_insert_rowid() AS last_id";
+        String lastInsertRowId = "SELECT " + connectionSource.getDialect().lastInsertId() + " AS last_id";
         ResultSet resultSet = null;
 
         try {

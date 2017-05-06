@@ -1,5 +1,7 @@
 package db;
 
+import db.dialect.IDialect;
+import db.dialect.SQLiteDialect;
 import support.JDBCConnectionSource;
 
 import java.sql.Connection;
@@ -13,9 +15,11 @@ public class SQLiteConnectionSource implements JDBCConnectionSource {
 
     private static final String DRIVER_NAME = "org.sqlite.JDBC";
     private final String URL;
+    private final IDialect dialect;
 
     public SQLiteConnectionSource(String url) throws SQLException {
         this.URL = url;
+        this.dialect = new SQLiteDialect();
         loadDriver();
     }
 
@@ -35,4 +39,8 @@ public class SQLiteConnectionSource implements JDBCConnectionSource {
         connection.close();
     }
 
+    @Override
+    public IDialect getDialect() {
+        return dialect;
+    }
 }
