@@ -1,9 +1,8 @@
-package utils;
+package test_table;
 
 import field.DBField;
 import field.DataType;
 import field.ManyToMany;
-import field.ManyToOne;
 import table.DBTable;
 
 import java.util.ArrayList;
@@ -46,7 +45,7 @@ public class Foo3 {
 
     @Override
     public String toString() {
-        return "utils.Foo2{" +
+        return "test_table.Foo2{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 '}';

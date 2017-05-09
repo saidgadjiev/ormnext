@@ -1,20 +1,21 @@
 package utils;
 
+import clause.Update;
+import clause.Where;
 import db.dialect.IDialect;
-import field.DBField;
-import javafx.scene.control.Tab;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import support.JDBCConnectionSource;
 import table.TableInfo;
+import test_table.Foo;
+import test_table.Foo1;
+import test_table.Foo2;
+import test_table.Foo3;
 
 import java.lang.reflect.Field;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,7 +40,7 @@ public class StatementExecutorTest {
     }
 
     @Test
-    public void queryForId() throws Exception {
+    public void queryForAll() throws Exception {
         Connection connection = mock(Connection.class);
         Statement statement = mock(Statement.class);
         JDBCConnectionSource connectionSource = createConnectionSource(connection, statement, mock(IDialect.class));
@@ -49,11 +50,13 @@ public class StatementExecutorTest {
         ResultSet resultSet1 = mock(ResultSet.class);
         ResultSet resultSet2 = mock(ResultSet.class);
         ResultSet resultSet3 = mock(ResultSet.class);
+        ResultSet resultSet4 = mock(ResultSet.class);
 
         String sqlFoo = "SELECT * FROM foo WHERE id=1";
         String sqlFoo1 = "SELECT * FROM foo1 WHERE id=1";
         String sqlFoo2 = "SELECT * FROM foo2 WHERE id=1";
         String sqlForeignFoo = "SELECT id FROM foo2 WHERE foo_id=1";
+        String sqlQueryForAll = "SELECT id FROM foo";
 
         when(resultSet.getObject("id")).thenReturn(1);
         when(resultSet.getObject("test_name")).thenReturn("test_foo");
@@ -73,6 +76,147 @@ public class StatementExecutorTest {
 
         when(resultSet3.next()).thenReturn(true).thenReturn(false);
         when(resultSet3.getLong("id")).thenReturn(new Long(1));
+        when(statement.executeQuery(sqlForeignFoo)).thenReturn(resultSet3);
+
+        when(resultSet4.getLong("id")).thenReturn(new Long(1));
+        when(resultSet4.next()).thenReturn(true).thenReturn(false);
+        when(statement.executeQuery(sqlQueryForAll)).thenReturn(resultSet4);
+
+        StatementExecutor statementExecutor = new StatementExecutor(connectionSource);
+        List<Foo> testFoos = (List<Foo>) (List<?>) statementExecutor.queryForAll(tableInfo);
+
+        Assert.assertEquals(testFoos.size(), 1);
+        Assert.assertEquals(testFoos.get(0).getId(), 1);
+        Assert.assertEquals(testFoos.get(0).getName(), "test_foo");
+        List<Foo2> foo2List = testFoos.get(0).getFoo2List();
+
+        Assert.assertEquals(foo2List.get(0).getId(), 1);
+        Assert.assertEquals(foo2List.get(0).getName(), "test_foo2");
+        Assert.assertEquals(foo2List.get(0).getFoo().getId(), testFoos.get(0).getId());
+        Assert.assertEquals(foo2List.get(0).getFoo().getName(), testFoos.get(0).getName());
+        verify(statement, times(1)).executeQuery(sqlFoo);
+        verify(resultSet, times(1)).close();
+
+        verify(statement, times(1)).executeQuery(sqlFoo1);
+        verify(resultSet1, times(1)).close();
+
+        verify(statement, times(1)).executeQuery(sqlFoo2);
+        verify(resultSet2, times(1)).close();
+
+        verify(statement, times(1)).executeQuery(sqlForeignFoo);
+        verify(resultSet3, times(1)).close();
+
+        verify(statement, times(1)).executeQuery(sqlQueryForAll);
+        verify(resultSet4, times(1)).close();
+
+        verify(connectionSource, times(4)).releaseConnection(connection);
+    }
+
+    @Test
+    public void queryForAllWithSql() throws Exception {
+        Connection connection = mock(Connection.class);
+        Statement statement = mock(Statement.class);
+        JDBCConnectionSource connectionSource = createConnectionSource(connection, statement, mock(IDialect.class));
+        TableInfo<Foo> tableInfo = new TableInfo<>(Foo.class);
+        StatementExecutor statementExecutor = new StatementExecutor(connectionSource);
+        String sql = "SELECT id FROM foo WHERE name='test_foo' ORDER BY ASC LIMIT 1";
+
+        statementExecutor.queryForAll(tableInfo, sql);
+        verify(statement, times(1)).executeQuery(sql);
+    }
+
+    @Test
+    public void queryForWhere() throws Exception {
+        Connection connection = mock(Connection.class);
+        Statement statement = mock(Statement.class);
+        JDBCConnectionSource connectionSource = createConnectionSource(connection, statement, mock(IDialect.class));
+        TableInfo<Foo> tableInfo = new TableInfo<>(Foo.class);
+        StatementExecutor statementExecutor = new StatementExecutor(connectionSource);
+
+        Where where = new Where();
+
+        where.addEqClause("name", "test_foo");
+        statementExecutor.queryForWhere(tableInfo, where);
+        verify(statement, times(1)).executeQuery("SELECT id FROM foo WHERE name='test_foo'");
+    }
+
+    @Test
+    public void queryForUpdate() throws Exception {
+        Connection connection = mock(Connection.class);
+        Statement statement = mock(Statement.class);
+        JDBCConnectionSource connectionSource = createConnectionSource(connection, statement, mock(IDialect.class));
+        TableInfo<Foo> tableInfo = new TableInfo<>(Foo.class);
+        StatementExecutor statementExecutor = new StatementExecutor(connectionSource);
+
+        Update update = new Update();
+
+        update.addUpdateColumn("name", "test_foo");
+        Where where = new Where();
+
+        where.addEqClause("id", 1);
+        update.setWhere(where);
+        statementExecutor.queryForUpdate(tableInfo, update);
+        verify(statement, times(1)).executeUpdate("UPDATE foo SET name='test_foo' WHERE id='1'");
+    }
+
+    @Test
+    public void queryForId() throws Exception {
+        Connection connection = mock(Connection.class);
+        Statement statement = mock(Statement.class);
+        JDBCConnectionSource connectionSource = createConnectionSource(connection, statement, mock(IDialect.class));
+        TableInfo<Foo> tableInfo = new TableInfo<>(Foo.class);
+
+        ResultSet resultSet = mock(ResultSet.class);
+        ResultSet resultSet1 = mock(ResultSet.class);
+        ResultSet resultSet2 = mock(ResultSet.class);
+        ResultSet resultSet3 = mock(ResultSet.class);
+        ResultSetMetaData resultSetMetaData = mock(ResultSetMetaData.class);
+        ResultSetMetaData resultSetMetaData1 = mock(ResultSetMetaData.class);
+        ResultSetMetaData resultSetMetaData2 = mock(ResultSetMetaData.class);
+        ResultSetMetaData resultSetMetaData3 = mock(ResultSetMetaData.class);
+
+        String sqlFoo = "SELECT * FROM foo WHERE id=1";
+        String sqlFoo1 = "SELECT * FROM foo1 WHERE id=1";
+        String sqlFoo2 = "SELECT * FROM foo2 WHERE id=1";
+        String sqlForeignFoo = "SELECT id FROM foo2 WHERE foo_id=1";
+
+        when(resultSet.getObject("id")).thenReturn(1);
+        when(resultSet.getObject("test_name")).thenReturn("test_foo");
+        when(resultSet.getObject("foo1_id")).thenReturn(1);
+
+        when(resultSet.getMetaData()).thenReturn(resultSetMetaData);
+        when(resultSetMetaData.getColumnCount()).thenReturn(3);
+        when(resultSetMetaData.getColumnName(0)).thenReturn("id");
+        when(resultSetMetaData.getColumnName(1)).thenReturn("test_name");
+        when(resultSetMetaData.getColumnName(2)).thenReturn("foo1_id");
+        when(resultSet.next()).thenReturn(true).thenReturn(false);
+
+        when(statement.executeQuery(sqlFoo)).thenReturn(resultSet);
+
+        when(resultSet1.next()).thenReturn(true).thenReturn(false);
+        when(resultSet1.getObject("id")).thenReturn(1);
+        when(resultSet1.getObject("test_name")).thenReturn("test_foo1");
+
+        when(resultSet1.getMetaData()).thenReturn(resultSetMetaData1);
+        when(resultSetMetaData1.getColumnCount()).thenReturn(2);
+        when(resultSetMetaData1.getColumnName(0)).thenReturn("id");
+        when(resultSetMetaData1.getColumnName(1)).thenReturn("test_name");
+
+        when(statement.executeQuery(sqlFoo1)).thenReturn(resultSet1);
+
+        when(resultSet2.next()).thenReturn(true).thenReturn(false);
+        when(resultSet2.getObject("id")).thenReturn(1);
+        when(resultSet2.getObject("test_name")).thenReturn("test_foo2");
+
+        when(statement.executeQuery(sqlFoo2)).thenReturn(resultSet2);
+
+        when(resultSet2.getMetaData()).thenReturn(resultSetMetaData2);
+        when(resultSetMetaData2.getColumnCount()).thenReturn(2);
+        when(resultSetMetaData2.getColumnName(0)).thenReturn("id");
+        when(resultSetMetaData2.getColumnName(1)).thenReturn("test_name");
+
+        when(resultSet3.next()).thenReturn(true).thenReturn(false);
+        when(resultSet3.getObject("id")).thenReturn(1);
         when(statement.executeQuery(sqlForeignFoo)).thenReturn(resultSet3);
 
         StatementExecutor statementExecutor = new StatementExecutor(connectionSource);
@@ -117,22 +261,22 @@ public class StatementExecutorTest {
         JDBCConnectionSource connectionSource = createConnectionSource(connection, statement, mock(IDialect.class));
         TableInfo<Foo> tableInfo = new TableInfo<>(Foo.class);
         TableInfo<Foo3> tableInfo3 = new TableInfo<>(Foo3.class);
+
         ResultSet resultSet1 = mock(ResultSet.class);
+        ResultSet resultSet2 = mock(ResultSet.class);
+        ResultSet resultSet = mock(ResultSet.class);
+
         String sqlExist = "SELECT name FROM sqlite_master WHERE type='table' AND name='foo_foo3'";
+        String sqlFoo3 = "SELECT * FROM foo3 WHERE id=1";
+        String sql = "SELECT foo3_id FROM foo_foo3 WHERE foo_id=1";
 
         when(resultSet1.getString("name")).thenReturn("foo_foo3");
         when(resultSet1.next()).thenReturn(true).thenReturn(false);
         when(statement.executeQuery(sqlExist)).thenReturn(resultSet1);
 
-        ResultSet resultSet2 = mock(ResultSet.class);
-        String sql = "SELECT foo3_id FROM foo_foo3 WHERE foo_id=1";
-
         when(resultSet2.getLong("foo3_id")).thenReturn(new Long(1));
         when(resultSet2.next()).thenReturn(true).thenReturn(false);
         when(statement.executeQuery(sql)).thenReturn(resultSet2);
-
-        String sqlFoo3 = "SELECT * FROM foo3 WHERE id=1";
-        ResultSet resultSet = mock(ResultSet.class);
 
         when(statement.executeQuery(sqlFoo3)).thenReturn(resultSet);
         when(resultSet.getObject("id")).thenReturn(1);
@@ -140,7 +284,6 @@ public class StatementExecutorTest {
         when(resultSet.next()).thenReturn(true).thenReturn(false);
 
         StatementExecutor statementExecutor = new StatementExecutor(connectionSource);
-
         Foo foo = new Foo();
 
         foo.setId(1);
@@ -170,26 +313,26 @@ public class StatementExecutorTest {
         IDialect dialect = mock(IDialect.class);
         JDBCConnectionSource connectionSource = createConnectionSource(connection, statement, dialect);
         StatementExecutor statementExecutor = new StatementExecutor(connectionSource);
-        String lastInsertId = "SELECT " + connectionSource.getDialect().lastInsertId() + " AS last_id";
         ResultSet resultSet = mock(ResultSet.class);
+        ResultSet resultSet1 = mock(ResultSet.class);
+        ResultSet resultSet2 = mock(ResultSet.class);
+        ResultSet resultSet3 = mock(ResultSet.class);
+
+        String lastInsertId = "SELECT " + connectionSource.getDialect().lastInsertId() + " AS last_id";
+        String sqlExist2 = "SELECT name FROM sqlite_master WHERE type='table' AND name='foo3_foo'";
+        String sqlExist1 = "SELECT name FROM sqlite_master WHERE type='table' AND name='foo_foo3'";
+        String isExistRelationSql = "SELECT * from foo_foo3 WHERE foo_id=1 AND foo3_id=1";
 
         when(resultSet.getInt("last_id")).thenReturn(1);
         when(statement.executeQuery(lastInsertId)).thenReturn(resultSet);
-
-        ResultSet resultSet1 = mock(ResultSet.class);
-        String sqlExist1 = "SELECT name FROM sqlite_master WHERE type='table' AND name='foo_foo3'";
 
         when(resultSet1.getString("name")).thenReturn("foo_foo3");
         when(resultSet1.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
         when(statement.executeQuery(sqlExist1)).thenReturn(resultSet1);
 
-        ResultSet resultSet2 = mock(ResultSet.class);
-        String sqlExist2 = "SELECT name FROM sqlite_master WHERE type='table' AND name='foo3_foo'";
-
         when(resultSet2.getString("name")).thenReturn("");
         when(resultSet2.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
         when(statement.executeQuery(sqlExist2)).thenReturn(resultSet2);
-
         Foo3 foo3 = new Foo3();
 
         foo3.setName("test_foo3");
@@ -202,8 +345,6 @@ public class StatementExecutorTest {
         statementExecutor.create(foo1);
         Assert.assertEquals(foo1.getId(), 1);
         verify(statement, times(1)).execute("INSERT INTO foo1(test_name) VALUES('test_foo1')");
-        ResultSet resultSet3 = mock(ResultSet.class);
-        String isExistRelationSql = "SELECT * from foo_foo3 WHERE foo_id=1 AND foo3_id=1";
 
         when(resultSet3.next()).thenReturn(false);
         when(statement.executeQuery(isExistRelationSql)).thenReturn(resultSet3);
@@ -224,6 +365,9 @@ public class StatementExecutorTest {
 
         Assert.assertEquals(foo.getId(), 1);
         verify(resultSet, times(4)).close();
+        verify(resultSet1, times(3)).close();
+        verify(resultSet2, times(1)).close();
+        verify(resultSet3, times(1)).close();
     }
 
     @Test

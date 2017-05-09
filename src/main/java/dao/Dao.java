@@ -14,7 +14,7 @@ public interface Dao<T> {
 
     void create(T object) throws SQLException;
 
-    T queryForId(long id) throws SQLException;
+    T queryForId(int id) throws SQLException;
 
     List<T> queryForAll() throws SQLException;
 

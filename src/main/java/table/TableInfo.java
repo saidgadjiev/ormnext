@@ -42,6 +42,7 @@ public class TableInfo<T> {
                 manyToManyRelations.add(field);
             }
         }
+        fields.add(id);
     }
 
     public Field getId() {

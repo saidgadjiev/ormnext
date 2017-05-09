@@ -1,7 +1,8 @@
 package clause;
 
 import dao.Dao;
-import utils.TableUtils;
+import field.DBField;
+import table.TableInfo;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -46,11 +47,16 @@ public class QueryBuilder<T> {
 
     public String getStringQuery() {
         StringBuilder sb = new StringBuilder();
+        TableInfo tableInfo = new TableInfo(dbTable);
 
-        sb.append("SELECT * FROM ").append("test").append(" ");
-        sb.append(where == null ? "": where.getStringQuery()).append(" ");
-        sb.append("ORDER BY ").append(orderBy).append(" ");
-        sb.append("LIMIT ").append(limit == 0 ? "": limit);
+        sb
+                .append("SELECT ")
+                .append(tableInfo.getId().getAnnotation(DBField.class).fieldName())
+                .append(" FROM ")
+                .append(tableInfo.getTableName())
+                .append(where == null ? "" : where.getStringQuery())
+                .append(orderBy == null ? "" : " ORDER BY " + orderBy)
+                .append(limit == 0 ? "" : " LIMIT " + limit);
 
         return sb.toString();
     }

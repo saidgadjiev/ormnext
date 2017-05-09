@@ -1,4 +1,4 @@
-package utils;
+package test_table;
 
 import field.*;
 import table.DBTable;
@@ -61,7 +61,7 @@ public class Foo {
 
     @Override
     public String toString() {
-        return "utils.Foo{" +
+        return "test_table.Foo{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 '}';

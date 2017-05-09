@@ -1,12 +1,13 @@
 package utils;
 
-import javafx.scene.control.Tab;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import support.JDBCConnectionSource;
 import table.TableInfo;
+import test_table.Foo;
+import test_table.Foo3;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -22,7 +23,12 @@ import static org.mockito.Mockito.*;
 public class TableUtilsTest {
     @Test
     public void createTable() throws Exception {
+        Connection connection = mock(Connection.class);
+        Statement statement = mock(Statement.class);
+        JDBCConnectionSource connectionSource = createConnectionSource(connection, statement);
 
+        TableUtils.createTable(connectionSource, Foo.class);
+        verify(statement, times(1)).execute("CREATE TABLE foo(id INTEGER PRIMARY KEY AUTOINCREMENT, test_name varchar(255)  NULL, foo1_id INT  NOT NULL, FOREIGN KEY (foo1_id) REFERENCES foo1(id));");
     }
 
     @Test
@@ -132,12 +138,22 @@ public class TableUtilsTest {
 
     @Test
     public void dropTable() throws Exception {
+        Connection connection = mock(Connection.class);
+        Statement statement = mock(Statement.class);
+        JDBCConnectionSource connectionSource = createConnectionSource(connection, statement);
 
+        TableUtils.dropTable(connectionSource, Foo.class);
+        verify(statement, times(1)).execute("DROP TABLE foo");
     }
 
     @Test
     public void clearTable() throws Exception {
+        Connection connection = mock(Connection.class);
+        Statement statement = mock(Statement.class);
+        JDBCConnectionSource connectionSource = createConnectionSource(connection, statement);
 
+        TableUtils.clearTable(connectionSource, Foo.class);
+        verify(statement, times(1)).execute("DELETE FROM foo");
     }
 
     private JDBCConnectionSource createConnectionSource(Connection connection, Statement statement) throws SQLException {

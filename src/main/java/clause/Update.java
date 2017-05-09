@@ -20,14 +20,17 @@ public class Update {
     }
 
     public String getStringQuery() {
+        if (updateColumns.isEmpty()) {
+            return "";
+        }
         StringBuilder sb = new StringBuilder();
 
-        sb.append("SET ");
+        sb.append(" SET ");
         for (Map.Entry<String, Object> entry: updateColumns.entrySet()) {
             sb.append(entry.getKey()).append("=").append("'").append(entry.getValue()).append("'").append(",");
         }
         sb.replace(sb.length() - 1, sb.length(), "");
-        sb.append(" " ).append(where.toString());
+        sb.append(where == null ? "" : where.getStringQuery());
 
         return sb.toString();
     }

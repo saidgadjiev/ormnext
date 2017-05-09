@@ -17,7 +17,7 @@ public class Where {
     public String getStringQuery() {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("WHERE ");
+        sb.append(" WHERE ");
         for (Map.Entry<String, Object> entry: eq.entrySet()) {
             sb.append(entry.getKey()).append("=").append("'").append(entry.getValue()).append("'").append(" AND ");
         }

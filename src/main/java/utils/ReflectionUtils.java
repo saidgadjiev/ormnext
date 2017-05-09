@@ -1,7 +1,5 @@
 package utils;
 
-import field.DBField;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;

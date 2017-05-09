@@ -32,6 +32,9 @@ public class TableUtils {
         TableInfo<T> tableInfo = new TableInfo<>(dbTable);
         StringBuilder sbCreateTable = new StringBuilder();
 
+        if (isExistTable(connectionSource, tableInfo.getTableName())) {
+            return;
+        }
         sbCreateTable.append("CREATE TABLE ").append(tableInfo.getTableName()).append("(");
         Field id = tableInfo.getId();
 

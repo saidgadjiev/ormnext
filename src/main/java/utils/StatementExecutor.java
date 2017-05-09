@@ -1,5 +1,9 @@
 package utils;
 
+import clause.Update;
+import clause.Where;
+import dao.cache.Cache;
+import dao.cache.CacheResultSet;
 import field.DBField;
 import field.ManyToMany;
 import field.OneToMany;
@@ -22,8 +26,7 @@ import java.util.List;
 public class StatementExecutor {
 
     private final static Logger LOGGER = Logger.getLogger(StatementExecutor.class);
-
-
+    private Cache cache = new Cache();
     private JDBCConnectionSource connectionSource;
 
     public StatementExecutor(JDBCConnectionSource connectionSource) {
@@ -46,30 +49,37 @@ public class StatementExecutor {
         }
     }
 
-    public Object queryForId(TableInfo<?> tableInfo, long id) throws SQLException {
+    public Object queryForId(TableInfo<?> tableInfo, int id) throws SQLException {
         Statement statement = null;
-        Connection connection = connectionSource.getConnection();
+        Connection connection = null;
 
         try {
-            statement = connection.createStatement();
             String query = "SELECT * FROM " + tableInfo.getTableName() + " WHERE " + tableInfo.getId().getAnnotation(DBField.class).fieldName() + "=" + id;
             ResultSet resultSet = null;
+            CacheResultSet cacheResultSet;
 
             try {
-                resultSet = statement.executeQuery(query);
+                if (cache.has(query)) {
+                    cacheResultSet = cache.get(query);
+                } else {
+                    connection = connectionSource.getConnection();
+                    statement = connection.createStatement();
+                    resultSet = statement.executeQuery(query);
+                    cacheResultSet = new CacheResultSet(resultSet);
+                    cache.add(query, cacheResultSet);
+                }
                 List<Field> fields = tableInfo.getFields();
-                fields.add(tableInfo.getId());
                 Object result = tableInfo.getTable().newInstance();
 
-                while (resultSet.next()) {
+                while (cacheResultSet.next()) {
                     for (Field field : fields) {
                         String methodName = "set" + field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1);
-                        ReflectionUtils.invokeMethod(tableInfo.getTable(), methodName, field.getType(), result, resultSet.getObject(field.getAnnotation(DBField.class).fieldName()));
+                        ReflectionUtils.invokeMethod(tableInfo.getTable(), methodName, field.getType(), result, cacheResultSet.getObject(field.getAnnotation(DBField.class).fieldName()));
                     }
                     for (Field field : tableInfo.getOneToOneRelations()) {
                         String methodName = "set" + field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1);
                         TableInfo<?> tableInfo1 = new TableInfo<>(field.getType());
-                        Object tmp = queryForId(tableInfo1, resultSet.getLong(field.getAnnotation(DBField.class).fieldName()));
+                        Object tmp = queryForId(tableInfo1, (Integer) cacheResultSet.getObject(field.getAnnotation(DBField.class).fieldName()));
 
                         ReflectionUtils.invokeMethod(tableInfo.getTable(), methodName, field.getType(), result, tmp);
                     }
@@ -88,7 +98,7 @@ public class StatementExecutor {
                             resultSet2 = statement.executeQuery(sql);
 
                             while (resultSet2.next()) {
-                                Object tmp = queryForId(tableInfo1, resultSet2.getLong(tableInfo1.getId().getAnnotation(DBField.class).fieldName()));
+                                Object tmp = queryForId(tableInfo1, (Integer) resultSet2.getObject(tableInfo1.getId().getAnnotation(DBField.class).fieldName()));
                                 Field childMappedByField = tableInfo1.getFieldByMappedByNameInChild(field.getAnnotation(OneToMany.class).mappedBy());
                                 String setParentMethodName = "set" + childMappedByField.getName().substring(0, 1).toUpperCase() + childMappedByField.getName().substring(1);
 
@@ -113,6 +123,158 @@ public class StatementExecutor {
                     resultSet.close();
                 }
             }
+        } finally {
+            if (statement != null) {
+                statement.close();
+            }
+            if (connection != null) {
+                connectionSource.releaseConnection(connection);
+            }
+        }
+    }
+
+    public List<Object> queryForAll(TableInfo<?> tableInfo) throws SQLException {
+        Statement statement = null;
+        Connection connection = connectionSource.getConnection();
+
+        try {
+            statement = connection.createStatement();
+            String queryForAll = "SELECT " + tableInfo.getId().getAnnotation(DBField.class).fieldName() + " FROM " + tableInfo.getTableName();
+            ResultSet resultSet = null;
+
+            try {
+                resultSet = statement.executeQuery(queryForAll);
+                List<Field> fields = tableInfo.getFields();
+                fields.add(tableInfo.getId());
+                List<Object> result = new ArrayList<>();
+
+                while (resultSet.next()) {
+                    Object tmp = queryForId(tableInfo, (Integer) resultSet.getObject(tableInfo.getId().getAnnotation(DBField.class).fieldName()));
+
+                    result.add(tmp);
+                }
+
+                return result;
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            } finally {
+                if (resultSet != null) {
+                    resultSet.close();
+                }
+            }
+            return null;
+        } finally {
+            if (statement != null) {
+                statement.close();
+            }
+            if (connection != null) {
+                connectionSource.releaseConnection(connection);
+            }
+        }
+    }
+
+    public List<Object> queryForAll(TableInfo<?> tableInfo, String sql) throws SQLException {
+        Statement statement = null;
+        Connection connection = connectionSource.getConnection();
+
+        try {
+            statement = connection.createStatement();
+            ResultSet resultSet = null;
+
+            try {
+                resultSet = statement.executeQuery(sql);
+                List<Object> result = new ArrayList<>();
+
+                while (resultSet.next()) {
+                    Object tmp = queryForId(tableInfo, (Integer) resultSet.getObject(tableInfo.getId().getAnnotation(DBField.class).fieldName()));
+
+                    result.add(tmp);
+                }
+
+                return result;
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            } finally {
+                if (resultSet != null) {
+                    resultSet.close();
+                }
+            }
+            return null;
+        } finally {
+            if (statement != null) {
+                statement.close();
+            }
+            connectionSource.releaseConnection(connection);
+        }
+    }
+
+    public List<Object> queryForWhere(TableInfo<?> tableInfo, Where where) throws SQLException {
+        Statement statement = null;
+        Connection connection = connectionSource.getConnection();
+
+        try {
+            statement = connection.createStatement();
+            ResultSet resultSet = null;
+
+            try {
+                resultSet = statement.executeQuery("SELECT " + tableInfo.getId().getAnnotation(DBField.class).fieldName() + " FROM " + tableInfo.getTableName() + where.getStringQuery());
+                List<Field> fields = tableInfo.getFields();
+                fields.add(tableInfo.getId());
+                List<Object> result = new ArrayList<>();
+
+                while (resultSet.next()) {
+                    Object tmp = queryForId(tableInfo, (Integer) resultSet.getObject(tableInfo.getId().getAnnotation(DBField.class).fieldName()));
+
+                    result.add(tmp);
+                }
+
+                return result;
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            } finally {
+                if (resultSet != null) {
+                    resultSet.close();
+                }
+            }
+            return null;
+        } finally {
+            if (statement != null) {
+                statement.close();
+            }
+            connectionSource.releaseConnection(connection);
+        }
+    }
+
+    public int queryForUpdate(TableInfo<?> tableInfo, Update update) throws SQLException {
+        Statement statement = null;
+        Connection connection = connectionSource.getConnection();
+
+        try {
+            statement = connection.createStatement();
+            StringBuilder sb = new StringBuilder();
+
+            sb.append("UPDATE ").append(tableInfo.getTableName()).append(update.getStringQuery());
+
+            return statement.executeUpdate(sb.toString());
+        } finally {
+            if (statement != null) {
+                statement.close();
+            }
+            connectionSource.releaseConnection(connection);
+        }
+    }
+
+    public boolean deleteForWhere(TableInfo<?> tableInfo, Where where) throws SQLException {
+        Statement statement = null;
+        Connection connection = connectionSource.getConnection();
+
+        try {
+            statement = connection.createStatement();
+            StringBuilder sb = new StringBuilder();
+
+            sb.append("DELETE FROM ").append(tableInfo.getTableName()).append(" ").append(where.toString());
+
+            return statement.execute(sb.toString());
         } finally {
             if (statement != null) {
                 statement.close();
@@ -144,7 +306,7 @@ public class StatementExecutor {
                 resultSet = statement.executeQuery(sql);
 
                 while (resultSet.next()) {
-                    Object tmp = queryForId(tableInfo1, resultSet.getLong(fieldId2));
+                    Object tmp = queryForId(tableInfo1, (Integer) resultSet.getObject(fieldId2));
                     Field manyToManyField = tableInfo1.getFieldByNameInManyToManyRelation(field.getAnnotation(ManyToMany.class).mappedBy());
                     String manyToManyFieldName = manyToManyField.getName();
                     Method methodRelations1 = ReflectionUtils.getDeclaredMethod(tableInfo1.getTable(), "get" + manyToManyFieldName.substring(0, 1).toUpperCase() + manyToManyFieldName.substring(1), null);
@@ -369,7 +531,7 @@ public class StatementExecutor {
         }
     }
 
-    public long getIdValue(TableInfo tableInfo, Object object) throws Exception {
+    private long getIdValue(TableInfo tableInfo, Object object) throws Exception {
         Field idField = tableInfo.getId();
         String idFieldName = idField.getName();
         String methodName = "get" + idFieldName.substring(0, 1).toUpperCase() + idFieldName.substring(1);

@@ -1,10 +1,7 @@
-package utils;
+package test_table;
 
 import field.*;
 import table.DBTable;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by said on 02.05.17.
@@ -47,7 +44,7 @@ public class Foo2 {
 
     @Override
     public String toString() {
-        return "utils.Foo2{" +
+        return "test_table.Foo2{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 '}';

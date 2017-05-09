@@ -5,7 +5,7 @@ package field;
  */
 public enum DataType {
     STRING("varchar(255)"),
-    INTEGER("INT"),
+    INTEGER("INTEGER"),
     LONG("INTEGER"),
     UNKNOWN("");
 
