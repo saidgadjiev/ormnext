@@ -9,12 +9,12 @@ import java.util.List;
 /**
  * Created by said on 14.06.17.
  */
-public class CreateQuery implements QueryElement {
+public class InsertQuery implements QueryElement {
 
     private List<UpdateValue> values = new ArrayList<>();
     private String name;
 
-    public CreateQuery(String name) {
+    public InsertQuery(String name) {
         this.name = name;
     }
 

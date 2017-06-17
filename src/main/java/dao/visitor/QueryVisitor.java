@@ -1,6 +1,6 @@
 package dao.visitor;
 
-import clause.query.CreateQuery;
+import clause.query.InsertQuery;
 import clause.table.CreateTable;
 import clause.query.UpdateValue;
 
@@ -9,11 +9,11 @@ import clause.query.UpdateValue;
  */
 public interface QueryVisitor {
 
-    void start(CreateQuery createQuery);
+    void start(InsertQuery insertQuery);
 
     void start(UpdateValue updateValue);
 
-    void finish(CreateQuery createQuery);
+    void finish(InsertQuery insertQuery);
 
     void finish(UpdateValue updateValue);
 

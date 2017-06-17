@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface TableField {
-    String fieldName() default "";
+    String fieldName();
 
     String defaultValue() default "";
 

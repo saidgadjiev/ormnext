@@ -1,6 +1,6 @@
 package dao.visitor;
 
-import clause.query.CreateQuery;
+import clause.query.InsertQuery;
 import clause.table.CreateTable;
 import clause.query.UpdateValue;
 import field.FieldWrapper;
@@ -17,16 +17,16 @@ public class QueryVisitorImpl implements QueryVisitor {
     private StringBuilder queryBuilder;
 
     @Override
-    public void start(CreateQuery createQuery) {
+    public void start(InsertQuery insertQuery) {
         StringBuilder valuesPart = new StringBuilder();
 
         queryBuilder
                 .append("INSERT INTO ")
-                .append(createQuery.getTableName())
+                .append(insertQuery.getTableName())
                 .append("(");
         valuesPart
                 .append(" VALUES(");
-        for (UpdateValue updateValue: createQuery.getValues()) {
+        for (UpdateValue updateValue: insertQuery.getValues()) {
             queryBuilder
                     .append(updateValue.getName())
                     .append(",");
@@ -44,7 +44,7 @@ public class QueryVisitorImpl implements QueryVisitor {
     }
 
     @Override
-    public void finish(CreateQuery createQuery) {
+    public void finish(InsertQuery insertQuery) {
 
     }
 

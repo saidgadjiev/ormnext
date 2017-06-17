@@ -4,7 +4,7 @@ import clause.Update;
 import clause.Where;
 import clause.element.LongLiteral;
 import clause.element.StringLiteral;
-import clause.query.CreateQuery;
+import clause.query.InsertQuery;
 import clause.query.UpdateValue;
 import dao.visitor.QueryVisitorImpl;
 import dao.cache.Cache;
@@ -15,7 +15,6 @@ import table.TableInfo;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -318,21 +317,21 @@ public class StatementExecutor {
 
     public void create(Object object) throws SQLException {
         TableInfo tableInfo = new TableInfo(object.getClass());
-        CreateQuery createQuery = new CreateQuery(tableInfo.getTableName());
+        InsertQuery insertQuery = new InsertQuery(tableInfo.getTableName());
 
         try {
             for (FieldWrapper wrapper : tableInfo.getFields()) {
                 if (wrapper.isAnnotationPresent(TableField.class)) {
                     if (wrapper.isAnnotationPresent(OneToOne.class) || wrapper.isAnnotationPresent(ManyToOne.class)) {
                         Object foreignObject = tableInfo.getMethodByName(MethodNameUtils.makeGetterMethodName(wrapper)).invoke(object);
-                        createQuery.addUpdateValue(new UpdateValue(wrapper.getName(), new LongLiteral((Long) new TableInfo(foreignObject.getClass()).getId().getValue(foreignObject))));
+                        insertQuery.addUpdateValue(new UpdateValue(wrapper.getName(), new LongLiteral((Long) new TableInfo(foreignObject.getClass()).getId().getValue(foreignObject))));
                     }
                 }
-                createQuery.addUpdateValue(new UpdateValue(wrapper.getName(), new StringLiteral((String) wrapper.getValue(object))));
+                insertQuery.addUpdateValue(new UpdateValue(wrapper.getName(), new StringLiteral((String) wrapper.getValue(object))));
             }
             QueryVisitorImpl visitor = new QueryVisitorImpl();
 
-            createQuery.accept(visitor);
+            insertQuery.accept(visitor);
 
             Statement statement = null;
             Connection connection = dataSource.getConnection();
