@@ -1,13 +1,10 @@
 package utils;
 
-import clause.Update;
-import clause.Where;
 import db.dialect.IDialect;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import support.JDBCConnectionSource;
 import table.TableInfo;
 import test_table.Foo;
 import test_table.Foo1;
@@ -29,7 +26,7 @@ public class StatementExecutorTest {
     public void execute() throws Exception {
         Connection connection = mock(Connection.class);
         Statement statement = mock(Statement.class);
-        JDBCConnectionSource connectionSource = createConnectionSource(connection, statement, mock(IDialect.class));
+        ConnectionSource connectionSource = createConnectionSource(connection, statement, mock(IDialect.class));
         String sql = "SELECT * FROM test";
 
         StatementExecutor.execute(connectionSource, sql);
@@ -43,7 +40,7 @@ public class StatementExecutorTest {
     public void queryForAll() throws Exception {
         Connection connection = mock(Connection.class);
         Statement statement = mock(Statement.class);
-        JDBCConnectionSource connectionSource = createConnectionSource(connection, statement, mock(IDialect.class));
+        ConnectionSource connectionSource = createConnectionSource(connection, statement, mock(IDialect.class));
         TableInfo<Foo> tableInfo = new TableInfo<>(Foo.class);
 
         ResultSet resultSet = mock(ResultSet.class);
@@ -116,7 +113,7 @@ public class StatementExecutorTest {
     public void queryForAllWithSql() throws Exception {
         Connection connection = mock(Connection.class);
         Statement statement = mock(Statement.class);
-        JDBCConnectionSource connectionSource = createConnectionSource(connection, statement, mock(IDialect.class));
+        ConnectionSource connectionSource = createConnectionSource(connection, statement, mock(IDialect.class));
         TableInfo<Foo> tableInfo = new TableInfo<>(Foo.class);
         StatementExecutor statementExecutor = new StatementExecutor(connectionSource);
         String sql = "SELECT id FROM foo WHERE name='test_foo' ORDER BY ASC LIMIT 1";
@@ -129,7 +126,7 @@ public class StatementExecutorTest {
     public void queryForWhere() throws Exception {
         Connection connection = mock(Connection.class);
         Statement statement = mock(Statement.class);
-        JDBCConnectionSource connectionSource = createConnectionSource(connection, statement, mock(IDialect.class));
+        ConnectionSource connectionSource = createConnectionSource(connection, statement, mock(IDialect.class));
         TableInfo<Foo> tableInfo = new TableInfo<>(Foo.class);
         StatementExecutor statementExecutor = new StatementExecutor(connectionSource);
 
@@ -144,7 +141,7 @@ public class StatementExecutorTest {
     public void queryForUpdate() throws Exception {
         Connection connection = mock(Connection.class);
         Statement statement = mock(Statement.class);
-        JDBCConnectionSource connectionSource = createConnectionSource(connection, statement, mock(IDialect.class));
+        ConnectionSource connectionSource = createConnectionSource(connection, statement, mock(IDialect.class));
         TableInfo<Foo> tableInfo = new TableInfo<>(Foo.class);
         StatementExecutor statementExecutor = new StatementExecutor(connectionSource);
 
@@ -163,7 +160,7 @@ public class StatementExecutorTest {
     public void queryForId() throws Exception {
         Connection connection = mock(Connection.class);
         Statement statement = mock(Statement.class);
-        JDBCConnectionSource connectionSource = createConnectionSource(connection, statement, mock(IDialect.class));
+        ConnectionSource connectionSource = createConnectionSource(connection, statement, mock(IDialect.class));
         TableInfo<Foo> tableInfo = new TableInfo<>(Foo.class);
 
         ResultSet resultSet = mock(ResultSet.class);
@@ -258,7 +255,7 @@ public class StatementExecutorTest {
     public void fillManyToMany() throws Exception {
         Connection connection = mock(Connection.class);
         Statement statement = mock(Statement.class);
-        JDBCConnectionSource connectionSource = createConnectionSource(connection, statement, mock(IDialect.class));
+        ConnectionSource connectionSource = createConnectionSource(connection, statement, mock(IDialect.class));
         TableInfo<Foo> tableInfo = new TableInfo<>(Foo.class);
         TableInfo<Foo3> tableInfo3 = new TableInfo<>(Foo3.class);
 
@@ -311,7 +308,7 @@ public class StatementExecutorTest {
         Connection connection = mock(Connection.class);
         Statement statement = mock(Statement.class);
         IDialect dialect = mock(IDialect.class);
-        JDBCConnectionSource connectionSource = createConnectionSource(connection, statement, dialect);
+        ConnectionSource connectionSource = createConnectionSource(connection, statement, dialect);
         StatementExecutor statementExecutor = new StatementExecutor(connectionSource);
         ResultSet resultSet = mock(ResultSet.class);
         ResultSet resultSet1 = mock(ResultSet.class);
@@ -375,8 +372,8 @@ public class StatementExecutorTest {
 
     }
 
-    private JDBCConnectionSource createConnectionSource(Connection connection, Statement statement, IDialect dialect) throws SQLException {
-        JDBCConnectionSource connectionSource = mock(JDBCConnectionSource.class);
+    private ConnectionSource createConnectionSource(Connection connection, Statement statement, IDialect dialect) throws SQLException {
+        ConnectionSource connectionSource = mock(ConnectionSource.class);
 
         when(statement.execute(anyString())).then(new Answer<Object>() {
             @Override

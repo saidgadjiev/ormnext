@@ -1,13 +1,11 @@
 package dao;
 
 import org.junit.Test;
-import support.JDBCConnectionSource;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -65,9 +63,9 @@ public class DaoImplTest {
 
     }
 
-    private JDBCConnectionSource createConnectionSource() throws SQLException {
+    private ConnectionSource createConnectionSource() throws SQLException {
         Connection connection = mock(Connection.class);
-        JDBCConnectionSource connectionSource = mock(JDBCConnectionSource.class);
+        ConnectionSource connectionSource = mock(ConnectionSource.class);
         Statement statement = mock(Statement.class);
 
         when(connectionSource.getConnection()).thenReturn(connection);

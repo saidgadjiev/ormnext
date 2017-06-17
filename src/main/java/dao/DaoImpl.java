@@ -1,26 +1,21 @@
 package dao;
 
+import binding.binder.PropertyBinder;
 import clause.QueryBuilder;
 import clause.Update;
 import clause.Where;
-import field.DBField;
-import field.DataType;
-import field.OneToOne;
-import support.JDBCConnectionSource;
-import table.DBTable;
+import field.FieldWrapper;
+import support.MiamiProperties;
+import support.TraceDataSource;
 import table.TableInfo;
+import utils.PlatformUtils;
 import utils.ReflectionUtils;
 import utils.StatementExecutor;
-import utils.TableUtils;
 
+import javax.sql.DataSource;
+import java.io.IOException;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -28,14 +23,20 @@ import java.util.List;
  */
 public class DaoImpl<T> implements Dao<T> {
 
-    private JDBCConnectionSource connectionSource;
-    private final TableInfo<T> tableInfo;
+    private final TableInfo tableInfo;
     private StatementExecutor statementExecutor;
 
-    public DaoImpl(JDBCConnectionSource connectionSource, Class<T> dbTable) {
-        this.connectionSource = connectionSource;
-        this.tableInfo = new TableInfo<>(dbTable);
-        this.statementExecutor = new StatementExecutor(connectionSource);
+    public DaoImpl(Class<T> dbTable) throws IOException {
+        this.tableInfo = new TableInfo(dbTable);
+
+        MiamiProperties properties = new PropertyBinder<MiamiProperties>(System.getProperty("miami.properties")).getProperties(MiamiProperties.class);
+        DataSource dataSource = DataSourceFactory.createDataSource(new PlatformUtils().determineDatabaseType("", ""), properties);
+
+        if (properties.trace()) {
+            this.statementExecutor = new StatementExecutor(new TraceDataSource(dataSource));
+        } else {
+            this.statementExecutor = new StatementExecutor(dataSource);
+        }
     }
 
     public void create(T object) throws SQLException {
@@ -45,8 +46,8 @@ public class DaoImpl<T> implements Dao<T> {
     @Override
     public T queryForId(int id) throws SQLException {
         T result = (T) statementExecutor.queryForId(tableInfo, id);
-        for (Field field: tableInfo.getManyToManyRelations()) {
-            statementExecutor.fillManyToMany(tableInfo, new TableInfo<>(ReflectionUtils.getCollectionGenericClass(field)), field, result);
+        for (FieldWrapper field: tableInfo.getManyToManyRelations()) {
+            statementExecutor.fillManyToMany(tableInfo, new TableInfo(ReflectionUtils.getCollectionGenericClass(field.getField())), field.getField(), result);
         }
 
         return result;
@@ -57,8 +58,8 @@ public class DaoImpl<T> implements Dao<T> {
         List<T> result = (List<T>) statementExecutor.queryForAll(tableInfo);
 
         for (T object: result) {
-            for (Field field : tableInfo.getManyToManyRelations()) {
-                statementExecutor.fillManyToMany(tableInfo, new TableInfo<>(ReflectionUtils.getCollectionGenericClass(field)), field, object);
+            for (FieldWrapper field : tableInfo.getManyToManyRelations()) {
+                statementExecutor.fillManyToMany(tableInfo, new TableInfo(ReflectionUtils.getCollectionGenericClass(field.getField())), field.getField(), object);
             }
         }
 
@@ -70,8 +71,8 @@ public class DaoImpl<T> implements Dao<T> {
         List<T> result = (List<T>) statementExecutor.queryForAll(tableInfo, sql);
 
         for (T object: result) {
-            for (Field field : tableInfo.getManyToManyRelations()) {
-                statementExecutor.fillManyToMany(tableInfo, new TableInfo<>(ReflectionUtils.getCollectionGenericClass(field)), field, object);
+            for (FieldWrapper field : tableInfo.getManyToManyRelations()) {
+                statementExecutor.fillManyToMany(tableInfo, new TableInfo(ReflectionUtils.getCollectionGenericClass(field.getField())), field.getField(), object);
             }
         }
 
@@ -93,8 +94,8 @@ public class DaoImpl<T> implements Dao<T> {
         List<T> result = (List<T>) statementExecutor.queryForWhere(tableInfo, where);
 
         for (T object: result) {
-            for (Field field : tableInfo.getManyToManyRelations()) {
-                statementExecutor.fillManyToMany(tableInfo, new TableInfo<>(ReflectionUtils.getCollectionGenericClass(field)), field, object);
+            for (FieldWrapper field : tableInfo.getManyToManyRelations()) {
+                statementExecutor.fillManyToMany(tableInfo, new TableInfo(ReflectionUtils.getCollectionGenericClass(field.getField())), field.getField(), object);
             }
         }
         return result;

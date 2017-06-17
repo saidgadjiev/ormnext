@@ -31,17 +31,13 @@ public class CacheResultSet {
             }
             cacheData.put(resultSet.getRow(), data);
         }
+        iterator = cacheData.entrySet().iterator();
     }
 
     public boolean next() {
-        if (iterator == null) {
-            iterator = cacheData.entrySet().iterator();
-        }
         boolean next = iterator.hasNext();
 
-        if (!next) {
-            iterator = null;
-        } else {
+        if (next) {
             currEntry = iterator.next();
         }
 
@@ -49,7 +45,7 @@ public class CacheResultSet {
     }
 
     public Long getLong(String name) {
-        return (Long) currEntry.getValue().get(name);
+        return currEntry != null ? (Long) currEntry.getValue().get(name) : null;
     }
 
     public Object getObject(String name) {

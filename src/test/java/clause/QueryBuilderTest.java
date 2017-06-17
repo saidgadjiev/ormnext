@@ -2,18 +2,10 @@ package clause;
 
 import dao.Dao;
 import dao.DaoImpl;
-import db.SQLiteConnectionSource;
-import db.dialect.IDialect;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
-import support.JDBCConnectionSource;
 import test_table.Foo;
 
-import java.sql.Connection;
-import java.sql.Statement;
-
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -67,7 +59,7 @@ public class QueryBuilderTest {
 
     }
 
-    private Dao<Foo> createDao(JDBCConnectionSource connectionSource) {
+    private Dao<Foo> createDao(ConnectionSource connectionSource) {
         return new DaoImpl<>(connectionSource, Foo.class);
     }
 

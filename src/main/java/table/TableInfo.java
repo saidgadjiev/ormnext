@@ -1,8 +1,9 @@
 package table;
 
-import field.*;
-import utils.ReflectionUtils;
 
+import field.*;
+
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -11,57 +12,89 @@ import java.util.List;
 /**
  * Created by said on 19.03.17.
  */
-public class TableInfo<T> {
 
-    private Field id;
+@SuppressWarnings("PMD.UnnecessaryFullyQualifiedName")
+public class TableInfo {
+
+    private FieldWrapper id;
+    private List<FieldWrapper> fields = new ArrayList<>();
+    private List<MethodWrapper> methods = new ArrayList<>();
+    private List<FieldWrapper> oneToOneRelations = new ArrayList<>();
+    private List<FieldWrapper> oneToManyRelations = new ArrayList<>();
+    private List<FieldWrapper> manyToManyRelations = new ArrayList<>();
+    private List<FieldWrapper> manyToOneRelations = new ArrayList<>();
+    private Class table;
     private String name;
-    private List<Field> oneToOneRelations = new ArrayList<>();
-    private List<Field> oneToManyRelations = new ArrayList<>();
-    private List<Field> manyToOneRelations = new ArrayList<>();
-    private List<Field> manyToManyRelations = new ArrayList<>();
-    private List<Field> fields = new ArrayList<>();
-    private Class<T> table;
 
-    public TableInfo(Class<T> dbTable) {
-        this.name = dbTable.getAnnotation(DBTable.class).name();
-        this.table = dbTable;
-        for (Field field : dbTable.getDeclaredFields()) {
-            if (field.isAnnotationPresent(DBField.class)) {
-                if (field.getAnnotation(DBField.class).id()) {
-                    id = field;
-                } else if (field.isAnnotationPresent(OneToOne.class)) {
-                    oneToOneRelations.add(field);
-                } else if (field.isAnnotationPresent(ManyToOne.class)) {
-                    manyToOneRelations.add(field);
-                } else {
-                    fields.add(field);
-                }
-            } else if (field.isAnnotationPresent(OneToMany.class)) {
-                oneToManyRelations.add(field);
-            } else if (field.isAnnotationPresent(ManyToMany.class)) {
-                manyToManyRelations.add(field);
-            }
+    public TableInfo(Class dbTable) {
+        for (Field field: dbTable.getDeclaredFields()) {
+            fields.add(new FieldWrapper(field));
         }
-        fields.add(id);
+        for (Method method: dbTable.getDeclaredMethods()) {
+            methods.add(new MethodWrapper(method));
+        }
+        this.name = ((Table) dbTable.getAnnotation(Table.class)).name();
+        this.table = dbTable;
     }
 
-    public Field getId() {
+    public FieldWrapper getId() {
+        if (id == null) {
+            for (FieldWrapper fieldWrapper: fields) {
+                if (fieldWrapper.isAnnotationPresent(TableField.class)
+                        && ((TableField) fieldWrapper.getAnnotation(TableField.class)).id() ) {
+                    this.id = fieldWrapper;
+                }
+            }
+        }
+
         return id;
     }
 
-    public List<Field> getOneToOneRelations() {
+    public List<FieldWrapper> getOneToOneRelations() {
+        if (oneToOneRelations.isEmpty()) {
+            for (FieldWrapper fieldWrapper : fields) {
+                if (fieldWrapper.isAnnotationPresent(OneToOne.class)) {
+                    oneToOneRelations.add(fieldWrapper);
+                }
+            }
+        }
+
         return oneToOneRelations;
     }
 
-    public List<Field> getOneToManyRelations() {
+    public List<FieldWrapper> getOneToManyRelations() {
+        if (oneToManyRelations.isEmpty()) {
+            for (FieldWrapper fieldWrapper : fields) {
+                if (fieldWrapper.isAnnotationPresent(OneToMany.class)) {
+                    oneToManyRelations.add(fieldWrapper);
+                }
+            }
+        }
+
         return oneToManyRelations;
     }
 
-    public List<Field> getManyToManyRelations() {
+    public List<FieldWrapper> getManyToManyRelations() {
+        if (manyToManyRelations.isEmpty()) {
+            for (FieldWrapper fieldWrapper : fields) {
+                if (fieldWrapper.isAnnotationPresent(ManyToMany.class)) {
+                    manyToManyRelations.add(fieldWrapper);
+                }
+            }
+        }
+
         return manyToManyRelations;
     }
 
-    public List<Field> getManyToOneRelations() {
+    public List<FieldWrapper> getManyToOneRelations() {
+        if (manyToOneRelations.isEmpty()) {
+            for (FieldWrapper fieldWrapper : fields) {
+                if (fieldWrapper.isAnnotationPresent(ManyToOne.class)) {
+                    manyToOneRelations.add(fieldWrapper);
+                }
+            }
+        }
+
         return manyToOneRelations;
     }
 
@@ -69,38 +102,52 @@ public class TableInfo<T> {
         return name;
     }
 
-    public List<Field> getFields() {
+    public List<MethodWrapper> getMethods() {
+        return methods;
+    }
+
+    public MethodWrapper getMethodByName(String name) {
+        for (MethodWrapper methodWrapper: methods) {
+            if (methodWrapper.getName().equals(name)) {
+                return methodWrapper;
+            }
+        }
+
+        return null;
+    }
+
+    public List<FieldWrapper> getFields() {
         return fields;
     }
 
-    public Class<T> getTable() {
+    public Class getTable() {
         return table;
     }
 
-    public Field getFieldByMappedNameInOneToManyRelation(String name) {
-        for (Field field : oneToManyRelations) {
-            if (field.getAnnotation(OneToMany.class).mappedBy().equals(name)) {
-                return field;
+    public FieldWrapper getFieldByMappedNameInOneToManyRelation(String name) {
+        for (FieldWrapper fieldWrapper : oneToManyRelations) {
+            if (((OneToMany) fieldWrapper.getAnnotation(OneToMany.class)).mappedBy().equals(name)) {
+                return fieldWrapper;
             }
         }
 
         return null;
     }
 
-    public Field getFieldByMappedByNameInChild(String name) {
-        for (Field field : manyToOneRelations) {
-            if (field.getName().equals(name)) {
-                return field;
+    public FieldWrapper getFieldByMappedByNameInChild(String name) {
+        for (FieldWrapper fieldWrapper : manyToOneRelations) {
+            if (fieldWrapper.getName().equals(name)) {
+                return fieldWrapper;
             }
         }
 
         return null;
     }
 
-    public Field getFieldByNameInManyToManyRelation(String name) {
-        for (Field field : manyToManyRelations) {
-            if (field.getName().equals(name)) {
-                return field;
+    public FieldWrapper getFieldByNameInManyToManyRelation(String name) {
+        for (FieldWrapper fieldWrapper : manyToManyRelations) {
+            if (fieldWrapper.getName().equals(name)) {
+                return fieldWrapper;
             }
         }
 

@@ -1,7 +1,7 @@
 package clause;
 
 import dao.Dao;
-import field.DBField;
+import field.TableField;
 import table.TableInfo;
 
 import java.sql.SQLException;
@@ -51,7 +51,7 @@ public class QueryBuilder<T> {
 
         sb
                 .append("SELECT ")
-                .append(tableInfo.getId().getAnnotation(DBField.class).fieldName())
+                .append(((TableField) tableInfo.getId().getAnnotation(TableField.class)).fieldName())
                 .append(" FROM ")
                 .append(tableInfo.getTableName())
                 .append(where == null ? "" : where.getStringQuery())

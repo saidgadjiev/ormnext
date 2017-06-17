@@ -4,7 +4,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import support.JDBCConnectionSource;
 import table.TableInfo;
 import test_table.Foo;
 import test_table.Foo3;
@@ -25,7 +24,7 @@ public class TableUtilsTest {
     public void createTable() throws Exception {
         Connection connection = mock(Connection.class);
         Statement statement = mock(Statement.class);
-        JDBCConnectionSource connectionSource = createConnectionSource(connection, statement);
+        ConnectionSource connectionSource = createConnectionSource(connection, statement);
 
         TableUtils.createTable(connectionSource, Foo.class);
         verify(statement, times(1)).execute("CREATE TABLE foo(id INTEGER PRIMARY KEY AUTOINCREMENT, test_name varchar(255)  NULL, foo1_id INT  NOT NULL, FOREIGN KEY (foo1_id) REFERENCES foo1(id));");
@@ -35,7 +34,7 @@ public class TableUtilsTest {
     public void isExistTable() throws Exception {
         Connection connection = mock(Connection.class);
         Statement statement = mock(Statement.class);
-        JDBCConnectionSource connectionSource = createConnectionSource(connection, statement);
+        ConnectionSource connectionSource = createConnectionSource(connection, statement);
         ResultSet resultSet1 = mock(ResultSet.class);
         ResultSet resultSet2 = mock(ResultSet.class);
         String sqlExist = "SELECT name FROM sqlite_master WHERE type='table' AND name='foo'";
@@ -61,7 +60,7 @@ public class TableUtilsTest {
     public void createManyToManyTable() throws Exception {
         Connection connection = mock(Connection.class);
         Statement statement = mock(Statement.class);
-        JDBCConnectionSource connectionSource = createConnectionSource(connection, statement);
+        ConnectionSource connectionSource = createConnectionSource(connection, statement);
         TableInfo<Foo> tableInfo = new TableInfo<>(Foo.class);
         TableInfo<Foo3> tableInfo3 = new TableInfo<>(Foo3.class);
 
@@ -98,7 +97,7 @@ public class TableUtilsTest {
     public void getManyToManyRelationTableName() throws Exception {
         Connection connection = mock(Connection.class);
         Statement statement = mock(Statement.class);
-        JDBCConnectionSource connectionSource = createConnectionSource(connection, statement);
+        ConnectionSource connectionSource = createConnectionSource(connection, statement);
         ResultSet resultSet1 = mock(ResultSet.class);
         ResultSet resultSet2 = mock(ResultSet.class);
         String sqlExist = "SELECT name FROM sqlite_master WHERE type='table' AND name='foo_foo3'";
@@ -119,7 +118,7 @@ public class TableUtilsTest {
     public void tableManyToManyDoesNotExist() throws Exception {
         Connection connection = mock(Connection.class);
         Statement statement = mock(Statement.class);
-        JDBCConnectionSource connectionSource = createConnectionSource(connection, statement);
+        ConnectionSource connectionSource = createConnectionSource(connection, statement);
         ResultSet resultSet1 = mock(ResultSet.class);
         ResultSet resultSet2 = mock(ResultSet.class);
         String sqlExist = "SELECT name FROM sqlite_master WHERE type='table' AND name='foo_foo3'";
@@ -140,7 +139,7 @@ public class TableUtilsTest {
     public void dropTable() throws Exception {
         Connection connection = mock(Connection.class);
         Statement statement = mock(Statement.class);
-        JDBCConnectionSource connectionSource = createConnectionSource(connection, statement);
+        ConnectionSource connectionSource = createConnectionSource(connection, statement);
 
         TableUtils.dropTable(connectionSource, Foo.class);
         verify(statement, times(1)).execute("DROP TABLE foo");
@@ -150,14 +149,14 @@ public class TableUtilsTest {
     public void clearTable() throws Exception {
         Connection connection = mock(Connection.class);
         Statement statement = mock(Statement.class);
-        JDBCConnectionSource connectionSource = createConnectionSource(connection, statement);
+        ConnectionSource connectionSource = createConnectionSource(connection, statement);
 
         TableUtils.clearTable(connectionSource, Foo.class);
         verify(statement, times(1)).execute("DELETE FROM foo");
     }
 
-    private JDBCConnectionSource createConnectionSource(Connection connection, Statement statement) throws SQLException {
-        JDBCConnectionSource connectionSource = mock(JDBCConnectionSource.class);
+    private ConnectionSource createConnectionSource(Connection connection, Statement statement) throws SQLException {
+        ConnectionSource connectionSource = mock(ConnectionSource.class);
 
         when(statement.execute(anyString())).then(new Answer<Object>() {
             @Override

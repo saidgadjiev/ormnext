@@ -17,12 +17,6 @@ public class ReflectionUtils {
         return type == null ? clazz.getDeclaredMethod(name) : clazz.getDeclaredMethod(name, type);
     }
 
-    public static<T, P> void invokeMethod(Class<T> clazz, String name, Class<P> type, Object result, Object value) throws Exception {
-        Method method = ReflectionUtils.getDeclaredMethod(clazz, name, type);
-
-        method.invoke(result, value);
-    }
-
     public static Class<?> getCollectionGenericClass(Field field) {
         Type type = field.getGenericType();
         Type [] genericTypes = ((ParameterizedType) type).getActualTypeArguments();
