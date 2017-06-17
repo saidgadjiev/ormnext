@@ -66,7 +66,7 @@ public class FieldWrapper {
 
 
     public Object getAnnotation(Class annotationClass) {
-        if (annotationsMap.containsKey(annotationClass)) {
+        if (!annotationsMap.containsKey(annotationClass)) {
             annotationsMap.put(annotationClass, field.getDeclaredAnnotation(annotationClass));
         }
 

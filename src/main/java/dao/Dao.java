@@ -4,6 +4,7 @@ import clause.QueryBuilder;
 import clause.Update;
 import clause.Where;
 
+import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -31,4 +32,6 @@ public interface Dao<T> {
     boolean deleteForWhere(Where where) throws SQLException;
 
     QueryBuilder<T> queryBuilder();
+
+    DataSource getDataSource();
 }

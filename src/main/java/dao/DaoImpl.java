@@ -16,6 +16,7 @@ import javax.sql.DataSource;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.sql.SQLException;
+import java.util.InvalidPropertiesFormatException;
 import java.util.List;
 
 /**
@@ -25,18 +26,27 @@ public class DaoImpl<T> implements Dao<T> {
 
     private final TableInfo tableInfo;
     private StatementExecutor statementExecutor;
+    private DataSource dataSource;
 
     public DaoImpl(Class<T> dbTable) throws IOException {
         this.tableInfo = new TableInfo(dbTable);
 
+        if (System.getProperty("miami.properties") == null) {
+            throw new InvalidPropertiesFormatException("Miss properties file miami.properties");
+        }
         MiamiProperties properties = new PropertyBinder<MiamiProperties>(System.getProperty("miami.properties")).getProperties(MiamiProperties.class);
-        DataSource dataSource = DataSourceFactory.createDataSource(new PlatformUtils().determineDatabaseType("", ""), properties);
+        dataSource = DataSourceFactory.createDataSource(new PlatformUtils().determineDatabaseType(properties.getUrl()), properties);
 
         if (properties.trace()) {
             this.statementExecutor = new StatementExecutor(new TraceDataSource(dataSource));
         } else {
             this.statementExecutor = new StatementExecutor(dataSource);
         }
+    }
+
+    @Override
+    public DataSource getDataSource() {
+        return dataSource;
     }
 
     public void create(T object) throws SQLException {
@@ -47,7 +57,7 @@ public class DaoImpl<T> implements Dao<T> {
     public T queryForId(int id) throws SQLException {
         T result = (T) statementExecutor.queryForId(tableInfo, id);
         for (FieldWrapper field: tableInfo.getManyToManyRelations()) {
-            statementExecutor.fillManyToMany(tableInfo, new TableInfo(ReflectionUtils.getCollectionGenericClass(field.getField())), field.getField(), result);
+            statementExecutor.fillManyToMany(tableInfo, new TableInfo(ReflectionUtils.getCollectionGenericClass(field.getField())), field, result);
         }
 
         return result;
@@ -59,7 +69,7 @@ public class DaoImpl<T> implements Dao<T> {
 
         for (T object: result) {
             for (FieldWrapper field : tableInfo.getManyToManyRelations()) {
-                statementExecutor.fillManyToMany(tableInfo, new TableInfo(ReflectionUtils.getCollectionGenericClass(field.getField())), field.getField(), object);
+                statementExecutor.fillManyToMany(tableInfo, new TableInfo(ReflectionUtils.getCollectionGenericClass(field.getField())), field, object);
             }
         }
 
@@ -72,7 +82,7 @@ public class DaoImpl<T> implements Dao<T> {
 
         for (T object: result) {
             for (FieldWrapper field : tableInfo.getManyToManyRelations()) {
-                statementExecutor.fillManyToMany(tableInfo, new TableInfo(ReflectionUtils.getCollectionGenericClass(field.getField())), field.getField(), object);
+                statementExecutor.fillManyToMany(tableInfo, new TableInfo(ReflectionUtils.getCollectionGenericClass(field.getField())), field, object);
             }
         }
 
@@ -95,7 +105,7 @@ public class DaoImpl<T> implements Dao<T> {
 
         for (T object: result) {
             for (FieldWrapper field : tableInfo.getManyToManyRelations()) {
-                statementExecutor.fillManyToMany(tableInfo, new TableInfo(ReflectionUtils.getCollectionGenericClass(field.getField())), field.getField(), object);
+                statementExecutor.fillManyToMany(tableInfo, new TableInfo(ReflectionUtils.getCollectionGenericClass(field.getField())), field, object);
             }
         }
         return result;

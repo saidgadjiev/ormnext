@@ -41,8 +41,9 @@ public class TableUtils {
 
     public static boolean isExistTable(Connection connection, String tableName) throws SQLException {
         String sql = "SELECT name FROM sqlite_master WHERE type='table' AND name='" + tableName + "'";
+        String name = MiamiUtils.getString(connection, sql, "name");
 
-        return !MiamiUtils.getString(connection, sql, "name").isEmpty();
+        return name != null && !name.isEmpty();
     }
 
     public static void createManyToManyTable(Connection connection, TableInfo tableInfo, TableInfo tableInfo1) throws SQLException {

@@ -102,4 +102,30 @@ public class MiamiUtils {
             }
         }
     }
+
+    public static Collection<Integer> getIntegerCollection(Connection connection, String sql, String name, Collection<Integer> collection) throws SQLException {
+        Statement statement = null;
+        ResultSet resultSet = null;
+
+        try {
+            statement = connection.createStatement();
+            resultSet = statement.executeQuery(sql);
+
+            while (resultSet.next()) {
+                collection.add(resultSet.getInt(name));
+            }
+
+            return collection;
+        } finally {
+            if (statement != null) {
+                statement.close();
+            }
+            if (resultSet != null) {
+                resultSet.close();
+            }
+            if (connection != null) {
+                connection.close();
+            }
+        }
+    }
 }

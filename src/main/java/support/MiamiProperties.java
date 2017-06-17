@@ -16,6 +16,10 @@ public interface MiamiProperties {
     @Requiered
     String getPassword();
 
+    @Property(name = "driver")
+    @Requiered
+    String getDriverName();
+
     @Property(name = "url")
     @Requiered
     String getUrl();

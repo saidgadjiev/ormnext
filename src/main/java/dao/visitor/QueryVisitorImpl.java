@@ -14,7 +14,7 @@ import table.Table;
  */
 public class QueryVisitorImpl implements QueryVisitor {
 
-    private StringBuilder queryBuilder;
+    private StringBuilder queryBuilder = new StringBuilder();
 
     @Override
     public void start(InsertQuery insertQuery) {
@@ -79,7 +79,7 @@ public class QueryVisitorImpl implements QueryVisitor {
                 queryBuilder.append(field.fieldName()).append(" ");
                 queryBuilder.append(field.dataType().toString()).append(" ");
                 queryBuilder.append(field.id() ? "PRIMARY KEY" : "").append(" ");
-                queryBuilder.append(field.canBeNull() ? "NULL" : "NOT NULL").append(", ");
+                queryBuilder.append(field.canBeNull() ? "NULL" : "NOT NULL").append(",");
 
                 if (fieldWrapper.isAnnotationPresent(OneToOne.class) || fieldWrapper.isAnnotationPresent(ManyToOne.class)) {
                     queryBuilder.append("FOREIGN KEY ")

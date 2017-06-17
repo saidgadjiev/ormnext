@@ -2,8 +2,6 @@ package utils;
 
 import field.FieldWrapper;
 
-import java.lang.reflect.Method;
-
 /**
  * Created by said on 17.06.17.
  */

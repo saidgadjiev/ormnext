@@ -9,7 +9,9 @@ public class PlatformUtils {
 
     }
 
-    public String determineDatabaseType(String driverName, String jdbcConnectionUrl) {
-        return "";
+    public String determineDatabaseType(String jdbcConnectionUrl) {
+        String erasedJDBCPrefix = jdbcConnectionUrl.substring(5, jdbcConnectionUrl.length());
+
+        return erasedJDBCPrefix.substring(0, erasedJDBCPrefix.indexOf(":"));
     }
 }

@@ -20,6 +20,10 @@ public class PropertyInvokationHandler implements InvocationHandler {
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         String propertyName = method.getAnnotation(Property.class).name();
 
+        if (method.getReturnType().equals(boolean.class)) {
+            return properties.getProperty(propertyName).equals("true");
+        }
+
         return properties.get(propertyName);
     }
 }
