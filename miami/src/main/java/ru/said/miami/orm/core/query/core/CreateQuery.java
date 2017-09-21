@@ -1,12 +1,12 @@
 package ru.said.miami.orm.core.query.core;
 
-import ru.said.miami.orm.core.field.DataType;
 import ru.said.miami.orm.core.field.FieldType;
 import ru.said.miami.orm.core.query.visitor.DefaultVisitor;
 import ru.said.miami.orm.core.query.visitor.QueryElement;
 import ru.said.miami.orm.core.query.visitor.QueryVisitor;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -29,6 +29,8 @@ public class CreateQuery implements Query, QueryElement {
 
     private QueryVisitor visitor;
 
+    private Long generatedKey;
+
     private CreateQuery(String typeName, QueryVisitor visitor) {
         this.typeName = typeName;
         this.visitor = visitor;
@@ -36,6 +38,7 @@ public class CreateQuery implements Query, QueryElement {
 
     /**
      * Добавление нового значения
+     *
      * @param updateValue добавляемое значение
      */
     public void add(UpdateValue updateValue) {
@@ -44,6 +47,7 @@ public class CreateQuery implements Query, QueryElement {
 
     /**
      * Добавление коллекции значений
+     *
      * @param values
      */
     public void addAll(List<UpdateValue> values) {
@@ -52,6 +56,7 @@ public class CreateQuery implements Query, QueryElement {
 
     /**
      * Получение списка значений
+     *
      * @return
      */
     public List<UpdateValue> getUpdateValues() {
@@ -60,6 +65,7 @@ public class CreateQuery implements Query, QueryElement {
 
     /**
      * Получение имени типа
+     *
      * @return
      */
     public String getTypeName() {
@@ -73,20 +79,33 @@ public class CreateQuery implements Query, QueryElement {
 
         try (Statement statement = connection.createStatement()) {
             statement.execute(sql);
+            ResultSet rsKeys = statement.getGeneratedKeys();
+            if (rsKeys.next()) {
+                generatedKey = rsKeys.getLong(1);
+            } else {
+                generatedKey = new Long(-1);
+            }
 
-            return (T) new Boolean(true);
+            return (T) new Integer(statement.getUpdateCount());
         }
+    }
+
+    public Long getGeneratedKey() {
+        return generatedKey;
     }
 
     public static CreateQuery buildQuery(String typeName, List<FieldType> fieldTypes, Object object) throws SQLException {
         CreateQuery createQuery = new CreateQuery(typeName, new DefaultVisitor());
 
-        for (FieldType fieldType: fieldTypes) {
-
-            createQuery.updateValues.add(
-                    new UpdateValue(
-                            fieldType.getFieldName(), FieldConverter.getInstanse().convert(fieldType.getDataType(), fieldType.getValue(object)))
-            );
+        try {
+           for (FieldType fieldType : fieldTypes) {
+                createQuery.updateValues.add(
+                        new UpdateValue(
+                                fieldType.getFieldName(), FieldConverter.getInstanse().convert(fieldType.getDataType(), fieldType.getValue(object)))
+                );
+            }
+        } catch (IllegalAccessException ex) {
+            throw new SQLException(ex);
         }
 
         return createQuery;
@@ -95,9 +114,10 @@ public class CreateQuery implements Query, QueryElement {
 
     @Override
     public void accept(QueryVisitor visitor) {
-        visitor.start(this);
-        for (UpdateValue updateValue: updateValues) {
-            updateValue.accept(visitor);
+        if (visitor.start(this)) {
+            for (UpdateValue updateValue : updateValues) {
+                updateValue.accept(visitor);
+            }
         }
         visitor.finish(this);
     }

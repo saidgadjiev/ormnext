@@ -9,7 +9,7 @@ public interface QueryVisitor {
 
     String getQuery();
 
-    void start(CreateQuery tCreateQuery);
+    boolean start(CreateQuery tCreateQuery);
 
     void finish(CreateQuery tCreateQuery);
 

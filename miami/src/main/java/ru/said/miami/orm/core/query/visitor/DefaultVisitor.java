@@ -18,7 +18,7 @@ public class DefaultVisitor implements QueryVisitor {
     }
 
     @Override
-    public void start(CreateQuery tCreateQuery) {
+    public boolean start(CreateQuery tCreateQuery) {
         sql.append("INSERT INTO ").append(tCreateQuery.getTypeName()).append(" (");
         for (Iterator<UpdateValue> iterator = tCreateQuery.getUpdateValues().iterator(); iterator.hasNext(); ) {
             UpdateValue updateValue = iterator.next();
@@ -40,6 +40,8 @@ public class DefaultVisitor implements QueryVisitor {
             }
         }
         sql.append(")");
+
+        return false;
     }
 
     @Override
@@ -162,7 +164,7 @@ public class DefaultVisitor implements QueryVisitor {
                 sql.append("VARCHAR").append("(").append(def.getLength()).append(")");
                 break;
             case INTEGER:
-                sql.append("INT");
+                sql.append("INTEGER");
                 break;
             case UNKNOWN:
                 break;

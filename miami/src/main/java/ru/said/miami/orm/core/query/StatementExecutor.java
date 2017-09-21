@@ -1,11 +1,13 @@
 package ru.said.miami.orm.core.query;
 
+import ru.said.miami.orm.core.field.FieldType;
 import ru.said.miami.orm.core.query.core.*;
 import ru.said.miami.orm.core.table.TableInfo;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Класс для выполнения sql запросов
@@ -27,10 +29,25 @@ public class StatementExecutor<T, ID> {
      */
     @SuppressWarnings("unchecked")
     public int create(Connection connection, T object) throws SQLException {
-        CreateQuery query = CreateQuery.buildQuery(tableInfo.getTableName(), tableInfo.getFieldTypes(), object);
+        CreateQuery query = CreateQuery.buildQuery(
+                tableInfo.getTableName(),
+                tableInfo.getFieldTypes().stream()
+                        .filter(fieldType -> !(fieldType.isId() && fieldType.isGenerated()))
+                        .collect(Collectors.toList()),
+                object);
         Integer result;
-
         if ((result = query.execute(connection)) != null) {
+            if (tableInfo.getIdField().isPresent()) {
+                FieldType idField = tableInfo.getIdField().get();
+                Long key = query.getGeneratedKey();
+
+                try {
+                    idField.assignField(object, key);
+                } catch (IllegalAccessException ex) {
+                    throw new SQLException(ex);
+                }
+            }
+
             return result;
         }
 

@@ -11,10 +11,18 @@ public class Main {
     public static void main(String[] args) throws SQLException {
         SQLiteDataSource dataSource = new SQLiteDataSource();
 
-        dataSource.setUrl("jdbc:sqlite:/Users/said/Desktop/test.sqlite");
+        dataSource.setUrl("jdbc:sqlite:C:/test.sqlite");
         Dao<Test, String> dao = DaoManager.createDAO(dataSource, Test.class);
-        Boolean result = dao.createTable();
+        int result = dao.create(getTestObject());
 
         System.out.println("result = " + result);
+    }
+
+    public static Test getTestObject() {
+        Test test = new Test();
+
+        test.setName("test_name");
+
+        return test;
     }
 }

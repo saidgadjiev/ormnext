@@ -15,6 +15,7 @@ public class FieldConverter {
     public RValue convert(DataType dataType, Object value) {
         switch (dataType) {
             case STRING:
+            case INTEGER:
                 return new StringLiteral((String) value);
             case UNKNOWN:
                 return null;

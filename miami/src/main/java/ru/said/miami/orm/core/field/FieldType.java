@@ -1,7 +1,7 @@
 package ru.said.miami.orm.core.field;
 
 import java.lang.reflect.Field;
-import java.sql.SQLException;
+import java.util.Optional;
 
 public class FieldType {
 
@@ -33,29 +33,45 @@ public class FieldType {
         return generated;
     }
 
-    public Object getValue(Object object) throws SQLException {
-        try {
-            return field.get(object);
-        } catch (IllegalAccessException ex) {
-            throw new SQLException(ex);
+    public Object getValue(Object object) throws IllegalAccessException {
+        if (!field.isAccessible()) {
+            field.setAccessible(true);
+
+            Object result = field.get(object);
+
+            field.setAccessible(false);
+
+            return result;
+        }
+
+        return field.get(object);
+    }
+
+    public void assignField(Object object, Object value) throws IllegalAccessException {
+        if (!field.isAccessible()) {
+            field.setAccessible(true);
+            field.set(object, value);
+            field.setAccessible(false);
+        } else {
+            field.set(object, value);
         }
     }
 
-    public static FieldType buildFieldType(Field field) {
+    public static Optional<FieldType> buildFieldType(Field field) {
         if (!field.isAnnotationPresent(DBField.class)) {
-            return null;
+            return Optional.empty();
         }
         DBField dbField = field.getAnnotation(DBField.class);
         FieldType fieldType = new FieldType();
 
         fieldType.field = field;
-        fieldType.fieldName = dbField.fieldName().isEmpty() ? field.getName().toLowerCase(): dbField.fieldName();
+        fieldType.fieldName = dbField.fieldName().isEmpty() ? field.getName().toLowerCase() : dbField.fieldName();
         fieldType.dataType = dbField.dataType();
         fieldType.length = dbField.length();
         fieldType.id = dbField.id();
         fieldType.generated = dbField.generated();
 
-        return fieldType;
+        return Optional.of(fieldType);
     }
 
     public int getLength() {
