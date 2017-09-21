@@ -6,10 +6,13 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="miami_beach" />
+        <module name="miami" />
+        <module name="miami-cache" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="miami" target="1.8" />
+      <module name="miami-cache" target="1.8" />
       <module name="miami_beach" target="1.8" />
     </bytecodeTargetLevel>
   </component>

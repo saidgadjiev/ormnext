@@ -6,6 +6,7 @@
 
     <groupId>miami_beach</groupId>
     <artifactId>ru.said.miami_beach</artifactId>
+    <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
     <build>
         <plugins>
@@ -38,6 +39,10 @@
             </plugin>
         </plugins>
     </build>
+    <modules>
+        <module>miami-cache</module>
+        <module>miami</module>
+    </modules>
 
     <dependencies>
         <dependency>
