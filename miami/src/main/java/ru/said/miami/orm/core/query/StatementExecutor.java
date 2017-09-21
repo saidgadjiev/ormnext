@@ -39,7 +39,7 @@ public class StatementExecutor<T, ID> {
         if ((result = query.execute(connection)) != null) {
             if (tableInfo.getIdField().isPresent()) {
                 FieldType idField = tableInfo.getIdField().get();
-                Long key = query.getGeneratedKey();
+                Number key = query.getGeneratedKey();
 
                 try {
                     idField.assignField(object, key);

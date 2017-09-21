@@ -13,7 +13,8 @@ public class Main {
 
         dataSource.setUrl("jdbc:sqlite:C:/test.sqlite");
         Dao<Test, String> dao = DaoManager.createDAO(dataSource, Test.class);
-        int result = dao.create(getTestObject());
+        Test test = getTestObject();
+        int result = dao.create(test);
 
         System.out.println("result = " + result);
     }

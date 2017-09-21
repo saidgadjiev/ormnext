@@ -5,10 +5,7 @@ import ru.said.miami.orm.core.query.visitor.DefaultVisitor;
 import ru.said.miami.orm.core.query.visitor.QueryElement;
 import ru.said.miami.orm.core.query.visitor.QueryVisitor;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,7 +26,7 @@ public class CreateQuery implements Query, QueryElement {
 
     private QueryVisitor visitor;
 
-    private Long generatedKey;
+    private Number generatedKey;
 
     private CreateQuery(String typeName, QueryVisitor visitor) {
         this.typeName = typeName;
@@ -81,7 +78,7 @@ public class CreateQuery implements Query, QueryElement {
             statement.execute(sql);
             ResultSet rsKeys = statement.getGeneratedKeys();
             if (rsKeys.next()) {
-                generatedKey = rsKeys.getLong(1);
+                generatedKey = getIdColumnData(rsKeys, rsKeys.getMetaData(), 1);
             } else {
                 generatedKey = new Long(-1);
             }
@@ -90,7 +87,22 @@ public class CreateQuery implements Query, QueryElement {
         }
     }
 
-    public Long getGeneratedKey() {
+    private Number getIdColumnData(ResultSet resultSet, ResultSetMetaData metaData, int columnIndex) throws SQLException {
+        int typeVal = metaData.getColumnType(columnIndex);
+
+        switch (typeVal) {
+            case Types.BIGINT :
+            case Types.DECIMAL :
+            case Types.NUMERIC :
+                return resultSet.getLong(columnIndex);
+            case Types.INTEGER :
+                return resultSet.getInt(columnIndex);
+            default :
+                throw new SQLException("Unknown DataType for typeVal " + typeVal + " in column " + columnIndex);
+        }
+    }
+
+    public Number getGeneratedKey() {
         return generatedKey;
     }
 
