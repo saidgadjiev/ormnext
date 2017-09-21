@@ -80,7 +80,7 @@ public class StatementExecutor<T, ID> {
      * Выполняет запрос вида DELETE FROM ... WHERE = object.id
      */
     public int delete(Connection connection, T object) throws SQLException {
-        Query query = DeleteQuery.buildQuery();
+        Query query = DeleteQuery.buildQuery(tableInfo.getTableName());
         Integer result;
 
         if ((result = query.execute(connection)) != null) {

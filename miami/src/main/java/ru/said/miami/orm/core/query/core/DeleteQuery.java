@@ -14,8 +14,29 @@ public class DeleteQuery implements Query, QueryElement {
 
     private final QueryVisitor visitor;
 
-    public DeleteQuery(QueryVisitor visitor) {
+    private Expression where = new Expression();
+
+    private String typeName;
+
+    public DeleteQuery(QueryVisitor visitor, String typeName) {
         this.visitor = visitor;
+        this.typeName = typeName;
+    }
+
+    public Expression getWhere() {
+        return where;
+    }
+
+    public void setWhere(Expression where) {
+        this.where = where;
+    }
+
+    public String getTypeName() {
+        return typeName;
+    }
+
+    public void setTypeName(String typeName) {
+        this.typeName = typeName;
     }
 
     @Override
@@ -23,12 +44,14 @@ public class DeleteQuery implements Query, QueryElement {
         return null;
     }
 
-    public static DeleteQuery buildQuery() {
-        return new DeleteQuery(new DefaultVisitor());
+    public static DeleteQuery buildQuery(String typeName) {
+        return new DeleteQuery(new DefaultVisitor(), typeName);
     }
 
     @Override
     public void accept(QueryVisitor visitor) {
-
+        visitor.start(this);
+        where.accept(visitor);
+        visitor.finish(this);
     }
 }

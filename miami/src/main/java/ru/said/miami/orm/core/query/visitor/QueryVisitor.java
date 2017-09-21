@@ -52,4 +52,8 @@ public interface QueryVisitor {
     void finish(CreateTableQuery tCreateTableQuery);
 
     void finish(AttributeDefenition attributeDefenition);
+
+    void start(DeleteQuery deleteQuery);
+
+    void finish(DeleteQuery deleteQuery);
 }

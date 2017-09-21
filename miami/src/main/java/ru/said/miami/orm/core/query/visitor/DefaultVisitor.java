@@ -182,4 +182,14 @@ public class DefaultVisitor implements QueryVisitor {
     public void finish(AttributeDefenition attributeDefenition) {
 
     }
+
+    @Override
+    public void start(DeleteQuery deleteQuery) {
+
+    }
+
+    @Override
+    public void finish(DeleteQuery deleteQuery) {
+
+    }
 }
