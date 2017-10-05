@@ -8,6 +8,7 @@ import ru.said.miami.orm.core.query.visitor.QueryVisitor;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Класс INSERT запроса
@@ -80,7 +81,7 @@ public class CreateQuery implements Query, QueryElement {
             if (rsKeys.next()) {
                 generatedKey = getIdColumnData(rsKeys, rsKeys.getMetaData(), 1);
             } else {
-                generatedKey = new Long(-1);
+                generatedKey = null;
             }
 
             return (T) new Integer(statement.getUpdateCount());
@@ -102,8 +103,8 @@ public class CreateQuery implements Query, QueryElement {
         }
     }
 
-    public Number getGeneratedKey() {
-        return generatedKey;
+    public Optional<Number> getGeneratedKey() {
+        return Optional.ofNullable(generatedKey);
     }
 
     public static CreateQuery buildQuery(String typeName, List<FieldType> fieldTypes, Object object) throws SQLException {

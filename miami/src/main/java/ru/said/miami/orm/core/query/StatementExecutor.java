@@ -6,19 +6,22 @@ import ru.said.miami.orm.core.table.TableInfo;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
  * Класс для выполнения sql запросов
- * @param <T> тип объекта
+ *
+ * @param <T>  тип объекта
  * @param <ID> id объекта
  */
 public class StatementExecutor<T, ID> {
 
-    private TableInfo tableInfo;
+    private TableInfo<T> tableInfo;
 
-    public StatementExecutor(TableInfo tableInfo) {
+    public StatementExecutor(TableInfo<T> tableInfo) {
 
         this.tableInfo = tableInfo;
     }
@@ -36,13 +39,14 @@ public class StatementExecutor<T, ID> {
                         .collect(Collectors.toList()),
                 object);
         Integer result;
+
         if ((result = query.execute(connection)) != null) {
             if (tableInfo.getIdField().isPresent()) {
                 FieldType idField = tableInfo.getIdField().get();
-                Number key = query.getGeneratedKey();
+                Number generatedKey = query.getGeneratedKey().orElseThrow(() -> new SQLException("Запрос не вернул автоинкриментных ключей"));
 
                 try {
-                    idField.assignField(object, key);
+                    idField.assignField(object, generatedKey);
                 } catch (IllegalAccessException ex) {
                     throw new SQLException(ex);
                 }
@@ -95,11 +99,16 @@ public class StatementExecutor<T, ID> {
      * Выполняет запрос вида SELECT * FROM ... WHERE = id
      */
     public T queryForId(Connection connection, ID id) throws SQLException {
-        Query query = SelectQuery.buildQuery();
-        T result;
+        if (tableInfo.getIdField().isPresent()) {
+            SelectQuery query = SelectQuery.buildQueryById(tableInfo.getTableName(), tableInfo.getIdField().get(), id);
 
-        if ((result = query.execute(connection)) != null) {
-            return result;
+            try (IMiamiCollection result = query.execute(connection)) {
+                if (result.next()) {
+                    return mapResult(result.get());
+                }
+            } catch (IllegalAccessException | InstantiationException ex) {
+                throw new SQLException(ex);
+            }
         }
 
         return null;
@@ -110,14 +119,27 @@ public class StatementExecutor<T, ID> {
      * Выполняет запрос вида SELECT * FROM ...
      */
     public List<T> queryForAll(Connection connection) throws SQLException {
-        Query query = SelectQuery.buildQuery();
-        List<T> result;
+        Query query = SelectQuery.buildQueryForAll(tableInfo.getTableName());
+        List<T> resultObjectList = new ArrayList<>();
 
-        if ((result = query.execute(connection)) != null) {
-            return result;
+        try (IMiamiCollection result = query.execute(connection)) {
+            while (result.next()) {
+                resultObjectList.add(mapResult(result.get()));
+            }
+        } catch (IllegalAccessException | InstantiationException ex) {
+            throw new SQLException(ex);
         }
 
-        return null;
+        return resultObjectList;
     }
 
+    private T mapResult(IMiamiData data) throws SQLException, IllegalAccessException, InstantiationException {
+        T resultObject = tableInfo.getTableClass().newInstance();
+
+        for (FieldType fieldType : tableInfo.getFieldTypes()) {
+            fieldType.assignField(resultObject, data.getObject(fieldType.getFieldName()));
+        }
+
+        return resultObject;
+    }
 }

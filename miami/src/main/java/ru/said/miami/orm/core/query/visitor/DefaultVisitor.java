@@ -71,7 +71,11 @@ public class DefaultVisitor implements QueryVisitor {
 
     @Override
     public void start(SelectQuery tSelectQuery) {
-
+        sql.append("SELECT * FROM ");
+        tSelectQuery.getFrom().accept(this);
+        if (!tSelectQuery.getWhere().getConditions().isEmpty()) {
+            sql.append(" WHERE ");
+        }
     }
 
     @Override
@@ -81,7 +85,31 @@ public class DefaultVisitor implements QueryVisitor {
 
     @Override
     public void start(Expression expression) {
+        for (Iterator<AndCondition> iterator = expression.getConditions().iterator(); iterator.hasNext(); ) {
+            AndCondition andCondition = iterator.next();
 
+            sql.append("(");
+
+            for (Iterator<Condition> iterator1 = andCondition.getConditions().iterator(); iterator1.hasNext(); ) {
+                Condition condition = iterator1.next();
+
+                sql.append("(");
+
+                condition.accept(this);
+
+                sql.append(")");
+
+                if (iterator1.hasNext()) {
+                    sql.append(" AND ");
+                }
+            }
+
+            sql.append(")");
+
+            if (iterator.hasNext()) {
+                sql.append(" OR ");
+            }
+        }
     }
 
     @Override
@@ -101,7 +129,9 @@ public class DefaultVisitor implements QueryVisitor {
 
     @Override
     public void start(Equals equals) {
-
+        equals.getFirst().accept(this);
+        sql.append("=");
+        equals.getSecond().accept(this);
     }
 
     @Override
@@ -111,7 +141,7 @@ public class DefaultVisitor implements QueryVisitor {
 
     @Override
     public void start(ColumnSpec columnSpec) {
-
+        sql.append(columnSpec.getName());
     }
 
     @Override
@@ -126,7 +156,7 @@ public class DefaultVisitor implements QueryVisitor {
 
     @Override
     public void start(TableRef tableRef) {
-
+        sql.append(tableRef.getTypeName());
     }
 
     @Override
@@ -190,6 +220,16 @@ public class DefaultVisitor implements QueryVisitor {
 
     @Override
     public void finish(DeleteQuery deleteQuery) {
+
+    }
+
+    @Override
+    public void start(IntLiteral intLiteral) {
+        sql.append(intLiteral.getValue());
+    }
+
+    @Override
+    public void finish(IntLiteral intLiteral) {
 
     }
 }

@@ -10,6 +10,14 @@ public class AndCondition implements QueryElement {
 
     private List<Condition> conditions = new ArrayList<>();
 
+    public void add(Condition qualification) {
+        conditions.add(qualification);
+    }
+
+    public List<Condition> getConditions() {
+        return conditions;
+    }
+
     @Override
     public void accept(QueryVisitor visitor) {
         visitor.start(this);

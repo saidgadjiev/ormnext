@@ -1,46 +1,36 @@
 package ru.said.miami.orm.core.query.core;
 
 import ru.said.miami.orm.core.field.DataType;
+import ru.said.miami.orm.core.field.FieldType;
 import ru.said.miami.orm.core.query.visitor.QueryElement;
 import ru.said.miami.orm.core.query.visitor.QueryVisitor;
 
 public class AttributeDefenition implements QueryElement {
-    private String name;
 
-    private DataType dataType;
+    private FieldType fieldType;
 
-    private boolean id;
-
-    private boolean generated;
-
-    private int length;
-
-    public AttributeDefenition(String name, DataType dataType, int length, boolean id, boolean generated) {
-        this.name = name;
-        this.dataType = dataType;
-        this.length = length;
-        this.id = id;
-        this.generated = generated;
+    public AttributeDefenition(FieldType fieldType) {
+        this.fieldType = fieldType;
     }
 
     public String getName() {
-        return name;
+        return fieldType.getFieldName();
     }
 
     public boolean isId() {
-        return id;
+        return fieldType.isId();
     }
 
     public boolean isGenerated() {
-        return generated;
+        return fieldType.isGenerated();
     }
 
     public DataType getDataType() {
-        return dataType;
+        return fieldType.getDataType();
     }
 
     public int getLength() {
-        return length;
+        return fieldType.getLength();
     }
 
     @Override

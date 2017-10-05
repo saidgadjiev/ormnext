@@ -1,5 +1,7 @@
 package ru.said.miami.orm.core.field;
 
+import ru.said.miami.orm.core.query.core.Operand;
+
 import java.lang.reflect.Field;
 import java.util.Optional;
 
@@ -16,6 +18,8 @@ public class FieldType {
     private boolean id;
 
     private boolean generated;
+
+    private DataPersister dataPersister;
 
     public String getFieldName() {
         return fieldName;
@@ -47,6 +51,10 @@ public class FieldType {
         return field.get(object);
     }
 
+    public DataPersister getDataPersister() {
+        return dataPersister;
+    }
+
     public void assignField(Object object, Object value) throws IllegalAccessException {
         if (!field.isAccessible()) {
             field.setAccessible(true);
@@ -70,6 +78,7 @@ public class FieldType {
         fieldType.length = dbField.length();
         fieldType.id = dbField.id();
         fieldType.generated = dbField.generated();
+        fieldType.dataPersister = DataPersisterManager.lookupField(field);
 
         return Optional.of(fieldType);
     }

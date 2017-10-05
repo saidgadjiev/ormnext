@@ -7,6 +7,7 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Базовый класс для DAO. Используется в DaoManager
@@ -38,9 +39,9 @@ public abstract class BaseDaoImpl<T, ID> implements Dao<T, ID> {
     }
 
     @Override
-    public T queryForId(ID id) throws SQLException {
+    public Optional<T> queryForId(ID id) throws SQLException {
         try (Connection connection = dataSource.getConnection()) {
-            return statementExecutor.queryForId(connection, id);
+            return Optional.ofNullable(statementExecutor.queryForId(connection, id));
         }
     }
 

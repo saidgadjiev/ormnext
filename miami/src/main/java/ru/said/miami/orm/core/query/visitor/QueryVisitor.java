@@ -56,4 +56,8 @@ public interface QueryVisitor {
     void start(DeleteQuery deleteQuery);
 
     void finish(DeleteQuery deleteQuery);
+
+    void start(IntLiteral intLiteral);
+
+    void finish(IntLiteral intLiteral);
 }

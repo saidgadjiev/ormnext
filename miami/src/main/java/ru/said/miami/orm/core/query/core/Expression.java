@@ -13,6 +13,14 @@ public class Expression implements Condition {
 
     private List<AndCondition> conditions = new ArrayList<>();
 
+    public void add(AndCondition condition) {
+        conditions.add(condition);
+    }
+
+    public List<AndCondition> getConditions() {
+        return conditions;
+    }
+
     @Override
     public void accept(QueryVisitor visitor) {
         visitor.start(this);

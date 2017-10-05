@@ -2,6 +2,7 @@ package ru.said.miami.orm.core.dao;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Класс для DAO
@@ -26,7 +27,7 @@ public interface Dao<T, ID> {
      * @return возвращает объект с заданной id или null
      * @throws SQLException если произошла ошибка при выполнении запроса
      */
-    T queryForId(ID id) throws SQLException;
+    Optional<T> queryForId(ID id) throws SQLException;
 
     /**
      * Метод получает все объекты из таблицы T

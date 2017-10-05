@@ -8,11 +8,22 @@ public class Equals implements Condition {
 
     private Operand second;
 
+    public Equals(Operand first, Operand second) {
+        this.first = first;
+        this.second = second;
+    }
+
+    public Operand getFirst() {
+        return first;
+    }
+
+    public Operand getSecond() {
+        return second;
+    }
+
     @Override
     public void accept(QueryVisitor visitor) {
         visitor.start(this);
-        first.accept(visitor);
-        second.accept(visitor);
         visitor.finish(this);
     }
 }

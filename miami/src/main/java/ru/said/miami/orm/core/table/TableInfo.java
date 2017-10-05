@@ -11,18 +11,21 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-public final class TableInfo {
+public final class TableInfo<T> {
 
     private final List<FieldType> fieldTypes;
 
-    private final Optional<FieldType> idField;
+    private final FieldType idField;
 
     private String tableName;
 
-    private TableInfo(String tableName, List<FieldType> fieldTypes) {
+    private Class<T> tableClass;
+
+    private TableInfo(Class<T> tableClass, String tableName, List<FieldType> fieldTypes) {
+        this.tableClass = tableClass;
         this.tableName = tableName;
         this.fieldTypes = fieldTypes;
-        idField = fieldTypes.stream().filter(fieldType -> fieldType.isId() && fieldType.isGenerated()).findFirst();
+        idField = fieldTypes.stream().filter(fieldType -> fieldType.isId() && fieldType.isGenerated()).findFirst().orElse(null);
     }
 
     public String getTableName() {
@@ -34,7 +37,11 @@ public final class TableInfo {
     }
 
     public Optional<FieldType> getIdField() {
-        return idField;
+        return Optional.ofNullable(idField);
+    }
+
+    public Class<T> getTableClass() {
+        return tableClass;
     }
 
     public static<T> TableInfo buildTableInfo(Class<T> clazz) {
@@ -51,6 +58,6 @@ public final class TableInfo {
                     + " annotation in " + clazz);
         }
 
-        return new TableInfo(clazz.getAnnotation(DBTable.class).name(), fieldTypes);
+        return new TableInfo<T>(clazz, clazz.getAnnotation(DBTable.class).name(), fieldTypes);
     }
 }

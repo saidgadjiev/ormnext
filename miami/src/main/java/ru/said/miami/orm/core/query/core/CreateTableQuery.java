@@ -10,6 +10,11 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class CreateTableQuery implements Query, QueryElement {
 
@@ -34,19 +39,11 @@ public class CreateTableQuery implements Query, QueryElement {
     }
 
     public static CreateTableQuery buildQuery(String typeName, List<FieldType> fieldTypes) {
-        List<AttributeDefenition> attributeDefenitions = new ArrayList<>();
-
-        for (FieldType fieldType: fieldTypes) {
-            attributeDefenitions.add(
-                    new AttributeDefenition(
-                            fieldType.getFieldName(),
-                            fieldType.getDataType(),
-                            fieldType.getLength(),
-                            fieldType.isId(),
-                            fieldType.isGenerated()));
-        }
-
-        return new CreateTableQuery(typeName, attributeDefenitions, new DefaultVisitor());
+        return new CreateTableQuery(
+                typeName,
+                fieldTypes.stream().map(AttributeDefenition::new).collect(Collectors.toList()),
+                new DefaultVisitor()
+        );
     }
 
     @Override

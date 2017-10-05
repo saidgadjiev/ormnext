@@ -8,6 +8,20 @@ import ru.said.miami.orm.core.query.visitor.QueryVisitor;
  */
 public class TableRef implements QueryElement {
 
+    private String typeName;
+
+    public TableRef(String typeName) {
+        this.typeName = typeName;
+    }
+
+    public String getTypeName() {
+        return typeName;
+    }
+
+    public void setTypeName(String typeName) {
+        this.typeName = typeName;
+    }
+
     @Override
     public void accept(QueryVisitor visitor) {
         visitor.start(this);
