@@ -19,7 +19,7 @@ public abstract class BaseDaoImpl<T, ID> implements Dao<T, ID> {
     private final DataSource dataSource;
     private StatementExecutor<T, ID> statementExecutor;
 
-    public BaseDaoImpl(DataSource dataSource, TableInfo tableInfo) {
+    public BaseDaoImpl(DataSource dataSource, TableInfo<T> tableInfo) {
         this.dataSource = dataSource;
         this.statementExecutor = new StatementExecutor<>(tableInfo);
     }
@@ -39,9 +39,9 @@ public abstract class BaseDaoImpl<T, ID> implements Dao<T, ID> {
     }
 
     @Override
-    public Optional<T> queryForId(ID id) throws SQLException {
+    public T queryForId(ID id) throws SQLException {
         try (Connection connection = dataSource.getConnection()) {
-            return Optional.ofNullable(statementExecutor.queryForId(connection, id));
+            return statementExecutor.queryForId(connection, id);
         }
     }
 
@@ -63,6 +63,13 @@ public abstract class BaseDaoImpl<T, ID> implements Dao<T, ID> {
     public int delete(T object) throws SQLException {
         try (Connection connection = dataSource.getConnection()) {
             return statementExecutor.create(connection, object);
+        }
+    }
+
+    @Override
+    public int deleteById(ID id) throws SQLException {
+        try (Connection connection = dataSource.getConnection()) {
+            return statementExecutor.deleteById(connection, id);
         }
     }
 

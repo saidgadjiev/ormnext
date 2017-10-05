@@ -60,4 +60,8 @@ public interface QueryVisitor {
     void start(IntLiteral intLiteral);
 
     void finish(IntLiteral intLiteral);
+
+    boolean start(UpdateQuery updateQuery);
+
+    void finish(UpdateQuery updateQuery);
 }

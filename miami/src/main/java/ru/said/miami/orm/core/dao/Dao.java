@@ -27,7 +27,7 @@ public interface Dao<T, ID> {
      * @return возвращает объект с заданной id или null
      * @throws SQLException если произошла ошибка при выполнении запроса
      */
-    Optional<T> queryForId(ID id) throws SQLException;
+    T queryForId(ID id) throws SQLException;
 
     /**
      * Метод получает все объекты из таблицы T
@@ -51,4 +51,6 @@ public interface Dao<T, ID> {
      * @throws SQLException если произошла ошибка при выполнении запроса
      */
     int delete(T object) throws SQLException;
+
+    int deleteById(ID id) throws SQLException;
 }

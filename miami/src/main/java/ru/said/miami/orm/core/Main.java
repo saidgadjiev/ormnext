@@ -15,6 +15,7 @@ public class Main {
 
         dataSource.setUrl("jdbc:sqlite:C:/test.sqlite");
         Dao<Test, Integer> dao = DaoManager.createDAO(dataSource, Test.class);
+        Test test = getTestObject();
         List<Test> result = dao.queryForAll();
 
         System.out.println("result = " + result.toString());

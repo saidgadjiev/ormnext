@@ -3,6 +3,8 @@ package ru.said.miami.orm.core.query.visitor;
 import ru.said.miami.orm.core.field.DataType;
 import ru.said.miami.orm.core.query.core.*;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Iterator;
 
 /**
@@ -167,7 +169,7 @@ public class DefaultVisitor implements QueryVisitor {
     @Override
     public void start(CreateTableQuery tCreateTableQuery) {
         sql.append("CREATE TABLE ").append(tCreateTableQuery.getTypeName()).append(" (");
-        for (Iterator<AttributeDefenition> iterator = tCreateTableQuery.getAttributeDefenitions().iterator(); iterator.hasNext();) {
+        for (Iterator<AttributeDefenition> iterator = tCreateTableQuery.getAttributeDefenitions().iterator(); iterator.hasNext(); ) {
             AttributeDefenition attributeDefenition = iterator.next();
 
             sql.append(attributeDefenition.getName()).append(" ");
@@ -215,7 +217,10 @@ public class DefaultVisitor implements QueryVisitor {
 
     @Override
     public void start(DeleteQuery deleteQuery) {
-
+        sql.append("DELETE FROM ").append(deleteQuery.getTypeName());
+        if (!deleteQuery.getWhere().getConditions().isEmpty()) {
+            sql.append(" WHERE ");
+        }
     }
 
     @Override
@@ -230,6 +235,32 @@ public class DefaultVisitor implements QueryVisitor {
 
     @Override
     public void finish(IntLiteral intLiteral) {
+
+    }
+
+    @Override
+    public boolean start(UpdateQuery updateQuery) {
+        sql.append("UPDATE ").append(updateQuery.getTypeName()).append(" SET ");
+
+        for (Iterator<UpdateValue> iterator = updateQuery.getUpdateValues().iterator(); iterator.hasNext(); ) {
+            UpdateValue updateValue = iterator.next();
+            RValue value = updateValue.getValue();
+
+            sql.append(updateValue.getName()).append("=");
+            value.accept(this);
+            if (iterator.hasNext()) {
+                sql.append(",");
+            }
+        }
+        if (!updateQuery.getWhere().getConditions().isEmpty()) {
+            sql.append(" WHERE ");
+        }
+
+        return false;
+    }
+
+    @Override
+    public void finish(UpdateQuery updateQuery) {
 
     }
 }

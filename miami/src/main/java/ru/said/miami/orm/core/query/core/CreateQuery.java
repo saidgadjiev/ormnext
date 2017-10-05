@@ -71,12 +71,12 @@ public class CreateQuery implements Query, QueryElement {
     }
 
     @Override
-    public <T> T execute(Connection connection) throws SQLException {
+    public Integer execute(Connection connection) throws SQLException {
         this.accept(visitor);
         String sql = visitor.getQuery();
 
         try (Statement statement = connection.createStatement()) {
-            statement.execute(sql);
+            statement.executeUpdate(sql);
             ResultSet rsKeys = statement.getGeneratedKeys();
             if (rsKeys.next()) {
                 generatedKey = getIdColumnData(rsKeys, rsKeys.getMetaData(), 1);
@@ -84,7 +84,7 @@ public class CreateQuery implements Query, QueryElement {
                 generatedKey = null;
             }
 
-            return (T) new Integer(statement.getUpdateCount());
+            return statement.getUpdateCount();
         }
     }
 
@@ -107,7 +107,7 @@ public class CreateQuery implements Query, QueryElement {
         return Optional.ofNullable(generatedKey);
     }
 
-    public static CreateQuery buildQuery(String typeName, List<FieldType> fieldTypes, Object object) throws SQLException {
+    public static<T> CreateQuery buildQuery(String typeName, List<FieldType> fieldTypes, T object) throws SQLException {
         CreateQuery createQuery = new CreateQuery(typeName, new DefaultVisitor());
 
         try {

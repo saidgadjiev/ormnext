@@ -3,6 +3,7 @@ package ru.said.miami.orm.core.table;
 import ru.said.miami.orm.core.field.DBField;
 import ru.said.miami.orm.core.field.FieldType;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,9 +22,12 @@ public final class TableInfo<T> {
 
     private Class<T> tableClass;
 
-    private TableInfo(Class<T> tableClass, String tableName, List<FieldType> fieldTypes) {
+    private Constructor<T> constructor;
+
+    private TableInfo(Class<T> tableClass, Constructor<T> constructor, String tableName, List<FieldType> fieldTypes) {
         this.tableClass = tableClass;
         this.tableName = tableName;
+        this.constructor = constructor;
         this.fieldTypes = fieldTypes;
         idField = fieldTypes.stream().filter(fieldType -> fieldType.isId() && fieldType.isGenerated()).findFirst().orElse(null);
     }
@@ -44,7 +48,11 @@ public final class TableInfo<T> {
         return tableClass;
     }
 
-    public static<T> TableInfo buildTableInfo(Class<T> clazz) {
+    public Constructor<T> getConstructor() {
+        return constructor;
+    }
+
+    public static<T> TableInfo buildTableInfo(Class<T> clazz) throws NoSuchMethodException {
         if (!clazz.isAnnotationPresent(DBTable.class)) {
             return null;
         }
@@ -58,6 +66,17 @@ public final class TableInfo<T> {
                     + " annotation in " + clazz);
         }
 
-        return new TableInfo<T>(clazz, clazz.getAnnotation(DBTable.class).name(), fieldTypes);
+        return new TableInfo<T>(clazz, lookupDefaultConstructor(clazz), clazz.getAnnotation(DBTable.class).name(), fieldTypes);
+    }
+
+    private static<T> Constructor<T> lookupDefaultConstructor(Class<T> clazz) throws NoSuchMethodException {
+        for (Constructor<?> constructor: clazz.getDeclaredConstructors()) {
+            if (constructor.getParameterCount() == 0) {
+                return (Constructor<T>) constructor;
+            }
+        }
+        throw new IllegalArgumentException("No define default constructor");
     }
 }
+
+

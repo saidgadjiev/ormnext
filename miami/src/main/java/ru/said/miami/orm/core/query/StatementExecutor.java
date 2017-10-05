@@ -4,11 +4,11 @@ import ru.said.miami.orm.core.field.FieldType;
 import ru.said.miami.orm.core.query.core.*;
 import ru.said.miami.orm.core.table.TableInfo;
 
+import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -69,11 +69,13 @@ public class StatementExecutor<T, ID> {
      * Выполняет запрос вида UPDATE ... SET colname1 = colvalue1 SET colname2 = colvalue2 WHERE = object.id
      */
     public int update(Connection connection, T object) throws SQLException {
-        Query query = UpdateQuery.buildQuery(tableInfo.getTableName());
-        Integer result;
+        if (tableInfo.getIdField().isPresent()) {
+            Query query = UpdateQuery.buildQuery(tableInfo.getTableName(), tableInfo.getFieldTypes(), tableInfo.getIdField().get(), object);
+            Integer result;
 
-        if ((result = query.execute(connection)) != null) {
-            return result;
+            if ((result = query.execute(connection)) != null) {
+                return result;
+            }
         }
 
         return 0;
@@ -84,11 +86,34 @@ public class StatementExecutor<T, ID> {
      * Выполняет запрос вида DELETE FROM ... WHERE = object.id
      */
     public int delete(Connection connection, T object) throws SQLException {
-        Query query = DeleteQuery.buildQuery(tableInfo.getTableName());
-        Integer result;
+        if (tableInfo.getIdField().isPresent()) {
+            try {
+                Query query = DeleteQuery.buildQuery(tableInfo.getTableName(), tableInfo.getIdField().get(), tableInfo.getIdField().get().getValue(object));
+                Integer result;
 
-        if ((result = query.execute(connection)) != null) {
-            return result;
+                if ((result = query.execute(connection)) != null) {
+                    return result;
+                }
+            } catch (IllegalAccessException ex) {
+                throw new SQLException(ex);
+            }
+        }
+
+        return 0;
+    }
+
+    /**
+     * Сохраняет объект в базе
+     * Выполняет запрос вида DELETE FROM ... WHERE = object.id
+     */
+    public int deleteById(Connection connection, ID id) throws SQLException {
+        if (tableInfo.getIdField().isPresent()) {
+            Query query = DeleteQuery.buildQuery(tableInfo.getTableName(), tableInfo.getIdField().get(), id);
+            Integer result;
+
+            if ((result = query.execute(connection)) != null) {
+                return result;
+            }
         }
 
         return 0;
@@ -106,7 +131,7 @@ public class StatementExecutor<T, ID> {
                 if (result.next()) {
                     return mapResult(result.get());
                 }
-            } catch (IllegalAccessException | InstantiationException ex) {
+            } catch (IllegalAccessException | InvocationTargetException | InstantiationException ex) {
                 throw new SQLException(ex);
             }
         }
@@ -126,15 +151,16 @@ public class StatementExecutor<T, ID> {
             while (result.next()) {
                 resultObjectList.add(mapResult(result.get()));
             }
-        } catch (IllegalAccessException | InstantiationException ex) {
+        } catch (IllegalAccessException | InvocationTargetException | InstantiationException ex) {
             throw new SQLException(ex);
         }
 
         return resultObjectList;
     }
 
-    private T mapResult(IMiamiData data) throws SQLException, IllegalAccessException, InstantiationException {
-        T resultObject = tableInfo.getTableClass().newInstance();
+    private T mapResult(IMiamiData data) throws SQLException, InvocationTargetException, IllegalAccessException, InstantiationException {
+        //TODO: Возможно стоит вынести эту логику в отдельный класс
+        T resultObject = tableInfo.getConstructor().newInstance();
 
         for (FieldType fieldType : tableInfo.getFieldTypes()) {
             fieldType.assignField(resultObject, data.getObject(fieldType.getFieldName()));

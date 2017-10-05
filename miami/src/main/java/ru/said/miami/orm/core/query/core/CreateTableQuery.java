@@ -56,14 +56,14 @@ public class CreateTableQuery implements Query, QueryElement {
     }
 
     @Override
-    public <T> T execute(Connection connection) throws SQLException {
+    public Boolean execute(Connection connection) throws SQLException {
         this.accept(visitor);
         String sql = visitor.getQuery();
 
         try (Statement statement = connection.createStatement()) {
             statement.execute(sql);
 
-            return (T) new Boolean(true);
+            return true;
         }
     }
 }

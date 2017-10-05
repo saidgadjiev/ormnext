@@ -13,6 +13,14 @@ public class Test {
     @DBField(fieldName = "name", dataType = DataType.STRING, length = 16)
     private String name;
 
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
     public void setName(String name) {
         this.name = name;
     }
