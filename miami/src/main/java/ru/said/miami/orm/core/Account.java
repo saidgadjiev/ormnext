@@ -4,14 +4,19 @@ import ru.said.miami.orm.core.field.DBField;
 import ru.said.miami.orm.core.field.DataType;
 import ru.said.miami.orm.core.table.DBTable;
 
-@DBTable(name = "test")
-public class Test {
+import javax.xml.crypto.Data;
 
-    @DBField(fieldName = "id", dataType = DataType.INTEGER, id = true, generated = true)
+@DBTable(name = "account")
+public class Account {
+
+    @DBField(id = true, generated = true)
     private Integer id;
 
-    @DBField(fieldName = "name", dataType = DataType.STRING, length = 16)
+    @DBField(dataType = DataType.STRING)
     private String name;
+
+    @DBField(foreign = true)
+    private Order order;
 
     public Integer getId() {
         return id;
@@ -21,19 +26,19 @@ public class Test {
         this.id = id;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public String getName() {
         return name;
     }
 
-    @Override
-    public String toString() {
-        return "Test{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                '}';
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Order getOrder() {
+        return order;
+    }
+
+    public void setOrder(Order order) {
+        this.order = order;
     }
 }

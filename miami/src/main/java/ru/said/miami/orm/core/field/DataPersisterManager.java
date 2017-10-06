@@ -1,6 +1,7 @@
 package ru.said.miami.orm.core.field;
 
 import ru.said.miami.orm.core.field.persisters.IntegerDataPersister;
+import ru.said.miami.orm.core.field.persisters.StringDataPersister;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -13,17 +14,19 @@ public class DataPersisterManager {
 
     static {
         registeredPersisters.add(new IntegerDataPersister());
+        registeredPersisters.add(new StringDataPersister());
     }
 
-    private DataPersisterManager() {}
+    private DataPersisterManager() {
+    }
 
     public static DataPersister lookupField(Field field) {
         for (DataPersister persister : registeredPersisters) {
-                if (persister.getAssociatedClass() == field.getType()) {
-                    return persister;
-                }
+            if (persister.getAssociatedClass() == field.getType()) {
+                return persister;
             }
+        }
 
-        return null;
+        throw new IllegalArgumentException("Persister for field not found");
     }
 }

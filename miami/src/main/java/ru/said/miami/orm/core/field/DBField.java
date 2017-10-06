@@ -18,4 +18,6 @@ public @interface DBField {
     boolean id() default false;
 
     boolean generated() default false;
+
+    boolean foreign() default false;
 }

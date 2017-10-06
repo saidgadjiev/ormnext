@@ -7,4 +7,6 @@ public interface DataPersister {
     Class<?> getAssociatedClass();
 
     Operand getAssociatedOperand(Object object);
+
+    DataType getDataType();
 }

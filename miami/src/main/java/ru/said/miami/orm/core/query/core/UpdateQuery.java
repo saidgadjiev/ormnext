@@ -122,7 +122,6 @@ public class UpdateQuery implements Query, QueryElement {
             for (UpdateValue updateValue : updateValues) {
                 updateValue.accept(visitor);
             }
-
         }
         where.accept(visitor);
         visitor.finish(this);

@@ -2,23 +2,22 @@ package ru.said.miami.orm.core.field.persisters;
 
 import ru.said.miami.orm.core.field.DataPersister;
 import ru.said.miami.orm.core.field.DataType;
-import ru.said.miami.orm.core.query.core.IntLiteral;
 import ru.said.miami.orm.core.query.core.Operand;
+import ru.said.miami.orm.core.query.core.StringLiteral;
 
-public class IntegerDataPersister implements DataPersister {
-
+public class StringDataPersister implements DataPersister {
     @Override
     public Class<?> getAssociatedClass() {
-        return Integer.class;
+        return String.class;
     }
 
     @Override
     public Operand getAssociatedOperand(Object object) {
-        return new IntLiteral((Integer) object);
+        return new StringLiteral((String) object);
     }
 
     @Override
     public DataType getDataType() {
-        return DataType.INTEGER;
+        return DataType.STRING;
     }
 }

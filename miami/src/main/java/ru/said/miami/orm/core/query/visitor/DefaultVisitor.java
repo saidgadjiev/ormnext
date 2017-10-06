@@ -198,6 +198,12 @@ public class DefaultVisitor implements QueryVisitor {
             case INTEGER:
                 sql.append("INTEGER");
                 break;
+            case BOOLEAN:
+                sql.append("BOOLEAN");
+                break;
+            case DATE:
+                sql.append("TIMESTAMP");
+                break;
             case UNKNOWN:
                 break;
         }

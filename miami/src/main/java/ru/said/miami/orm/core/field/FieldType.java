@@ -74,11 +74,11 @@ public class FieldType {
 
         fieldType.field = field;
         fieldType.fieldName = dbField.fieldName().isEmpty() ? field.getName().toLowerCase() : dbField.fieldName();
-        fieldType.dataType = dbField.dataType();
+        fieldType.dataPersister = DataPersisterManager.lookupField(field);
+        fieldType.dataType = dbField.dataType().equals(DataType.UNKNOWN) ? fieldType.dataPersister.getDataType(): dbField.dataType();
         fieldType.length = dbField.length();
         fieldType.id = dbField.id();
         fieldType.generated = dbField.generated();
-        fieldType.dataPersister = DataPersisterManager.lookupField(field);
 
         return Optional.of(fieldType);
     }

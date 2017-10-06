@@ -5,8 +5,6 @@ import ru.said.miami.orm.core.dao.Dao;
 import ru.said.miami.orm.core.dao.DaoManager;
 
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Optional;
 
 public class Main {
 
@@ -14,18 +12,16 @@ public class Main {
         SQLiteDataSource dataSource = new SQLiteDataSource();
 
         dataSource.setUrl("jdbc:sqlite:C:/test.sqlite");
-        Dao<Test, Integer> dao = DaoManager.createDAO(dataSource, Test.class);
-        Test test = getTestObject();
-        List<Test> result = dao.queryForAll();
+        Dao<Order, Integer> dao = DaoManager.createDAO(dataSource, Order.class);
 
-        System.out.println("result = " + result.toString());
+        System.out.println("result = " + dao.createTable());
     }
 
-    public static Test getTestObject() {
-        Test test = new Test();
+    public static Order getTestObject() {
+        Order order = new Order();
 
-        test.setName("test_name");
+        order.setName("test_name");
 
-        return test;
+        return order;
     }
 }

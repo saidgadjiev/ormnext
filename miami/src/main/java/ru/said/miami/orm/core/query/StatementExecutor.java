@@ -78,7 +78,7 @@ public class StatementExecutor<T, ID> {
             }
         }
 
-        return 0;
+        throw new SQLException("Id field not defined. Can't update object");
     }
 
     /**
@@ -99,7 +99,7 @@ public class StatementExecutor<T, ID> {
             }
         }
 
-        return 0;
+        throw new SQLException("Id field not defined. Can't delete object");
     }
 
     /**
@@ -116,7 +116,7 @@ public class StatementExecutor<T, ID> {
             }
         }
 
-        return 0;
+        throw new SQLException("Id field not defined. Can't delete object");
     }
 
     /**
@@ -136,7 +136,7 @@ public class StatementExecutor<T, ID> {
             }
         }
 
-        return null;
+        throw new SQLException("Id field not defined. Can't select object");
     }
 
     /**
