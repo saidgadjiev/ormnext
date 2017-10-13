@@ -1,6 +1,6 @@
 package ru.said.miami.orm.core.query.core;
 
-import ru.said.miami.orm.core.field.FieldType;
+import ru.said.miami.orm.core.field.DBFieldType;
 import ru.said.miami.orm.core.query.visitor.DefaultVisitor;
 import ru.said.miami.orm.core.query.visitor.QueryElement;
 import ru.said.miami.orm.core.query.visitor.QueryVisitor;
@@ -76,15 +76,16 @@ public class CreateQuery implements Query, QueryElement {
         String sql = visitor.getQuery();
 
         try (Statement statement = connection.createStatement()) {
-            statement.executeUpdate(sql);
+            Integer count = statement.executeUpdate(sql);
             ResultSet rsKeys = statement.getGeneratedKeys();
+
             if (rsKeys.next()) {
                 generatedKey = getIdColumnData(rsKeys, rsKeys.getMetaData(), 1);
             } else {
                 generatedKey = null;
             }
 
-            return statement.getUpdateCount();
+            return count;
         }
     }
 
@@ -107,15 +108,17 @@ public class CreateQuery implements Query, QueryElement {
         return Optional.ofNullable(generatedKey);
     }
 
-    public static<T> CreateQuery buildQuery(String typeName, List<FieldType> fieldTypes, T object) throws SQLException {
+    public static<T> CreateQuery buildQuery(String typeName, List<DBFieldType> fieldTypes, T object) throws SQLException {
         CreateQuery createQuery = new CreateQuery(typeName, new DefaultVisitor());
 
         try {
-           for (FieldType fieldType : fieldTypes) {
-                createQuery.updateValues.add(
-                        new UpdateValue(
-                                fieldType.getFieldName(), FieldConverter.getInstanse().convert(fieldType.getDataType(), fieldType.getValue(object)))
-                );
+            if (fieldTypes != null && object != null) {
+                for (DBFieldType fieldType : fieldTypes) {
+                    createQuery.updateValues.add(
+                            new UpdateValue(
+                                    fieldType.getFieldName(), FieldConverter.getInstanse().convert(fieldType.getDataType(), fieldType.getValue(object)))
+                    );
+                }
             }
         } catch (IllegalAccessException ex) {
             throw new SQLException(ex);

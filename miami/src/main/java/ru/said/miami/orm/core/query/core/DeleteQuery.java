@@ -1,15 +1,13 @@
 package ru.said.miami.orm.core.query.core;
 
-import ru.said.miami.orm.core.field.FieldType;
+import ru.said.miami.orm.core.field.DBFieldType;
 import ru.said.miami.orm.core.query.visitor.DefaultVisitor;
 import ru.said.miami.orm.core.query.visitor.QueryElement;
 import ru.said.miami.orm.core.query.visitor.QueryVisitor;
 
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.List;
 
 /**
  * Класс DELETE запроса
@@ -53,7 +51,7 @@ public class DeleteQuery implements Query, QueryElement {
         }
     }
 
-    public static <T> DeleteQuery buildQuery(String typeName, FieldType idField, T id) {
+    public static <T> DeleteQuery buildQuery(String typeName, DBFieldType idField, T id) {
         DeleteQuery deleteQuery = new DeleteQuery(new DefaultVisitor(), typeName);
         AndCondition andCondition = new AndCondition();
 

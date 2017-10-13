@@ -1,19 +1,15 @@
 package ru.said.miami.orm.core.query.core;
 
-import ru.said.miami.orm.core.field.FieldType;
+import ru.said.miami.orm.core.field.DBFieldType;
 import ru.said.miami.orm.core.query.visitor.DefaultVisitor;
 import ru.said.miami.orm.core.query.visitor.QueryElement;
 import ru.said.miami.orm.core.query.visitor.QueryVisitor;
 
-import javax.swing.text.html.Option;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
-import java.util.Optional;
 
 /**
  * Класс SELECT запроса
@@ -98,7 +94,7 @@ public class SelectQuery implements Query, QueryElement {
         };
     }
 
-    public static<T> SelectQuery buildQueryById(String typeName, FieldType idField, T id) {
+    public static<T> SelectQuery buildQueryById(String typeName, DBFieldType idField, T id) {
         SelectQuery selectQuery = new SelectQuery(new DefaultVisitor());
         selectQuery.setFrom(new TableRef(typeName));
         AndCondition andCondition = new AndCondition();

@@ -1,6 +1,6 @@
 package ru.said.miami.orm.core.query.core;
 
-import ru.said.miami.orm.core.field.FieldType;
+import ru.said.miami.orm.core.field.DBFieldType;
 import ru.said.miami.orm.core.query.visitor.DefaultVisitor;
 import ru.said.miami.orm.core.query.visitor.QueryElement;
 import ru.said.miami.orm.core.query.visitor.QueryVisitor;
@@ -95,11 +95,11 @@ public class UpdateQuery implements Query, QueryElement {
      * Создание экземпляра UpdateQuery
      * @return возвращет экземляр UpdateQuery
      */
-    public static<T, ID> UpdateQuery buildQuery(String typeName, List<FieldType> fieldTypes, FieldType idField, T object) throws SQLException {
+    public static<T, ID> UpdateQuery buildQuery(String typeName, List<DBFieldType> fieldTypes, DBFieldType idField, T object) throws SQLException {
         UpdateQuery updateQuery = new UpdateQuery(typeName, new DefaultVisitor());
 
         try {
-            for (FieldType fieldType : fieldTypes) {
+            for (DBFieldType fieldType : fieldTypes) {
                 updateQuery.updateValues.add(
                         new UpdateValue(
                                 fieldType.getFieldName(), FieldConverter.getInstanse().convert(fieldType.getDataType(), fieldType.getValue(object)))

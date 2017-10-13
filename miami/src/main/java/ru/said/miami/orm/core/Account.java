@@ -2,9 +2,11 @@ package ru.said.miami.orm.core;
 
 import ru.said.miami.orm.core.field.DBField;
 import ru.said.miami.orm.core.field.DataType;
+import ru.said.miami.orm.core.field.ForeignCollectionField;
 import ru.said.miami.orm.core.table.DBTable;
 
 import javax.xml.crypto.Data;
+import java.util.List;
 
 @DBTable(name = "account")
 public class Account {
@@ -15,8 +17,8 @@ public class Account {
     @DBField(dataType = DataType.STRING)
     private String name;
 
-    @DBField(foreign = true)
-    private Order order;
+    @ForeignCollectionField(foreignFieldName = "account")
+    private List<Order> orders;
 
     public Integer getId() {
         return id;
@@ -34,11 +36,20 @@ public class Account {
         this.name = name;
     }
 
-    public Order getOrder() {
-        return order;
+    public List<Order> getOrders() {
+        return orders;
     }
 
-    public void setOrder(Order order) {
-        this.order = order;
+    public void addOrder(Order order) {
+        this.orders.add(order);
+    }
+
+    @Override
+    public String toString() {
+        return "Account{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", orders=" + orders +
+                '}';
     }
 }

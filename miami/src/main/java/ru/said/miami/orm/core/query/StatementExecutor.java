@@ -1,5 +1,10 @@
 package ru.said.miami.orm.core.query;
 
+import javafx.scene.control.Tab;
+import ru.said.miami.orm.core.dao.BaseDaoImpl;
+import ru.said.miami.orm.core.dao.Dao;
+import ru.said.miami.orm.core.dao.DaoManager;
+import ru.said.miami.orm.core.field.DBFieldType;
 import ru.said.miami.orm.core.field.FieldType;
 import ru.said.miami.orm.core.query.core.*;
 import ru.said.miami.orm.core.table.TableInfo;
@@ -9,6 +14,9 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 /**
@@ -21,8 +29,10 @@ public class StatementExecutor<T, ID> {
 
     private TableInfo<T> tableInfo;
 
-    public StatementExecutor(TableInfo<T> tableInfo) {
+    private Dao<T, ID> dao;
 
+    public StatementExecutor(TableInfo<T> tableInfo, Dao<T, ID> dao) {
+        this.dao = dao;
         this.tableInfo = tableInfo;
     }
 
@@ -32,17 +42,40 @@ public class StatementExecutor<T, ID> {
      */
     @SuppressWarnings("unchecked")
     public int create(Connection connection, T object) throws SQLException {
-        CreateQuery query = CreateQuery.buildQuery(
-                tableInfo.getTableName(),
-                tableInfo.getFieldTypes().stream()
-                        .filter(fieldType -> !(fieldType.isId() && fieldType.isGenerated()))
-                        .collect(Collectors.toList()),
-                object);
+        CreateQuery query = CreateQuery.buildQuery(tableInfo.getTableName(), null, null);
+
+        try {
+            for (DBFieldType fieldType : tableInfo.toDBFieldTypes()) {
+                if (fieldType.isId() && fieldType.isGenerated()) {
+                    continue;
+                }
+                Object value = null;
+
+                if (fieldType.isForeign() && fieldType.isForeignAutoCreate()) {
+                    TableInfo<?> foreignTableInfo = fieldType.getForeignTableInfo();
+                    Dao<Object, ?> foreignDao = (BaseDaoImpl<Object, ?>) DaoManager.createDAOWithTableInfo(dao.getDataSource(), foreignTableInfo);
+                    Object foreignObject = fieldType.getValue(object);
+
+                    foreignDao.create(foreignObject);
+                    if (foreignTableInfo.getIdField().isPresent()) {
+                        value = foreignTableInfo.getIdField().get().getValue(foreignObject);
+                    }
+                } else {
+                    value = fieldType.getValue(object);
+                }
+                query.add(new UpdateValue(
+                        fieldType.getFieldName(),
+                        FieldConverter.getInstanse().convert(fieldType.getDataType(), value))
+                );
+            }
+        } catch (IllegalAccessException ex) {
+            throw new SQLException(ex);
+        }
         Integer result;
 
         if ((result = query.execute(connection)) != null) {
             if (tableInfo.getIdField().isPresent()) {
-                FieldType idField = tableInfo.getIdField().get();
+                DBFieldType idField = tableInfo.getIdField().get();
                 Number generatedKey = query.getGeneratedKey().orElseThrow(() -> new SQLException("Запрос не вернул автоинкриментных ключей"));
 
                 try {
@@ -58,8 +91,15 @@ public class StatementExecutor<T, ID> {
         return 0;
     }
 
+    private void assignIdField(DBFieldType idField, Object value) {
+
+    }
+
     public boolean createTable(Connection connection) throws SQLException {
-        CreateTableQuery createTableQuery = CreateTableQuery.buildQuery(tableInfo.getTableName(), tableInfo.getFieldTypes());
+        CreateTableQuery createTableQuery = CreateTableQuery.buildQuery(
+                tableInfo.getTableName(),
+                tableInfo.toDBFieldTypes()
+        );
 
         return createTableQuery.execute(connection);
     }
@@ -70,7 +110,12 @@ public class StatementExecutor<T, ID> {
      */
     public int update(Connection connection, T object) throws SQLException {
         if (tableInfo.getIdField().isPresent()) {
-            Query query = UpdateQuery.buildQuery(tableInfo.getTableName(), tableInfo.getFieldTypes(), tableInfo.getIdField().get(), object);
+            Query query = UpdateQuery.buildQuery(
+                    tableInfo.getTableName(),
+                    tableInfo.toDBFieldTypes(),
+                    tableInfo.getIdField().get(),
+                    object
+            );
             Integer result;
 
             if ((result = query.execute(connection)) != null) {
@@ -158,12 +203,45 @@ public class StatementExecutor<T, ID> {
         return resultObjectList;
     }
 
+    //TODO: стоит пересмотреть сигнатуру метода и вынести в отдельный интерфейс
     private T mapResult(IMiamiData data) throws SQLException, InvocationTargetException, IllegalAccessException, InstantiationException {
         //TODO: Возможно стоит вынести эту логику в отдельный класс
         T resultObject = tableInfo.getConstructor().newInstance();
 
         for (FieldType fieldType : tableInfo.getFieldTypes()) {
-            fieldType.assignField(resultObject, data.getObject(fieldType.getFieldName()));
+
+            if (fieldType.isDBFieldType()) {
+                Object val;
+                DBFieldType dbFieldType = fieldType.getDbFieldType();
+
+                if (dbFieldType.isForeign()) {
+                    TableInfo<?> foreignTableInfo = dbFieldType.getForeignTableInfo();
+                    val = foreignTableInfo.getConstructor().newInstance();
+
+                    if (foreignTableInfo.getIdField().isPresent()) {
+                        foreignTableInfo.getIdField().get().assignField(val, data.getObject(dbFieldType.getFieldName()));
+                    }
+                } else {
+                    val = data.getObject(dbFieldType.getFieldName());
+                }
+                fieldType.getDbFieldType().assignField(resultObject, val);
+            }
+            //TODO: этого не должно быть тут
+            if (fieldType.isForeignCollectionFieldType()) {
+                TableInfo<?> foreignTableInfo = fieldType.getForeignCollectionFieldType().getForeignTableInfo();
+                Dao<Object, ?> foreignDao = (BaseDaoImpl<Object, ?>) DaoManager.createDAOWithTableInfo(dao.getDataSource(), foreignTableInfo);
+                QueryBuilder queryBuilder = new QueryBuilder();
+
+                Object foreignObject = queryBuilder.execute(null);
+
+                if (foreignTableInfo.getIdField().isPresent()) {
+                    DBFieldType idField = foreignTableInfo.getIdField().get();
+
+                    foreignTableInfo.getIdField().get().assignField(foreignObject, data.getObject(idField.getFieldName()));
+                }
+
+                fieldType.getForeignCollectionFieldType().add(resultObject, foreignObject);
+            }
         }
 
         return resultObject;

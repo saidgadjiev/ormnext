@@ -13,6 +13,7 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Maven: com.j256.ormlite:ormlite-jdbc:4.48" level="project" />
     <orderEntry type="library" name="Maven: com.j256.ormlite:ormlite-core:4.48" level="project" />
+    <orderEntry type="module" module-name="miami-cache" />
     <orderEntry type="library" name="Maven: log4j:log4j:1.2.17" level="project" />
     <orderEntry type="library" name="Maven: org.xerial:sqlite-jdbc:3.8.11.2" level="project" />
     <orderEntry type="library" name="Maven: junit:junit:4.11" level="project" />

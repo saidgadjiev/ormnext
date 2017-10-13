@@ -1,6 +1,6 @@
 package ru.said.miami.orm.core.query.core;
 
-import ru.said.miami.orm.core.field.FieldType;
+import ru.said.miami.orm.core.field.DBFieldType;
 import ru.said.miami.orm.core.query.visitor.DefaultVisitor;
 import ru.said.miami.orm.core.query.visitor.QueryElement;
 import ru.said.miami.orm.core.query.visitor.QueryVisitor;
@@ -10,11 +10,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class CreateTableQuery implements Query, QueryElement {
 
@@ -38,7 +34,7 @@ public class CreateTableQuery implements Query, QueryElement {
         return attributeDefenitions;
     }
 
-    public static CreateTableQuery buildQuery(String typeName, List<FieldType> fieldTypes) {
+    public static CreateTableQuery buildQuery(String typeName, List<DBFieldType> fieldTypes) {
         return new CreateTableQuery(
                 typeName,
                 fieldTypes.stream().map(AttributeDefenition::new).collect(Collectors.toList()),

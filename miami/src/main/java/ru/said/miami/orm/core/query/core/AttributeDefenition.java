@@ -1,15 +1,15 @@
 package ru.said.miami.orm.core.query.core;
 
 import ru.said.miami.orm.core.field.DataType;
-import ru.said.miami.orm.core.field.FieldType;
+import ru.said.miami.orm.core.field.DBFieldType;
 import ru.said.miami.orm.core.query.visitor.QueryElement;
 import ru.said.miami.orm.core.query.visitor.QueryVisitor;
 
 public class AttributeDefenition implements QueryElement {
 
-    private FieldType fieldType;
+    private DBFieldType fieldType;
 
-    public AttributeDefenition(FieldType fieldType) {
+    public AttributeDefenition(DBFieldType fieldType) {
         this.fieldType = fieldType;
     }
 

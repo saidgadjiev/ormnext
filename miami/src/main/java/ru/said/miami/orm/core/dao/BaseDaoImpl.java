@@ -17,11 +17,13 @@ import java.util.Optional;
 public abstract class BaseDaoImpl<T, ID> implements Dao<T, ID> {
 
     private final DataSource dataSource;
+    private final TableInfo<T> tableInfo;
     private StatementExecutor<T, ID> statementExecutor;
 
     public BaseDaoImpl(DataSource dataSource, TableInfo<T> tableInfo) {
         this.dataSource = dataSource;
-        this.statementExecutor = new StatementExecutor<>(tableInfo);
+        this.tableInfo = tableInfo;
+        this.statementExecutor = new StatementExecutor<>(tableInfo, this);
     }
 
     @Override
@@ -73,7 +75,16 @@ public abstract class BaseDaoImpl<T, ID> implements Dao<T, ID> {
         }
     }
 
-    public static<T, ID> Dao<T, ID> createDao(DataSource dataSource, TableInfo tableInfo) {
+    @Override
+    public DataSource getDataSource() {
+        return dataSource;
+    }
+
+    public TableInfo<T> getTableInfo() {
+        return tableInfo;
+    }
+
+    public static<T, ID> Dao<T, ID> createDao(DataSource dataSource, TableInfo<T> tableInfo) {
         return new BaseDaoImpl<T, ID>(dataSource, tableInfo) {};
     }
 

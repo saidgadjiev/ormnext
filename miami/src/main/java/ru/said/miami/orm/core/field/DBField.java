@@ -19,5 +19,8 @@ public @interface DBField {
 
     boolean generated() default false;
 
+    //TODO: проблема если две сущности ссылаются друг на друга
     boolean foreign() default false;
+
+    boolean foreignAutoCreate() default false;
 }

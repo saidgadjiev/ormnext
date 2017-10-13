@@ -21,11 +21,11 @@ public class DefaultVisitor implements QueryVisitor {
 
     @Override
     public boolean start(CreateQuery tCreateQuery) {
-        sql.append("INSERT INTO ").append(tCreateQuery.getTypeName()).append(" (");
+        sql.append("INSERT INTO '").append(tCreateQuery.getTypeName()).append("' (");
         for (Iterator<UpdateValue> iterator = tCreateQuery.getUpdateValues().iterator(); iterator.hasNext(); ) {
             UpdateValue updateValue = iterator.next();
 
-            sql.append(updateValue.getName());
+            sql.append("'").append(updateValue.getName()).append("'");
             if (iterator.hasNext()) {
                 sql.append(",");
             }
@@ -168,11 +168,11 @@ public class DefaultVisitor implements QueryVisitor {
 
     @Override
     public void start(CreateTableQuery tCreateTableQuery) {
-        sql.append("CREATE TABLE ").append(tCreateTableQuery.getTypeName()).append(" (");
+        sql.append("CREATE TABLE '").append(tCreateTableQuery.getTypeName()).append("' (");
         for (Iterator<AttributeDefenition> iterator = tCreateTableQuery.getAttributeDefenitions().iterator(); iterator.hasNext(); ) {
             AttributeDefenition attributeDefenition = iterator.next();
 
-            sql.append(attributeDefenition.getName()).append(" ");
+            sql.append("'").append(attributeDefenition.getName()).append("' ");
             appendAttributeDataType(attributeDefenition);
             if (attributeDefenition.isId()) {
                 sql.append(" PRIMARY KEY");
