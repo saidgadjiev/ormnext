@@ -71,7 +71,7 @@ public class ForeignMain {
 		int itemNumber1 = 21312;
 		float price1 = 12.32F;
 		Order order1 = new Order(account, itemNumber1, price1, quantity1);
-		// persist the account object to the database
+		// persist the account object_builder to the database
 		account.setOrder(order1);
 		order1.setAccount(account);
 		accountDao.create(account);
@@ -102,7 +102,7 @@ public class ForeignMain {
 
 		/*
 		 * Notice that in each of the orders that we got from the query, the Account id is good but the name field is
-		 * null. With foreign object fields, only the id field is stored in the table for the order.
+		 * null. With foreign object_builder fields, only the id field is stored in the table for the order.
 		 */
 		assertEquals(account.getId(), orders.get(0).getAccount().getId());
 		assertEquals(account.getId(), orders.get(1).getAccount().getId());

@@ -38,6 +38,10 @@ public class SelectQuery implements Query, QueryElement {
         return where;
     }
 
+    public void setWhere(Expression where) {
+        this.where = where;
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public IMiamiCollection execute(Connection connection) throws SQLException {
@@ -105,7 +109,7 @@ public class SelectQuery implements Query, QueryElement {
         return selectQuery;
     }
 
-    public static<T> SelectQuery buildQueryForAll(String typeName) {
+    public static SelectQuery buildQueryForAll(String typeName) {
         SelectQuery selectQuery = new SelectQuery(new DefaultVisitor());
         selectQuery.setFrom(new TableRef(typeName));
 

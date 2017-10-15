@@ -12,19 +12,25 @@ public class Main {
     public static void main(String[] args) throws SQLException {
         SQLiteDataSource dataSource = new SQLiteDataSource();
 
-        dataSource.setUrl("jdbc:sqlite:C:/test.sqlite");
+        dataSource.setUrl("jdbc:sqlite:/Users/said/Desktop/miami_beach/test.sqlite");
         Dao<Account, Integer> accountDao = DaoManager.createDAO(dataSource, Account.class);
         //Dao<Order, Integer> orderDao = DaoManager.createDAO(dataSource, Order.class);
-        //System.out.println("account created = " + accountDao.createTable());
-        //System.out.println("order created = " + orderDao.createTable());
-       /* Order order = new Order();
-
-        order.setName("test_order");
+        /*System.out.println("account created = " + accountDao.createTable());
+        System.out.println("order created = " + orderDao.createTable());
         Account account = new Account();
 
         account.setName("account_name");
-        account.setOrder(order);
-        accountDao.create(account);*/
+        accountDao.create(account);
+        Order order = new Order();
+
+        order.setName("test_order");
+        order.setAccount(account);
+        orderDao.create(order);
+        Order order1 = new Order();
+
+        order1.setName("test_order1");
+        order1.setAccount(account);
+        orderDao.create(order1);*/
         List<Account> accounts = accountDao.queryForAll();
 
         System.out.println("accounts = " + accounts);

@@ -4,7 +4,7 @@ import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
 /**
- * Example order object that is persisted to disk by the DAO and other example classes.
+ * Example order object_builder that is persisted to disk by the DAO and other example classes.
  */
 @DatabaseTable(tableName = "orders")
 public class Order {

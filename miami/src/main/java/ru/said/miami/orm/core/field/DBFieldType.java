@@ -1,9 +1,8 @@
 package ru.said.miami.orm.core.field;
 
-import ru.said.miami.orm.core.table.TableInfo;
-
 import java.lang.reflect.Field;
-import java.util.Optional;
+import java.sql.SQLException;
+import java.util.Arrays;
 
 public class DBFieldType {
 
@@ -12,8 +11,6 @@ public class DBFieldType {
     private String fieldName;
 
     private DataType dataType;
-
-    private Class<?> foreignFieldType;
 
     private boolean foreign;
 
@@ -27,13 +24,9 @@ public class DBFieldType {
 
     private DataPersister dataPersister;
 
-    private TableInfo<?> foreignTableInfo;
-
     private boolean foreignAutoCreate;
 
-    private boolean foreignCollection;
-
-    private String foreignFieldName;
+    private Field foreignIdField;
 
     public String getFieldName() {
         return fieldName;
@@ -86,49 +79,54 @@ public class DBFieldType {
         return foreign;
     }
 
-    public TableInfo<?> getForeignTableInfo() {
-        return foreignTableInfo;
-    }
-
     public Field getField() {
         return field;
     }
 
     public Class<?> getForeignFieldType() {
-        return foreignFieldType;
+        return foreignIdField.getDeclaringClass();
     }
 
-    public static DBFieldType buildFieldType(Field field) throws NoSuchMethodException {
-            DBField dbField = field.getAnnotation(DBField.class);
-            DBFieldType fieldType = new DBFieldType();
+    public static DBFieldType buildFieldType(Field field) throws NoSuchMethodException, SQLException {
+        DBField dbField = field.getAnnotation(DBField.class);
+        DBFieldType fieldType = new DBFieldType();
 
-            fieldType.field = field;
-            fieldType.fieldName = dbField.fieldName().isEmpty() ? field.getName().toLowerCase() : dbField.fieldName();
-            fieldType.length = dbField.length();
-            fieldType.id = dbField.id();
-            fieldType.generated = dbField.generated();
+        fieldType.field = field;
+        fieldType.fieldName = dbField.fieldName().isEmpty() ? field.getName().toLowerCase() : dbField.fieldName();
+        fieldType.length = dbField.length();
+        fieldType.id = dbField.id();
+        fieldType.generated = dbField.generated();
 
-            if (dbField.foreign()) {
-                fieldType.foreignAutoCreate = dbField.foreignAutoCreate();
-                fieldType.foreign = dbField.foreign();
-                fieldType.foreignFieldType = field.getType();
-                collectForeignInfo(fieldType);
-            } else {
-                fieldType.dataPersister = DataPersisterManager.lookupField(field);
-                fieldType.dataType = dbField.dataType().equals(DataType.UNKNOWN) ? fieldType.dataPersister.getDataType() : dbField.dataType();
+        if (dbField.foreign()) {
+            fieldType.foreignAutoCreate = dbField.foreignAutoCreate();
+            fieldType.foreign = dbField.foreign();
+            collectForeignInfo(fieldType, field);
+        } else {
+            fieldType.dataPersister = DataPersisterManager.lookupField(field);
+            fieldType.dataType = dbField.dataType().equals(DataType.UNKNOWN) ? fieldType.dataPersister.getDataType() : dbField.dataType();
+        }
+
+        return fieldType;
+    }
+
+    private static void collectForeignInfo(DBFieldType fieldType, Field field) throws NoSuchMethodException, SQLException {
+        fieldType.fieldName += ID_SUFFIX;
+        fieldType.foreignIdField = findIdField(field.getType());
+
+        fieldType.dataPersister = DataPersisterManager.lookupField(fieldType.foreignIdField);
+        fieldType.dataType = fieldType.dataPersister.getDataType();
+    }
+
+    private static Field findIdField(Class<?> clazz) throws SQLException {
+        return Arrays.stream(clazz.getDeclaredFields()).filter(field -> {
+            if (field.isAnnotationPresent(DBField.class)) {
+                DBField dbField = field.getAnnotation(DBField.class);
+
+                return dbField.id();
             }
 
-            return fieldType;
-
-    }
-
-    private static void collectForeignInfo(DBFieldType fieldType) throws NoSuchMethodException {
-        fieldType.fieldName += ID_SUFFIX;
-        fieldType.foreignTableInfo = TableInfo.buildTableInfo(fieldType.foreignFieldType);
-        if (fieldType.foreignTableInfo.getIdField().isPresent()) {
-            fieldType.dataPersister = DataPersisterManager.lookupField(fieldType.foreignTableInfo.getIdField().get().getField());
-            fieldType.dataType = fieldType.dataPersister.getDataType();
-        }
+            return false;
+        }).findAny().orElseThrow(() -> new SQLException(""));
     }
 
     public int getLength() {

@@ -1,11 +1,15 @@
 package ru.said.miami.orm.core.table;
 
+import ru.said.miami.orm.core.cache.core.Cache;
+import ru.said.miami.orm.core.cache.core.LocalCache;
 import ru.said.miami.orm.core.field.DBField;
 import ru.said.miami.orm.core.field.DBFieldType;
 import ru.said.miami.orm.core.field.FieldType;
+import ru.said.miami.orm.core.field.ForeignCollectionFieldType;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -24,6 +28,8 @@ public final class TableInfo<T> {
     private Class<T> tableClass;
 
     private Constructor<T> constructor;
+
+    private static Cache<Class<?>, TableInfo<?>> cache = new LocalCache<>();
 
     private TableInfo(Class<T> tableClass, Constructor<T> constructor, DBFieldType idField, String tableName, List<FieldType> fieldTypes) {
         this.tableClass = tableClass;
@@ -60,9 +66,19 @@ public final class TableInfo<T> {
                 .collect(Collectors.toList());
     }
 
-    public static<T> TableInfo buildTableInfo(Class<T> clazz) throws NoSuchMethodException {
+    public List<ForeignCollectionFieldType> toForeignCollectionFieldTypes() {
+        return fieldTypes.stream()
+                .filter(FieldType::isForeignCollectionFieldType)
+                .map(FieldType::getForeignCollectionFieldType)
+                .collect(Collectors.toList());
+    }
+
+    public static<T> TableInfo buildTableInfo(Class<T> clazz) throws NoSuchMethodException, NoSuchFieldException, SQLException {
         if (!clazz.isAnnotationPresent(DBTable.class)) {
             throw new IllegalArgumentException("Class not annotated with DBTable.class");
+        }
+        if (cache.contains(clazz)) {
+            return cache.get(clazz);
         }
         List<FieldType> fieldTypes = new ArrayList<>();
 
@@ -74,12 +90,15 @@ public final class TableInfo<T> {
                     + " annotation in " + clazz);
         }
         String tableName = clazz.getAnnotation(DBTable.class).name();
-
-        return new TableInfo<T>(
+        TableInfo<T> tableInfo = new TableInfo<>(
                 clazz,
                 lookupDefaultConstructor(clazz),
                 getIdGeneratedIdField(fieldTypes),
-                tableName.isEmpty() ? clazz.getSimpleName().toLowerCase(): tableName, fieldTypes);
+                tableName.isEmpty() ? clazz.getSimpleName().toLowerCase() : tableName, fieldTypes);
+
+        cache.put(clazz, tableInfo);
+
+        return tableInfo;
     }
 
 

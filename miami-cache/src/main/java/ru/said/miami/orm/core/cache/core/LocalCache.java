@@ -9,8 +9,12 @@ public class LocalCache<K, V> implements Cache<K, V> {
 
     @Override
     public void put(K key, V value) {
-        cache.put(key, value);
+        if (!cache.containsKey(key)) {
+            cache.put(key, value);
+        }
     }
+
+
 
     @Override
     public void remove(K key) {
@@ -20,5 +24,15 @@ public class LocalCache<K, V> implements Cache<K, V> {
     @Override
     public V get(K key) {
         return cache.get(key);
+    }
+
+    @Override
+    public void update(K key, V value) {
+        cache.put(key, value);
+    }
+
+    @Override
+    public boolean contains(K key) {
+        return cache.containsKey(key);
     }
 }

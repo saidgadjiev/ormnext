@@ -6,6 +6,7 @@ import ru.said.miami.orm.core.field.ForeignCollectionField;
 import ru.said.miami.orm.core.table.DBTable;
 
 import javax.xml.crypto.Data;
+import java.util.ArrayList;
 import java.util.List;
 
 @DBTable(name = "account")
@@ -18,7 +19,7 @@ public class Account {
     private String name;
 
     @ForeignCollectionField(foreignFieldName = "account")
-    private List<Order> orders;
+    private List<Order> orders = new ArrayList<>();
 
     public Integer getId() {
         return id;

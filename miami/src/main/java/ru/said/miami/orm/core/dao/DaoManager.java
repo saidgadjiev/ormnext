@@ -16,7 +16,7 @@ public class DaoManager {
     public static <T, ID> Dao<T, ID> createDAO(DataSource dataSource, Class<T> clazz) throws SQLException {
         try {
             return BaseDaoImpl.createDao(dataSource, TableInfo.buildTableInfo(clazz));
-        } catch (NoSuchMethodException ex) {
+        } catch (NoSuchMethodException | NoSuchFieldException ex) {
             throw new SQLException(ex);
         }
     }

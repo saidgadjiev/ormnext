@@ -158,7 +158,7 @@ public class DefaultVisitor implements QueryVisitor {
 
     @Override
     public void start(TableRef tableRef) {
-        sql.append(tableRef.getTypeName());
+        sql.append("'").append(tableRef.getTypeName()).append("'");
     }
 
     @Override

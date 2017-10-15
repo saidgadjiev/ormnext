@@ -4,7 +4,7 @@ import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
 /**
- * Example account object that is persisted to disk by the DAO and other example classes.
+ * Example account object_builder that is persisted to disk by the DAO and other example classes.
  */
 @DatabaseTable(tableName = "accounts")
 public class Account {

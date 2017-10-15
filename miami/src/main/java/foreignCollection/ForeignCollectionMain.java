@@ -69,7 +69,7 @@ public class ForeignCollectionMain {
 		String name = "Buzz Lightyear";
 		Account account = new Account(name);
 
-		// persist the account object to the database
+		// persist the account object_builder to the database
 		accountDao.create(account);
 
 		// create an associated Order for the Account

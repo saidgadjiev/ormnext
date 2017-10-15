@@ -1,5 +1,7 @@
 package ru.said.miami.orm.core.dao;
 
+import ru.said.miami.orm.core.query.core.query_builder.QueryBuilder;
+
 import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.List;
@@ -54,6 +56,8 @@ public interface Dao<T, ID> {
     int delete(T object) throws SQLException;
 
     int deleteById(ID id) throws SQLException;
+
+    QueryBuilder<T> queryBuilder();
 
     DataSource getDataSource();
 }
