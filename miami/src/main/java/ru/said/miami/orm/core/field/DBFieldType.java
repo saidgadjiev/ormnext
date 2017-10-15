@@ -28,6 +28,8 @@ public class DBFieldType {
 
     private Field foreignIdField;
 
+    private Class<?> foreignFieldClass;
+
     public String getFieldName() {
         return fieldName;
     }
@@ -84,7 +86,7 @@ public class DBFieldType {
     }
 
     public Class<?> getForeignFieldType() {
-        return foreignIdField.getDeclaringClass();
+        return foreignFieldClass;
     }
 
     public static DBFieldType buildFieldType(Field field) throws NoSuchMethodException, SQLException {
@@ -112,7 +114,7 @@ public class DBFieldType {
     private static void collectForeignInfo(DBFieldType fieldType, Field field) throws NoSuchMethodException, SQLException {
         fieldType.fieldName += ID_SUFFIX;
         fieldType.foreignIdField = findIdField(field.getType());
-
+        fieldType.foreignFieldClass = fieldType.foreignIdField.getDeclaringClass();
         fieldType.dataPersister = DataPersisterManager.lookupField(fieldType.foreignIdField);
         fieldType.dataType = fieldType.dataPersister.getDataType();
     }

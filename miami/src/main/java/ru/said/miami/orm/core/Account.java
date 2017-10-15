@@ -18,7 +18,7 @@ public class Account {
     @DBField(dataType = DataType.STRING)
     private String name;
 
-    @ForeignCollectionField(foreignFieldName = "account")
+    @ForeignCollectionField
     private List<Order> orders = new ArrayList<>();
 
     public Integer getId() {

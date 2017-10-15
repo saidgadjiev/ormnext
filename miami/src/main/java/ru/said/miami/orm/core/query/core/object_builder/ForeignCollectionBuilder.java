@@ -9,9 +9,7 @@ import ru.said.miami.orm.core.query.core.query_builder.QueryBuilder;
 import ru.said.miami.orm.core.table.TableInfo;
 
 import javax.sql.DataSource;
-import java.sql.SQLException;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Created by said on 14.10.17.
@@ -29,7 +27,7 @@ public class ForeignCollectionBuilder extends ObjectPartBuilder {
     @Override
     public boolean check(IMiamiData data, Object object) throws Exception {
         for (ForeignCollectionFieldType fieldType : tableInfo.toForeignCollectionFieldTypes()) {
-            TableInfo<?> foreignTableInfo = TableInfo.buildTableInfo(fieldType.getForeignFieldType());
+            TableInfo<?> foreignTableInfo = TableInfo.buildTableInfo(fieldType.getForeignFieldClass());
             Dao<?, ?> foreignDao = DaoManager.createDAOWithTableInfo(dataSource, foreignTableInfo);
             QueryBuilder<?> queryBuilder = foreignDao.queryBuilder();
 

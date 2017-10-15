@@ -1,7 +1,5 @@
 package ru.said.miami.orm.core;
 
-import com.j256.ormlite.field.DatabaseField;
-import foreign.*;
 import ru.said.miami.orm.core.field.DBField;
 import ru.said.miami.orm.core.field.DataType;
 import ru.said.miami.orm.core.table.DBTable;

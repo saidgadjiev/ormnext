@@ -5,13 +5,12 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.function.Predicate;
 
 public class ForeignCollectionFieldType {
 
     private Field field;
 
-    private Class<?> foreignFieldType;
+    private Class<?> foreignFieldClass;
 
     private String foreignFieldName;
 
@@ -21,18 +20,14 @@ public class ForeignCollectionFieldType {
         return field;
     }
 
-    public String getForeignFieldName() {
-        return foreignFieldName;
-    }
-
-
     public void add(Object object, Object value) throws IllegalAccessException {
         if (!field.isAccessible()) {
             field.setAccessible(true);
             ((Collection) field.get(object)).add(value);
             field.setAccessible(false);
+        } else {
+            ((Collection) field.get(object)).add(value);
         }
-        ((Collection) field.get(object)).add(value);
     }
 
     public void addAll(Object object, Collection<?> value) throws IllegalAccessException {
@@ -40,18 +35,17 @@ public class ForeignCollectionFieldType {
             field.setAccessible(true);
             ((Collection) field.get(object)).addAll(value);
             field.setAccessible(false);
-
-            return;
+        } else {
+            ((Collection) field.get(object)).addAll(value);
         }
-        ((Collection) field.get(object)).addAll(value);
     }
 
     public Field getForeignField() {
         return foreignField;
     }
 
-    public Class<?> getForeignFieldType() {
-        return foreignFieldType;
+    public Class<?> getForeignFieldClass() {
+        return foreignFieldClass;
     }
 
     public static ForeignCollectionFieldType build(Field field) throws NoSuchMethodException, NoSuchFieldException {
@@ -60,18 +54,18 @@ public class ForeignCollectionFieldType {
 
         fieldType.field = field;
         fieldType.foreignFieldName = foreignCollectionField.foreignFieldName();
-        fieldType.foreignFieldType = getCollectionGenericClass(field);
+        fieldType.foreignFieldClass = getCollectionGenericClass(field);
 
         if (fieldType.foreignFieldName.isEmpty()) {
-            fieldType.foreignField = findFieldByType(field.getDeclaringClass(), fieldType.getForeignFieldType());
+            fieldType.foreignField = findFieldByType(field.getDeclaringClass(), fieldType.getForeignFieldClass());
         } else {
-            fieldType.foreignField = findFieldByName(fieldType.foreignFieldName, fieldType.foreignFieldType);
+            fieldType.foreignField = findFieldByName(fieldType.foreignFieldName, fieldType.foreignFieldClass);
         }
 
         return fieldType;
     }
 
-    public static Class<?> getCollectionGenericClass(Field field) {
+    private static Class<?> getCollectionGenericClass(Field field) {
         Type type = field.getGenericType();
         Type [] genericTypes = ((ParameterizedType) type).getActualTypeArguments();
 
@@ -83,17 +77,14 @@ public class ForeignCollectionFieldType {
     }
 
     private static Field findFieldByType(Class<?> type, Class<?> clazz) {
-        return Arrays.stream(clazz.getDeclaredFields()).filter(new Predicate<Field>() {
-            @Override
-            public boolean test(Field field) {
-                if (field.isAnnotationPresent(DBField.class)) {
-                    if (field.getType() == type) {
-                        return true;
-                    }
+        return Arrays.stream(clazz.getDeclaredFields()).filter(field -> {
+            if (field.isAnnotationPresent(DBField.class)) {
+                if (field.getType() == type) {
+                    return true;
                 }
-
-                return false;
             }
+
+            return false;
         }).findFirst().orElseGet(null);
     }
 }
