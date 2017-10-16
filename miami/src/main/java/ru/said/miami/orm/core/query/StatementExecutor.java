@@ -1,11 +1,8 @@
 package ru.said.miami.orm.core.query;
 
-import ru.said.miami.orm.core.dao.BaseDaoImpl;
-import ru.said.miami.orm.core.dao.Dao;
-import ru.said.miami.orm.core.dao.DaoManager;
 import ru.said.miami.orm.core.field.DBFieldType;
 import ru.said.miami.orm.core.query.core.*;
-import ru.said.miami.orm.core.query.core.object_builder.*;
+import ru.said.miami.orm.core.query.core.object.DataBaseObject;
 import ru.said.miami.orm.core.table.TableInfo;
 
 import java.sql.Connection;
@@ -21,16 +18,10 @@ import java.util.List;
  */
 public class StatementExecutor<T, ID> {
 
-    private TableInfo<T> tableInfo;
+    private DataBaseObject<T> dataBaseObject;
 
-    private Dao<T, ID> dao;
-
-    private ObjectBuilderChain<T> objectBuilderChain;
-
-    public StatementExecutor(TableInfo<T> tableInfo, Dao<T, ID> dao) {
-        this.dao = dao;
-        this.tableInfo = tableInfo;
-        this.objectBuilderChain = new ObjectBuilderChain<>(dao.getDataSource(), tableInfo);
+    public StatementExecutor(DataBaseObject<T> dataBaseObject) {
+        this.dataBaseObject = dataBaseObject;
     }
 
     /**
@@ -39,42 +30,16 @@ public class StatementExecutor<T, ID> {
      */
     @SuppressWarnings("unchecked")
     public int create(Connection connection, T object) throws SQLException {
-        CreateQuery query = CreateQuery.buildQuery(tableInfo.getTableName(), null, null);
+        TableInfo<T> tableInfo = dataBaseObject.getTableInfo();
 
         try {
-            for (DBFieldType fieldType : tableInfo.toDBFieldTypes()) {
-                if (fieldType.isId() && fieldType.isGenerated()) {
-                    continue;
-                }
-                Object value = null;
+            CreateQuery query = dataBaseObject.getObjectCreator().newObject(object)
+                    .createBase(object)
+                    .createForeign(object)
+                    .query();
+            Integer result = query.execute(connection);
 
-                if (fieldType.isForeign()) {
-                    Object foreignObject = fieldType.getValue(object);
-                    TableInfo<?> foreignTableInfo = TableInfo.buildTableInfo(fieldType.getForeignFieldType());
-
-                    if (fieldType.isForeignAutoCreate()) {
-                        Dao<Object, ?> foreignDao = (BaseDaoImpl<Object, ?>) DaoManager.createDAOWithTableInfo(dao.getDataSource(), foreignTableInfo);
-
-                        foreignDao.create(foreignObject);
-                    }
-
-                    if (foreignTableInfo.getIdField().isPresent()) {
-                        value = foreignTableInfo.getIdField().get().getValue(foreignObject);
-                    }
-                } else {
-                    value = fieldType.getValue(object);
-                }
-                query.add(new UpdateValue(
-                        fieldType.getFieldName(),
-                        FieldConverter.getInstanse().convert(fieldType.getDataType(), value))
-                );
-            }
-        } catch (IllegalAccessException | NoSuchFieldException | NoSuchMethodException ex) {
-            throw new SQLException(ex);
-        }
-        Integer result;
-
-        if ((result = query.execute(connection)) != null) {
+            //TODO: можно вынести например в ObjectBuilder
             if (tableInfo.getIdField().isPresent()) {
                 DBFieldType idField = tableInfo.getIdField().get();
                 Number generatedKey = query.getGeneratedKey().orElseThrow(() -> new SQLException("Запрос не вернул автоинкриментных ключей"));
@@ -87,16 +52,14 @@ public class StatementExecutor<T, ID> {
             }
 
             return result;
+        } catch (IllegalAccessException | NoSuchFieldException | NoSuchMethodException ex) {
+            throw new SQLException(ex);
         }
-
-        return 0;
-    }
-
-    private void assignIdField(DBFieldType idField, Object value) {
-
     }
 
     public boolean createTable(Connection connection) throws SQLException {
+        TableInfo<T> tableInfo = dataBaseObject.getTableInfo();
+
         CreateTableQuery createTableQuery = CreateTableQuery.buildQuery(
                 tableInfo.getTableName(),
                 tableInfo.toDBFieldTypes()
@@ -110,21 +73,16 @@ public class StatementExecutor<T, ID> {
      * Выполняет запрос вида UPDATE ... SET colname1 = colvalue1 SET colname2 = colvalue2 WHERE = object_builder.id
      */
     public int update(Connection connection, T object) throws SQLException {
-        if (tableInfo.getIdField().isPresent()) {
-            Query query = UpdateQuery.buildQuery(
-                    tableInfo.getTableName(),
-                    tableInfo.toDBFieldTypes(),
-                    tableInfo.getIdField().get(),
-                    object
-            );
-            Integer result;
+        TableInfo<T> tableInfo = dataBaseObject.getTableInfo();
+        DBFieldType dbFieldType = tableInfo.getIdField().orElseThrow(() -> new SQLException("Id is not defined"));
+        Query query = UpdateQuery.buildQuery(
+                tableInfo.getTableName(),
+                tableInfo.toDBFieldTypes(),
+                dbFieldType,
+                object
+        );
 
-            if ((result = query.execute(connection)) != null) {
-                return result;
-            }
-        }
-
-        throw new SQLException("Id field not defined. Can't update object_builder");
+        return query.execute(connection);
     }
 
     /**
@@ -132,20 +90,15 @@ public class StatementExecutor<T, ID> {
      * Выполняет запрос вида DELETE FROM ... WHERE = object_builder.id
      */
     public int delete(Connection connection, T object) throws SQLException {
-        if (tableInfo.getIdField().isPresent()) {
-            try {
-                Query query = DeleteQuery.buildQuery(tableInfo.getTableName(), tableInfo.getIdField().get(), tableInfo.getIdField().get().getValue(object));
-                Integer result;
+        try {
+            TableInfo<T> tableInfo = dataBaseObject.getTableInfo();
+            DBFieldType dbFieldType = tableInfo.getIdField().orElseThrow(() -> new SQLException("Id is not defined"));
+            Query query = DeleteQuery.buildQuery(tableInfo.getTableName(), dbFieldType, dbFieldType.getValue(object));
 
-                if ((result = query.execute(connection)) != null) {
-                    return result;
-                }
-            } catch (IllegalAccessException ex) {
-                throw new SQLException(ex);
-            }
+            return query.execute(connection);
+        } catch (IllegalAccessException ex) {
+            throw new SQLException(ex);
         }
-
-        throw new SQLException("Id field not defined. Can't delete object_builder");
     }
 
     /**
@@ -153,16 +106,11 @@ public class StatementExecutor<T, ID> {
      * Выполняет запрос вида DELETE FROM ... WHERE = object_builder.id
      */
     public int deleteById(Connection connection, ID id) throws SQLException {
-        if (tableInfo.getIdField().isPresent()) {
-            Query query = DeleteQuery.buildQuery(tableInfo.getTableName(), tableInfo.getIdField().get(), id);
-            Integer result;
+        TableInfo<T> tableInfo = dataBaseObject.getTableInfo();
+        DBFieldType dbFieldType = tableInfo.getIdField().orElseThrow(() -> new SQLException("Id is not defined"));
+        Query query = DeleteQuery.buildQuery(tableInfo.getTableName(), dbFieldType, id);
 
-            if ((result = query.execute(connection)) != null) {
-                return result;
-            }
-        }
-
-        throw new SQLException("Id field not defined. Can't delete object_builder");
+        return query.execute(connection);
     }
 
     /**
@@ -170,19 +118,25 @@ public class StatementExecutor<T, ID> {
      * Выполняет запрос вида SELECT * FROM ... WHERE = id
      */
     public T queryForId(Connection connection, ID id) throws SQLException {
-        if (tableInfo.getIdField().isPresent()) {
-            SelectQuery query = SelectQuery.buildQueryById(tableInfo.getTableName(), tableInfo.getIdField().get(), id);
+        TableInfo<T> tableInfo = dataBaseObject.getTableInfo();
+        DBFieldType dbFieldType = tableInfo.getIdField().orElseThrow(() -> new SQLException("Id is not defined"));
+        SelectQuery query = SelectQuery.buildQueryById(tableInfo.getTableName(), dbFieldType, id);
 
-            try (IMiamiCollection result = query.execute(connection)) {
-                if (result.next()) {
-                    return mapResult(result.get());
-                }
-            } catch (Exception ex) {
-                throw new SQLException(ex);
+        try (IMiamiCollection result = query.execute(connection)) {
+            if (result.next()) {
+                IMiamiData data = result.get();
+
+                return dataBaseObject.getObjectBuilder().newObject()
+                        .buildBase(data)
+                        .buildForeign(data)
+                        .buildForeignCollection(data)
+                        .build();
             }
+        } catch (Exception ex) {
+            throw new SQLException(ex);
         }
 
-        throw new SQLException("Id field not defined. Can't select object_builder");
+        return null;
     }
 
     /**
@@ -190,22 +144,26 @@ public class StatementExecutor<T, ID> {
      * Выполняет запрос вида SELECT * FROM ...
      */
     public List<T> queryForAll(Connection connection) throws SQLException {
+        TableInfo<T> tableInfo = dataBaseObject.getTableInfo();
         Query query = SelectQuery.buildQueryForAll(tableInfo.getTableName());
         List<T> resultObjectList = new ArrayList<>();
 
         try (IMiamiCollection result = query.execute(connection)) {
             while (result.next()) {
-                resultObjectList.add(mapResult(result.get()));
+                IMiamiData data = result.get();
+
+                resultObjectList.add(
+                        dataBaseObject.getObjectBuilder().newObject()
+                                .buildBase(data)
+                                .buildForeign(data)
+                                .buildForeignCollection(data)
+                                .build()
+                );
             }
         } catch (Exception ex) {
             throw new SQLException(ex);
         }
 
         return resultObjectList;
-    }
-
-    //TODO: стоит пересмотреть сигнатуру метода и вынести в отдельный интерфейс
-    private T mapResult(IMiamiData data) throws Exception {
-        return objectBuilderChain.build(data);
     }
 }

@@ -39,6 +39,7 @@ public class Where {
         return this;
     }
 
+    //TODO:Добавить метод prepare QueryBuilder<T>
     Expression getWhere() {
         if (condition != null) {
             andCondition = new AndCondition();

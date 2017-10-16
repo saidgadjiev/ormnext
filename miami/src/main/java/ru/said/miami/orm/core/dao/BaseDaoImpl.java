@@ -1,6 +1,9 @@
 package ru.said.miami.orm.core.dao;
 
 import ru.said.miami.orm.core.query.StatementExecutor;
+import ru.said.miami.orm.core.query.core.object.DataBaseObject;
+import ru.said.miami.orm.core.query.core.object.ObjectBuilder;
+import ru.said.miami.orm.core.query.core.object.ObjectCreator;
 import ru.said.miami.orm.core.query.core.query_builder.QueryBuilder;
 import ru.said.miami.orm.core.table.TableInfo;
 
@@ -18,13 +21,19 @@ import java.util.Optional;
 public abstract class BaseDaoImpl<T, ID> implements Dao<T, ID> {
 
     private final DataSource dataSource;
-    private final TableInfo<T> tableInfo;
+
     private StatementExecutor<T, ID> statementExecutor;
+
+    private DataBaseObject<T> dataBaseObject;
 
     public BaseDaoImpl(DataSource dataSource, TableInfo<T> tableInfo) {
         this.dataSource = dataSource;
-        this.tableInfo = tableInfo;
-        this.statementExecutor = new StatementExecutor<>(tableInfo, this);
+        this.dataBaseObject = new DataBaseObject<>(
+                tableInfo,
+                new ObjectCreator<>(dataSource, tableInfo),
+                new ObjectBuilder<>(dataSource, tableInfo)
+        );
+        this.statementExecutor = new StatementExecutor<>(this.dataBaseObject);
     }
 
     @Override
@@ -78,7 +87,7 @@ public abstract class BaseDaoImpl<T, ID> implements Dao<T, ID> {
 
     @Override
     public QueryBuilder<T> queryBuilder() {
-        return new QueryBuilder<>(dataSource, tableInfo);
+        return new QueryBuilder<>(dataSource, dataBaseObject);
     }
 
     @Override
@@ -86,12 +95,7 @@ public abstract class BaseDaoImpl<T, ID> implements Dao<T, ID> {
         return dataSource;
     }
 
-    public TableInfo<T> getTableInfo() {
-        return tableInfo;
-    }
-
     public static<T, ID> Dao<T, ID> createDao(DataSource dataSource, TableInfo<T> tableInfo) {
         return new BaseDaoImpl<T, ID>(dataSource, tableInfo) {};
     }
-
 }
