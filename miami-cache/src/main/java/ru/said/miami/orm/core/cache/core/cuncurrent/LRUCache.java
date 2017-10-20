@@ -29,6 +29,12 @@ public class LRUCache<K, V> extends AbstractCacheMap<K, V> {
         this.maxSize = maxSize;
     }
 
+    public LRUCache(int capacity, float loadFactor, int maxSize ) {
+        super(capacity, loadFactor);
+
+        this.maxSize = maxSize;
+    }
+
     @Override
     protected AbstractCacheMap.Node<K, V> newNode(K key, V value, int hash) {
         LinkedEntry<K, V> entry = new LinkedEntry<>(key, value, hash);
