@@ -6,7 +6,6 @@ import ru.said.miami.orm.core.field.persisters.StringDataPersister;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class DataPersisterManager {
 
@@ -22,8 +21,10 @@ public class DataPersisterManager {
 
     public static DataPersister lookupField(Field field) {
         for (DataPersister persister : registeredPersisters) {
-            if (persister.getAssociatedClass() == field.getType()) {
-                return persister;
+            for (Class<?> clazz: persister.getAssociatedClasses()) {
+                if (clazz == field.getType()) {
+                    return persister;
+                }
             }
         }
 

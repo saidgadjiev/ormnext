@@ -14,7 +14,7 @@ import java.util.Date;
 /**
  * Класс SELECT запроса
  */
-public class SelectQuery implements Query, QueryElement {
+public class SelectQuery implements Query<IMiamiCollection>, QueryElement {
 
     private final QueryVisitor visitor;
 
@@ -42,68 +42,72 @@ public class SelectQuery implements Query, QueryElement {
         this.where = where;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public IMiamiCollection execute(Connection connection) throws SQLException {
-        Statement statement = connection.createStatement();
+        try (Statement statement = connection.createStatement()) {
+            ResultSet resultSet = statement.executeQuery(query());
 
-        this.accept(visitor);
-        ResultSet resultSet = statement.executeQuery(visitor.getQuery());
+            return new IMiamiCollection() {
+                @Override
+                public boolean next() throws SQLException {
+                    return resultSet.next();
+                }
 
-        return new IMiamiCollection() {
-            @Override
-            public boolean next() throws SQLException {
-                return resultSet.next();
-            }
+                @Override
+                public IMiamiData get() throws SQLException {
+                    return new IMiamiData() {
+                        @Override
+                        public boolean getBoolean(String name) throws SQLException {
+                            return resultSet.getBoolean(name);
+                        }
 
-            @Override
-            public IMiamiData get() throws SQLException {
-                return new IMiamiData() {
-                    @Override
-                    public boolean getBoolean(String name) throws SQLException {
-                        return resultSet.getBoolean(name);
-                    }
+                        @Override
+                        public int getInt(String name) throws SQLException {
+                            return resultSet.getInt(name);
+                        }
 
-                    @Override
-                    public int getInt(String name) throws SQLException {
-                        return resultSet.getInt(name);
-                    }
+                        @Override
+                        public String getString(String name) throws SQLException {
+                            return resultSet.getString(name);
+                        }
 
-                    @Override
-                    public String getString(String name) throws SQLException {
-                        return resultSet.getString(name);
-                    }
+                        @Override
+                        public Date getTime(String name) throws SQLException {
+                            return resultSet.getTime(name);
+                        }
 
-                    @Override
-                    public Date getTime(String name) throws SQLException {
-                        return resultSet.getTime(name);
-                    }
+                        @Override
+                        public double getDouble(String name) throws SQLException {
+                            return resultSet.getDouble(name);
+                        }
 
-                    @Override
-                    public double getDouble(String name) throws SQLException {
-                        return resultSet.getDouble(name);
-                    }
+                        @Override
+                        public Object getObject(String name) throws SQLException {
+                            return resultSet.getObject(name);
+                        }
+                    };
+                }
 
-                    @Override
-                    public Object getObject(String name) throws SQLException {
-                        return resultSet.getObject(name);
-                    }
-                };
-            }
-
-            @Override
-            public void close() throws SQLException {
-                resultSet.close();
-            }
-        };
+                @Override
+                public void close() throws SQLException {
+                    resultSet.close();
+                }
+            };
+        }
     }
 
-    public static<T> SelectQuery buildQueryById(String typeName, DBFieldType idField, T id) {
+    public String query() {
+        this.accept(visitor);
+
+        return visitor.getQuery();
+    }
+
+    public static <ID> SelectQuery buildQueryById(String typeName, DBFieldType idField, ID id) {
         SelectQuery selectQuery = new SelectQuery(new DefaultVisitor());
         selectQuery.setFrom(new TableRef(typeName));
         AndCondition andCondition = new AndCondition();
 
-        andCondition.add(new Equals(new ColumnSpec(idField.getFieldName()), idField.getDataPersister().getAssociatedOperand(id)));
+        andCondition.add(new Equals(new ColumnSpec(idField.getColumnName()), idField.getDataPersister().getAssociatedOperand(id)));
         selectQuery.getWhere().getConditions().add(andCondition);
 
         return selectQuery;

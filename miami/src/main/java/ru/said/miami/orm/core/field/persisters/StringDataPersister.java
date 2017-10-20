@@ -7,8 +7,8 @@ import ru.said.miami.orm.core.query.core.StringLiteral;
 
 public class StringDataPersister implements DataPersister {
     @Override
-    public Class<?> getAssociatedClass() {
-        return String.class;
+    public Class<?>[] getAssociatedClasses() {
+        return new Class<?>[] { String.class };
     }
 
     @Override

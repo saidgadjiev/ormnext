@@ -63,7 +63,7 @@ public class DefaultVisitor implements QueryVisitor {
 
     @Override
     public void start(StringLiteral stringLiteral) {
-        sql.append("\'").append(stringLiteral.getValue()).append("\'");
+        sql.append("'").append(stringLiteral.getValue()).append("'");
     }
 
     @Override

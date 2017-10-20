@@ -12,7 +12,7 @@ import java.sql.Statement;
 /**
  * Класс DELETE запроса
  */
-public class DeleteQuery implements Query, QueryElement {
+public class DeleteQuery implements Query<Integer>, QueryElement {
 
     private final QueryVisitor visitor;
 
@@ -55,7 +55,7 @@ public class DeleteQuery implements Query, QueryElement {
         DeleteQuery deleteQuery = new DeleteQuery(new DefaultVisitor(), typeName);
         AndCondition andCondition = new AndCondition();
 
-        andCondition.add(new Equals(new ColumnSpec(idField.getFieldName()), idField.getDataPersister().getAssociatedOperand(id)));
+        andCondition.add(new Equals(new ColumnSpec(idField.getColumnName()), idField.getDataPersister().getAssociatedOperand(id)));
         deleteQuery.getWhere().getConditions().add(andCondition);
 
         return deleteQuery;

@@ -7,7 +7,7 @@ import ru.said.miami.orm.core.table.DBTable;
 @DBTable(name = "order")
 public class Order {
 
-    @DBField(fieldName = "id", dataType = DataType.INTEGER, id = true, generated = true)
+    @DBField(columnName = "id", dataType = DataType.INTEGER, id = true, generated = true)
     private Integer id;
 
     @DBField

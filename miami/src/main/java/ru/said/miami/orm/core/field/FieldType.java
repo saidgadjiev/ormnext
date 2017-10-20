@@ -1,7 +1,6 @@
 package ru.said.miami.orm.core.field;
 
 import java.lang.reflect.Field;
-import java.sql.SQLException;
 import java.util.Optional;
 
 public class FieldType {
@@ -10,7 +9,7 @@ public class FieldType {
 
     private ForeignCollectionFieldType foreignCollectionFieldType;
 
-    public static Optional<FieldType> buildFieldType(Field field) throws NoSuchMethodException, NoSuchFieldException, SQLException {
+    public static Optional<FieldType> buildFieldType(Field field) throws NoSuchMethodException, NoSuchFieldException {
         if (!field.isAnnotationPresent(DBField.class) && !field.isAnnotationPresent(ForeignCollectionField.class)) {
             return Optional.empty();
         }

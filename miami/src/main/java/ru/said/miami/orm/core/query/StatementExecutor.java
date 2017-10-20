@@ -5,6 +5,7 @@ import ru.said.miami.orm.core.query.core.*;
 import ru.said.miami.orm.core.query.core.object.DataBaseObject;
 import ru.said.miami.orm.core.table.TableInfo;
 
+import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -45,14 +46,14 @@ public class StatementExecutor<T, ID> {
                 Number generatedKey = query.getGeneratedKey().orElseThrow(() -> new SQLException("Запрос не вернул автоинкриментных ключей"));
 
                 try {
-                    idField.assignField(object, generatedKey);
+                    idField.assign(object, generatedKey);
                 } catch (IllegalAccessException ex) {
                     throw new SQLException(ex);
                 }
             }
 
             return result;
-        } catch (IllegalAccessException | NoSuchFieldException | NoSuchMethodException ex) {
+        } catch (Exception ex) {
             throw new SQLException(ex);
         }
     }
@@ -75,7 +76,7 @@ public class StatementExecutor<T, ID> {
     public int update(Connection connection, T object) throws SQLException {
         TableInfo<T> tableInfo = dataBaseObject.getTableInfo();
         DBFieldType dbFieldType = tableInfo.getIdField().orElseThrow(() -> new SQLException("Id is not defined"));
-        Query query = UpdateQuery.buildQuery(
+        Query<Integer> query = UpdateQuery.buildQuery(
                 tableInfo.getTableName(),
                 tableInfo.toDBFieldTypes(),
                 dbFieldType,
@@ -93,10 +94,10 @@ public class StatementExecutor<T, ID> {
         try {
             TableInfo<T> tableInfo = dataBaseObject.getTableInfo();
             DBFieldType dbFieldType = tableInfo.getIdField().orElseThrow(() -> new SQLException("Id is not defined"));
-            Query query = DeleteQuery.buildQuery(tableInfo.getTableName(), dbFieldType, dbFieldType.getValue(object));
+            Query<Integer> query = DeleteQuery.buildQuery(tableInfo.getTableName(), dbFieldType, dbFieldType.access(object));
 
             return query.execute(connection);
-        } catch (IllegalAccessException ex) {
+        } catch (IllegalAccessException | InvocationTargetException ex) {
             throw new SQLException(ex);
         }
     }
@@ -108,7 +109,7 @@ public class StatementExecutor<T, ID> {
     public int deleteById(Connection connection, ID id) throws SQLException {
         TableInfo<T> tableInfo = dataBaseObject.getTableInfo();
         DBFieldType dbFieldType = tableInfo.getIdField().orElseThrow(() -> new SQLException("Id is not defined"));
-        Query query = DeleteQuery.buildQuery(tableInfo.getTableName(), dbFieldType, id);
+        Query<Integer> query = DeleteQuery.buildQuery(tableInfo.getTableName(), dbFieldType, id);
 
         return query.execute(connection);
     }
@@ -129,7 +130,7 @@ public class StatementExecutor<T, ID> {
                 return dataBaseObject.getObjectBuilder().newObject()
                         .buildBase(data)
                         .buildForeign(data)
-                        .buildForeignCollection(data)
+                        .buildForeignCollection()
                         .build();
             }
         } catch (Exception ex) {
@@ -145,7 +146,7 @@ public class StatementExecutor<T, ID> {
      */
     public List<T> queryForAll(Connection connection) throws SQLException {
         TableInfo<T> tableInfo = dataBaseObject.getTableInfo();
-        Query query = SelectQuery.buildQueryForAll(tableInfo.getTableName());
+        Query<IMiamiCollection> query = SelectQuery.buildQueryForAll(tableInfo.getTableName());
         List<T> resultObjectList = new ArrayList<>();
 
         try (IMiamiCollection result = query.execute(connection)) {
@@ -156,7 +157,7 @@ public class StatementExecutor<T, ID> {
                         dataBaseObject.getObjectBuilder().newObject()
                                 .buildBase(data)
                                 .buildForeign(data)
-                                .buildForeignCollection(data)
+                                .buildForeignCollection()
                                 .build()
                 );
             }
@@ -165,5 +166,9 @@ public class StatementExecutor<T, ID> {
         }
 
         return resultObjectList;
+    }
+
+    public <R> R execute(Query<R> query, Connection connection) throws SQLException {
+        return query.execute(connection);
     }
 }

@@ -8,7 +8,7 @@ import java.util.Optional;
  * Общий интерфейс для всех типов запросов
  * @param <T> тип результата выполнения запроса
  */
-public interface Query {
+public interface Query<R> {
 
     /**
      * Выполняет сгенерированный запрос и возвращает результат выполнения
@@ -16,5 +16,5 @@ public interface Query {
      * @throws SQLException если произошла ошибка выполнения запроса
      * @param connection
      */
-    <T> T execute(Connection connection) throws SQLException;
+    R execute(Connection connection) throws SQLException;
 }

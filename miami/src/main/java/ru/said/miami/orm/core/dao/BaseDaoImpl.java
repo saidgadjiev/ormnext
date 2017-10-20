@@ -1,6 +1,7 @@
 package ru.said.miami.orm.core.dao;
 
 import ru.said.miami.orm.core.query.StatementExecutor;
+import ru.said.miami.orm.core.query.core.Query;
 import ru.said.miami.orm.core.query.core.object.DataBaseObject;
 import ru.said.miami.orm.core.query.core.object.ObjectBuilder;
 import ru.said.miami.orm.core.query.core.object.ObjectCreator;
@@ -87,13 +88,16 @@ public abstract class BaseDaoImpl<T, ID> implements Dao<T, ID> {
 
     @Override
     public QueryBuilder<T> queryBuilder() {
-        return new QueryBuilder<>(dataSource, dataBaseObject);
+        return new QueryBuilder<>(dataBaseObject);
     }
 
     @Override
-    public DataSource getDataSource() {
-        return dataSource;
+    public <R> R query(Query<R> query) throws SQLException {
+        try (Connection connection = dataSource.getConnection()) {
+            return statementExecutor.execute(query, connection);
+        }
     }
+
 
     public static<T, ID> Dao<T, ID> createDao(DataSource dataSource, TableInfo<T> tableInfo) {
         return new BaseDaoImpl<T, ID>(dataSource, tableInfo) {};

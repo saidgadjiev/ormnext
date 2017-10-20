@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface DBField {
 
-    String fieldName() default "";
+    String columnName() default "";
 
     DataType dataType() default DataType.UNKNOWN;
 
@@ -19,8 +19,11 @@ public @interface DBField {
 
     boolean generated() default false;
 
-    //TODO: проблема если две сущности ссылаются друг на друга
     boolean foreign() default false;
 
     boolean foreignAutoCreate() default false;
+
+    String get() default "";
+
+    String set() default "";
 }

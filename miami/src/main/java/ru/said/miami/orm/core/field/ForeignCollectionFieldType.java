@@ -5,7 +5,9 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Optional;
 
+//TODO: Возможно стоит разделить класс на работу с java.reflection и Database
 public class ForeignCollectionFieldType {
 
     private Field field;
@@ -23,7 +25,7 @@ public class ForeignCollectionFieldType {
     public void add(Object object, Object value) throws IllegalAccessException {
         if (!field.isAccessible()) {
             field.setAccessible(true);
-            ((Collection) field.get(object)).add(value);
+            ((Collection<Object>) field.get(object)).add(value);
             field.setAccessible(false);
         } else {
             ((Collection) field.get(object)).add(value);
@@ -57,7 +59,7 @@ public class ForeignCollectionFieldType {
         fieldType.foreignFieldClass = getCollectionGenericClass(field);
 
         if (fieldType.foreignFieldName.isEmpty()) {
-            fieldType.foreignField = findFieldByType(field.getDeclaringClass(), fieldType.getForeignFieldClass());
+            fieldType.foreignField = findFieldByType(field.getDeclaringClass(), fieldType.getForeignFieldClass()).orElseThrow(() -> new NoSuchFieldException("Foreign field is not defined"));
         } else {
             fieldType.foreignField = findFieldByName(fieldType.foreignFieldName, fieldType.foreignFieldClass);
         }
@@ -76,7 +78,7 @@ public class ForeignCollectionFieldType {
         return clazz.getDeclaredField(foreignFieldName);
     }
 
-    private static Field findFieldByType(Class<?> type, Class<?> clazz) {
+    private static Optional<Field> findFieldByType(Class<?> type, Class<?> clazz) {
         return Arrays.stream(clazz.getDeclaredFields()).filter(field -> {
             if (field.isAnnotationPresent(DBField.class)) {
                 if (field.getType() == type) {
@@ -85,6 +87,6 @@ public class ForeignCollectionFieldType {
             }
 
             return false;
-        }).findFirst().orElseGet(null);
+        }).findFirst();
     }
 }

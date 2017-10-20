@@ -21,7 +21,7 @@ public class DaoManager {
         }
     }
 
-    public static <T, ID> Dao<T, ?> createDAOWithTableInfo(DataSource dataSource, TableInfo<T> tableInfo) throws SQLException {
+    public static <T, ID> Dao<T, ?> createDAOWithTableInfo(DataSource dataSource, TableInfo<T> tableInfo) {
         return BaseDaoImpl.createDao(dataSource, tableInfo);
     }
 }

@@ -4,7 +4,7 @@ import ru.said.miami.orm.core.query.core.Operand;
 
 public interface DataPersister {
 
-    Class<?> getAssociatedClass();
+    Class<?>[] getAssociatedClasses();
 
     Operand getAssociatedOperand(Object object);
 

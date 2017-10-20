@@ -5,6 +5,7 @@ import ru.said.miami.orm.core.query.visitor.DefaultVisitor;
 import ru.said.miami.orm.core.query.visitor.QueryElement;
 import ru.said.miami.orm.core.query.visitor.QueryVisitor;
 
+import java.lang.reflect.InvocationTargetException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -116,11 +117,11 @@ public class CreateQuery implements Query, QueryElement {
                 for (DBFieldType fieldType : fieldTypes) {
                     createQuery.updateValues.add(
                             new UpdateValue(
-                                    fieldType.getFieldName(), FieldConverter.getInstanse().convert(fieldType.getDataType(), fieldType.getValue(object)))
+                                    fieldType.getColumnName(), FieldConverter.getInstanse().convert(fieldType.getDataType(), fieldType.access(object)))
                     );
                 }
             }
-        } catch (IllegalAccessException ex) {
+        } catch (IllegalAccessException | InvocationTargetException ex) {
             throw new SQLException(ex);
         }
 

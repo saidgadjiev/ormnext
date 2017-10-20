@@ -8,8 +8,8 @@ import ru.said.miami.orm.core.query.core.Operand;
 public class IntegerDataPersister implements DataPersister {
 
     @Override
-    public Class<?> getAssociatedClass() {
-        return Integer.class;
+    public Class<?>[] getAssociatedClasses() {
+        return new Class<?>[] {Integer.class, int.class};
     }
 
     @Override

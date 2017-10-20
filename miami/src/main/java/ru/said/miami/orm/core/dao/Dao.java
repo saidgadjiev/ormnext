@@ -1,5 +1,6 @@
 package ru.said.miami.orm.core.dao;
 
+import ru.said.miami.orm.core.query.core.Query;
 import ru.said.miami.orm.core.query.core.query_builder.QueryBuilder;
 
 import javax.sql.DataSource;
@@ -59,5 +60,6 @@ public interface Dao<T, ID> {
 
     QueryBuilder<T> queryBuilder();
 
-    DataSource getDataSource();
+    <R> R query(Query<R> query) throws SQLException;
+
 }

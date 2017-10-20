@@ -2,6 +2,8 @@ package ru.said.miami.orm.core.query.core.object;
 
 import ru.said.miami.orm.core.table.TableInfo;
 
+import java.lang.reflect.Constructor;
+
 public class DataBaseObject<T> {
 
     private final ObjectBuilder<T> objectBuilder;

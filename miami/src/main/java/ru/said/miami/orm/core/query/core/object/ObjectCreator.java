@@ -10,7 +10,6 @@ import ru.said.miami.orm.core.query.core.UpdateValue;
 import ru.said.miami.orm.core.table.TableInfo;
 
 import javax.sql.DataSource;
-import java.sql.SQLException;
 
 public class ObjectCreator<T> {
 
@@ -25,30 +24,30 @@ public class ObjectCreator<T> {
         this.tableInfo = tableInfo;
     }
 
-    public ObjectCreator newObject(T object) throws SQLException {
+    public ObjectCreator newObject(T object) throws Exception {
         this.query = CreateQuery.buildQuery(tableInfo.getTableName(), null, object);
 
         return this;
     }
 
-    public ObjectCreator<T> createBase(T object) throws IllegalAccessException {
+    public ObjectCreator<T> createBase(T object) throws Exception {
         for (DBFieldType fieldType : tableInfo.toDBFieldTypes()) {
-            if (fieldType.isId() && fieldType.isGenerated()) {
+            if (fieldType.isId() && fieldType.isGenerated() || fieldType.isForeign()) {
                 continue;
             }
             query.add(new UpdateValue(
-                    fieldType.getFieldName(),
-                    FieldConverter.getInstanse().convert(fieldType.getDataType(), FieldConverter.getInstanse().convert(fieldType.getDataType(), fieldType.getValue(object))))
+                    fieldType.getColumnName(),
+                    FieldConverter.getInstanse().convert(fieldType.getDataType(), fieldType.access(object)))
             );
         }
 
         return this;
     }
 
-    public ObjectCreator<T> createForeign(T object) throws NoSuchMethodException, NoSuchFieldException, SQLException, IllegalAccessException {
+    public ObjectCreator<T> createForeign(T object) throws Exception {
         for (DBFieldType fieldType : tableInfo.toDBFieldTypes()) {
             if (fieldType.isForeign()) {
-                Object foreignObject = fieldType.getValue(object);
+                Object foreignObject = fieldType.access(object);
                 TableInfo<?> foreignTableInfo = TableInfo.buildTableInfo(fieldType.getForeignFieldType());
 
                 if (fieldType.isForeignAutoCreate()) {
@@ -59,8 +58,8 @@ public class ObjectCreator<T> {
 
                 if (foreignTableInfo.getIdField().isPresent()) {
                     query.add(new UpdateValue(
-                            fieldType.getFieldName(),
-                            FieldConverter.getInstanse().convert(fieldType.getDataType(), foreignTableInfo.getIdField().get().getValue(foreignObject)))
+                            fieldType.getColumnName(),
+                            FieldConverter.getInstanse().convert(fieldType.getDataType(), foreignTableInfo.getIdField().get().access(foreignObject)))
                     );
                 }
             }

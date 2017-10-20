@@ -1,8 +1,6 @@
 package ru.said.miami.orm.core;
 
-import ru.said.miami.orm.core.field.DBField;
-import ru.said.miami.orm.core.field.DataType;
-import ru.said.miami.orm.core.field.ForeignCollectionField;
+import ru.said.miami.orm.core.field.*;
 import ru.said.miami.orm.core.table.DBTable;
 
 import javax.xml.crypto.Data;
@@ -12,9 +10,13 @@ import java.util.List;
 @DBTable(name = "account")
 public class Account {
 
+    @Getter(name = "getId")
+    @Setter(name = "setId")
     @DBField(id = true, generated = true)
     private Integer id;
 
+    @Getter(name = "getName")
+    @Setter(name = "setName")
     @DBField(dataType = DataType.STRING)
     private String name;
 

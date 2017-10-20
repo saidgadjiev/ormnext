@@ -14,7 +14,7 @@ public class AttributeDefenition implements QueryElement {
     }
 
     public String getName() {
-        return fieldType.getFieldName();
+        return fieldType.getColumnName();
     }
 
     public boolean isId() {

@@ -5,6 +5,7 @@ import ru.said.miami.orm.core.query.visitor.DefaultVisitor;
 import ru.said.miami.orm.core.query.visitor.QueryElement;
 import ru.said.miami.orm.core.query.visitor.QueryVisitor;
 
+import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -16,7 +17,7 @@ import java.util.List;
  * @param <T> тип результата выполнения
  */
 
-public class UpdateQuery implements Query, QueryElement {
+public class UpdateQuery implements Query<Integer>, QueryElement {
 
     /**
      * Название типа
@@ -102,14 +103,14 @@ public class UpdateQuery implements Query, QueryElement {
             for (DBFieldType fieldType : fieldTypes) {
                 updateQuery.updateValues.add(
                         new UpdateValue(
-                                fieldType.getFieldName(), FieldConverter.getInstanse().convert(fieldType.getDataType(), fieldType.getValue(object)))
+                                fieldType.getColumnName(), FieldConverter.getInstanse().convert(fieldType.getDataType(), fieldType.access(object)))
                 );
             }
             AndCondition andCondition = new AndCondition();
 
-            andCondition.add(new Equals(new ColumnSpec(idField.getFieldName()), idField.getDataPersister().getAssociatedOperand(idField.getValue(object))));
+            andCondition.add(new Equals(new ColumnSpec(idField.getColumnName()), idField.getDataPersister().getAssociatedOperand(idField.access(object))));
             updateQuery.getWhere().getConditions().add(andCondition);
-        } catch (IllegalAccessException ex) {
+        } catch (IllegalAccessException | InvocationTargetException ex) {
             throw new SQLException(ex);
         }
 

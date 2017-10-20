@@ -1,14 +1,17 @@
 package ru.said.miami.orm.core.field;
 
+import ru.said.miami.orm.core.cache.core.Cache;
+
 import java.lang.reflect.Field;
-import java.sql.SQLException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
+import java.util.Optional;
 
 public class DBFieldType {
 
     private static final String ID_SUFFIX = "_id";
 
-    private String fieldName;
+    private String columnName;
 
     private DataType dataType;
 
@@ -28,10 +31,12 @@ public class DBFieldType {
 
     private Field foreignIdField;
 
+    private FieldAccessor fieldAccessor;
+
     private Class<?> foreignFieldClass;
 
-    public String getFieldName() {
-        return fieldName;
+    public String getColumnName() {
+        return columnName;
     }
 
     public DataType getDataType() {
@@ -46,17 +51,8 @@ public class DBFieldType {
         return generated;
     }
 
-    public Object getValue(Object object) throws IllegalAccessException {
-        if (!field.isAccessible()) {
-            field.setAccessible(true);
-            Object result = field.get(object);
-
-            field.setAccessible(false);
-
-            return result;
-        }
-
-        return field.get(object);
+    public Object access(Object object) throws InvocationTargetException, IllegalAccessException {
+        return fieldAccessor.access(object);
     }
 
     public boolean isForeignAutoCreate() {
@@ -67,14 +63,8 @@ public class DBFieldType {
         return dataPersister;
     }
 
-    public void assignField(Object object, Object value) throws IllegalAccessException {
-        if (!field.isAccessible()) {
-            field.setAccessible(true);
-            field.set(object, value);
-            field.setAccessible(false);
-        } else {
-            field.set(object, value);
-        }
+    public void assign(Object object, Object value) throws IllegalAccessException, InvocationTargetException {
+        fieldAccessor.assign(object, value);
     }
 
     public boolean isForeign() {
@@ -89,20 +79,25 @@ public class DBFieldType {
         return foreignFieldClass;
     }
 
-    public static DBFieldType buildFieldType(Field field) throws NoSuchMethodException, SQLException {
+    public static DBFieldType buildFieldType(Field field) throws NoSuchMethodException, NoSuchFieldException {
         DBField dbField = field.getAnnotation(DBField.class);
         DBFieldType fieldType = new DBFieldType();
 
         fieldType.field = field;
-        fieldType.fieldName = dbField.fieldName().isEmpty() ? field.getName().toLowerCase() : dbField.fieldName();
+        fieldType.columnName = dbField.columnName().isEmpty() ? field.getName().toLowerCase() : dbField.columnName();
         fieldType.length = dbField.length();
         fieldType.id = dbField.id();
+        fieldType.fieldAccessor = new FieldAccessor(field);
         fieldType.generated = dbField.generated();
 
         if (dbField.foreign()) {
             fieldType.foreignAutoCreate = dbField.foreignAutoCreate();
             fieldType.foreign = dbField.foreign();
-            collectForeignInfo(fieldType, field);
+            fieldType.columnName += ID_SUFFIX;
+            fieldType.foreignIdField = findIdField(field.getType()).orElseThrow(() -> new NoSuchFieldException("Foreign id field is not defined"));
+            fieldType.foreignFieldClass = fieldType.foreignIdField.getDeclaringClass();
+            fieldType.dataPersister = DataPersisterManager.lookupField(fieldType.foreignIdField);
+            fieldType.dataType = fieldType.dataPersister.getDataType();
         } else {
             fieldType.dataPersister = DataPersisterManager.lookupField(field);
             fieldType.dataType = dbField.dataType().equals(DataType.UNKNOWN) ? fieldType.dataPersister.getDataType() : dbField.dataType();
@@ -111,15 +106,7 @@ public class DBFieldType {
         return fieldType;
     }
 
-    private static void collectForeignInfo(DBFieldType fieldType, Field field) throws NoSuchMethodException, SQLException {
-        fieldType.fieldName += ID_SUFFIX;
-        fieldType.foreignIdField = findIdField(field.getType());
-        fieldType.foreignFieldClass = fieldType.foreignIdField.getDeclaringClass();
-        fieldType.dataPersister = DataPersisterManager.lookupField(fieldType.foreignIdField);
-        fieldType.dataType = fieldType.dataPersister.getDataType();
-    }
-
-    private static Field findIdField(Class<?> clazz) throws SQLException {
+    private static Optional<Field> findIdField(Class<?> clazz) {
         return Arrays.stream(clazz.getDeclaredFields()).filter(field -> {
             if (field.isAnnotationPresent(DBField.class)) {
                 DBField dbField = field.getAnnotation(DBField.class);
@@ -128,7 +115,7 @@ public class DBFieldType {
             }
 
             return false;
-        }).findAny().orElseThrow(() -> new SQLException(""));
+        }).findFirst();
     }
 
     public int getLength() {
@@ -138,7 +125,7 @@ public class DBFieldType {
     @Override
     public String toString() {
         return "FieldType{" +
-                "fieldName='" + fieldName + '\'' +
+                "columnName='" + columnName + '\'' +
                 ", dataType=" + dataType +
                 '}';
     }
