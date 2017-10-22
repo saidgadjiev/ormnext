@@ -2,9 +2,7 @@ package ru.said.miami.orm.core;
 
 import org.sqlite.SQLiteDataSource;
 import ru.said.miami.orm.core.dao.Dao;
-import ru.said.miami.orm.core.dao.DaoManager;
-import ru.said.miami.orm.core.query.core.Query;
-import ru.said.miami.orm.core.query.core.query_builder.Where;
+import ru.said.miami.orm.core.dao.DaoBuilder;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -15,8 +13,8 @@ public class Main {
         SQLiteDataSource dataSource = new SQLiteDataSource();
 
         dataSource.setUrl("jdbc:sqlite:C:/test.sqlite");
-        Dao<Account, Integer> accountDao = DaoManager.createDAO(dataSource, Account.class);
-        Dao<Order, Integer> orderDao = DaoManager.createDAO(dataSource, Order.class);
+        Dao<Account, Integer> accountDao = DaoBuilder.createDAO(dataSource, Account.class);
+        Dao<Order, Integer> orderDao = DaoBuilder.createDAO(dataSource, Order.class);
         //System.out.println("account created = " + accountDao.createTable());
         //System.out.println("order created = " + orderDao.createTable());
         /*Account account = new Account();

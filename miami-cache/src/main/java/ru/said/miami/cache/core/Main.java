@@ -1,11 +1,11 @@
-package ru.said.miami.orm.core.cache.core;
+package ru.said.miami.cache.core;
 
-import ru.said.miami.orm.core.cache.core.cuncurrent.LRUCache;
+import ru.said.miami.cache.core.cuncurrent.LRUCacheMap;
 
 public class Main {
 
     public static void main(String[] args) {
-        LRUCache<Integer, String> cache = new LRUCache<>(5);
+        LRUCacheMap<Integer, String> cache = new LRUCacheMap<>(5);
 
         for (int i = 0; i < 5; ++i) {
             cache.put(i, "test" + i);

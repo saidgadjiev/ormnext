@@ -62,4 +62,5 @@ public interface Dao<T, ID> {
 
     <R> R query(Query<R> query) throws SQLException;
 
+
 }

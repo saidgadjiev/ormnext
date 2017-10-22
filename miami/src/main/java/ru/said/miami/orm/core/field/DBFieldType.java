@@ -1,7 +1,5 @@
 package ru.said.miami.orm.core.field;
 
-import ru.said.miami.orm.core.cache.core.Cache;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;

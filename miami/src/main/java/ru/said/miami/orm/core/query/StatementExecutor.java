@@ -1,5 +1,6 @@
 package ru.said.miami.orm.core.query;
 
+import ru.said.miami.orm.core.cache.ObjectCache;
 import ru.said.miami.orm.core.field.DBFieldType;
 import ru.said.miami.orm.core.query.core.*;
 import ru.said.miami.orm.core.query.core.object.DataBaseObject;
@@ -20,6 +21,9 @@ import java.util.List;
 public class StatementExecutor<T, ID> {
 
     private DataBaseObject<T> dataBaseObject;
+
+    //TODO: Вынести работу с кешом в отдельный класс
+    private ObjectCache objectCache;
 
     public StatementExecutor(DataBaseObject<T> dataBaseObject) {
         this.dataBaseObject = dataBaseObject;
@@ -75,13 +79,21 @@ public class StatementExecutor<T, ID> {
      */
     public int update(Connection connection, T object) throws SQLException {
         TableInfo<T> tableInfo = dataBaseObject.getTableInfo();
-        DBFieldType dbFieldType = tableInfo.getIdField().orElseThrow(() -> new SQLException("Id is not defined"));
+        DBFieldType idFieldType = tableInfo.getIdField().orElseThrow(() -> new SQLException("Id is not defined"));
         Query<Integer> query = UpdateQuery.buildQuery(
                 tableInfo.getTableName(),
                 tableInfo.toDBFieldTypes(),
-                dbFieldType,
+                idFieldType,
                 object
         );
+
+        try {
+            T cachedData = objectCache.get(idFieldType.access(object));
+
+            //TODO: update cachedData
+        } catch (Exception ex) {
+            throw new SQLException(ex);
+        }
 
         return query.execute(connection);
     }
@@ -94,9 +106,13 @@ public class StatementExecutor<T, ID> {
         try {
             TableInfo<T> tableInfo = dataBaseObject.getTableInfo();
             DBFieldType dbFieldType = tableInfo.getIdField().orElseThrow(() -> new SQLException("Id is not defined"));
-            Query<Integer> query = DeleteQuery.buildQuery(tableInfo.getTableName(), dbFieldType, dbFieldType.access(object));
+            Object id = dbFieldType.access(object);
+            Query<Integer> query = DeleteQuery.buildQuery(tableInfo.getTableName(), dbFieldType, id);
+            Integer result = query.execute(connection);
 
-            return query.execute(connection);
+            objectCache.remove(id);
+
+            return result;
         } catch (IllegalAccessException | InvocationTargetException ex) {
             throw new SQLException(ex);
         }
@@ -110,8 +126,11 @@ public class StatementExecutor<T, ID> {
         TableInfo<T> tableInfo = dataBaseObject.getTableInfo();
         DBFieldType dbFieldType = tableInfo.getIdField().orElseThrow(() -> new SQLException("Id is not defined"));
         Query<Integer> query = DeleteQuery.buildQuery(tableInfo.getTableName(), dbFieldType, id);
+        Integer result = query.execute(connection);
 
-        return query.execute(connection);
+        objectCache.remove(id);
+
+        return result;
     }
 
     /**
@@ -119,6 +138,10 @@ public class StatementExecutor<T, ID> {
      * Выполняет запрос вида SELECT * FROM ... WHERE = id
      */
     public T queryForId(Connection connection, ID id) throws SQLException {
+        if (objectCache.contains(id)) {
+            return objectCache.get(id);
+        }
+
         TableInfo<T> tableInfo = dataBaseObject.getTableInfo();
         DBFieldType dbFieldType = tableInfo.getIdField().orElseThrow(() -> new SQLException("Id is not defined"));
         SelectQuery query = SelectQuery.buildQueryById(tableInfo.getTableName(), dbFieldType, id);
@@ -126,12 +149,13 @@ public class StatementExecutor<T, ID> {
         try (IMiamiCollection result = query.execute(connection)) {
             if (result.next()) {
                 IMiamiData data = result.get();
-
-                return dataBaseObject.getObjectBuilder().newObject()
+                T resultObject = dataBaseObject.getObjectBuilder().newObject()
                         .buildBase(data)
                         .buildForeign(data)
                         .buildForeignCollection()
                         .build();
+
+                objectCache.put(id, resultObject);
             }
         } catch (Exception ex) {
             throw new SQLException(ex);

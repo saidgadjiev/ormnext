@@ -1,6 +1,5 @@
 package ru.said.miami.orm.core.table;
 
-import ru.said.miami.orm.core.cache.core.Cache;
 import ru.said.miami.orm.core.field.DBField;
 import ru.said.miami.orm.core.field.DBFieldType;
 import ru.said.miami.orm.core.field.FieldType;

@@ -1,4 +1,4 @@
-package ru.said.miami.orm.core.cache.core.cuncurrent;
+package ru.said.miami.cache.core.cuncurrent;
 
 import java.lang.reflect.Array;
 import java.util.*;

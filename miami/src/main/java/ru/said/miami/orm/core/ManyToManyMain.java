@@ -1,12 +1,10 @@
 package ru.said.miami.orm.core;
 
-import javafx.geometry.Pos;
 import org.sqlite.SQLiteDataSource;
 import ru.said.miami.orm.core.dao.Dao;
-import ru.said.miami.orm.core.dao.DaoManager;
+import ru.said.miami.orm.core.dao.DaoBuilder;
 
 import javax.sql.DataSource;
-import java.sql.SQLException;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -51,9 +49,9 @@ public class ManyToManyMain {
         /**
          * Create our DAOs. One for each class and associated table.
          */
-        userDao = DaoManager.createDAO(connectionSource, User.class);
-        postDao = DaoManager.createDAO(connectionSource, Post.class);
-        userPostDao = DaoManager.createDAO(connectionSource, UserPost.class);
+        userDao = DaoBuilder.createDAO(connectionSource, User.class);
+        postDao = DaoBuilder.createDAO(connectionSource, Post.class);
+        userPostDao = DaoBuilder.createDAO(connectionSource, UserPost.class);
 
         /**
          * Create the tables for our example. This would not be necessary if the tables already existed.

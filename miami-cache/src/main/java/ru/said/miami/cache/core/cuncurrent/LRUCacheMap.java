@@ -1,11 +1,11 @@
-package ru.said.miami.orm.core.cache.core.cuncurrent;
+package ru.said.miami.cache.core.cuncurrent;
 
 /**
  * Алгоритм кеширования LRU
  * @param <K>
  * @param <V>
  */
-public class LRUCache<K, V> extends AbstractCacheMap<K, V> {
+public class LRUCacheMap<K, V> extends AbstractCacheMap<K, V> {
 
     private LinkedEntry<K, V> head;
 
@@ -24,12 +24,12 @@ public class LRUCache<K, V> extends AbstractCacheMap<K, V> {
         }
     }
 
-    public LRUCache(int maxSize) {
+    public LRUCacheMap(int maxSize) {
         super();
         this.maxSize = maxSize;
     }
 
-    public LRUCache(int capacity, float loadFactor, int maxSize ) {
+    public LRUCacheMap(int capacity, float loadFactor, int maxSize ) {
         super(capacity, loadFactor);
 
         this.maxSize = maxSize;

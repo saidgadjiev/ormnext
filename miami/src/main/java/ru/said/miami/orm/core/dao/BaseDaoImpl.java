@@ -1,5 +1,7 @@
 package ru.said.miami.orm.core.dao;
 
+import ru.said.miami.orm.core.cache.LRUObjectCache;
+import ru.said.miami.orm.core.cache.ObjectCache;
 import ru.said.miami.orm.core.query.StatementExecutor;
 import ru.said.miami.orm.core.query.core.Query;
 import ru.said.miami.orm.core.query.core.object.DataBaseObject;
@@ -12,10 +14,9 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Optional;
 
 /**
- * Базовый класс для DAO. Используется в DaoManager
+ * Базовый класс для DAO. Используется в DaoBuilder
  * @param <T>
  * @param <ID>
  */
@@ -27,6 +28,8 @@ public abstract class BaseDaoImpl<T, ID> implements Dao<T, ID> {
 
     private DataBaseObject<T> dataBaseObject;
 
+    private ObjectCache objectCache;
+
     public BaseDaoImpl(DataSource dataSource, TableInfo<T> tableInfo) {
         this.dataSource = dataSource;
         this.dataBaseObject = new DataBaseObject<>(
@@ -36,6 +39,8 @@ public abstract class BaseDaoImpl<T, ID> implements Dao<T, ID> {
         );
         this.statementExecutor = new StatementExecutor<>(this.dataBaseObject);
     }
+
+
 
     @Override
     public int create(T object) throws SQLException {
@@ -97,6 +102,13 @@ public abstract class BaseDaoImpl<T, ID> implements Dao<T, ID> {
             return statementExecutor.execute(query, connection);
         }
     }
+
+    @Override
+    public void enableCache() {
+        objectCache = new LRUObjectCache(32);
+    }
+
+
 
 
     public static<T, ID> Dao<T, ID> createDao(DataSource dataSource, TableInfo<T> tableInfo) {
