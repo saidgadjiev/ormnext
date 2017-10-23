@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class CreateTableQuery implements Query, QueryElement {
+public class CreateTableQuery implements Query<Boolean>, QueryElement {
 
     private List<AttributeDefenition> attributeDefenitions = new ArrayList<>();
 

@@ -5,7 +5,6 @@ import ru.said.miami.orm.core.dao.Dao;
 import ru.said.miami.orm.core.dao.DaoManager;
 
 import java.sql.SQLException;
-import java.util.List;
 
 public class Main {
 
@@ -14,7 +13,8 @@ public class Main {
 
         dataSource.setUrl("jdbc:sqlite:C:/test.sqlite");
         Dao<Account, Integer> accountDao = DaoManager.createDAO(dataSource, Account.class);
-        Dao<Order, Integer> orderDao = DaoManager.createDAO(dataSource, Order.class);
+
+        accountDao.caching(true, null);
         //System.out.println("account created = " + accountDao.createTable());
         //System.out.println("order created = " + orderDao.createTable());
        /* Account account = new Account();

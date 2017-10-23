@@ -2,7 +2,6 @@ package ru.said.miami.orm.core.query.core;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Optional;
 
 /**
  * Общий интерфейс для всех типов запросов

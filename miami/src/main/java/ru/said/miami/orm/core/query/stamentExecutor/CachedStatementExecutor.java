@@ -17,7 +17,7 @@ public class CachedStatementExecutor<T, ID> implements IStatementExecutor<T, ID>
 
     private DataBaseObject<T> dataBaseObject;
 
-    public CachedStatementExecutor(DataBaseObject<T> dataBaseObject) {
+    CachedStatementExecutor(DataBaseObject<T> dataBaseObject) {
         this.dataBaseObject = dataBaseObject;
         delegate = new StatementExecutorImpl<>(dataBaseObject);
     }
@@ -30,6 +30,11 @@ public class CachedStatementExecutor<T, ID> implements IStatementExecutor<T, ID>
     @Override
     public boolean createTable(Connection connection) throws SQLException {
         return delegate.createTable(connection);
+    }
+
+    @Override
+    public boolean dropTable(Connection connection) throws SQLException {
+        return delegate.dropTable(connection);
     }
 
     @Override

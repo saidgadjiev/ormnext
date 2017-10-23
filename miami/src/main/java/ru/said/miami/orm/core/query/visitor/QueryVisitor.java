@@ -64,4 +64,8 @@ public interface QueryVisitor {
     boolean start(UpdateQuery updateQuery);
 
     void finish(UpdateQuery updateQuery);
+
+    void start(DropTableQuery dropTableQuery);
+
+    void finish(DropTableQuery dropTableQuery);
 }

@@ -1,13 +1,10 @@
 package ru.said.miami.orm.core.query.core.query_builder;
 
-import ru.said.miami.orm.core.query.core.IMiamiCollection;
 import ru.said.miami.orm.core.query.core.IMiamiData;
 import ru.said.miami.orm.core.query.core.Query;
 import ru.said.miami.orm.core.query.core.SelectQuery;
 import ru.said.miami.orm.core.query.core.object.DataBaseObject;
 
-import javax.sql.DataSource;
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;

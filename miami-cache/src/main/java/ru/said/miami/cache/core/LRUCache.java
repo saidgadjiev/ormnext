@@ -10,9 +10,7 @@ public class LRUCache<K, V> implements Cache<K, V> {
     private LRUCacheMap<K, V> cacheMap;
 
     public LRUCache(CacheBuilder<? super K,  ? super V> builder) {
-        int maxSize = builder.getMaxSize();
-
-        cacheMap = new LRUCacheMap<>(builder.getMaxSize());
+         cacheMap = new LRUCacheMap<>(builder.getMaxSize());
     }
 
     @Override

@@ -23,7 +23,7 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
 
     private DataBaseObject<T> dataBaseObject;
 
-    public StatementExecutorImpl(DataBaseObject<T> dataBaseObject) {
+    StatementExecutorImpl(DataBaseObject<T> dataBaseObject) {
         this.dataBaseObject = dataBaseObject;
     }
 
@@ -64,13 +64,20 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
     @Override
     public boolean createTable(Connection connection) throws SQLException {
         TableInfo<T> tableInfo = dataBaseObject.getTableInfo();
-
         CreateTableQuery createTableQuery = CreateTableQuery.buildQuery(
                 tableInfo.getTableName(),
                 tableInfo.toDBFieldTypes()
         );
 
         return createTableQuery.execute(connection);
+    }
+
+    @Override
+    public boolean dropTable(Connection connection) throws SQLException {
+        TableInfo<T> tableInfo = dataBaseObject.getTableInfo();
+        DropTableQuery dropTableQuery = DropTableQuery.buildQuery(tableInfo.getTableName());
+
+        return dropTableQuery.execute(connection);
     }
 
     /**

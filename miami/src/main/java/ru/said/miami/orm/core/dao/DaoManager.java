@@ -1,8 +1,5 @@
 package ru.said.miami.orm.core.dao;
 
-import javafx.scene.control.Tab;
-import org.sqlite.SQLiteConfig;
-import org.sqlite.SQLiteDataSource;
 import ru.said.miami.orm.core.table.TableInfo;
 
 import javax.sql.DataSource;

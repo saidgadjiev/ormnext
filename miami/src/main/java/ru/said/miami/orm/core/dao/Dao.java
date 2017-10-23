@@ -4,10 +4,8 @@ import ru.said.miami.orm.core.cache.ObjectCache;
 import ru.said.miami.orm.core.query.core.Query;
 import ru.said.miami.orm.core.query.core.query_builder.QueryBuilder;
 
-import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Класс для DAO
@@ -64,5 +62,7 @@ public interface Dao<T, ID> {
     <R> R query(Query<R> query) throws SQLException;
 
     void caching(boolean flag, ObjectCache objectCache);
+
+    boolean dropTable() throws SQLException;
 
 }

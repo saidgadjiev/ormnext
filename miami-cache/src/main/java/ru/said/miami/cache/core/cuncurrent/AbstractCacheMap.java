@@ -211,7 +211,7 @@ public abstract class AbstractCacheMap<K, V> extends AbstractMap<K, V> implement
     }
 
     private int indexOf(Object key) {
-        return 0;
+        return key.hashCode() % capacity;
     }
 
     final Node<K, V> removeNode(int hash, Object key) {
@@ -259,6 +259,24 @@ public abstract class AbstractCacheMap<K, V> extends AbstractMap<K, V> implement
         Node<K, V> node = removeNode(indexOf(key), key);
 
         return node != null ? node.getValue() : null;
+    }
+
+    @Override
+    public boolean containsKey(Object key) {
+        int index = indexOf(key);
+
+        Node<K, V> node = map[index];
+
+        if (node != null) {
+            while (node != null) {
+                if (node.key.equals(key)) {
+                    return true;
+                }
+                node = node.next;
+            }
+        }
+
+        return false;
     }
 
     @Override

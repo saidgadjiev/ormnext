@@ -29,6 +29,11 @@ public class StatementValidator<T, ID> implements IStatementExecutor<T, ID> {
     }
 
     @Override
+    public boolean dropTable(Connection connection) throws SQLException {
+        return delegate.dropTable(connection);
+    }
+
+    @Override
     public int update(Connection connection, T object) throws SQLException {
         if (!dataBaseObject.getTableInfo().getIdField().isPresent()) {
             throw new SQLException("Id is not defined");

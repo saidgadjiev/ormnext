@@ -69,7 +69,7 @@ public class ForeignCollectionFieldType {
 
     private static Class<?> getCollectionGenericClass(Field field) {
         Type type = field.getGenericType();
-        Type [] genericTypes = ((ParameterizedType) type).getActualTypeArguments();
+        Type[] genericTypes = ((ParameterizedType) type).getActualTypeArguments();
 
         return (Class<?>) genericTypes[0];
     }
@@ -79,14 +79,8 @@ public class ForeignCollectionFieldType {
     }
 
     private static Optional<Field> findFieldByType(Class<?> type, Class<?> clazz) {
-        return Arrays.stream(clazz.getDeclaredFields()).filter(field -> {
-            if (field.isAnnotationPresent(DBField.class)) {
-                if (field.getType() == type) {
-                    return true;
-                }
-            }
-
-            return false;
-        }).findFirst();
+        return Arrays.stream(clazz.getDeclaredFields())
+                .filter(field -> field.isAnnotationPresent(DBField.class) && field.getType() == type)
+                .findFirst();
     }
 }

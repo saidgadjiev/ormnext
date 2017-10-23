@@ -1,6 +1,5 @@
 package ru.said.miami.orm.core.query.core;
 
-import ru.said.miami.orm.core.query.visitor.QueryElement;
 import ru.said.miami.orm.core.query.visitor.QueryVisitor;
 
 import java.util.ArrayList;

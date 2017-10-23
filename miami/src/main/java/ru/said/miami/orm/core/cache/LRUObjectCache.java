@@ -3,16 +3,12 @@ package ru.said.miami.orm.core.cache;
 import ru.said.miami.cache.core.Cache;
 import ru.said.miami.cache.core.CacheBuilder;
 
-import java.util.concurrent.ConcurrentHashMap;
-
 public class LRUObjectCache implements ObjectCache {
 
     private Cache<Object, Object> cache;
 
-    private int maxSize;
 
     public LRUObjectCache(int maxSize) {
-        this.maxSize = maxSize;
         cache = CacheBuilder.newBuilder().maxSize(maxSize).build();
     }
 

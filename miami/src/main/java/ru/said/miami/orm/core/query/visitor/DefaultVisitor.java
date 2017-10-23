@@ -3,8 +3,6 @@ package ru.said.miami.orm.core.query.visitor;
 import ru.said.miami.orm.core.field.DataType;
 import ru.said.miami.orm.core.query.core.*;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Iterator;
 
 /**
@@ -267,6 +265,16 @@ public class DefaultVisitor implements QueryVisitor {
 
     @Override
     public void finish(UpdateQuery updateQuery) {
+
+    }
+
+    @Override
+    public void start(DropTableQuery dropTableQuery) {
+        sql.append("DROP TABLE ").append(dropTableQuery.getTableName());
+    }
+
+    @Override
+    public void finish(DropTableQuery dropTableQuery) {
 
     }
 }

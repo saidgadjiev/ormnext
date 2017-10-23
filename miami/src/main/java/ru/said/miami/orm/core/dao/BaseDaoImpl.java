@@ -113,6 +113,13 @@ public abstract class BaseDaoImpl<T, ID> implements Dao<T, ID> {
         }
     }
 
+    @Override
+    public boolean dropTable() throws SQLException {
+        try (Connection connection = dataSource.getConnection()) {
+            return statementExecutor.dropTable(connection);
+        }
+    }
+
     public static<T, ID> Dao<T, ID> createDao(DataSource dataSource, TableInfo<T> tableInfo) {
         return new BaseDaoImpl<T, ID>(dataSource, tableInfo) {};
     }

@@ -4,7 +4,6 @@ import ru.said.miami.orm.core.cache.ObjectCache;
 import ru.said.miami.orm.core.field.DBFieldType;
 import ru.said.miami.orm.core.table.TableInfo;
 
-import java.lang.reflect.Constructor;
 import java.util.Optional;
 
 public class DataBaseObject<T> {

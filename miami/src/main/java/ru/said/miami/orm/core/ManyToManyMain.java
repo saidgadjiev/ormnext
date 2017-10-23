@@ -7,8 +7,6 @@ import ru.said.miami.orm.core.dao.DaoManager;
 import javax.sql.DataSource;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-
 /**
  * Main sample routine to show how to do many-to-many type relationships. It also demonstrates how we user inner queries
  * as well foreign objects.
@@ -26,10 +24,10 @@ public class ManyToManyMain {
 
     public static void main(String[] args) throws Exception {
         // turn our static method into an instance of Main
-        new ManyToManyMain().doMain(args);
+        new ManyToManyMain().doMain();
     }
 
-    private void doMain(String[] args) throws Exception {
+    private void doMain() throws Exception {
         SQLiteDataSource dataSource = new SQLiteDataSource();
 
         // create our data-source for the database

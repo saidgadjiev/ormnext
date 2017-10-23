@@ -12,6 +12,8 @@ public interface IStatementExecutor<T, ID> {
 
     boolean createTable(Connection connection) throws SQLException;
 
+    boolean dropTable(Connection connection) throws SQLException;
+
     int update(Connection connection, T object) throws SQLException;
 
     int delete(Connection connection, T object) throws SQLException;

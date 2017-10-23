@@ -3,7 +3,6 @@ package ru.said.miami.orm.core;
 import ru.said.miami.orm.core.field.*;
 import ru.said.miami.orm.core.table.DBTable;
 
-import javax.xml.crypto.Data;
 import java.util.ArrayList;
 import java.util.List;
 
