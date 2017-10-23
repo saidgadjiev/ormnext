@@ -44,7 +44,7 @@ public class SelectQuery implements Query<IMiamiCollection>, QueryElement {
 
     @Override
     public IMiamiCollection execute(Connection connection) throws SQLException {
-        try (Statement statement = connection.createStatement()) {
+         Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(query());
 
             return new IMiamiCollection() {
@@ -91,10 +91,10 @@ public class SelectQuery implements Query<IMiamiCollection>, QueryElement {
                 @Override
                 public void close() throws SQLException {
                     resultSet.close();
+                    statement.close();
                 }
             };
         }
-    }
 
     public String query() {
         this.accept(visitor);

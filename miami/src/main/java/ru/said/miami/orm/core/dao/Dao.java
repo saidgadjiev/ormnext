@@ -1,5 +1,6 @@
 package ru.said.miami.orm.core.dao;
 
+import ru.said.miami.orm.core.cache.ObjectCache;
 import ru.said.miami.orm.core.query.core.Query;
 import ru.said.miami.orm.core.query.core.query_builder.QueryBuilder;
 
@@ -62,5 +63,6 @@ public interface Dao<T, ID> {
 
     <R> R query(Query<R> query) throws SQLException;
 
+    void caching(boolean flag, ObjectCache objectCache);
 
 }

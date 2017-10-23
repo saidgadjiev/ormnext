@@ -1,4 +1,4 @@
-package ru.said.miami.orm.core.binding.annotations;
+package ru.said.miami.property.binder.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -11,6 +11,6 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Property {
-    String name();
+public @interface Requiered {
+    boolean requiered() default true;
 }

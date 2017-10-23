@@ -2,7 +2,8 @@ package ru.said.miami.orm.core.dao;
 
 import ru.said.miami.orm.core.cache.LRUObjectCache;
 import ru.said.miami.orm.core.cache.ObjectCache;
-import ru.said.miami.orm.core.query.StatementExecutor;
+import ru.said.miami.orm.core.query.stamentExecutor.IStatementExecutor;
+import ru.said.miami.orm.core.query.stamentExecutor.StatementValidator;
 import ru.said.miami.orm.core.query.core.Query;
 import ru.said.miami.orm.core.query.core.object.DataBaseObject;
 import ru.said.miami.orm.core.query.core.object.ObjectBuilder;
@@ -24,23 +25,19 @@ public abstract class BaseDaoImpl<T, ID> implements Dao<T, ID> {
 
     private final DataSource dataSource;
 
-    private StatementExecutor<T, ID> statementExecutor;
+    private IStatementExecutor<T, ID> statementExecutor;
 
     private DataBaseObject<T> dataBaseObject;
 
-    private ObjectCache objectCache;
-
-    public BaseDaoImpl(DataSource dataSource, TableInfo<T> tableInfo) {
+    protected BaseDaoImpl(DataSource dataSource, TableInfo<T> tableInfo) {
         this.dataSource = dataSource;
         this.dataBaseObject = new DataBaseObject<>(
                 tableInfo,
                 new ObjectCreator<>(dataSource, tableInfo),
                 new ObjectBuilder<>(dataSource, tableInfo)
         );
-        this.statementExecutor = new StatementExecutor<>(this.dataBaseObject);
+        this.statementExecutor = new StatementValidator<>(this.dataBaseObject);
     }
-
-
 
     @Override
     public int create(T object) throws SQLException {
@@ -104,12 +101,17 @@ public abstract class BaseDaoImpl<T, ID> implements Dao<T, ID> {
     }
 
     @Override
-    public void enableCache() {
-        objectCache = new LRUObjectCache(32);
+    public void caching(boolean flag, ObjectCache objectCache) {
+        if (flag) {
+            if (objectCache != null) {
+                dataBaseObject.setObjectCache(objectCache);
+            } else {
+                dataBaseObject.setObjectCache(new LRUObjectCache(16));
+            }
+        } else {
+            dataBaseObject.setObjectCache(null);
+        }
     }
-
-
-
 
     public static<T, ID> Dao<T, ID> createDao(DataSource dataSource, TableInfo<T> tableInfo) {
         return new BaseDaoImpl<T, ID>(dataSource, tableInfo) {};

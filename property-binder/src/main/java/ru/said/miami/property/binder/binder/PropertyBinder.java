@@ -1,4 +1,4 @@
-package ru.said.miami.orm.core.binding.binder;
+package ru.said.miami.property.binder.binder;
 
 import java.io.FileInputStream;
 import java.io.IOException;

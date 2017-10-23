@@ -2,7 +2,7 @@ package ru.said.miami.orm.core.query.core.object;
 
 import ru.said.miami.orm.core.dao.BaseDaoImpl;
 import ru.said.miami.orm.core.dao.Dao;
-import ru.said.miami.orm.core.dao.DaoBuilder;
+import ru.said.miami.orm.core.dao.DaoManager;
 import ru.said.miami.orm.core.field.DBFieldType;
 import ru.said.miami.orm.core.field.ForeignCollectionFieldType;
 import ru.said.miami.orm.core.query.core.IMiamiData;
@@ -76,7 +76,7 @@ public class ObjectBuilder<T> {
     public ObjectBuilder<T> buildForeignCollection() throws Exception {
         for (ForeignCollectionFieldType fieldType : tableInfo.toForeignCollectionFieldTypes()) {
             TableInfo<?> foreignTableInfo = TableInfo.buildTableInfo(fieldType.getForeignFieldClass());
-            Dao<Object, ?> foreignDao = (BaseDaoImpl<Object, ?>) DaoBuilder.createDAOWithTableInfo(dataSource, foreignTableInfo);
+            Dao<Object, ?> foreignDao = (BaseDaoImpl<Object, ?>) DaoManager.createDAOWithTableInfo(dataSource, foreignTableInfo);
             QueryBuilder<Object> queryBuilder = foreignDao.queryBuilder();
 
             if (tableInfo.getIdField().isPresent() && foreignTableInfo.getIdField().isPresent()) {

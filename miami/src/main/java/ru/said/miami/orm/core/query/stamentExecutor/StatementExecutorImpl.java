@@ -1,6 +1,5 @@
-package ru.said.miami.orm.core.query;
+package ru.said.miami.orm.core.query.stamentExecutor;
 
-import ru.said.miami.orm.core.cache.ObjectCache;
 import ru.said.miami.orm.core.field.DBFieldType;
 import ru.said.miami.orm.core.query.core.*;
 import ru.said.miami.orm.core.query.core.object.DataBaseObject;
@@ -18,14 +17,13 @@ import java.util.List;
  * @param <T>  тип объекта
  * @param <ID> id объекта
  */
-public class StatementExecutor<T, ID> {
+
+//TODO: снять валидацию с этого класса м б перенести в отдельный класс
+public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
 
     private DataBaseObject<T> dataBaseObject;
 
-    //TODO: Вынести работу с кешом в отдельный класс
-    private ObjectCache objectCache;
-
-    public StatementExecutor(DataBaseObject<T> dataBaseObject) {
+    public StatementExecutorImpl(DataBaseObject<T> dataBaseObject) {
         this.dataBaseObject = dataBaseObject;
     }
 
@@ -33,6 +31,7 @@ public class StatementExecutor<T, ID> {
      * Сохраняет объект в базе
      * Выполняет запрос вида INSERT INTO ...(colname1, colname2, ...) VALUES(colvalue1, colvalue2, ...)
      */
+    @Override
     @SuppressWarnings("unchecked")
     public int create(Connection connection, T object) throws SQLException {
         TableInfo<T> tableInfo = dataBaseObject.getTableInfo();
@@ -62,6 +61,7 @@ public class StatementExecutor<T, ID> {
         }
     }
 
+    @Override
     public boolean createTable(Connection connection) throws SQLException {
         TableInfo<T> tableInfo = dataBaseObject.getTableInfo();
 
@@ -77,23 +77,16 @@ public class StatementExecutor<T, ID> {
      * Обновляет объект в базе
      * Выполняет запрос вида UPDATE ... SET colname1 = colvalue1 SET colname2 = colvalue2 WHERE = object_builder.id
      */
+    @Override
     public int update(Connection connection, T object) throws SQLException {
         TableInfo<T> tableInfo = dataBaseObject.getTableInfo();
-        DBFieldType idFieldType = tableInfo.getIdField().orElseThrow(() -> new SQLException("Id is not defined"));
+        DBFieldType idFieldType = tableInfo.getIdField().get();
         Query<Integer> query = UpdateQuery.buildQuery(
                 tableInfo.getTableName(),
                 tableInfo.toDBFieldTypes(),
                 idFieldType,
                 object
         );
-
-        try {
-            T cachedData = objectCache.get(idFieldType.access(object));
-
-            //TODO: update cachedData
-        } catch (Exception ex) {
-            throw new SQLException(ex);
-        }
 
         return query.execute(connection);
     }
@@ -102,17 +95,15 @@ public class StatementExecutor<T, ID> {
      * Сохраняет объект в базе
      * Выполняет запрос вида DELETE FROM ... WHERE = object_builder.id
      */
+    @Override
     public int delete(Connection connection, T object) throws SQLException {
         try {
             TableInfo<T> tableInfo = dataBaseObject.getTableInfo();
-            DBFieldType dbFieldType = tableInfo.getIdField().orElseThrow(() -> new SQLException("Id is not defined"));
+            DBFieldType dbFieldType = tableInfo.getIdField().get();
             Object id = dbFieldType.access(object);
             Query<Integer> query = DeleteQuery.buildQuery(tableInfo.getTableName(), dbFieldType, id);
-            Integer result = query.execute(connection);
 
-            objectCache.remove(id);
-
-            return result;
+            return query.execute(connection);
         } catch (IllegalAccessException | InvocationTargetException ex) {
             throw new SQLException(ex);
         }
@@ -122,40 +113,33 @@ public class StatementExecutor<T, ID> {
      * Сохраняет объект в базе
      * Выполняет запрос вида DELETE FROM ... WHERE = object_builder.id
      */
+    @Override
     public int deleteById(Connection connection, ID id) throws SQLException {
         TableInfo<T> tableInfo = dataBaseObject.getTableInfo();
-        DBFieldType dbFieldType = tableInfo.getIdField().orElseThrow(() -> new SQLException("Id is not defined"));
+        DBFieldType dbFieldType = tableInfo.getIdField().get();
         Query<Integer> query = DeleteQuery.buildQuery(tableInfo.getTableName(), dbFieldType, id);
-        Integer result = query.execute(connection);
 
-        objectCache.remove(id);
-
-        return result;
+        return query.execute(connection);
     }
 
     /**
      * Возвращает объект по id
      * Выполняет запрос вида SELECT * FROM ... WHERE = id
      */
+    @Override
     public T queryForId(Connection connection, ID id) throws SQLException {
-        if (objectCache.contains(id)) {
-            return objectCache.get(id);
-        }
-
         TableInfo<T> tableInfo = dataBaseObject.getTableInfo();
-        DBFieldType dbFieldType = tableInfo.getIdField().orElseThrow(() -> new SQLException("Id is not defined"));
+        DBFieldType dbFieldType = tableInfo.getIdField().get();
         SelectQuery query = SelectQuery.buildQueryById(tableInfo.getTableName(), dbFieldType, id);
 
         try (IMiamiCollection result = query.execute(connection)) {
             if (result.next()) {
                 IMiamiData data = result.get();
-                T resultObject = dataBaseObject.getObjectBuilder().newObject()
+                return dataBaseObject.getObjectBuilder().newObject()
                         .buildBase(data)
                         .buildForeign(data)
                         .buildForeignCollection()
                         .build();
-
-                objectCache.put(id, resultObject);
             }
         } catch (Exception ex) {
             throw new SQLException(ex);
@@ -168,6 +152,7 @@ public class StatementExecutor<T, ID> {
      * Возвращает все объекты из таблицы
      * Выполняет запрос вида SELECT * FROM ...
      */
+    @Override
     public List<T> queryForAll(Connection connection) throws SQLException {
         TableInfo<T> tableInfo = dataBaseObject.getTableInfo();
         Query<IMiamiCollection> query = SelectQuery.buildQueryForAll(tableInfo.getTableName());
@@ -192,6 +177,7 @@ public class StatementExecutor<T, ID> {
         return resultObjectList;
     }
 
+    @Override
     public <R> R execute(Query<R> query, Connection connection) throws SQLException {
         return query.execute(connection);
     }

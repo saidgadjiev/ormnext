@@ -2,7 +2,7 @@ package ru.said.miami.orm.core;
 
 import org.sqlite.SQLiteDataSource;
 import ru.said.miami.orm.core.dao.Dao;
-import ru.said.miami.orm.core.dao.DaoBuilder;
+import ru.said.miami.orm.core.dao.DaoManager;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -13,11 +13,11 @@ public class Main {
         SQLiteDataSource dataSource = new SQLiteDataSource();
 
         dataSource.setUrl("jdbc:sqlite:C:/test.sqlite");
-        Dao<Account, Integer> accountDao = DaoBuilder.createDAO(dataSource, Account.class);
-        Dao<Order, Integer> orderDao = DaoBuilder.createDAO(dataSource, Order.class);
+        Dao<Account, Integer> accountDao = DaoManager.createDAO(dataSource, Account.class);
+        Dao<Order, Integer> orderDao = DaoManager.createDAO(dataSource, Order.class);
         //System.out.println("account created = " + accountDao.createTable());
         //System.out.println("order created = " + orderDao.createTable());
-        /*Account account = new Account();
+       /* Account account = new Account();
 
         account.setName("account_name");
         accountDao.create(account);
@@ -31,9 +31,9 @@ public class Main {
         order1.setName("test_order1");
         order1.setAccount(account);
         orderDao.create(order1);*/
-        List<Account> accounts = accountDao.query(accountDao.queryBuilder().where().eq("id", 24).prepare());
+        //List<Account> accounts = accountDao.query(accountDao.queryBuilder().where().eq("id", 24).prepare());
 
-        System.out.println("accounts = " + accounts);
+        System.out.println("account = " + accountDao.queryForId(2));
     }
 
     public static Order getTestObject() {

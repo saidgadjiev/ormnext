@@ -153,6 +153,7 @@ public abstract class AbstractCacheMap<K, V> extends AbstractMap<K, V> implement
             Node<K, V>[] oldTab = map;
 
             capacity *= 2;
+            size = 0;
             threshold = (int) (capacity * loadFactor);
             map = newMap(capacity);
             for (Node<K, V> entry : oldTab) {

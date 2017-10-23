@@ -1,7 +1,7 @@
-package ru.said.miami.orm.core.binding.binder;
+package ru.said.miami.property.binder.binder;
 
 
-import ru.said.miami.orm.core.binding.annotations.Property;
+import ru.said.miami.property.binder.annotations.Property;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
