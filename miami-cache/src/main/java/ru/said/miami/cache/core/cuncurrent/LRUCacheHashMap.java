@@ -5,7 +5,7 @@ package ru.said.miami.cache.core.cuncurrent;
  * @param <K>
  * @param <V>
  */
-public class LRUCacheMap<K, V> extends AbstractCacheMap<K, V> {
+public class LRUCacheHashMap<K, V> extends ConcurrentHashMap<K, V> {
 
     private LinkedEntry<K, V> head;
 
@@ -24,19 +24,19 @@ public class LRUCacheMap<K, V> extends AbstractCacheMap<K, V> {
         }
     }
 
-    public LRUCacheMap(int maxSize) {
+    public LRUCacheHashMap(int maxSize) {
         super();
         this.maxSize = maxSize;
     }
 
-    public LRUCacheMap(int capacity, float loadFactor, int maxSize ) {
+    public LRUCacheHashMap(int capacity, float loadFactor, int maxSize ) {
         super(capacity, loadFactor);
 
         this.maxSize = maxSize;
     }
 
     @Override
-    protected AbstractCacheMap.Node<K, V> newNode(K key, V value, int hash) {
+    protected ConcurrentHashMap.Node<K, V> newNode(K key, V value, int hash) {
         LinkedEntry<K, V> entry = new LinkedEntry<>(key, value, hash);
 
         linkEntry(entry);

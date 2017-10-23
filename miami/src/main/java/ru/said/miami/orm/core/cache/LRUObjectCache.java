@@ -17,6 +17,7 @@ public class LRUObjectCache implements ObjectCache {
         cache.put(id, data);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T, ID> T get(ID id) {
         Object data = cache.get(id);

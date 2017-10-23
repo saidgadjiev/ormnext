@@ -7,7 +7,7 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-public abstract class AbstractCacheMap<K, V> extends AbstractMap<K, V> implements ConcurrentMap<K, V> {
+public class ConcurrentHashMap<K, V> extends AbstractMap<K, V> implements ConcurrentMap<K, V> {
 
     private static final int DEFAULT_CAPACITY = 16;
 
@@ -78,7 +78,7 @@ public abstract class AbstractCacheMap<K, V> extends AbstractMap<K, V> implement
         }
     }
 
-    public AbstractCacheMap(int capacity, float loadFactor) {
+    public ConcurrentHashMap(int capacity, float loadFactor) {
         map = newMap(capacity);
         locks = new Object[capacity];
         this.capacity = capacity;
@@ -92,7 +92,7 @@ public abstract class AbstractCacheMap<K, V> extends AbstractMap<K, V> implement
         }
     }
 
-    public AbstractCacheMap() {
+    public ConcurrentHashMap() {
         map = newMap(DEFAULT_CAPACITY);
         this.locks = new Object[DEFAULT_CAPACITY];
         this.capacity = DEFAULT_CAPACITY;
@@ -113,13 +113,15 @@ public abstract class AbstractCacheMap<K, V> extends AbstractMap<K, V> implement
         }
     }
 
-    protected abstract Node<K, V> newNode(K key, V value, int hash);
+    protected Node<K, V> newNode(K key, V value, int hash) {
+        return new Node<>(key, value, hash);
+    }
 
-    protected abstract void afterPut();
+    protected void afterPut() {}
 
-    protected abstract void afterGet(Node<K, V> node);
+    protected void afterGet(Node<K, V> node) {}
 
-    protected abstract void afterRemove(Node<K, V> node);
+    protected void afterRemove(Node<K, V> node) {}
 
     @Override
     public V get(Object key) {
@@ -191,7 +193,7 @@ public abstract class AbstractCacheMap<K, V> extends AbstractMap<K, V> implement
 
         if (++size > threshold) {
             resizing = false;
-            synchronized (AbstractCacheMap.class) {
+            synchronized (ConcurrentHashMap.class) {
                 resize();
             }
         }

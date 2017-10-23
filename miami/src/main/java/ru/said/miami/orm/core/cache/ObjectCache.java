@@ -1,8 +1,5 @@
 package ru.said.miami.orm.core.cache;
 
-/**
- * Created by said on 22.10.17.
- */
 public interface ObjectCache {
 
     <T, ID> void put(ID id, T data);

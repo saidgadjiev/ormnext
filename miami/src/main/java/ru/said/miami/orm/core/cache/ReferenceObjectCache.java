@@ -12,6 +12,7 @@ public class ReferenceObjectCache implements ObjectCache {
         cache.put(id, new SoftReference<>(data));
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T, ID> T get(ID id) {
         return (T) cache.get(id).get();
@@ -19,7 +20,7 @@ public class ReferenceObjectCache implements ObjectCache {
 
     @Override
     public <ID> boolean contains(ID id) {
-        return cache.contains(id);
+        return cache.containsKey(id);
     }
 
     @Override
