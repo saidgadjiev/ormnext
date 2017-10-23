@@ -11,5 +11,7 @@ public interface ObjectCache {
 
     <ID> boolean contains(ID id);
 
-    <ID> void remove(ID id);
+    <ID> void invalidate(ID id);
+
+    void invalidateAll();
 }

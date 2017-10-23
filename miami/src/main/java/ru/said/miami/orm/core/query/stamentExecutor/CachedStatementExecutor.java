@@ -64,7 +64,7 @@ public class CachedStatementExecutor<T, ID> implements IStatementExecutor<T, ID>
 
         try {
             if (dataBaseObject.getObjectCache().isPresent()) {
-                dataBaseObject.getObjectCache().get().remove(dbFieldType.access(object));
+                dataBaseObject.getObjectCache().get().invalidate(dbFieldType.access(object));
             }
         } catch (IllegalAccessException | InvocationTargetException ex) {
             throw new RuntimeException(ex);
@@ -78,7 +78,7 @@ public class CachedStatementExecutor<T, ID> implements IStatementExecutor<T, ID>
         Integer result = delegate.deleteById(connection, id);
 
         if (dataBaseObject.getObjectCache().isPresent()) {
-            dataBaseObject.getObjectCache().get().remove(id);
+            dataBaseObject.getObjectCache().get().invalidate(id);
         }
 
         return result;

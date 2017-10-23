@@ -2,6 +2,7 @@ package ru.said.miami.orm.core.dao;
 
 import ru.said.miami.orm.core.cache.LRUObjectCache;
 import ru.said.miami.orm.core.cache.ObjectCache;
+import ru.said.miami.orm.core.cache.ReferenceObjectCache;
 import ru.said.miami.orm.core.query.stamentExecutor.IStatementExecutor;
 import ru.said.miami.orm.core.query.stamentExecutor.StatementValidator;
 import ru.said.miami.orm.core.query.core.Query;
@@ -106,7 +107,7 @@ public abstract class BaseDaoImpl<T, ID> implements Dao<T, ID> {
             if (objectCache != null) {
                 dataBaseObject.setObjectCache(objectCache);
             } else {
-                dataBaseObject.setObjectCache(new LRUObjectCache(16));
+                dataBaseObject.setObjectCache(new ReferenceObjectCache());
             }
         } else {
             dataBaseObject.setObjectCache(null);

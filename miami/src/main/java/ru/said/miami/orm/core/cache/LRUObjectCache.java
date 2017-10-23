@@ -30,8 +30,13 @@ public class LRUObjectCache implements ObjectCache {
     }
 
     @Override
-    public <ID> void remove(ID id) {
+    public <ID> void invalidate(ID id) {
         cache.invalidate(id);
+    }
+
+    @Override
+    public void invalidateAll() {
+        cache.invalidateAll();
     }
 
 }

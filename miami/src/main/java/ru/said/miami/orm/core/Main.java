@@ -34,6 +34,7 @@ public class Main {
         //List<Account> accounts = accountDao.query(accountDao.queryBuilder().where().eq("id", 24).prepare());
 
         System.out.println("account = " + accountDao.queryForId(2));
+        System.out.println("account = " + accountDao.queryForId(2));
     }
 
     public static Order getTestObject() {
