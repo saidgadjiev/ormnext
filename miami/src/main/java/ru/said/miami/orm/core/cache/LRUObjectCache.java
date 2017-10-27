@@ -7,9 +7,8 @@ public class LRUObjectCache implements ObjectCache {
 
     private Cache<Object, Object> cache;
 
-
     public LRUObjectCache(int maxSize) {
-        cache = CacheBuilder.newBuilder().maxSize(maxSize).build();
+        cache = CacheBuilder.newLRUCacheBuilder().maxSize(maxSize).build();
     }
 
     @Override

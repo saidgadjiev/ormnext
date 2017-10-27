@@ -1,6 +1,5 @@
 package ru.said.miami.orm.core.dao;
 
-import ru.said.miami.orm.core.cache.LRUObjectCache;
 import ru.said.miami.orm.core.cache.ObjectCache;
 import ru.said.miami.orm.core.cache.ReferenceObjectCache;
 import ru.said.miami.orm.core.query.stamentExecutor.IStatementExecutor;

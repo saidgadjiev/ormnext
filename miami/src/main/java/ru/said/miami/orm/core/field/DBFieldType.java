@@ -1,5 +1,8 @@
 package ru.said.miami.orm.core.field;
 
+import ru.said.miami.cache.core.Cache;
+import ru.said.miami.cache.core.CacheBuilder;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
@@ -77,7 +80,7 @@ public class DBFieldType {
         return foreignFieldClass;
     }
 
-    public static DBFieldType buildFieldType(Field field) throws NoSuchMethodException, NoSuchFieldException {
+    public static DBFieldType build(Field field) throws NoSuchMethodException, NoSuchFieldException {
         DBField dbField = field.getAnnotation(DBField.class);
         DBFieldType fieldType = new DBFieldType();
 

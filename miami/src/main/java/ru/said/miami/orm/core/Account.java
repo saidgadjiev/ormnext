@@ -2,16 +2,25 @@ package ru.said.miami.orm.core;
 
 import ru.said.miami.orm.core.field.*;
 import ru.said.miami.orm.core.table.DBTable;
+import ru.said.miami.orm.core.table.Index;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@DBTable(name = "account")
+//TODO: реализация индексов
+//TODO: стоит вынести primary key из DBField так как он относится не к полю а к таблце
+//TODO: подумать как добавить unique на поля
+@DBTable(
+        indexes = {
+            @Index(name = "test_index", columns = {"id", "name"})
+        },
+        pk = @PrimaryKey(columns = "id", generated = true)
+)
 public class Account {
 
     @Getter(name = "getId")
     @Setter(name = "setId")
-    @DBField(id = true, generated = true)
+    @DBField
     private Integer id;
 
     @Getter(name = "getName")

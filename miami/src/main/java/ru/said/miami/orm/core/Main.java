@@ -13,11 +13,11 @@ public class Main {
 
         dataSource.setUrl("jdbc:sqlite:C:/test.sqlite");
         Dao<Account, Integer> accountDao = DaoManager.createDAO(dataSource, Account.class);
-
-        accountDao.caching(true, null);
-        //System.out.println("account created = " + accountDao.createTable());
-        //System.out.println("order created = " + orderDao.createTable());
-       /* Account account = new Account();
+        Dao<Order, Integer> orderDao = DaoManager.createDAO(dataSource, Order.class);
+        //accountDao.caching(true, null);
+        System.out.println("account created = " + accountDao.createTable());
+        System.out.println("order created = " + orderDao.createTable());
+        Account account = new Account();
 
         account.setName("account_name");
         accountDao.create(account);
@@ -30,11 +30,11 @@ public class Main {
 
         order1.setName("test_order1");
         order1.setAccount(account);
-        orderDao.create(order1);*/
+        orderDao.create(order1);
         //List<Account> accounts = accountDao.query(accountDao.queryBuilder().where().eq("id", 24).prepare());
 
-        System.out.println("account = " + accountDao.queryForId(2));
-        System.out.println("account = " + accountDao.queryForId(2));
+        System.out.println("account = " + accountDao.queryForId(1));
+        //System.out.println("account = " + accountDao.queryForId(2));
     }
 
     public static Order getTestObject() {

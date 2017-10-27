@@ -55,10 +55,7 @@ public final class TableInfo<T> {
                 .collect(Collectors.toList());
     }
 
-    public static<T> TableInfo buildTableInfo(Class<T> clazz) throws NoSuchMethodException, NoSuchFieldException {
-        if (!clazz.isAnnotationPresent(DBTable.class)) {
-            throw new IllegalArgumentException("Class not annotated with DBTable.class");
-        }
+    public static<T> TableInfo<T> build(Class<T> clazz) throws NoSuchMethodException, NoSuchFieldException {
         List<FieldType> fieldTypes = new ArrayList<>();
 
         for (Field field: clazz.getDeclaredFields()) {
@@ -68,7 +65,13 @@ public final class TableInfo<T> {
             throw new IllegalArgumentException("No fields have a " + DBField.class.getSimpleName()
                     + " annotation in " + clazz);
         }
-        String tableName = clazz.getAnnotation(DBTable.class).name();
+        String tableName = "";
+
+        if (clazz.isAnnotationPresent(DBTable.class)) {
+            DBTable dbTable = clazz.getAnnotation(DBTable.class);
+
+            tableName = dbTable.name();
+        }
         TableInfo<T> tableInfo = new TableInfo<>(
                 lookupDefaultConstructor(clazz),
                 getIdGeneratedIdField(fieldTypes),

@@ -8,6 +8,7 @@ import ru.said.miami.orm.core.query.core.CreateQuery;
 import ru.said.miami.orm.core.query.core.FieldConverter;
 import ru.said.miami.orm.core.query.core.UpdateValue;
 import ru.said.miami.orm.core.table.TableInfo;
+import ru.said.miami.orm.core.table.TableInfoCache;
 
 import javax.sql.DataSource;
 
@@ -48,7 +49,7 @@ public class ObjectCreator<T> {
         for (DBFieldType fieldType : tableInfo.toDBFieldTypes()) {
             if (fieldType.isForeign()) {
                 Object foreignObject = fieldType.access(object);
-                TableInfo<?> foreignTableInfo = TableInfo.buildTableInfo(fieldType.getForeignFieldType());
+                TableInfo<?> foreignTableInfo = TableInfoCache.build(fieldType.getForeignFieldType());
 
                 if (fieldType.isForeignAutoCreate()) {
                     Dao<Object, ?> foreignDao = (BaseDaoImpl<Object, ?>) DaoManager.createDAOWithTableInfo(dataSource, foreignTableInfo);

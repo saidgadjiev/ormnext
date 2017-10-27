@@ -1,11 +1,13 @@
 package ru.said.miami.orm.core.cache;
 
+import ru.said.miami.cache.core.Cache;
+import ru.said.miami.cache.core.CacheBuilder;
+
 import java.lang.ref.SoftReference;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class ReferenceObjectCache implements ObjectCache {
 
-    private ConcurrentHashMap<Object, SoftReference<Object>> cache = new ConcurrentHashMap<>();
+    private Cache<Object, SoftReference<Object>> cache = CacheBuilder.newRefenceCacheBuilder().build();
 
     @Override
     public <T, ID> void put(ID id, T data) {
@@ -20,16 +22,16 @@ public class ReferenceObjectCache implements ObjectCache {
 
     @Override
     public <ID> boolean contains(ID id) {
-        return cache.containsKey(id);
+        return cache.contains(id);
     }
 
     @Override
     public <ID> void invalidate(ID id) {
-        cache.remove(id);
+        cache.invalidate(id);
     }
 
     @Override
     public void invalidateAll() {
-        cache.clear();
+        cache.invalidateAll();
     }
 }

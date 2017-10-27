@@ -5,23 +5,37 @@ public class CacheBuilder<K, V> {
 
     private CacheBuilder() {}
 
-    private int maxSize;
-
-    public static CacheBuilder<Object, Object> newBuilder() {
-        return new CacheBuilder<>();
+    public static LRUCacheBuilder<Object, Object> newLRUCacheBuilder() {
+        return new LRUCacheBuilder<>();
     }
 
-    public int getMaxSize() {
-        return maxSize;
+    public static ReferenceCacheBuilder<Object, Object> newRefenceCacheBuilder() {
+        return new ReferenceCacheBuilder<>();
     }
 
-    public CacheBuilder<K, V> maxSize(int maxSize) {
-        this.maxSize = maxSize;
+    public static class LRUCacheBuilder<K, V> {
 
-        return this;
+        private int maxSize;
+
+        public LRUCacheBuilder<K, V> maxSize(int maxSize) {
+            this.maxSize = maxSize;
+
+            return this;
+        }
+
+        public int getMaxSize() {
+            return maxSize;
+        }
+
+        public <K1 extends K, V1 extends V> Cache<K1, V1> build() {
+            return new LRUCache<>(this);
+        }
     }
 
-    public <K1 extends K, V1 extends V> Cache<K1, V1> build() {
-        return new LRUCache<>(this);
+    public static class ReferenceCacheBuilder<K, V> {
+
+        public <K1 extends K, V1 extends V> Cache<K1, V1> build() {
+            return new ReferenceCache<>(this);
+        }
     }
 }
