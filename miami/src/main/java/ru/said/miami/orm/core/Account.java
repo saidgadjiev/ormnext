@@ -3,6 +3,7 @@ package ru.said.miami.orm.core;
 import ru.said.miami.orm.core.field.*;
 import ru.said.miami.orm.core.table.DBTable;
 import ru.said.miami.orm.core.table.Index;
+import ru.said.miami.orm.core.table.Unique;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,10 +15,14 @@ import java.util.List;
         indexes = {
             @Index(name = "test_index", columns = {"id", "name"})
         },
-        pk = @PrimaryKey(columns = "id", generated = true)
+        primaryKey = @PrimaryKey(column = "id"),
+        uniqueConstraints = {
+                @Unique(columns = {"name"})
+        }
 )
 public class Account {
 
+    @GeneratedValue(GeneratedAlgorithm.AUTO)
     @Getter(name = "getId")
     @Setter(name = "setId")
     @DBField

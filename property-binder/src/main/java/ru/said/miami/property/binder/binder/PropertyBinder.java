@@ -9,16 +9,17 @@ import java.util.Properties;
 /**
  * Created by said on 12.06.17.
  */
-public class PropertyBinder<T> {
+public class PropertyBinder {
     private Properties properties;
 
     public PropertyBinder(String propertiesFilePath) throws IOException {
+        //InputStream не закрывается
         InputStream inputStream = new FileInputStream(propertiesFilePath);
         this.properties = new Properties();
         this.properties.load(inputStream);
     }
 
-    public T getProperties(Class<T> iProperty) {
+    public<T> T getProperties(Class<T> iProperty) {
         return (T) Proxy.newProxyInstance(iProperty.getClassLoader(), new Class[] { iProperty }, new PropertyInvokationHandler(properties));
     }
 }

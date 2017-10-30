@@ -2,6 +2,7 @@ package ru.said.miami.orm.core.field;
 
 import ru.said.miami.cache.core.Cache;
 import ru.said.miami.cache.core.CacheBuilder;
+import ru.said.miami.orm.core.table.DBTable;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -22,10 +23,6 @@ public class DBFieldType {
 
     private int length;
 
-    private boolean id;
-
-    private boolean generated;
-
     private DataPersister dataPersister;
 
     private boolean foreignAutoCreate;
@@ -42,14 +39,6 @@ public class DBFieldType {
 
     public DataType getDataType() {
         return dataType;
-    }
-
-    public boolean isId() {
-        return id;
-    }
-
-    public boolean isGenerated() {
-        return generated;
     }
 
     public Object access(Object object) throws InvocationTargetException, IllegalAccessException {
@@ -87,9 +76,7 @@ public class DBFieldType {
         fieldType.field = field;
         fieldType.columnName = dbField.columnName().isEmpty() ? field.getName().toLowerCase() : dbField.columnName();
         fieldType.length = dbField.length();
-        fieldType.id = dbField.id();
         fieldType.fieldAccessor = new FieldAccessor(field);
-        fieldType.generated = dbField.generated();
 
         if (dbField.foreign()) {
             fieldType.foreignAutoCreate = dbField.foreignAutoCreate();
@@ -108,15 +95,11 @@ public class DBFieldType {
     }
 
     private static Optional<Field> findIdField(Class<?> clazz) {
-        return Arrays.stream(clazz.getDeclaredFields()).filter(field -> {
-            if (field.isAnnotationPresent(DBField.class)) {
-                DBField dbField = field.getAnnotation(DBField.class);
+        if (!clazz.isAnnotationPresent(DBTable.class)) {
+            return Optional.empty();
+        }
+        PrimaryKey primaryKey = clazz.getAnnotation(DBTable.class).primaryKey();
 
-                return dbField.id();
-            }
-
-            return false;
-        }).findFirst();
     }
 
     public int getLength() {
@@ -129,5 +112,21 @@ public class DBFieldType {
                 "columnName='" + columnName + '\'' +
                 ", dataType=" + dataType +
                 '}';
+    }
+
+    public static class DBFieldTypeCache {
+
+        private static final Cache<Field, DBFieldType> CACHE = CacheBuilder.newRefenceCacheBuilder().build();
+
+        public static DBFieldType build(Field field) throws NoSuchMethodException, NoSuchFieldException {
+            if (CACHE.contains(field)) {
+                return CACHE.get(field);
+            }
+            DBFieldType dbFieldType = DBFieldType.build(field);
+
+            CACHE.put(field, dbFieldType);
+
+            return dbFieldType;
+        }
     }
 }

@@ -1,5 +1,7 @@
 package ru.said.miami.orm.core.table;
 
+import ru.said.miami.cache.core.Cache;
+import ru.said.miami.cache.core.CacheBuilder;
 import ru.said.miami.orm.core.field.DBField;
 import ru.said.miami.orm.core.field.DBFieldType;
 import ru.said.miami.orm.core.field.FieldType;
@@ -15,6 +17,8 @@ import java.util.stream.Collectors;
 public final class TableInfo<T> {
 
     private final List<FieldType> fieldTypes;
+
+    private List<DBFieldType> primaryKey;
 
     private final DBFieldType idField;
 
@@ -71,6 +75,7 @@ public final class TableInfo<T> {
             DBTable dbTable = clazz.getAnnotation(DBTable.class);
 
             tableName = dbTable.name();
+
         }
         TableInfo<T> tableInfo = new TableInfo<>(
                 lookupDefaultConstructor(clazz),
@@ -98,6 +103,22 @@ public final class TableInfo<T> {
             }
         }
         throw new IllegalArgumentException("No define default constructor");
+    }
+
+    public static class TableInfoCache {
+
+        private static final Cache<Class<?>, TableInfo<?>> CACHE = CacheBuilder.newRefenceCacheBuilder().build();
+
+        public static<T> TableInfo<T> build(Class<T> clazz) throws NoSuchMethodException, NoSuchFieldException {
+            if (CACHE.contains(clazz)) {
+                return (TableInfo<T>) CACHE.get(clazz);
+            }
+            TableInfo<?> tableInfo = TableInfo.build(clazz);
+
+            CACHE.put(clazz, tableInfo);
+
+            return (TableInfo<T>) tableInfo;
+        }
     }
 }
 

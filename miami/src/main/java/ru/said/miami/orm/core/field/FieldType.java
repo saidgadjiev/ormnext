@@ -16,9 +16,9 @@ public class FieldType {
         FieldType fieldType = new FieldType();
 
         if (field.isAnnotationPresent(DBField.class)) {
-            fieldType.dbFieldType = DBFieldTypeCache.build(field);
+            fieldType.dbFieldType = DBFieldType.DBFieldTypeCache.build(field);
         } else if (field.isAnnotationPresent(ForeignCollectionField.class)) {
-            fieldType.foreignCollectionFieldType = ForeignCollectionFieldTypeCache.build(field);
+            fieldType.foreignCollectionFieldType = ForeignCollectionFieldType.ForeignCollectionFieldTypeCache.build(field);
         }
 
         return Optional.of(fieldType);

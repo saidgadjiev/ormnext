@@ -4,7 +4,6 @@ import ru.said.miami.cache.core.Cache;
 import ru.said.miami.cache.core.CacheBuilder;
 import ru.said.miami.orm.core.table.DBTable;
 import ru.said.miami.orm.core.table.TableInfo;
-import ru.said.miami.orm.core.table.TableInfoCache;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Constructor;
@@ -25,7 +24,7 @@ public class DaoManager {
             if (lookupDao.isPresent()) {
                 return lookupDao.get();
             }
-            TableInfo<T> tableInfo = TableInfoCache.build(clazz);
+            TableInfo<T> tableInfo = TableInfo.TableInfoCache.build(clazz);
 
             if (clazz.isAnnotationPresent(DBTable.class) && clazz.getAnnotation(DBTable.class).daoClass() != BaseDaoImpl.class) {
                 Class<? extends BaseDaoImpl> daoClass = clazz.getAnnotation(DBTable.class).daoClass();

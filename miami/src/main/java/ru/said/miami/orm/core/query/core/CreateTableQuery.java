@@ -16,6 +16,8 @@ public class CreateTableQuery implements Query<Boolean>, QueryElement {
 
     private List<AttributeDefenition> attributeDefenitions = new ArrayList<>();
 
+    private List<AttributeConstraint> attributeConstraints = new ArrayList<>();
+
     private String typeName;
 
     private QueryVisitor visitor;
@@ -32,6 +34,10 @@ public class CreateTableQuery implements Query<Boolean>, QueryElement {
 
     public List<AttributeDefenition> getAttributeDefenitions() {
         return attributeDefenitions;
+    }
+
+    public List<AttributeConstraint> getAttributeConstraints() {
+        return attributeConstraints;
     }
 
     public static CreateTableQuery buildQuery(String typeName, List<DBFieldType> fieldTypes) {

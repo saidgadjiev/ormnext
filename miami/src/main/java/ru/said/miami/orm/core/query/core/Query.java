@@ -5,7 +5,6 @@ import java.sql.SQLException;
 
 /**
  * Общий интерфейс для всех типов запросов
- * @param <T> тип результата выполнения запроса
  */
 public interface Query<R> {
 
