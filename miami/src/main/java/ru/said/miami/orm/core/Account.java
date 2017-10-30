@@ -15,7 +15,7 @@ import java.util.List;
         indexes = {
             @Index(name = "test_index", columns = {"id", "name"})
         },
-        primaryKey = @PrimaryKey(column = "id"),
+        primaryKey = @PrimaryKey(columns = {"id"}),
         uniqueConstraints = {
                 @Unique(columns = {"name"})
         }

@@ -1,36 +1,33 @@
-package ru.said.miami.orm.core.query.core;
+package ru.said.miami.orm.core.query.core.defenitions;
 
 import ru.said.miami.orm.core.field.DataType;
 import ru.said.miami.orm.core.field.DBFieldType;
+import ru.said.miami.orm.core.field.FieldType;
 import ru.said.miami.orm.core.query.visitor.QueryElement;
 import ru.said.miami.orm.core.query.visitor.QueryVisitor;
 
 public class AttributeDefenition implements QueryElement {
 
-    private DBFieldType fieldType;
+    private final String columnName;
+    private final DataType dataType;
+    private final int length;
 
-    public AttributeDefenition(DBFieldType fieldType) {
-        this.fieldType = fieldType;
+    public AttributeDefenition(String columnName, DataType dataType, int length) {
+        this.columnName = columnName;
+        this.dataType = dataType;
+        this.length = length;
     }
 
     public String getName() {
-        return fieldType.getColumnName();
-    }
-
-    public boolean isId() {
-        return fieldType.isId();
-    }
-
-    public boolean isGenerated() {
-        return fieldType.isGenerated();
+        return columnName
     }
 
     public DataType getDataType() {
-        return fieldType.getDataType();
+        return dataType;
     }
 
     public int getLength() {
-        return fieldType.getLength();
+        return length;
     }
 
     @Override

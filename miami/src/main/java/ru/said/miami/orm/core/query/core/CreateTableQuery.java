@@ -1,9 +1,14 @@
 package ru.said.miami.orm.core.query.core;
 
-import ru.said.miami.orm.core.field.DBFieldType;
+import ru.said.miami.orm.core.field.UniqueFieldType;
+import ru.said.miami.orm.core.query.AttributeDefenition;
+import ru.said.miami.orm.core.query.core.constraints.PrimaryKeyConstraint;
+import ru.said.miami.orm.core.query.core.constraints.UniqueConstraint;
+import ru.said.miami.orm.core.query.core.defenitions.PrimaryKeyAttributeDefenition;
 import ru.said.miami.orm.core.query.visitor.DefaultVisitor;
 import ru.said.miami.orm.core.query.visitor.QueryElement;
 import ru.said.miami.orm.core.query.visitor.QueryVisitor;
+import ru.said.miami.orm.core.table.TableInfo;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -16,7 +21,7 @@ public class CreateTableQuery implements Query<Boolean>, QueryElement {
 
     private List<AttributeDefenition> attributeDefenitions = new ArrayList<>();
 
-    private List<AttributeConstraint> attributeConstraints = new ArrayList<>();
+    private List<TableConstraint> tableConstraints = new ArrayList<>();
 
     private String typeName;
 
@@ -36,16 +41,38 @@ public class CreateTableQuery implements Query<Boolean>, QueryElement {
         return attributeDefenitions;
     }
 
-    public List<AttributeConstraint> getAttributeConstraints() {
-        return attributeConstraints;
+    public List<TableConstraint> getTableConstraints() {
+        return tableConstraints;
     }
 
-    public static CreateTableQuery buildQuery(String typeName, List<DBFieldType> fieldTypes) {
-        return new CreateTableQuery(
-                typeName,
-                fieldTypes.stream().map(AttributeDefenition::new).collect(Collectors.toList()),
+    public static CreateTableQuery buildQuery(TableInfo<?> tableInfo) {
+        List<AttributeDefenition> attributeDefenitions = new ArrayList<>();
+
+        attributeDefenitions.addAll(
+                tableInfo.toDBFieldTypes()
+                        .stream()
+                        .map(DBFieldTypeDefenition::new)
+                        .collect(Collectors.toList())
+        );
+        attributeDefenitions.addAll(
+                tableInfo.toForeignFieldTypes()
+                        .stream()
+                        .map(ForeignFieldTypeDefenition::new)
+                        .collect(Collectors.toList())
+        );
+        attributeDefenitions.add(new PrimaryKeyAttributeDefenition(tableInfo.getIdField().get()));
+
+        CreateTableQuery createTableQuery = new CreateTableQuery(
+                tableInfo.getTableName(),
+                attributeDefenitions,
                 new DefaultVisitor()
         );
+        createTableQuery.getTableConstraints().add(new PrimaryKeyConstraint(tableInfo.getIdField().get()));
+        for (UniqueFieldType uniqueFieldType: tableInfo.getUniqueFieldTypes()) {
+            createTableQuery.getTableConstraints().add(new UniqueConstraint(uniqueFieldType));
+        }
+
+        return createTableQuery;
     }
 
     @Override

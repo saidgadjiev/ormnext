@@ -11,13 +11,9 @@ import java.util.Optional;
 
 public class DBFieldType {
 
-    private static final String ID_SUFFIX = "_id";
-
     private String columnName;
 
     private DataType dataType;
-
-    private boolean foreign;
 
     private Field field;
 
@@ -25,13 +21,7 @@ public class DBFieldType {
 
     private DataPersister dataPersister;
 
-    private boolean foreignAutoCreate;
-
-    private Field foreignIdField;
-
     private FieldAccessor fieldAccessor;
-
-    private Class<?> foreignFieldClass;
 
     public String getColumnName() {
         return columnName;
@@ -45,10 +35,6 @@ public class DBFieldType {
         return fieldAccessor.access(object);
     }
 
-    public boolean isForeignAutoCreate() {
-        return foreignAutoCreate;
-    }
-
     public DataPersister getDataPersister() {
         return dataPersister;
     }
@@ -57,16 +43,8 @@ public class DBFieldType {
         fieldAccessor.assign(object, value);
     }
 
-    public boolean isForeign() {
-        return foreign;
-    }
-
     public Field getField() {
         return field;
-    }
-
-    public Class<?> getForeignFieldType() {
-        return foreignFieldClass;
     }
 
     public static DBFieldType build(Field field) throws NoSuchMethodException, NoSuchFieldException {
@@ -77,29 +55,10 @@ public class DBFieldType {
         fieldType.columnName = dbField.columnName().isEmpty() ? field.getName().toLowerCase() : dbField.columnName();
         fieldType.length = dbField.length();
         fieldType.fieldAccessor = new FieldAccessor(field);
-
-        if (dbField.foreign()) {
-            fieldType.foreignAutoCreate = dbField.foreignAutoCreate();
-            fieldType.foreign = dbField.foreign();
-            fieldType.columnName += ID_SUFFIX;
-            fieldType.foreignIdField = findIdField(field.getType()).orElseThrow(() -> new NoSuchFieldException("Foreign id field is not defined"));
-            fieldType.foreignFieldClass = fieldType.foreignIdField.getDeclaringClass();
-            fieldType.dataPersister = DataPersisterManager.lookupField(fieldType.foreignIdField);
-            fieldType.dataType = fieldType.dataPersister.getDataType();
-        } else {
-            fieldType.dataPersister = DataPersisterManager.lookupField(field);
-            fieldType.dataType = dbField.dataType().equals(DataType.UNKNOWN) ? fieldType.dataPersister.getDataType() : dbField.dataType();
-        }
+        fieldType.dataPersister = DataPersisterManager.lookupField(field);
+        fieldType.dataType = dbField.dataType().equals(DataType.UNKNOWN) ? fieldType.dataPersister.getDataType() : dbField.dataType();
 
         return fieldType;
-    }
-
-    private static Optional<Field> findIdField(Class<?> clazz) {
-        if (!clazz.isAnnotationPresent(DBTable.class)) {
-            return Optional.empty();
-        }
-        PrimaryKey primaryKey = clazz.getAnnotation(DBTable.class).primaryKey();
-
     }
 
     public int getLength() {

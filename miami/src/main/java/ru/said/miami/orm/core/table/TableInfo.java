@@ -2,43 +2,62 @@ package ru.said.miami.orm.core.table;
 
 import ru.said.miami.cache.core.Cache;
 import ru.said.miami.cache.core.CacheBuilder;
-import ru.said.miami.orm.core.field.DBField;
-import ru.said.miami.orm.core.field.DBFieldType;
-import ru.said.miami.orm.core.field.FieldType;
-import ru.said.miami.orm.core.field.ForeignCollectionFieldType;
+import ru.said.miami.orm.core.field.*;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.*;
 
 public final class TableInfo<T> {
 
     private final List<FieldType> fieldTypes;
 
-    private List<DBFieldType> primaryKey;
+    private List<DBFieldType> dbFieldTypes;
 
-    private final DBFieldType idField;
+    private List<ForeignFieldType> foreignFieldTypes;
+
+    private List<ForeignCollectionFieldType> foreignCollectionFieldTypes;
+
+    private List<UniqueFieldType> uniqueFieldTypes;
+
+    private PrimaryKeyFieldType primaryKeyFieldType;
 
     private String tableName;
 
     private Constructor<T> constructor;
 
-    private TableInfo(Constructor<T> constructor, DBFieldType idField, String tableName, List<FieldType> fieldTypes) {
+    private TableInfo(Constructor<T> constructor,
+                      List<UniqueFieldType> uniqueFieldTypes,
+                      PrimaryKeyFieldType primaryKeyFieldType,
+                      String tableName,
+                      List<FieldType> fieldTypes) {
         this.tableName = tableName;
         this.constructor = constructor;
         this.fieldTypes = fieldTypes;
-        this.idField = idField;
+        this.primaryKeyFieldType = primaryKeyFieldType;
+        this.uniqueFieldTypes = uniqueFieldTypes;
+
+        fieldTypes.forEach(fieldType -> {
+            if (fieldType.isDBFieldType()) {
+                dbFieldTypes.add(fieldType.getDbFieldType());
+            } else if (fieldType.isForeignCollectionFieldType()) {
+                foreignCollectionFieldTypes.add(fieldType.getForeignCollectionFieldType());
+            } else {
+                foreignFieldTypes.add(fieldType.getForeignField());
+            }
+        });
     }
 
     public String getTableName() {
         return tableName;
     }
 
-    public Optional<DBFieldType> getIdField() {
-        return Optional.ofNullable(idField);
+    public Optional<PrimaryKeyFieldType> getIdField() {
+        return Optional.ofNullable(primaryKeyFieldType);
+    }
+
+    public List<UniqueFieldType> getUniqueFieldTypes() {
+        return uniqueFieldTypes;
     }
 
     public Constructor<T> getConstructor() {
@@ -46,17 +65,15 @@ public final class TableInfo<T> {
     }
 
     public List<DBFieldType> toDBFieldTypes() {
-        return fieldTypes.stream()
-                .filter(FieldType::isDBFieldType)
-                .map(FieldType::getDbFieldType)
-                .collect(Collectors.toList());
+        return Collections.unmodifiableList(dbFieldTypes);
+    }
+
+    public List<ForeignFieldType> toForeignFieldTypes() {
+        return Collections.unmodifiableList(foreignFieldTypes);
     }
 
     public List<ForeignCollectionFieldType> toForeignCollectionFieldTypes() {
-        return fieldTypes.stream()
-                .filter(FieldType::isForeignCollectionFieldType)
-                .map(FieldType::getForeignCollectionFieldType)
-                .collect(Collectors.toList());
+        return Collections.unmodifiableList(foreignCollectionFieldTypes);
     }
 
     public static<T> TableInfo<T> build(Class<T> clazz) throws NoSuchMethodException, NoSuchFieldException {
@@ -75,31 +92,39 @@ public final class TableInfo<T> {
             DBTable dbTable = clazz.getAnnotation(DBTable.class);
 
             tableName = dbTable.name();
-
         }
         TableInfo<T> tableInfo = new TableInfo<>(
-                lookupDefaultConstructor(clazz),
-                getIdGeneratedIdField(fieldTypes),
-                tableName.isEmpty() ? clazz.getSimpleName().toLowerCase() : tableName, fieldTypes);
+                (Constructor<T>) lookupDefaultConstructor(clazz),
+                getUniques(clazz),
+                getPrimaryKeys(clazz),
+                tableName.isEmpty() ? clazz.getSimpleName().toLowerCase() : tableName,
+                fieldTypes
+        );
 
         return tableInfo;
     }
 
+    private static<T> List<UniqueFieldType> getUniques(Class<T> tClass) throws NoSuchFieldException, NoSuchMethodException {
+        List<UniqueFieldType> uniqueFieldTypes = new ArrayList<>();
+        Unique[] uniques = tClass.getAnnotation(DBTable.class).uniqueConstraints();
 
-    private static DBFieldType getIdGeneratedIdField(List<FieldType> fieldTypes) {
-        return fieldTypes.stream()
-                .filter(FieldType::isDBFieldType)
-                .map(FieldType::getDbFieldType)
-                .collect(Collectors.toList())
-                .stream().filter(dbFieldType -> dbFieldType.isId() && dbFieldType.isGenerated())
-                .findFirst()
-                .orElseGet(() -> null);
+        for (Unique unique: uniques) {
+            uniqueFieldTypes.add(UniqueFieldType.build(unique));
+        }
+
+        return uniqueFieldTypes;
     }
 
-    private static<T> Constructor<T> lookupDefaultConstructor(Class<T> clazz) throws NoSuchMethodException {
+    private static<T> PrimaryKeyFieldType getPrimaryKeys(Class<T> tClass) throws NoSuchFieldException, NoSuchMethodException {
+        PrimaryKey primaryKey = tClass.getAnnotation(DBTable.class).primaryKey();
+
+        return PrimaryKeyFieldType.build(primaryKey.column(), tClass);
+    }
+
+    private static Constructor<?> lookupDefaultConstructor(Class<?> clazz) throws NoSuchMethodException {
         for (Constructor<?> constructor: clazz.getDeclaredConstructors()) {
             if (constructor.getParameterCount() == 0) {
-                return (Constructor<T>) constructor;
+                return constructor;
             }
         }
         throw new IllegalArgumentException("No define default constructor");

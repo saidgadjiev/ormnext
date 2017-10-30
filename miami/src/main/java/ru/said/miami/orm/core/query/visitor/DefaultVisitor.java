@@ -2,6 +2,7 @@ package ru.said.miami.orm.core.query.visitor;
 
 import ru.said.miami.orm.core.field.DataType;
 import ru.said.miami.orm.core.query.core.*;
+import ru.said.miami.orm.core.query.core.defenitions.AttributeDefenition;
 
 import java.util.Iterator;
 

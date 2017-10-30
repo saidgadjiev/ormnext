@@ -5,6 +5,7 @@ import ru.said.miami.orm.core.dao.Dao;
 import ru.said.miami.orm.core.dao.DaoManager;
 import ru.said.miami.orm.core.field.DBFieldType;
 import ru.said.miami.orm.core.field.ForeignCollectionFieldType;
+import ru.said.miami.orm.core.field.ForeignFieldType;
 import ru.said.miami.orm.core.query.core.IMiamiData;
 import ru.said.miami.orm.core.query.core.Query;
 import ru.said.miami.orm.core.query.core.query_builder.QueryBuilder;
@@ -27,7 +28,7 @@ public class ObjectBuilder<T> {
         this.dataSource = dataSource;
     }
 
-    public ObjectBuilder<T> newObject() throws Exception  {
+    public ObjectBuilder<T> newObject() throws Exception {
         this.object = (T) newObject(tableInfo.getConstructor());
 
         return this;
@@ -35,25 +36,21 @@ public class ObjectBuilder<T> {
 
     public ObjectBuilder<T> buildBase(IMiamiData data) throws Exception {
         for (DBFieldType fieldType : tableInfo.toDBFieldTypes()) {
-            if (!fieldType.isForeign()) {
-                fieldType.assign(object, data.getObject(fieldType.getColumnName()));
-            }
+            fieldType.assign(object, data.getObject(fieldType.getColumnName()));
         }
 
         return this;
     }
 
     public ObjectBuilder<T> buildForeign(IMiamiData data) throws Exception {
-        for (DBFieldType fieldType : tableInfo.toDBFieldTypes()) {
-            if (fieldType.isForeign()) {
-                TableInfo<?> foreignTableInfo = TableInfo.TableInfoCache.build(fieldType.getForeignFieldType());
-                Object val = newObject(foreignTableInfo.getConstructor());
+        for (ForeignFieldType fieldType : tableInfo.toForeignFieldTypes()) {
+            TableInfo<?> foreignTableInfo = TableInfo.TableInfoCache.build(fieldType.getForeignFieldClass());
+            Object val = newObject(foreignTableInfo.getConstructor());
 
-                if (foreignTableInfo.getIdField().isPresent()) {
-                    foreignTableInfo.getIdField().get().assign(val, data.getObject(fieldType.getColumnName()));
-                }
-                fieldType.assign(object, val);
+            if (foreignTableInfo.getIdField().isPresent()) {
+                foreignTableInfo.getIdField().get().assign(val, data.getObject(fieldType.getColumnName()));
             }
+            fieldType.assign(object, val);
         }
 
         return this;
@@ -80,7 +77,7 @@ public class ObjectBuilder<T> {
             QueryBuilder<Object> queryBuilder = foreignDao.queryBuilder();
 
             if (tableInfo.getIdField().isPresent() && foreignTableInfo.getIdField().isPresent()) {
-                DBFieldType idField = tableInfo.getIdField().get();
+                DBFieldType idField = tableInfo.getIdField().get().getDbFieldType();
                 DBFieldType foreignField = DBFieldType.DBFieldTypeCache.build(fieldType.getForeignField());
                 Query<List<Object>> query = queryBuilder.where()
                         .eq(foreignField.getColumnName(), String.valueOf(idField.access(object)))

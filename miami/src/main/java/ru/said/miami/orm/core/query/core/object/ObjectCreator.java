@@ -4,6 +4,7 @@ import ru.said.miami.orm.core.dao.BaseDaoImpl;
 import ru.said.miami.orm.core.dao.Dao;
 import ru.said.miami.orm.core.dao.DaoManager;
 import ru.said.miami.orm.core.field.DBFieldType;
+import ru.said.miami.orm.core.field.ForeignFieldType;
 import ru.said.miami.orm.core.query.core.CreateQuery;
 import ru.said.miami.orm.core.query.core.FieldConverter;
 import ru.said.miami.orm.core.query.core.UpdateValue;
@@ -32,9 +33,6 @@ public class ObjectCreator<T> {
 
     public ObjectCreator<T> createBase(T object) throws Exception {
         for (DBFieldType fieldType : tableInfo.toDBFieldTypes()) {
-            if (fieldType.isId() && fieldType.isGenerated() || fieldType.isForeign()) {
-                continue;
-            }
             query.add(new UpdateValue(
                     fieldType.getColumnName(),
                     FieldConverter.getInstanse().convert(fieldType.getDataType(), fieldType.access(object)))
@@ -45,23 +43,21 @@ public class ObjectCreator<T> {
     }
 
     public ObjectCreator<T> createForeign(T object) throws Exception {
-        for (DBFieldType fieldType : tableInfo.toDBFieldTypes()) {
-            if (fieldType.isForeign()) {
-                Object foreignObject = fieldType.access(object);
-                TableInfo<?> foreignTableInfo = TableInfo.TableInfoCache.build(fieldType.getForeignFieldType());
+        for (ForeignFieldType fieldType : tableInfo.toForeignFieldTypes()) {
+            Object foreignObject = fieldType.access(object);
+            TableInfo<?> foreignTableInfo = TableInfo.TableInfoCache.build(fieldType.getForeignFieldClass());
 
-                if (fieldType.isForeignAutoCreate()) {
-                    Dao<Object, ?> foreignDao = (BaseDaoImpl<Object, ?>) DaoManager.createDAOWithTableInfo(dataSource, foreignTableInfo);
+            if (fieldType.isForeignAutoCreate()) {
+                Dao<Object, ?> foreignDao = (BaseDaoImpl<Object, ?>) DaoManager.createDAOWithTableInfo(dataSource, foreignTableInfo);
 
-                    foreignDao.create(foreignObject);
-                }
+                foreignDao.create(foreignObject);
+            }
 
-                if (foreignTableInfo.getIdField().isPresent()) {
-                    query.add(new UpdateValue(
-                            fieldType.getColumnName(),
-                            FieldConverter.getInstanse().convert(fieldType.getDataType(), foreignTableInfo.getIdField().get().access(foreignObject)))
-                    );
-                }
+            if (foreignTableInfo.getIdField().isPresent()) {
+                query.add(new UpdateValue(
+                        fieldType.getColumnName(),
+                        FieldConverter.getInstanse().convert(fieldType.getDataType(), foreignTableInfo.getIdField().get().access(foreignObject)))
+                );
             }
         }
 

@@ -18,8 +18,4 @@ public @interface DBField {
     boolean foreign() default false;
 
     boolean foreignAutoCreate() default false;
-
-    String get() default "";
-
-    String set() default "";
 }
