@@ -5,6 +5,8 @@ import ru.said.miami.orm.core.query.core.*;
 /**
  * Created by said on 14.10.17.
  */
+//TODO: сделать так же как в ebox
+    //TODO: должен быть какой нибудь паттерн State
 public class Where<T> implements IPreparedQuery<T> {
 
     private Expression where = new Expression();
