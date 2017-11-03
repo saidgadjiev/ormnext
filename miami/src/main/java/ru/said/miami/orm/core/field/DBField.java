@@ -15,6 +15,12 @@ public @interface DBField {
 
     int length() default 255;
 
+    boolean notNull() default false;
+
+    boolean id() default false;
+
+    boolean generated() default false;
+
     boolean foreign() default false;
 
     boolean foreignAutoCreate() default false;

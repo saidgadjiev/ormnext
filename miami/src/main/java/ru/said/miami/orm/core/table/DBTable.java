@@ -2,7 +2,6 @@ package ru.said.miami.orm.core.table;
 
 
 import ru.said.miami.orm.core.dao.BaseDaoImpl;
-import ru.said.miami.orm.core.field.PrimaryKey;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -19,7 +18,5 @@ public @interface DBTable {
 
     Index[] indexes() default {};
 
-    PrimaryKey primaryKey();
-
-    Unique[] uniqueConstraints();
+    Unique[] uniqueConstraints() default {};
 }

@@ -1,7 +1,11 @@
 package ru.said.miami.orm.core.query.visitor;
 
 import ru.said.miami.orm.core.query.core.*;
-import ru.said.miami.orm.core.query.core.defenitions.AttributeDefenition;
+import ru.said.miami.orm.core.query.core.constraints.attribute.GeneratedConstraint;
+import ru.said.miami.orm.core.query.core.constraints.attribute.NotNullConstraint;
+import ru.said.miami.orm.core.query.core.constraints.attribute.ReferencesConstraint;
+import ru.said.miami.orm.core.query.core.constraints.table.UniqueConstraint;
+import ru.said.miami.orm.core.query.core.defenitions.AttributeDefinition;
 
 /**
  * Паттерн Visitor
@@ -46,13 +50,13 @@ public interface QueryVisitor {
 
     void start(TableRef tableRef);
 
-    void start(AttributeDefenition attributeDefenition);
+    void start(AttributeDefinition attributeDefinition);
 
     void start(CreateTableQuery tCreateTableQuery);
 
     void finish(CreateTableQuery tCreateTableQuery);
 
-    void finish(AttributeDefenition attributeDefenition);
+    void finish(AttributeDefinition attributeDefinition);
 
     void start(DeleteQuery deleteQuery);
 
@@ -69,4 +73,20 @@ public interface QueryVisitor {
     void start(DropTableQuery dropTableQuery);
 
     void finish(DropTableQuery dropTableQuery);
+
+    void start(GeneratedConstraint generatedConstraint);
+
+    void finish(GeneratedConstraint generatedConstraint);
+
+    void start(UniqueConstraint uniqueConstraint);
+
+    void finish(UniqueConstraint uniqueConstraint);
+
+    void start(NotNullConstraint notNullConstraint);
+
+    void finish(NotNullConstraint notNullConstraint);
+
+    void start(ReferencesConstraint referencesConstraint);
+
+    void finish(ReferencesConstraint referencesConstraint);
 }

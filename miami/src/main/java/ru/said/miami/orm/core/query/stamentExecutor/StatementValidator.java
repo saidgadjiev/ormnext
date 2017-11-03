@@ -35,7 +35,7 @@ public class StatementValidator<T, ID> implements IStatementExecutor<T, ID> {
 
     @Override
     public int update(Connection connection, T object) throws SQLException {
-        if (!dataBaseObject.getTableInfo().getIdField().isPresent()) {
+        if (!dataBaseObject.getTableInfo().getPrimaryKeys().isPresent()) {
             throw new SQLException("Id is not defined");
         }
 
@@ -44,7 +44,7 @@ public class StatementValidator<T, ID> implements IStatementExecutor<T, ID> {
 
     @Override
     public int delete(Connection connection, T object) throws SQLException {
-        if (!dataBaseObject.getTableInfo().getIdField().isPresent()) {
+        if (!dataBaseObject.getTableInfo().getPrimaryKeys().isPresent()) {
             throw new SQLException("Id is not defined");
         }
 
@@ -53,7 +53,7 @@ public class StatementValidator<T, ID> implements IStatementExecutor<T, ID> {
 
     @Override
     public int deleteById(Connection connection, ID id) throws SQLException {
-        if (!dataBaseObject.getTableInfo().getIdField().isPresent()) {
+        if (!dataBaseObject.getTableInfo().getPrimaryKeys().isPresent()) {
             throw new SQLException("Id is not defined");
         }
 
@@ -62,7 +62,7 @@ public class StatementValidator<T, ID> implements IStatementExecutor<T, ID> {
 
     @Override
     public T queryForId(Connection connection, ID id) throws SQLException {
-        if (!dataBaseObject.getTableInfo().getIdField().isPresent()) {
+        if (!dataBaseObject.getTableInfo().getPrimaryKeys().isPresent()) {
             throw new SQLException("Id is not defined");
         }
 

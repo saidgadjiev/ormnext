@@ -1,6 +1,7 @@
 package ru.said.miami.orm.core.field;
 
-import ru.said.miami.orm.core.table.DBTable;
+import ru.said.miami.orm.core.field.persisters.DataPersister;
+import ru.said.miami.orm.core.table.TableInfoUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -14,7 +15,7 @@ public class ForeignFieldType {
 
     private DBFieldType dbFieldType;
 
-    private PrimaryKeyFieldType foreignPrimaryKey;
+    private DBFieldType foreignPrimaryKey;
 
     private boolean foreignAutoCreate;
 
@@ -22,8 +23,9 @@ public class ForeignFieldType {
 
     private DataPersister dataPersister;
 
-    private DataType dataType;
+    private String foreignTableName;
 
+    private DataType dataType;
 
     public boolean isForeignAutoCreate() {
         return foreignAutoCreate;
@@ -45,31 +47,39 @@ public class ForeignFieldType {
         return dbFieldType;
     }
 
-    public PrimaryKeyFieldType getForeignPrimaryKey() {
+    public DBFieldType getForeignPrimaryKey() {
         return foreignPrimaryKey;
     }
 
     public Object access(Object object) throws InvocationTargetException, IllegalAccessException {
-        return dbFieldType.access(object);
+        return foreignPrimaryKey.access(object);
     }
 
     public void assign(Object object, Object value) throws IllegalAccessException, InvocationTargetException {
-        dbFieldType.assign(object, value);
+        foreignPrimaryKey.assign(object, value);
     }
 
     public String getColumnName() {
         return dbFieldType.getColumnName() + ID_SUFFIX;
     }
 
+    public String getForeignTableName() {
+        return foreignTableName;
+    }
+
+    public String getForeignColumnName() {
+        return foreignPrimaryKey.getColumnName();
+    }
+
     public static ForeignFieldType build(Field field) throws NoSuchMethodException, NoSuchFieldException {
         ForeignFieldType foreignFieldType = new ForeignFieldType();
 
-        foreignFieldType.dbFieldType = DBFieldType.DBFieldTypeCache.build(field);
-        String column = field.getType().getAnnotation(DBTable.class).primaryKey().column();
-        foreignFieldType.foreignPrimaryKey = PrimaryKeyFieldType.build(column, field.getType());
+        foreignFieldType.dbFieldType = DBFieldType.build(field);
+        foreignFieldType.foreignPrimaryKey = TableInfoUtils.resolvePrimaryKey(field.getType()).get();
+        foreignFieldType.foreignTableName = TableInfoUtils.resolveTableName(foreignFieldType.foreignPrimaryKey.getField().getDeclaringClass());
         foreignFieldType.foreignFieldClass = field.getDeclaringClass();
-        foreignFieldType.dataPersister = foreignFieldType.foreignPrimaryKey.getDbFieldType().getDataPersister();
-        foreignFieldType.dataType = foreignFieldType.foreignPrimaryKey.getDbFieldType().getDataType();
+        foreignFieldType.dataPersister = foreignFieldType.foreignPrimaryKey.getDataPersister();
+        foreignFieldType.dataType = foreignFieldType.foreignPrimaryKey.getDataType();
 
         return foreignFieldType;
     }

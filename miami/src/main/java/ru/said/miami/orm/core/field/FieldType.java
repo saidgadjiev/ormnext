@@ -23,6 +23,7 @@ public class FieldType {
 
         if (field.isAnnotationPresent(DBField.class)) {
             DBField dbField = field.getAnnotation(DBField.class);
+            DBFieldType dbFieldType = DBFieldType.build(field);
 
             if (dbField.foreign()) {
                 fieldType.foreignFieldType = ForeignFieldType.build(field);

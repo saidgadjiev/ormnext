@@ -2,7 +2,12 @@ package ru.said.miami.orm.core.query.visitor;
 
 import ru.said.miami.orm.core.field.DataType;
 import ru.said.miami.orm.core.query.core.*;
-import ru.said.miami.orm.core.query.core.defenitions.AttributeDefenition;
+import ru.said.miami.orm.core.query.core.constraints.attribute.AttributeConstraint;
+import ru.said.miami.orm.core.query.core.constraints.attribute.GeneratedConstraint;
+import ru.said.miami.orm.core.query.core.constraints.attribute.NotNullConstraint;
+import ru.said.miami.orm.core.query.core.constraints.attribute.ReferencesConstraint;
+import ru.said.miami.orm.core.query.core.constraints.table.UniqueConstraint;
+import ru.said.miami.orm.core.query.core.defenitions.AttributeDefinition;
 
 import java.util.Iterator;
 
@@ -161,33 +166,28 @@ public class DefaultVisitor implements QueryVisitor {
     }
 
     @Override
-    public void start(AttributeDefenition attributeDefenition) {
+    public void start(AttributeDefinition attributeDefinition) {
 
     }
 
     @Override
     public void start(CreateTableQuery tCreateTableQuery) {
         sql.append("CREATE TABLE '").append(tCreateTableQuery.getTypeName()).append("' (");
-        for (Iterator<AttributeDefenition> iterator = tCreateTableQuery.getAttributeDefenitions().iterator(); iterator.hasNext(); ) {
-            AttributeDefenition attributeDefenition = iterator.next();
+        for (Iterator<AttributeDefinition> iterator = tCreateTableQuery.getAttributeDefinitions().iterator(); iterator.hasNext(); ) {
+            AttributeDefinition attributeDefinition = iterator.next();
 
-            sql.append("'").append(attributeDefenition.getName()).append("' ");
-            appendAttributeDataType(attributeDefenition);
-            if (attributeDefenition.isId()) {
-                sql.append(" PRIMARY KEY");
-                if (attributeDefenition.isGenerated()) {
-                    sql.append(" AUTOINCREMENT");
-                }
+            sql.append("'").append(attributeDefinition.getName()).append("' ");
+            appendAttributeDataType(attributeDefinition);
+            for (AttributeConstraint attributeConstraint: attributeDefinition.getAttributeConstraints()) {
+                attributeConstraint.accept(this);
             }
             if (iterator.hasNext()) {
                 sql.append(",");
             }
         }
-
-        sql.append(");\n");
     }
 
-    private void appendAttributeDataType(AttributeDefenition def) {
+    private void appendAttributeDataType(AttributeDefinition def) {
         DataType dataType = def.getDataType();
 
         switch (dataType) {
@@ -212,11 +212,11 @@ public class DefaultVisitor implements QueryVisitor {
 
     @Override
     public void finish(CreateTableQuery tCreateTableQuery) {
-
+        sql.append(");\n");
     }
 
     @Override
-    public void finish(AttributeDefenition attributeDefenition) {
+    public void finish(AttributeDefinition attributeDefinition) {
 
     }
 
@@ -276,6 +276,57 @@ public class DefaultVisitor implements QueryVisitor {
 
     @Override
     public void finish(DropTableQuery dropTableQuery) {
+
+    }
+
+    @Override
+    public void start(GeneratedConstraint generatedConstraint) {
+        sql.append(" PRIMARY KEY AUTOINCREMENT ");
+    }
+
+    @Override
+    public void finish(GeneratedConstraint generatedConstraint) {
+
+    }
+
+    @Override
+    public void start(UniqueConstraint uniqueConstraint) {
+        sql.append(", UNIQUE (");
+        for (Iterator<String> iterator = uniqueConstraint.getUniqueColemns().iterator(); iterator.hasNext();) {
+            sql.append(iterator.next());
+            if (iterator.hasNext()) {
+                sql.append(",");
+            }
+        }
+        sql.append(")");
+    }
+
+    @Override
+    public void finish(UniqueConstraint uniqueConstraint) {
+
+    }
+
+    @Override
+    public void start(NotNullConstraint notNullConstraint) {
+        sql.append("NOT NULL");
+    }
+
+    @Override
+    public void finish(NotNullConstraint notNullConstraint) {
+
+    }
+
+    @Override
+    public void start(ReferencesConstraint referencesConstraint) {
+        sql.append(" REFERENCES ")
+                .append(referencesConstraint.getTypeName())
+                .append("(")
+                .append(referencesConstraint.getColumnName())
+                .append(")");
+    }
+
+    @Override
+    public void finish(ReferencesConstraint referencesConstraint) {
 
     }
 }

@@ -1,5 +1,7 @@
 package ru.said.miami.orm.core.field;
 
+import ru.said.miami.orm.core.field.persisters.BooleanPersister;
+import ru.said.miami.orm.core.field.persisters.DataPersister;
 import ru.said.miami.orm.core.field.persisters.IntegerDataPersister;
 import ru.said.miami.orm.core.field.persisters.StringDataPersister;
 
@@ -14,6 +16,7 @@ public class DataPersisterManager {
     static {
         registeredPersisters.add(new IntegerDataPersister());
         registeredPersisters.add(new StringDataPersister());
+        registeredPersisters.add(new BooleanPersister());
     }
 
     private DataPersisterManager() {

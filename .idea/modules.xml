@@ -4,7 +4,6 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/miami/miami.iml" filepath="$PROJECT_DIR$/miami/miami.iml" />
       <module fileurl="file://$PROJECT_DIR$/miami-cache/miami-cache.iml" filepath="$PROJECT_DIR$/miami-cache/miami-cache.iml" />
-      <module fileurl="file://$PROJECT_DIR$/miami_beach.iml" filepath="$PROJECT_DIR$/miami_beach.iml" />
       <module fileurl="file://$PROJECT_DIR$/property-binder/property-binder.iml" filepath="$PROJECT_DIR$/property-binder/property-binder.iml" />
     </modules>
   </component>

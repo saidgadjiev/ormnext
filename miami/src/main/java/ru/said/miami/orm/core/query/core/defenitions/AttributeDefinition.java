@@ -2,24 +2,28 @@ package ru.said.miami.orm.core.query.core.defenitions;
 
 import ru.said.miami.orm.core.field.DataType;
 import ru.said.miami.orm.core.field.DBFieldType;
-import ru.said.miami.orm.core.field.FieldType;
+import ru.said.miami.orm.core.query.core.constraints.attribute.AttributeConstraint;
 import ru.said.miami.orm.core.query.visitor.QueryElement;
 import ru.said.miami.orm.core.query.visitor.QueryVisitor;
 
-public class AttributeDefenition implements QueryElement {
+import java.util.ArrayList;
+import java.util.List;
+
+public class AttributeDefinition implements QueryElement {
 
     private final String columnName;
     private final DataType dataType;
     private final int length;
+    private List<AttributeConstraint> attributeConstraints = new ArrayList<>();
 
-    public AttributeDefenition(String columnName, DataType dataType, int length) {
+    public AttributeDefinition(String columnName, DataType dataType, int length) {
         this.columnName = columnName;
         this.dataType = dataType;
         this.length = length;
     }
 
     public String getName() {
-        return columnName
+        return columnName;
     }
 
     public DataType getDataType() {
@@ -28,6 +32,10 @@ public class AttributeDefenition implements QueryElement {
 
     public int getLength() {
         return length;
+    }
+
+    public List<AttributeConstraint> getAttributeConstraints() {
+        return attributeConstraints;
     }
 
     @Override

@@ -40,7 +40,7 @@ public class CachedStatementExecutor<T, ID> implements IStatementExecutor<T, ID>
     @Override
     public int update(Connection connection, T object) throws SQLException {
         TableInfo<T> tableInfo = dataBaseObject.getTableInfo();
-        DBFieldType idFieldType = tableInfo.getIdField().get();
+        DBFieldType idFieldType = tableInfo.getPrimaryKeys().get();
 
         try {
             if (dataBaseObject.getObjectCache().isPresent()) {
@@ -59,7 +59,7 @@ public class CachedStatementExecutor<T, ID> implements IStatementExecutor<T, ID>
     @Override
     public int delete(Connection connection, T object) throws SQLException {
         TableInfo<T> tableInfo = dataBaseObject.getTableInfo();
-        DBFieldType dbFieldType = tableInfo.getIdField().get();
+        DBFieldType dbFieldType = tableInfo.getPrimaryKeys().get();
         Integer result = delegate.delete(connection, object);
 
         try {

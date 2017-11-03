@@ -2,19 +2,14 @@ package ru.said.miami.orm.core;
 
 import ru.said.miami.orm.core.field.DBField;
 import ru.said.miami.orm.core.field.DataType;
-import ru.said.miami.orm.core.table.DBTable;
 
-@DBTable(name = "order")
 public class Order {
 
-    @DBField(columnName = "id", dataType = DataType.INTEGER, id = true, generated = true)
+    @DBField(columnName = "id", dataType = DataType.INTEGER)
     private Integer id;
 
     @DBField
     private String name;
-
-    @DBField(foreign = true)
-    private Account account;
 
     public Integer getId() {
         return id;
@@ -38,13 +33,5 @@ public class Order {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 '}';
-    }
-
-    public Account getAccount() {
-        return account;
-    }
-
-    public void setAccount(Account account) {
-        this.account = account;
     }
 }

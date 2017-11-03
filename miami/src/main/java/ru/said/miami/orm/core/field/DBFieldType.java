@@ -2,12 +2,10 @@ package ru.said.miami.orm.core.field;
 
 import ru.said.miami.cache.core.Cache;
 import ru.said.miami.cache.core.CacheBuilder;
-import ru.said.miami.orm.core.table.DBTable;
+import ru.said.miami.orm.core.field.persisters.DataPersister;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
-import java.util.Optional;
 
 public class DBFieldType {
 
@@ -22,6 +20,24 @@ public class DBFieldType {
     private DataPersister dataPersister;
 
     private FieldAccessor fieldAccessor;
+
+    private boolean notNull;
+
+    private boolean id;
+
+    private boolean generated;
+
+    public boolean isId() {
+        return id;
+    }
+
+    public boolean isNotNull() {
+        return notNull;
+    }
+
+    public boolean isGenerated() {
+        return generated;
+    }
 
     public String getColumnName() {
         return columnName;
@@ -55,8 +71,13 @@ public class DBFieldType {
         fieldType.columnName = dbField.columnName().isEmpty() ? field.getName().toLowerCase() : dbField.columnName();
         fieldType.length = dbField.length();
         fieldType.fieldAccessor = new FieldAccessor(field);
-        fieldType.dataPersister = DataPersisterManager.lookupField(field);
-        fieldType.dataType = dbField.dataType().equals(DataType.UNKNOWN) ? fieldType.dataPersister.getDataType() : dbField.dataType();
+        if (!dbField.foreign()) {
+            fieldType.dataPersister = DataPersisterManager.lookupField(field);
+            fieldType.dataType = dbField.dataType().equals(DataType.UNKNOWN) ? fieldType.dataPersister.getDataType() : dbField.dataType();
+        }
+        fieldType.notNull = dbField.notNull();
+        fieldType.id = dbField.id();
+        fieldType.generated = dbField.generated();
 
         return fieldType;
     }

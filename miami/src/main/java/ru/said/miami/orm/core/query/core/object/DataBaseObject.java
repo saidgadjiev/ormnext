@@ -4,6 +4,7 @@ import ru.said.miami.orm.core.cache.ObjectCache;
 import ru.said.miami.orm.core.field.DBFieldType;
 import ru.said.miami.orm.core.table.TableInfo;
 
+import javax.sql.DataSource;
 import java.util.Optional;
 
 public class DataBaseObject<T> {
@@ -12,13 +13,13 @@ public class DataBaseObject<T> {
 
     private final ObjectCreator<T> objectCreator;
 
-    private final TableInfo<T> tableInfo;
+    private TableInfo<T> tableInfo;
 
     private ObjectCache objectCache;
 
-    public DataBaseObject(TableInfo<T> tableInfo, ObjectCreator<T> objectCreator, ObjectBuilder<T> objectBuilder) {
-        this.objectBuilder = objectBuilder;
-        this.objectCreator = objectCreator;
+    public DataBaseObject(DataSource dataSource, TableInfo<T> tableInfo) {
+        this.objectBuilder = new ObjectBuilder<T>(dataSource, tableInfo);
+        this.objectCreator = new ObjectCreator<>(dataSource, tableInfo);
         this.tableInfo = tableInfo;
     }
 

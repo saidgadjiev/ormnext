@@ -1,4 +1,4 @@
-package ru.said.miami.orm.core.query.core;
+package ru.said.miami.orm.core.query.core.constraints.table;
 
 import ru.said.miami.orm.core.query.visitor.QueryElement;
 

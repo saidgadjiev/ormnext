@@ -25,4 +25,8 @@ public interface IStatementExecutor<T, ID> {
     List<T> queryForAll(Connection connection) throws SQLException;
 
     <R> R execute(Query<R> query, Connection connection) throws SQLException;
+
+    void createIndexes(Connection connection) throws SQLException;
+
+    void dropIndexes(Connection connection) throws SQLException;
 }

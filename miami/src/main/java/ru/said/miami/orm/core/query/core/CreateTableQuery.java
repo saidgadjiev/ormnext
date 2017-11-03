@@ -1,10 +1,13 @@
 package ru.said.miami.orm.core.query.core;
 
-import ru.said.miami.orm.core.field.UniqueFieldType;
-import ru.said.miami.orm.core.query.AttributeDefenition;
-import ru.said.miami.orm.core.query.core.constraints.PrimaryKeyConstraint;
-import ru.said.miami.orm.core.query.core.constraints.UniqueConstraint;
-import ru.said.miami.orm.core.query.core.defenitions.PrimaryKeyAttributeDefenition;
+import ru.said.miami.orm.core.field.DBFieldType;
+import ru.said.miami.orm.core.field.ForeignFieldType;
+import ru.said.miami.orm.core.query.core.constraints.attribute.GeneratedConstraint;
+import ru.said.miami.orm.core.query.core.constraints.attribute.NotNullConstraint;
+import ru.said.miami.orm.core.query.core.constraints.attribute.ReferencesConstraint;
+import ru.said.miami.orm.core.query.core.constraints.table.TableConstraint;
+import ru.said.miami.orm.core.query.core.constraints.table.UniqueConstraint;
+import ru.said.miami.orm.core.query.core.defenitions.AttributeDefinition;
 import ru.said.miami.orm.core.query.visitor.DefaultVisitor;
 import ru.said.miami.orm.core.query.visitor.QueryElement;
 import ru.said.miami.orm.core.query.visitor.QueryVisitor;
@@ -19,7 +22,7 @@ import java.util.stream.Collectors;
 
 public class CreateTableQuery implements Query<Boolean>, QueryElement {
 
-    private List<AttributeDefenition> attributeDefenitions = new ArrayList<>();
+    private List<AttributeDefinition> attributeDefinitions = new ArrayList<>();
 
     private List<TableConstraint> tableConstraints = new ArrayList<>();
 
@@ -27,18 +30,18 @@ public class CreateTableQuery implements Query<Boolean>, QueryElement {
 
     private QueryVisitor visitor;
 
-    private CreateTableQuery(String typeName, List<AttributeDefenition> attributeDefenitions, QueryVisitor defaultVisitor) {
+    private CreateTableQuery(String typeName, List<AttributeDefinition> attributeDefinitions, QueryVisitor defaultVisitor) {
         this.visitor = defaultVisitor;
         this.typeName = typeName;
-        this.attributeDefenitions = attributeDefenitions;
+        this.attributeDefinitions = attributeDefinitions;
     }
 
     public String getTypeName() {
         return typeName;
     }
 
-    public List<AttributeDefenition> getAttributeDefenitions() {
-        return attributeDefenitions;
+    public List<AttributeDefinition> getAttributeDefinitions() {
+        return attributeDefinitions;
     }
 
     public List<TableConstraint> getTableConstraints() {
@@ -46,31 +49,39 @@ public class CreateTableQuery implements Query<Boolean>, QueryElement {
     }
 
     public static CreateTableQuery buildQuery(TableInfo<?> tableInfo) {
-        List<AttributeDefenition> attributeDefenitions = new ArrayList<>();
+        List<AttributeDefinition> attributeDefinitions = new ArrayList<>();
 
-        attributeDefenitions.addAll(
-                tableInfo.toDBFieldTypes()
-                        .stream()
-                        .map(DBFieldTypeDefenition::new)
-                        .collect(Collectors.toList())
-        );
-        attributeDefenitions.addAll(
-                tableInfo.toForeignFieldTypes()
-                        .stream()
-                        .map(ForeignFieldTypeDefenition::new)
-                        .collect(Collectors.toList())
-        );
-        attributeDefenitions.add(new PrimaryKeyAttributeDefenition(tableInfo.getIdField().get()));
+        for (DBFieldType dbFieldType: tableInfo.toDBFieldTypes()) {
+            AttributeDefinition attributeDefinition = new AttributeDefinition(dbFieldType.getColumnName(), dbFieldType.getDataType(), dbFieldType.getLength());
 
+            if (dbFieldType.isId() && dbFieldType.isGenerated()) {
+                attributeDefinition.getAttributeConstraints().add(new GeneratedConstraint());
+            }
+            if (dbFieldType.isNotNull()) {
+                attributeDefinition.getAttributeConstraints().add(new NotNullConstraint());
+            }
+            attributeDefinitions.add(attributeDefinition);
+        }
+        for (ForeignFieldType foreignFieldType: tableInfo.toForeignFieldTypes()) {
+            AttributeDefinition attributeDefinition = new AttributeDefinition(foreignFieldType.getColumnName(), foreignFieldType.getDataType(), foreignFieldType.getDbFieldType().getLength());
+
+            attributeDefinition.getAttributeConstraints()
+                    .add(new ReferencesConstraint(
+                            foreignFieldType.getForeignTableName(),
+                            foreignFieldType.getForeignColumnName())
+                    );
+            attributeDefinitions.add(attributeDefinition);
+        }
         CreateTableQuery createTableQuery = new CreateTableQuery(
                 tableInfo.getTableName(),
-                attributeDefenitions,
+                attributeDefinitions,
                 new DefaultVisitor()
         );
-        createTableQuery.getTableConstraints().add(new PrimaryKeyConstraint(tableInfo.getIdField().get()));
-        for (UniqueFieldType uniqueFieldType: tableInfo.getUniqueFieldTypes()) {
-            createTableQuery.getTableConstraints().add(new UniqueConstraint(uniqueFieldType));
-        }
+
+        createTableQuery.getTableConstraints().addAll(tableInfo.getUniqueFieldTypes()
+                .stream()
+                .map(UniqueConstraint::new)
+                .collect(Collectors.toList()));
 
         return createTableQuery;
     }
@@ -78,8 +89,11 @@ public class CreateTableQuery implements Query<Boolean>, QueryElement {
     @Override
     public void accept(QueryVisitor visitor) {
         visitor.start(this);
-        for (AttributeDefenition attributeDefenition: attributeDefenitions) {
-            attributeDefenition.accept(visitor);
+        for (AttributeDefinition attributeDefinition : attributeDefinitions) {
+            attributeDefinition.accept(visitor);
+        }
+        for (TableConstraint tableConstraint: tableConstraints) {
+            tableConstraint.accept(visitor);
         }
         visitor.finish(this);
     }

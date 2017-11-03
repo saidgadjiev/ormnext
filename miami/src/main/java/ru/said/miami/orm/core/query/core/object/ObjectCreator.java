@@ -33,6 +33,9 @@ public class ObjectCreator<T> {
 
     public ObjectCreator<T> createBase(T object) throws Exception {
         for (DBFieldType fieldType : tableInfo.toDBFieldTypes()) {
+            if (fieldType.isId() && fieldType.isGenerated()) {
+                continue;
+            }
             query.add(new UpdateValue(
                     fieldType.getColumnName(),
                     FieldConverter.getInstanse().convert(fieldType.getDataType(), fieldType.access(object)))
@@ -53,10 +56,10 @@ public class ObjectCreator<T> {
                 foreignDao.create(foreignObject);
             }
 
-            if (foreignTableInfo.getIdField().isPresent()) {
+            if (foreignTableInfo.getPrimaryKeys().isPresent()) {
                 query.add(new UpdateValue(
                         fieldType.getColumnName(),
-                        FieldConverter.getInstanse().convert(fieldType.getDataType(), foreignTableInfo.getIdField().get().access(foreignObject)))
+                        FieldConverter.getInstanse().convert(fieldType.getDataType(), foreignTableInfo.getPrimaryKeys().get().access(foreignObject)))
                 );
             }
         }

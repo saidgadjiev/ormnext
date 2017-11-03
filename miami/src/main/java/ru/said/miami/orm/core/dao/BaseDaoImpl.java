@@ -6,8 +6,6 @@ import ru.said.miami.orm.core.query.stamentExecutor.IStatementExecutor;
 import ru.said.miami.orm.core.query.stamentExecutor.StatementValidator;
 import ru.said.miami.orm.core.query.core.Query;
 import ru.said.miami.orm.core.query.core.object.DataBaseObject;
-import ru.said.miami.orm.core.query.core.object.ObjectBuilder;
-import ru.said.miami.orm.core.query.core.object.ObjectCreator;
 import ru.said.miami.orm.core.query.core.query_builder.QueryBuilder;
 import ru.said.miami.orm.core.table.TableInfo;
 
@@ -31,10 +29,9 @@ public abstract class BaseDaoImpl<T, ID> implements Dao<T, ID> {
 
     protected BaseDaoImpl(DataSource dataSource, TableInfo<T> tableInfo) {
         this.dataSource = dataSource;
-        this.dataBaseObject = new DataBaseObject<>(
-                tableInfo,
-                new ObjectCreator<>(dataSource, tableInfo),
-                new ObjectBuilder<>(dataSource, tableInfo)
+        this.dataBaseObject = new DataBaseObject<T>(
+                dataSource,
+                tableInfo
         );
         this.statementExecutor = new StatementValidator<>(this.dataBaseObject);
     }
@@ -120,7 +117,7 @@ public abstract class BaseDaoImpl<T, ID> implements Dao<T, ID> {
         }
     }
 
-    public static<T, ID> Dao<T, ID> createDao(DataSource dataSource, TableInfo<T> tableInfo) {
-        return new BaseDaoImpl<T, ID>(dataSource, tableInfo) {};
+    public static<T, ID> Dao<T, ID> createDao(DataSource dataSource, TableInfo<T> tableInfoBuilder) {
+        return new BaseDaoImpl<T, ID>(dataSource, tableInfoBuilder) {};
     }
 }

@@ -1,6 +1,7 @@
 package ru.said.miami.orm.core.query.stamentExecutor;
 
 import ru.said.miami.orm.core.field.DBFieldType;
+import ru.said.miami.orm.core.field.IndexFieldType;
 import ru.said.miami.orm.core.query.core.*;
 import ru.said.miami.orm.core.query.core.object.DataBaseObject;
 import ru.said.miami.orm.core.table.TableInfo;
@@ -44,8 +45,8 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
             Integer result = query.execute(connection);
 
             //TODO: можно вынести например в ObjectBuilder
-            if (tableInfo.getIdField().isPresent()) {
-                DBFieldType idField = tableInfo.getIdField().get();
+            if (tableInfo.getPrimaryKeys().isPresent()) {
+                DBFieldType idField = tableInfo.getPrimaryKeys().get();
                 Number generatedKey = query.getGeneratedKey().orElseThrow(() -> new SQLException("Запрос не вернул автоинкриментных ключей"));
 
                 try {
@@ -65,8 +66,7 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
     public boolean createTable(Connection connection) throws SQLException {
         TableInfo<T> tableInfo = dataBaseObject.getTableInfo();
         CreateTableQuery createTableQuery = CreateTableQuery.buildQuery(
-                tableInfo.getTableName(),
-                tableInfo.toDBFieldTypes()
+                tableInfo
         );
 
         return createTableQuery.execute(connection);
@@ -87,7 +87,7 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
     @Override
     public int update(Connection connection, T object) throws SQLException {
         TableInfo<T> tableInfo = dataBaseObject.getTableInfo();
-        DBFieldType idFieldType = tableInfo.getIdField().get();
+        DBFieldType idFieldType = tableInfo.getPrimaryKeys().get();
         Query<Integer> query = UpdateQuery.buildQuery(
                 tableInfo.getTableName(),
                 tableInfo.toDBFieldTypes(),
@@ -106,7 +106,7 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
     public int delete(Connection connection, T object) throws SQLException {
         try {
             TableInfo<T> tableInfo = dataBaseObject.getTableInfo();
-            DBFieldType dbFieldType = tableInfo.getIdField().get();
+            DBFieldType dbFieldType = tableInfo.getPrimaryKeys().get();
             Object id = dbFieldType.access(object);
             Query<Integer> query = DeleteQuery.buildQuery(tableInfo.getTableName(), dbFieldType, id);
 
@@ -123,7 +123,7 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
     @Override
     public int deleteById(Connection connection, ID id) throws SQLException {
         TableInfo<T> tableInfo = dataBaseObject.getTableInfo();
-        DBFieldType dbFieldType = tableInfo.getIdField().get();
+        DBFieldType dbFieldType = tableInfo.getPrimaryKeys().get();
         Query<Integer> query = DeleteQuery.buildQuery(tableInfo.getTableName(), dbFieldType, id);
 
         return query.execute(connection);
@@ -136,7 +136,7 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
     @Override
     public T queryForId(Connection connection, ID id) throws SQLException {
         TableInfo<T> tableInfo = dataBaseObject.getTableInfo();
-        DBFieldType dbFieldType = tableInfo.getIdField().get();
+        DBFieldType dbFieldType = tableInfo.getPrimaryKeys().get();
         SelectQuery query = SelectQuery.buildQueryById(tableInfo.getTableName(), dbFieldType, id);
 
         try (IMiamiCollection result = query.execute(connection)) {
@@ -187,5 +187,27 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
     @Override
     public <R> R execute(Query<R> query, Connection connection) throws SQLException {
         return query.execute(connection);
+    }
+
+    @Override
+    public void createIndexes(Connection connection) throws SQLException {
+        List<IndexFieldType> indexFieldTypes = dataBaseObject.getTableInfo().getIndexFieldTypes();
+
+        for (IndexFieldType indexFieldType: indexFieldTypes) {
+            CreateIndexQuery createIndexQuery = CreateIndexQuery.build(indexFieldType);
+
+            createIndexQuery.execute(connection);
+        }
+    }
+
+    @Override
+    public void dropIndexes(Connection connection) throws SQLException {
+        List<IndexFieldType> indexFieldTypes = dataBaseObject.getTableInfo().getIndexFieldTypes();
+
+        for (IndexFieldType indexFieldType: indexFieldTypes) {
+            DropIndexQuery dropIndexQuery = DropIndexQuery.build(indexFieldType.getName());
+
+            dropIndexQuery.execute(connection);
+        }
     }
 }
