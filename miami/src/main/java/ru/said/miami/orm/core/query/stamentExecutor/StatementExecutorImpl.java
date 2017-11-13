@@ -1,13 +1,16 @@
 package ru.said.miami.orm.core.query.stamentExecutor;
 
-import ru.said.miami.orm.core.field.DBFieldType;
-import ru.said.miami.orm.core.field.IndexFieldType;
+import ru.said.miami.orm.core.field.fieldTypes.DBFieldType;
+import ru.said.miami.orm.core.field.fieldTypes.IndexFieldType;
 import ru.said.miami.orm.core.query.core.*;
 import ru.said.miami.orm.core.query.core.object.DataBaseObject;
+import ru.said.miami.orm.core.query.core.queryBuilder.PreparedQuery;
+import ru.said.miami.orm.core.query.core.sqlQuery.*;
 import ru.said.miami.orm.core.table.TableInfo;
 
 import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,42 +45,55 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
                     .createBase(object)
                     .createForeign(object)
                     .query();
-            Integer result = query.execute(connection);
 
-            //TODO: можно вынести например в ObjectBuilder
-            if (tableInfo.getPrimaryKeys().isPresent()) {
-                DBFieldType idField = tableInfo.getPrimaryKeys().get();
-                Number generatedKey = query.getGeneratedKey().orElseThrow(() -> new SQLException("Запрос не вернул автоинкриментных ключей"));
+            try (PreparedQueryImpl preparedQuery = new PreparedQueryImpl(connection.prepareStatement(query.query()))) {
+                Integer result = preparedQuery.executeUpdate();
 
-                try {
-                    idField.assign(object, generatedKey);
-                } catch (IllegalAccessException ex) {
-                    throw new SQLException(ex);
+                if (tableInfo.getPrimaryKeys().isPresent()) {
+                    DBFieldType idField = tableInfo.getPrimaryKeys().get();
+
+                    ResultSet resultSet = preparedQuery.getGeneratedKeys();
+                    try (GeneratedKeys generatedKeys = new GeneratedKeys(resultSet, resultSet.getMetaData())) {
+                        try {
+                            idField.assign(object, generatedKeys.getGeneratedKey());
+                        } catch (IllegalAccessException ex) {
+                            throw new SQLException(ex);
+                        }
+                    }
                 }
-            }
 
-            return result;
+                return result;
+            }
         } catch (Exception ex) {
             throw new SQLException(ex);
         }
     }
 
     @Override
-    public boolean createTable(Connection connection) throws SQLException {
+    public boolean createTable(Connection connection, boolean ifNotExists) throws SQLException {
         TableInfo<T> tableInfo = dataBaseObject.getTableInfo();
         CreateTableQuery createTableQuery = CreateTableQuery.buildQuery(
-                tableInfo
+                tableInfo,
+                ifNotExists
         );
 
-        return createTableQuery.execute(connection);
+        try (PreparedQueryImpl preparedQuery = new PreparedQueryImpl(connection.prepareStatement(createTableQuery.query()))) {
+            preparedQuery.executeUpdate();
+
+            return true;
+        }
     }
 
     @Override
-    public boolean dropTable(Connection connection) throws SQLException {
+    public boolean dropTable(Connection connection, boolean ifExists) throws SQLException {
         TableInfo<T> tableInfo = dataBaseObject.getTableInfo();
-        DropTableQuery dropTableQuery = DropTableQuery.buildQuery(tableInfo.getTableName());
+        DropTableQuery dropTableQuery = DropTableQuery.buildQuery(tableInfo.getTableName(), ifExists);
 
-        return dropTableQuery.execute(connection);
+        try (PreparedQueryImpl preparedQuery = new PreparedQueryImpl(connection.prepareStatement(dropTableQuery.query()))) {
+            preparedQuery.executeUpdate();
+
+            return true;
+        }
     }
 
     /**
@@ -88,14 +104,20 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
     public int update(Connection connection, T object) throws SQLException {
         TableInfo<T> tableInfo = dataBaseObject.getTableInfo();
         DBFieldType idFieldType = tableInfo.getPrimaryKeys().get();
-        Query<Integer> query = UpdateQuery.buildQuery(
+        UpdateQuery query = UpdateQuery.buildQuery(
                 tableInfo.getTableName(),
                 tableInfo.toDBFieldTypes(),
-                idFieldType,
+                idFieldType.getColumnName(),
                 object
         );
 
-        return query.execute(connection);
+        try (PreparedQueryImpl preparedQuery = new PreparedQueryImpl(connection.prepareStatement(query.query()))) {
+            preparedQuery.setObject(0, idFieldType.access(object));
+
+            return preparedQuery.executeUpdate();
+        } catch (Exception ex) {
+            throw new SQLException(ex);
+        }
     }
 
     /**
@@ -108,9 +130,13 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
             TableInfo<T> tableInfo = dataBaseObject.getTableInfo();
             DBFieldType dbFieldType = tableInfo.getPrimaryKeys().get();
             Object id = dbFieldType.access(object);
-            Query<Integer> query = DeleteQuery.buildQuery(tableInfo.getTableName(), dbFieldType, id);
+            DeleteQuery query = DeleteQuery.buildQuery(tableInfo.getTableName(), dbFieldType.getColumnName());
 
-            return query.execute(connection);
+            try (PreparedQueryImpl preparedQuery = new PreparedQueryImpl(connection.prepareStatement(query.query()))) {
+                preparedQuery.setObject(0, id);
+
+                return preparedQuery.executeUpdate();
+            }
         } catch (IllegalAccessException | InvocationTargetException ex) {
             throw new SQLException(ex);
         }
@@ -124,9 +150,13 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
     public int deleteById(Connection connection, ID id) throws SQLException {
         TableInfo<T> tableInfo = dataBaseObject.getTableInfo();
         DBFieldType dbFieldType = tableInfo.getPrimaryKeys().get();
-        Query<Integer> query = DeleteQuery.buildQuery(tableInfo.getTableName(), dbFieldType, id);
+        DeleteQuery query = DeleteQuery.buildQuery(tableInfo.getTableName(), dbFieldType.getColumnName());
 
-        return query.execute(connection);
+        try (PreparedQueryImpl preparedQuery = new PreparedQueryImpl(connection.prepareStatement(query.query()))) {
+            preparedQuery.setObject(0, id);
+
+            return preparedQuery.executeUpdate();
+        }
     }
 
     /**
@@ -137,22 +167,19 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
     public T queryForId(Connection connection, ID id) throws SQLException {
         TableInfo<T> tableInfo = dataBaseObject.getTableInfo();
         DBFieldType dbFieldType = tableInfo.getPrimaryKeys().get();
-        SelectQuery query = SelectQuery.buildQueryById(tableInfo.getTableName(), dbFieldType, id);
+        Select query = Select.buildQueryById(tableInfo.getTableName(), dbFieldType, id);
 
-        try (IMiamiCollection result = query.execute(connection)) {
-            if (result.next()) {
-                IMiamiData data = result.get();
+        try (PreparedQueryImpl preparedQuery = new PreparedQueryImpl(connection.prepareStatement(query.query()))) {
+            try (DatabaseResults databaseResults = preparedQuery.executeQuery()) {
                 return dataBaseObject.getObjectBuilder().newObject()
-                        .buildBase(data)
-                        .buildForeign(data)
+                        .buildBase(databaseResults)
+                        .buildForeign(databaseResults)
                         .buildForeignCollection()
                         .build();
+            } catch (Exception ex) {
+                throw new SQLException(ex);
             }
-        } catch (Exception ex) {
-            throw new SQLException(ex);
         }
-
-        return null;
     }
 
     /**
@@ -162,41 +189,40 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
     @Override
     public List<T> queryForAll(Connection connection) throws SQLException {
         TableInfo<T> tableInfo = dataBaseObject.getTableInfo();
-        Query<IMiamiCollection> query = SelectQuery.buildQueryForAll(tableInfo.getTableName());
+        Select select = Select.buildQueryForAll(tableInfo.getTableName());
         List<T> resultObjectList = new ArrayList<>();
 
-        try (IMiamiCollection result = query.execute(connection)) {
-            while (result.next()) {
-                IMiamiData data = result.get();
-
-                resultObjectList.add(
-                        dataBaseObject.getObjectBuilder().newObject()
-                                .buildBase(data)
-                                .buildForeign(data)
-                                .buildForeignCollection()
-                                .build()
-                );
+        try (PreparedQueryImpl preparedQueryImpl = new PreparedQueryImpl(connection.prepareStatement(select.query()))) {
+            try (DatabaseResults databaseResults = preparedQueryImpl.executeQuery()) {
+                while (databaseResults.next()) {
+                    resultObjectList.add(
+                            dataBaseObject.getObjectBuilder().newObject()
+                                    .buildBase(databaseResults)
+                                    .buildForeign(databaseResults)
+                                    .buildForeignCollection()
+                                    .build()
+                    );
+                }
+            } catch (Exception ex) {
+                throw new SQLException(ex);
             }
-        } catch (Exception ex) {
-            throw new SQLException(ex);
+
         }
 
         return resultObjectList;
     }
 
-    @Override
-    public <R> R execute(Query<R> query, Connection connection) throws SQLException {
-        return query.execute(connection);
-    }
 
     @Override
     public void createIndexes(Connection connection) throws SQLException {
         List<IndexFieldType> indexFieldTypes = dataBaseObject.getTableInfo().getIndexFieldTypes();
 
-        for (IndexFieldType indexFieldType: indexFieldTypes) {
+        for (IndexFieldType indexFieldType : indexFieldTypes) {
             CreateIndexQuery createIndexQuery = CreateIndexQuery.build(indexFieldType);
 
-            createIndexQuery.execute(connection);
+            try (PreparedQueryImpl preparedQuery = new PreparedQueryImpl(connection.prepareStatement(createIndexQuery.query()))) {
+                preparedQuery.executeUpdate();
+            }
         }
     }
 
@@ -204,10 +230,35 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
     public void dropIndexes(Connection connection) throws SQLException {
         List<IndexFieldType> indexFieldTypes = dataBaseObject.getTableInfo().getIndexFieldTypes();
 
-        for (IndexFieldType indexFieldType: indexFieldTypes) {
+        for (IndexFieldType indexFieldType : indexFieldTypes) {
             DropIndexQuery dropIndexQuery = DropIndexQuery.build(indexFieldType.getName());
 
-            dropIndexQuery.execute(connection);
+            try (PreparedQueryImpl preparedQuery = new PreparedQueryImpl(connection.prepareStatement(dropIndexQuery.query()))) {
+                preparedQuery.executeUpdate();
+            }
         }
+    }
+
+    @Override
+    public List<T> query(PreparedQuery preparedQuery, Connection connection) throws SQLException {
+        List<T> resultObjectList = new ArrayList<>();
+
+        try (PreparedQueryImpl preparedQueryImpl = preparedQuery.compile(connection)) {
+            try (DatabaseResults databaseResults = preparedQueryImpl.executeQuery()) {
+                while (databaseResults.next()) {
+                    resultObjectList.add(
+                            dataBaseObject.getObjectBuilder().newObject()
+                                    .buildBase(databaseResults)
+                                    .buildForeign(databaseResults)
+                                    .buildForeignCollection()
+                                    .build()
+                    );
+                }
+            } catch (Exception ex) {
+                throw new SQLException(ex);
+            }
+        }
+
+        return resultObjectList;
     }
 }

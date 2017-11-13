@@ -1,7 +1,7 @@
 package ru.said.miami.orm.core.query.core.object;
 
 import ru.said.miami.orm.core.cache.ObjectCache;
-import ru.said.miami.orm.core.field.DBFieldType;
+import ru.said.miami.orm.core.field.fieldTypes.DBFieldType;
 import ru.said.miami.orm.core.table.TableInfo;
 
 import javax.sql.DataSource;
@@ -18,7 +18,7 @@ public class DataBaseObject<T> {
     private ObjectCache objectCache;
 
     public DataBaseObject(DataSource dataSource, TableInfo<T> tableInfo) {
-        this.objectBuilder = new ObjectBuilder<T>(dataSource, tableInfo);
+        this.objectBuilder = new ObjectBuilder<>(dataSource, tableInfo);
         this.objectCreator = new ObjectCreator<>(dataSource, tableInfo);
         this.tableInfo = tableInfo;
     }

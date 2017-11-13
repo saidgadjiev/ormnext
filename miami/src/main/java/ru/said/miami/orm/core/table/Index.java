@@ -13,4 +13,6 @@ public @interface Index {
     String name();
 
     String[] columns();
+
+    boolean unique() default false;
 }

@@ -3,12 +3,12 @@ package ru.said.miami.orm.core.query.core.object;
 import ru.said.miami.orm.core.dao.BaseDaoImpl;
 import ru.said.miami.orm.core.dao.Dao;
 import ru.said.miami.orm.core.dao.DaoManager;
-import ru.said.miami.orm.core.field.DBFieldType;
-import ru.said.miami.orm.core.field.ForeignCollectionFieldType;
-import ru.said.miami.orm.core.field.ForeignFieldType;
-import ru.said.miami.orm.core.query.core.IMiamiData;
-import ru.said.miami.orm.core.query.core.Query;
-import ru.said.miami.orm.core.query.core.query_builder.QueryBuilder;
+import ru.said.miami.orm.core.field.fieldTypes.DBFieldType;
+import ru.said.miami.orm.core.field.fieldTypes.ForeignCollectionFieldType;
+import ru.said.miami.orm.core.field.fieldTypes.ForeignFieldType;
+import ru.said.miami.orm.core.query.core.DatabaseResults;
+import ru.said.miami.orm.core.query.core.queryBuilder.PreparedQuery;
+import ru.said.miami.orm.core.query.core.queryBuilder.QueryBuilder;
 import ru.said.miami.orm.core.table.TableInfo;
 
 import javax.sql.DataSource;
@@ -34,7 +34,7 @@ public class ObjectBuilder<T> {
         return this;
     }
 
-    public ObjectBuilder<T> buildBase(IMiamiData data) throws Exception {
+    public ObjectBuilder<T> buildBase(DatabaseResults data) throws Exception {
         for (DBFieldType fieldType : tableInfo.toDBFieldTypes()) {
             fieldType.assign(object, data.getObject(fieldType.getColumnName()));
         }
@@ -42,7 +42,7 @@ public class ObjectBuilder<T> {
         return this;
     }
 
-    public ObjectBuilder<T> buildForeign(IMiamiData data) throws Exception {
+    public ObjectBuilder<T> buildForeign(DatabaseResults data) throws Exception {
         for (ForeignFieldType fieldType : tableInfo.toForeignFieldTypes()) {
             TableInfo<?> foreignTableInfo = TableInfo.TableInfoCache.build(fieldType.getForeignFieldClass());
             Object val = newObject(foreignTableInfo.getConstructor());
@@ -79,7 +79,7 @@ public class ObjectBuilder<T> {
             if (tableInfo.getPrimaryKeys().isPresent() && foreignTableInfo.getPrimaryKeys().isPresent()) {
                 DBFieldType idField = tableInfo.getPrimaryKeys().get();
                 DBFieldType foreignField = DBFieldType.DBFieldTypeCache.build(fieldType.getForeignField());
-                Query<List<Object>> query = queryBuilder.where()
+                PreparedQuery query = queryBuilder.where()
                         .eq(foreignField.getColumnName(), String.valueOf(idField.access(object)))
                         .prepare();
 

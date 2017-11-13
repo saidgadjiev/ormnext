@@ -1,11 +1,17 @@
 package ru.said.miami.orm.core.query.visitor;
 
 import ru.said.miami.orm.core.query.core.*;
+import ru.said.miami.orm.core.query.core.conditions.Equals;
+import ru.said.miami.orm.core.query.core.conditions.Expression;
 import ru.said.miami.orm.core.query.core.constraints.attribute.GeneratedConstraint;
 import ru.said.miami.orm.core.query.core.constraints.attribute.NotNullConstraint;
 import ru.said.miami.orm.core.query.core.constraints.attribute.ReferencesConstraint;
 import ru.said.miami.orm.core.query.core.constraints.table.UniqueConstraint;
 import ru.said.miami.orm.core.query.core.defenitions.AttributeDefinition;
+import ru.said.miami.orm.core.query.core.literals.IntLiteral;
+import ru.said.miami.orm.core.query.core.literals.Param;
+import ru.said.miami.orm.core.query.core.literals.StringLiteral;
+import ru.said.miami.orm.core.query.core.sqlQuery.*;
 
 /**
  * Паттерн Visitor
@@ -26,9 +32,9 @@ public interface QueryVisitor {
 
     void finish(StringLiteral stringLiteral);
 
-    void start(SelectQuery tSelectQuery);
+    void start(Select tSelectQuery);
 
-    void finish(SelectQuery tSelectQuery);
+    void finish(Select tSelectQuery);
 
     void start(Expression expression);
 
@@ -89,4 +95,24 @@ public interface QueryVisitor {
     void start(ReferencesConstraint referencesConstraint);
 
     void finish(ReferencesConstraint referencesConstraint);
+
+    void start(CreateIndexQuery createIndexQuery);
+
+    void finish(CreateIndexQuery createIndexQuery);
+
+    void start(DropIndexQuery dropIndexQuery);
+
+    void finish(DropIndexQuery dropIndexQuery);
+
+    void start(Param param);
+
+    void finish(Param param);
+
+    void start(SelectAll selectAll);
+
+    void finish(SelectAll selectAll);
+
+    void start(SelectColumns selectColumns);
+
+    void finish(SelectColumns selectColumns);
 }

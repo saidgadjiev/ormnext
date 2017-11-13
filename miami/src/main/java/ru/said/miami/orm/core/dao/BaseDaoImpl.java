@@ -2,11 +2,11 @@ package ru.said.miami.orm.core.dao;
 
 import ru.said.miami.orm.core.cache.ObjectCache;
 import ru.said.miami.orm.core.cache.ReferenceObjectCache;
+import ru.said.miami.orm.core.query.core.queryBuilder.PreparedQuery;
 import ru.said.miami.orm.core.query.stamentExecutor.IStatementExecutor;
 import ru.said.miami.orm.core.query.stamentExecutor.StatementValidator;
-import ru.said.miami.orm.core.query.core.Query;
 import ru.said.miami.orm.core.query.core.object.DataBaseObject;
-import ru.said.miami.orm.core.query.core.query_builder.QueryBuilder;
+import ru.said.miami.orm.core.query.core.queryBuilder.QueryBuilder;
 import ru.said.miami.orm.core.table.TableInfo;
 
 import javax.sql.DataSource;
@@ -44,9 +44,9 @@ public abstract class BaseDaoImpl<T, ID> implements Dao<T, ID> {
     }
 
     @Override
-    public boolean createTable() throws SQLException {
+    public boolean createTable(boolean ifNotExist) throws SQLException {
         try (Connection connection = dataSource.getConnection()) {
-            return statementExecutor.createTable(connection);
+            return statementExecutor.createTable(connection, ifNotExist);
         }
     }
 
@@ -87,14 +87,7 @@ public abstract class BaseDaoImpl<T, ID> implements Dao<T, ID> {
 
     @Override
     public QueryBuilder<T> queryBuilder() {
-        return new QueryBuilder<>(dataBaseObject);
-    }
-
-    @Override
-    public <R> R query(Query<R> query) throws SQLException {
-        try (Connection connection = dataSource.getConnection()) {
-            return statementExecutor.execute(query, connection);
-        }
+        return new QueryBuilder<>(dataBaseObject.getTableInfo());
     }
 
     @Override
@@ -111,9 +104,30 @@ public abstract class BaseDaoImpl<T, ID> implements Dao<T, ID> {
     }
 
     @Override
-    public boolean dropTable() throws SQLException {
+    public boolean dropTable(boolean ifExists) throws SQLException {
         try (Connection connection = dataSource.getConnection()) {
-            return statementExecutor.dropTable(connection);
+            return statementExecutor.dropTable(connection, ifExists);
+        }
+    }
+
+    @Override
+    public void createIndexes() throws SQLException {
+        try (Connection connection = dataSource.getConnection()) {
+            statementExecutor.createIndexes(connection);
+        }
+    }
+
+    @Override
+    public void dropIndexes() throws SQLException {
+        try (Connection connection = dataSource.getConnection()) {
+            statementExecutor.dropIndexes(connection);
+        }
+    }
+
+    @Override
+    public List<T> query(PreparedQuery preparedQuery) throws SQLException {
+        try (Connection connection = dataSource.getConnection()) {
+            return statementExecutor.query(preparedQuery, connection);
         }
     }
 

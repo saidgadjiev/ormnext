@@ -1,8 +1,8 @@
 package ru.said.miami.orm.core.dao;
 
 import ru.said.miami.orm.core.cache.ObjectCache;
-import ru.said.miami.orm.core.query.core.Query;
-import ru.said.miami.orm.core.query.core.query_builder.QueryBuilder;
+import ru.said.miami.orm.core.query.core.queryBuilder.PreparedQuery;
+import ru.said.miami.orm.core.query.core.queryBuilder.QueryBuilder;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -22,7 +22,7 @@ public interface Dao<T, ID> {
      */
     int create(T object) throws SQLException;
 
-    boolean createTable() throws SQLException;
+    boolean createTable(boolean ifNotExists) throws SQLException;
 
     /**
      * Метод получает объект по id
@@ -59,10 +59,13 @@ public interface Dao<T, ID> {
 
     QueryBuilder<T> queryBuilder();
 
-    <R> R query(Query<R> query) throws SQLException;
-
     void caching(boolean flag, ObjectCache objectCache);
 
-    boolean dropTable() throws SQLException;
+    boolean dropTable(boolean ifExists) throws SQLException;
 
+    void createIndexes() throws SQLException;
+
+    void dropIndexes() throws SQLException;
+
+    List<T> query(PreparedQuery preparedQuery) throws SQLException;
 }

@@ -2,12 +2,20 @@ package ru.said.miami.orm.core.query.visitor;
 
 import ru.said.miami.orm.core.field.DataType;
 import ru.said.miami.orm.core.query.core.*;
+import ru.said.miami.orm.core.query.core.conditions.Condition;
+import ru.said.miami.orm.core.query.core.conditions.Equals;
+import ru.said.miami.orm.core.query.core.conditions.Expression;
 import ru.said.miami.orm.core.query.core.constraints.attribute.AttributeConstraint;
 import ru.said.miami.orm.core.query.core.constraints.attribute.GeneratedConstraint;
 import ru.said.miami.orm.core.query.core.constraints.attribute.NotNullConstraint;
 import ru.said.miami.orm.core.query.core.constraints.attribute.ReferencesConstraint;
 import ru.said.miami.orm.core.query.core.constraints.table.UniqueConstraint;
 import ru.said.miami.orm.core.query.core.defenitions.AttributeDefinition;
+import ru.said.miami.orm.core.query.core.literals.IntLiteral;
+import ru.said.miami.orm.core.query.core.literals.Param;
+import ru.said.miami.orm.core.query.core.literals.RValue;
+import ru.said.miami.orm.core.query.core.literals.StringLiteral;
+import ru.said.miami.orm.core.query.core.sqlQuery.*;
 
 import java.util.Iterator;
 
@@ -76,8 +84,10 @@ public class DefaultVisitor implements QueryVisitor {
     }
 
     @Override
-    public void start(SelectQuery tSelectQuery) {
-        sql.append("SELECT * FROM ");
+    public void start(Select tSelectQuery) {
+        sql.append("SELECT ");
+        tSelectQuery.getSelectExpression().accept(this);
+        sql.append(" FROM ");
         tSelectQuery.getFrom().accept(this);
         if (!tSelectQuery.getWhere().getConditions().isEmpty()) {
             sql.append(" WHERE ");
@@ -85,7 +95,7 @@ public class DefaultVisitor implements QueryVisitor {
     }
 
     @Override
-    public void finish(SelectQuery tSelectQuery) {
+    public void finish(Select tSelectQuery) {
 
     }
 
@@ -172,7 +182,11 @@ public class DefaultVisitor implements QueryVisitor {
 
     @Override
     public void start(CreateTableQuery tCreateTableQuery) {
-        sql.append("CREATE TABLE '").append(tCreateTableQuery.getTypeName()).append("' (");
+        sql.append("CREATE TABLE ");
+        if (tCreateTableQuery.isIfNotExists()) {
+            sql.append("IF NOT EXISTS ");
+        }
+        sql.append("'").append(tCreateTableQuery.getTypeName()).append("' (");
         for (Iterator<AttributeDefinition> iterator = tCreateTableQuery.getAttributeDefinitions().iterator(); iterator.hasNext(); ) {
             AttributeDefinition attributeDefinition = iterator.next();
 
@@ -271,7 +285,11 @@ public class DefaultVisitor implements QueryVisitor {
 
     @Override
     public void start(DropTableQuery dropTableQuery) {
-        sql.append("DROP TABLE ").append(dropTableQuery.getTableName());
+        sql.append("DROP TABLE ");
+        if (dropTableQuery.isIfExists()) {
+            sql.append("IF EXISTS ");
+        }
+        sql.append("'").append(dropTableQuery.getTableName()).append("'");
     }
 
     @Override
@@ -291,14 +309,14 @@ public class DefaultVisitor implements QueryVisitor {
 
     @Override
     public void start(UniqueConstraint uniqueConstraint) {
-        sql.append(", UNIQUE (");
+        sql.append(", UNIQUE ('");
         for (Iterator<String> iterator = uniqueConstraint.getUniqueColemns().iterator(); iterator.hasNext();) {
             sql.append(iterator.next());
             if (iterator.hasNext()) {
-                sql.append(",");
+                sql.append("','");
             }
         }
-        sql.append(")");
+        sql.append("')");
     }
 
     @Override
@@ -318,15 +336,85 @@ public class DefaultVisitor implements QueryVisitor {
 
     @Override
     public void start(ReferencesConstraint referencesConstraint) {
-        sql.append(" REFERENCES ")
+        sql.append(" REFERENCES '")
                 .append(referencesConstraint.getTypeName())
-                .append("(")
+                .append("'('")
                 .append(referencesConstraint.getColumnName())
-                .append(")");
+                .append("')");
     }
 
     @Override
     public void finish(ReferencesConstraint referencesConstraint) {
+
+    }
+
+    @Override
+    public void start(CreateIndexQuery createIndexQuery) {
+        sql.append("CREATE ")
+                .append(createIndexQuery.isUnique() ? "UNIQUE": "INDEX")
+                .append(" '")
+                .append(createIndexQuery.getIndexName())
+                .append("' ON '")
+                .append(createIndexQuery.getTableName())
+                .append("'('");
+        for (Iterator<String> iterator = createIndexQuery.getColumns().iterator(); iterator.hasNext();) {
+            sql.append(iterator.next());
+
+            if (iterator.hasNext()) {
+                sql.append("','");
+            }
+        }
+        sql.append("')");
+    }
+
+    @Override
+    public void finish(CreateIndexQuery createIndexQuery) {
+
+    }
+
+    @Override
+    public void start(DropIndexQuery dropIndexQuery) {
+        sql.append("DROP INDEX '").append(dropIndexQuery.getName()).append("'");
+    }
+
+    @Override
+    public void finish(DropIndexQuery dropIndexQuery) {
+
+    }
+
+    @Override
+    public void start(Param param) {
+        sql.append("?");
+    }
+
+    @Override
+    public void finish(Param param) {
+
+    }
+
+    @Override
+    public void start(SelectAll selectAll) {
+        sql.append("*");
+    }
+
+    @Override
+    public void finish(SelectAll selectAll) {
+
+    }
+
+    @Override
+    public void start(SelectColumns selectColumns) {
+        for (Iterator<String> columnIterator = selectColumns.getColumns().iterator(); columnIterator.hasNext();) {
+            sql.append(columnIterator.next());
+
+            if (columnIterator.hasNext()) {
+                sql.append(",");
+            }
+        }
+    }
+
+    @Override
+    public void finish(SelectColumns selectColumns) {
 
     }
 }

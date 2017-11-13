@@ -1,7 +1,7 @@
 package ru.said.miami.orm.core.query.stamentExecutor;
 
-import ru.said.miami.orm.core.query.core.Query;
 import ru.said.miami.orm.core.query.core.object.DataBaseObject;
+import ru.said.miami.orm.core.query.core.queryBuilder.PreparedQuery;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -24,13 +24,13 @@ public class StatementValidator<T, ID> implements IStatementExecutor<T, ID> {
     }
 
     @Override
-    public boolean createTable(Connection connection) throws SQLException {
-        return delegate.createTable(connection);
+    public boolean createTable(Connection connection, boolean ifNotExists) throws SQLException {
+        return delegate.createTable(connection, ifNotExists);
     }
 
     @Override
-    public boolean dropTable(Connection connection) throws SQLException {
-        return delegate.dropTable(connection);
+    public boolean dropTable(Connection connection, boolean ifExists) throws SQLException {
+        return delegate.dropTable(connection, ifExists);
     }
 
     @Override
@@ -75,7 +75,17 @@ public class StatementValidator<T, ID> implements IStatementExecutor<T, ID> {
     }
 
     @Override
-    public <R> R execute(Query<R> query, Connection connection) throws SQLException {
-        return delegate.execute(query, connection);
+    public void createIndexes(Connection connection) throws SQLException {
+        delegate.createIndexes(connection);
+    }
+
+    @Override
+    public void dropIndexes(Connection connection) throws SQLException {
+        delegate.dropIndexes(connection);
+    }
+
+    @Override
+    public List<T> query(PreparedQuery preparedQuery, Connection connection) throws SQLException {
+        return delegate.query(preparedQuery, connection);
     }
 }

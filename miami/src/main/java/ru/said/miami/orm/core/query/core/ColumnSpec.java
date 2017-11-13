@@ -1,6 +1,7 @@
 package ru.said.miami.orm.core.query.core;
 
 
+import ru.said.miami.orm.core.query.core.sqlQuery.Operand;
 import ru.said.miami.orm.core.query.visitor.QueryVisitor;
 
 public class ColumnSpec implements Operand {

@@ -3,10 +3,12 @@ package ru.said.miami.orm.core.table;
 import ru.said.miami.cache.core.Cache;
 import ru.said.miami.cache.core.CacheBuilder;
 import ru.said.miami.orm.core.field.*;
-import ru.said.miami.orm.core.table.validator.ForeignKeyValidator;
-import ru.said.miami.orm.core.table.validator.HasConstructorValidator;
-import ru.said.miami.orm.core.table.validator.IValidator;
-import ru.said.miami.orm.core.table.validator.PrimaryKeyValidator;
+import ru.said.miami.orm.core.field.fieldTypes.*;
+import ru.said.miami.orm.core.table.utils.TableInfoUtils;
+import ru.said.miami.orm.core.table.validators.ForeignKeyValidator;
+import ru.said.miami.orm.core.table.validators.HasConstructorValidator;
+import ru.said.miami.orm.core.table.validators.IValidator;
+import ru.said.miami.orm.core.table.validators.PrimaryKeyValidator;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -44,23 +46,18 @@ public final class TableInfo<T> {
                       List<IndexFieldType> indexFieldTypes,
                       DBFieldType primaryKeyFieldType,
                       String tableName,
-                      List<FieldType> fieldTypes) {
+                      List<DBFieldType> dbFieldTypes,
+                      List<ForeignFieldType> foreignFieldTypes,
+                      List<ForeignCollectionFieldType> foreignCollectionFieldTypes) {
         this.tableClass = tableClass;
         this.tableName = tableName;
         this.constructor = constructor;
         this.indexFieldTypes = indexFieldTypes;
         this.primaryKeyFieldType = primaryKeyFieldType;
         this.uniqueFieldTypes = uniqueFieldTypes;
-
-        fieldTypes.forEach(fieldType -> {
-            if (fieldType.isDBFieldType()) {
-                dbFieldTypes.add(fieldType.getDbFieldType());
-            } else if (fieldType.isForeignCollectionFieldType()) {
-                foreignCollectionFieldTypes.add(fieldType.getForeignCollectionFieldType());
-            } else {
-                foreignFieldTypes.add(fieldType.getForeignField());
-            }
-        });
+        this.dbFieldTypes = dbFieldTypes;
+        this.foreignFieldTypes = foreignFieldTypes;
+        this.foreignCollectionFieldTypes = foreignCollectionFieldTypes;
     }
 
     public Class<T> getTableClass() {
@@ -103,17 +100,27 @@ public final class TableInfo<T> {
         for (IValidator validator: validators) {
             validator.validate(clazz);
         }
-        List<FieldType> fieldTypes = new ArrayList<>();
+        List<DBFieldType> dbFieldTypes = new ArrayList<>();
+        List<ForeignFieldType> foreignFieldTypes = new ArrayList<>();
+        List<ForeignCollectionFieldType> foreignCollectionFieldTypes = new ArrayList<>();
 
+        //Не нравится этот код
         for (Field field : clazz.getDeclaredFields()) {
-            FieldType.buildFieldType(field).ifPresent(fieldTypes::add);
+            if (field.isAnnotationPresent(DBField.class)) {
+                DBField dbField = field.getAnnotation(DBField.class);
+                DBFieldType dbFieldType = DBFieldType.DBFieldTypeCache.build(field);
+
+                if (dbField.foreign()) {
+                    foreignFieldTypes.add(ForeignFieldType.build(field, dbFieldType));
+                } else {
+                    dbFieldTypes.add(dbFieldType);
+                }
+            } else if (field.isAnnotationPresent(ForeignCollectionField.class)) {
+                foreignCollectionFieldTypes.add(ForeignCollectionFieldType.ForeignCollectionFieldTypeCache.build(field));
+            }
         }
-        if (fieldTypes.isEmpty()) {
-            throw new IllegalArgumentException("No fields have a " + DBField.class.getSimpleName()
-                    + " annotation in " + clazz);
-        }
-        Optional<FieldType> primaryKeyFieldType = fieldTypes.stream()
-                .filter(fieldType -> fieldType.isDBFieldType() && fieldType.getDbFieldType().isId())
+        Optional<DBFieldType> primaryKeyFieldType = dbFieldTypes.stream()
+                .filter(DBFieldType::isId)
                 .findFirst();
 
         return new TableInfo<>(
@@ -121,9 +128,11 @@ public final class TableInfo<T> {
                 (Constructor<T>) lookupDefaultConstructor(clazz).get(),
                 resolveUniques(clazz),
                 resolveIndexes(clazz),
-                primaryKeyFieldType.map(FieldType::getDbFieldType).orElse(null),
+                primaryKeyFieldType.orElse(null),
                 TableInfoUtils.resolveTableName(clazz),
-                fieldTypes
+                dbFieldTypes,
+                foreignFieldTypes,
+                foreignCollectionFieldTypes
         );
     }
 

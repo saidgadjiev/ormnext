@@ -22,10 +22,10 @@ public class DataPersisterManager {
     private DataPersisterManager() {
     }
 
-    public static DataPersister lookupField(Field field) {
+    public static DataPersister lookup(Class<?> targetClazz) {
         for (DataPersister persister : registeredPersisters) {
             for (Class<?> clazz: persister.getAssociatedClasses()) {
-                if (clazz == field.getType()) {
+                if (clazz == targetClazz) {
                     return persister;
                 }
             }

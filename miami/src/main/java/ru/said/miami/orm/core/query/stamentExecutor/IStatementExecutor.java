@@ -1,6 +1,6 @@
 package ru.said.miami.orm.core.query.stamentExecutor;
 
-import ru.said.miami.orm.core.query.core.Query;
+import ru.said.miami.orm.core.query.core.queryBuilder.PreparedQuery;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -10,9 +10,9 @@ public interface IStatementExecutor<T, ID> {
     @SuppressWarnings("unchecked")
     int create(Connection connection, T object) throws SQLException;
 
-    boolean createTable(Connection connection) throws SQLException;
+    boolean createTable(Connection connection, boolean ifNotExists) throws SQLException;
 
-    boolean dropTable(Connection connection) throws SQLException;
+    boolean dropTable(Connection connection, boolean ifExists) throws SQLException;
 
     int update(Connection connection, T object) throws SQLException;
 
@@ -24,9 +24,9 @@ public interface IStatementExecutor<T, ID> {
 
     List<T> queryForAll(Connection connection) throws SQLException;
 
-    <R> R execute(Query<R> query, Connection connection) throws SQLException;
-
     void createIndexes(Connection connection) throws SQLException;
 
     void dropIndexes(Connection connection) throws SQLException;
+
+    List<T> query(PreparedQuery preparedQuery, Connection connection) throws SQLException;
 }

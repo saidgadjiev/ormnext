@@ -1,6 +1,9 @@
 package ru.said.miami.orm.core.query.core;
 
 import ru.said.miami.orm.core.field.DataType;
+import ru.said.miami.orm.core.query.core.literals.IntLiteral;
+import ru.said.miami.orm.core.query.core.literals.RValue;
+import ru.said.miami.orm.core.query.core.literals.StringLiteral;
 
 public class FieldConverter {
 

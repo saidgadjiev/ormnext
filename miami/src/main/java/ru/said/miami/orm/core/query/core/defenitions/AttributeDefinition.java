@@ -1,7 +1,6 @@
 package ru.said.miami.orm.core.query.core.defenitions;
 
 import ru.said.miami.orm.core.field.DataType;
-import ru.said.miami.orm.core.field.DBFieldType;
 import ru.said.miami.orm.core.query.core.constraints.attribute.AttributeConstraint;
 import ru.said.miami.orm.core.query.visitor.QueryElement;
 import ru.said.miami.orm.core.query.visitor.QueryVisitor;
