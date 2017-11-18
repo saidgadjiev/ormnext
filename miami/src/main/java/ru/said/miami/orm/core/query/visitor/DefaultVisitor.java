@@ -2,20 +2,27 @@ package ru.said.miami.orm.core.query.visitor;
 
 import ru.said.miami.orm.core.field.DataType;
 import ru.said.miami.orm.core.query.core.*;
-import ru.said.miami.orm.core.query.core.conditions.Condition;
-import ru.said.miami.orm.core.query.core.conditions.Equals;
-import ru.said.miami.orm.core.query.core.conditions.Expression;
+import ru.said.miami.orm.core.query.core.clause.from.FromJoinedTables;
+import ru.said.miami.orm.core.query.core.clause.from.FromTable;
+import ru.said.miami.orm.core.query.core.clause.select.SelectAll;
+import ru.said.miami.orm.core.query.core.clause.select.SelectColumnsList;
+import ru.said.miami.orm.core.query.core.columnSpec.ColumnSpec;
+import ru.said.miami.orm.core.query.core.columnSpec.DisplayedColumnSpec;
+import ru.said.miami.orm.core.query.core.columnSpec.DisplayedColumns;
+import ru.said.miami.orm.core.query.core.common.TableRef;
+import ru.said.miami.orm.core.query.core.common.UpdateValue;
+import ru.said.miami.orm.core.query.core.condition.*;
 import ru.said.miami.orm.core.query.core.constraints.attribute.AttributeConstraint;
 import ru.said.miami.orm.core.query.core.constraints.attribute.GeneratedConstraint;
 import ru.said.miami.orm.core.query.core.constraints.attribute.NotNullConstraint;
 import ru.said.miami.orm.core.query.core.constraints.attribute.ReferencesConstraint;
 import ru.said.miami.orm.core.query.core.constraints.table.UniqueConstraint;
-import ru.said.miami.orm.core.query.core.defenitions.AttributeDefinition;
-import ru.said.miami.orm.core.query.core.literals.IntLiteral;
-import ru.said.miami.orm.core.query.core.literals.Param;
-import ru.said.miami.orm.core.query.core.literals.RValue;
-import ru.said.miami.orm.core.query.core.literals.StringLiteral;
-import ru.said.miami.orm.core.query.core.sqlQuery.*;
+import ru.said.miami.orm.core.query.core.function.*;
+import ru.said.miami.orm.core.query.core.join.JoinExpression;
+import ru.said.miami.orm.core.query.core.join.JoinInfo;
+import ru.said.miami.orm.core.query.core.join.LeftJoin;
+import ru.said.miami.orm.core.query.core.literals.*;
+import ru.said.miami.orm.core.query.core.clause.*;
 
 import java.util.Iterator;
 
@@ -86,7 +93,7 @@ public class DefaultVisitor implements QueryVisitor {
     @Override
     public void start(Select tSelectQuery) {
         sql.append("SELECT ");
-        tSelectQuery.getSelectExpression().accept(this);
+        tSelectQuery.getSelectColumnsStrategy().accept(this);
         sql.append(" FROM ");
         tSelectQuery.getFrom().accept(this);
         if (!tSelectQuery.getWhere().getConditions().isEmpty()) {
@@ -146,7 +153,7 @@ public class DefaultVisitor implements QueryVisitor {
     @Override
     public void start(Equals equals) {
         equals.getFirst().accept(this);
-        sql.append("=");
+        sql.append(" = ");
         equals.getSecond().accept(this);
     }
 
@@ -157,7 +164,11 @@ public class DefaultVisitor implements QueryVisitor {
 
     @Override
     public void start(ColumnSpec columnSpec) {
-        sql.append(columnSpec.getName());
+        if (columnSpec.getAlias() != null) {
+            columnSpec.getAlias().accept(this);
+            sql.append(".");
+        }
+        sql.append("'").append(columnSpec.getName()).append("'");
     }
 
     @Override
@@ -172,7 +183,12 @@ public class DefaultVisitor implements QueryVisitor {
 
     @Override
     public void start(TableRef tableRef) {
-        sql.append("'").append(tableRef.getTypeName()).append("'");
+        sql.append("'").append(tableRef.getTableName()).append("'");
+
+        if (tableRef.getAlias() != null) {
+            sql.append(" AS ");
+            tableRef.getAlias().accept(this);
+        }
     }
 
     @Override
@@ -403,18 +419,264 @@ public class DefaultVisitor implements QueryVisitor {
     }
 
     @Override
-    public void start(SelectColumns selectColumns) {
-        for (Iterator<String> columnIterator = selectColumns.getColumns().iterator(); columnIterator.hasNext();) {
-            sql.append(columnIterator.next());
+    public void start(SelectColumnsList selectColumnsList) {
+        for (Iterator<DisplayedColumnSpec> columnIterator = selectColumnsList.getColumns().iterator(); columnIterator.hasNext();) {
+            DisplayedColumnSpec columnSpec = columnIterator.next();
 
+            columnSpec.accept(this);
             if (columnIterator.hasNext()) {
+                sql.append(", ");
+            }
+        }
+    }
+
+    @Override
+    public void finish(SelectColumnsList selectColumnsList) {
+
+    }
+
+    @Override
+    public void start(Having having) {
+        sql.append(" HAVING ");
+
+    }
+
+    @Override
+    public void finish(GroupBy groupBy) {
+
+    }
+
+    @Override
+    public void start(GroupBy groupBy) {
+        sql.append(" GROUP BY ");
+
+        for (Iterator<ColumnSpec> columnSpecIterator = groupBy.getColumns().iterator(); columnSpecIterator.hasNext();) {
+            ColumnSpec columnSpec = columnSpecIterator.next();
+
+            columnSpec.accept(this);
+            if (columnSpecIterator.hasNext()) {
                 sql.append(",");
             }
         }
     }
 
     @Override
-    public void finish(SelectColumns selectColumns) {
+    public void finish(Having having) {
+
+    }
+
+    @Override
+    public void finish(FromTable fromTable) {
+        sql.append(" ");
+    }
+
+    @Override
+    public void start(FromTable fromTable) {
+        sql.append(" ");
+    }
+
+    @Override
+    public void start(LeftJoin leftJoin) {
+        sql.append(" LEFT JOIN ");
+        leftJoin.getJoinedTableRef().accept(this);
+        sql.append(" ON ");
+    }
+
+    @Override
+    public void finish(LeftJoin leftJoin) {
+    }
+
+    @Override
+    public void finish(BooleanLiteral booleanLiteral) {
+
+    }
+
+    @Override
+    public void start(BooleanLiteral booleanLiteral) {
+        sql.append(String.valueOf(booleanLiteral.getValue()));
+    }
+
+    @Override
+    public void start(JoinInfo joinInfo) {
+        joinInfo.getTableRef().accept(this);
+        sql.append(" ON ");
+    }
+
+    @Override
+    public void finish(JoinInfo joinInfo) {
+
+    }
+
+    @Override
+    public void start(CountAll countAll) {
+
+    }
+
+    @Override
+    public void finish(CountAll countAll) {
+        sql.append("COUNT(*)");
+    }
+
+    @Override
+    public void start(FromJoinedTables fromJoinedTables) {
+        fromJoinedTables.getTableRef().accept(this);
+        for (JoinExpression joinExpression: fromJoinedTables.getJoinExpression()) {
+            joinExpression.accept(this);
+        }
+    }
+
+    @Override
+    public void finish(FromJoinedTables fromJoinedTables) {
+
+    }
+
+    @Override
+    public void start(DisplayedColumns displayedColumns) {
+
+    }
+
+    @Override
+    public void finish(DisplayedColumns displayedColumns) {
+
+    }
+
+    @Override
+    public void start(AVG avg) {
+
+    }
+
+    @Override
+    public void finish(AVG avg) {
+
+    }
+
+    @Override
+    public void start(CountExpression countExpression) {
+
+    }
+
+    @Override
+    public void finish(CountExpression countExpression) {
+
+    }
+
+    @Override
+    public void start(MAX max) {
+
+    }
+
+    @Override
+    public void finish(MAX max) {
+
+    }
+
+    @Override
+    public void start(MIN min) {
+
+    }
+
+    @Override
+    public void finish(MIN min) {
+
+    }
+
+    @Override
+    public void start(Exists exists) {
+
+    }
+
+    @Override
+    public void finish(Exists exists) {
+
+    }
+
+    @Override
+    public void start(InSelect inSelect) {
+
+    }
+
+    @Override
+    public void finish(InSelect inSelect) {
+
+    }
+
+    @Override
+    public void start(NotInSelect notInSelect) {
+
+    }
+
+    @Override
+    public void finish(NotInSelect notInSelect) {
+
+    }
+
+    @Override
+    public void start(GreaterThan greaterThan) {
+
+    }
+
+    @Override
+    public void finish(GreaterThan greaterThan) {
+
+    }
+
+    @Override
+    public void start(GreaterThanOrEquals greaterThanOrEquals) {
+
+    }
+
+    @Override
+    public void finish(GreaterThanOrEquals greaterThanOrEquals) {
+
+    }
+
+    @Override
+    public void start(LessThan lessThan) {
+
+    }
+
+    @Override
+    public void finish(LessThan lessThan) {
+
+    }
+
+    @Override
+    public void start(LessThanOrEquals lessThanOrEquals) {
+
+    }
+
+    @Override
+    public void finish(LessThanOrEquals lessThanOrEquals) {
+
+    }
+
+    @Override
+    public void start(SUM sum) {
+        sql.append("SUM(");
+    }
+
+    @Override
+    public void finish(SUM sum) {
+        sql.append(")");
+    }
+
+    @Override
+    public void start(OperandCondition operandCondition) {
+        operandCondition.getOperand().accept(this);
+    }
+
+    @Override
+    public void finish(OperandCondition operandCondition) {
+
+    }
+
+    @Override
+    public void start(Alias alias) {
+        sql.append("'").append(alias.getAlias()).append("'");
+    }
+
+    @Override
+    public void finish(Alias alias) {
 
     }
 }

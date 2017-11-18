@@ -55,4 +55,12 @@ public class Account {
                 ", name='" + name + '\'' +
                 '}';
     }
+
+    public Order getOrder() {
+        return order;
+    }
+
+    public void setOrder(Order order) {
+        this.order = order;
+    }
 }

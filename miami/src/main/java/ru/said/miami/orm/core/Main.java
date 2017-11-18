@@ -3,8 +3,8 @@ package ru.said.miami.orm.core;
 import org.sqlite.SQLiteDataSource;
 import ru.said.miami.orm.core.dao.Dao;
 import ru.said.miami.orm.core.dao.DaoManager;
-import ru.said.miami.orm.core.query.core.queryBuilder.PreparedQuery;
-import ru.said.miami.orm.core.query.core.queryBuilder.QueryBuilder;
+import ru.said.miami.orm.core.queryBuilder.PreparedQuery;
+import ru.said.miami.orm.core.queryBuilder.QueryBuilder;
 
 import java.sql.SQLException;
 
@@ -13,16 +13,30 @@ public class Main {
     public static void main(String[] args) throws SQLException {
         SQLiteDataSource dataSource = new SQLiteDataSource();
 
-        dataSource.setUrl("jdbc:sqlite:/Users/said/Desktop/miami_beach/test.sqlite");
+        dataSource.setUrl("jdbc:sqlite:C:/test.sqlite");
         Dao<Account, Integer> accountDao = DaoManager.createDAO(dataSource, Account.class);
         Dao<Order, Integer> orderDao = DaoManager.createDAO(dataSource, Order.class);
         //accountDao.caching(true, null);
-        System.out.println("account created = " + orderDao.createTable(true));
-        System.out.println("account created = " + accountDao.createTable(true));
-        accountDao.dropIndexes();
+        //System.out.println("account created = " + orderDao.createTable(true));
+        //System.out.println("account created = " + accountDao.createTable(true));
         QueryBuilder<Account> queryBuilder = accountDao.queryBuilder();
 
-        PreparedQuery preparedQuery = queryBuilder.where().eq("").prepare();
+        PreparedQuery preparedQuery = queryBuilder.selectColumns()
+                .function(queryBuilder.function().column("id").sum())
+                .build()
+                .where()
+                .eq("id")
+                .build()
+                .leftJoin(orderDao.queryBuilder())
+                .eq("id", "id")
+                .build()
+                .groupBy("id")
+                .having()
+                .eq(queryBuilder.function().column("id").sum(), 1000)
+                .build()
+                .prepare();
+
+        accountDao.query(preparedQuery);
 
         //System.out.println("order created = " + orderDao.createTable());
         /*Account account = new Account();

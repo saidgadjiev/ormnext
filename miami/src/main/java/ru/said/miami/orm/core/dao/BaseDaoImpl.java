@@ -2,11 +2,11 @@ package ru.said.miami.orm.core.dao;
 
 import ru.said.miami.orm.core.cache.ObjectCache;
 import ru.said.miami.orm.core.cache.ReferenceObjectCache;
-import ru.said.miami.orm.core.query.core.queryBuilder.PreparedQuery;
-import ru.said.miami.orm.core.query.stamentExecutor.IStatementExecutor;
-import ru.said.miami.orm.core.query.stamentExecutor.StatementValidator;
-import ru.said.miami.orm.core.query.core.object.DataBaseObject;
-import ru.said.miami.orm.core.query.core.queryBuilder.QueryBuilder;
+import ru.said.miami.orm.core.queryBuilder.PreparedQuery;
+import ru.said.miami.orm.core.stamentExecutor.IStatementExecutor;
+import ru.said.miami.orm.core.stamentExecutor.StatementValidator;
+import ru.said.miami.orm.core.stamentExecutor.object.DataBaseObject;
+import ru.said.miami.orm.core.queryBuilder.QueryBuilder;
 import ru.said.miami.orm.core.table.TableInfo;
 
 import javax.sql.DataSource;

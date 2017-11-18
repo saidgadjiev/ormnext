@@ -1,8 +1,8 @@
 package ru.said.miami.orm.core.dao;
 
 import ru.said.miami.orm.core.cache.ObjectCache;
-import ru.said.miami.orm.core.query.core.queryBuilder.PreparedQuery;
-import ru.said.miami.orm.core.query.core.queryBuilder.QueryBuilder;
+import ru.said.miami.orm.core.queryBuilder.PreparedQuery;
+import ru.said.miami.orm.core.queryBuilder.QueryBuilder;
 
 import java.sql.SQLException;
 import java.util.List;

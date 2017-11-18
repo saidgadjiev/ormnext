@@ -76,7 +76,7 @@ public class DBFieldType {
         fieldType.length = dbField.length();
         fieldType.fieldAccessor = new FieldAccessor(field);
         if (!dbField.foreign()) {
-            fieldType.dataPersister = DataPersisterManager.lookup(field);
+            fieldType.dataPersister = DataPersisterManager.lookup(field.getType());
             fieldType.dataType = dbField.dataType().equals(DataType.UNKNOWN) ? fieldType.dataPersister.getDataType() : dbField.dataType();
         }
         fieldType.notNull = dbField.notNull();

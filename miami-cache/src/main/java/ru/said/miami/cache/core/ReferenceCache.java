@@ -4,12 +4,16 @@ import ru.said.miami.cache.core.cuncurrent.ConcurrentHashMap;
 
 import java.lang.ref.SoftReference;
 
+
+@SuppressWarnings("PMD")
 public class ReferenceCache<K, V> implements Cache<K, V> {
 
     private ConcurrentHashMap<Object, SoftReference<Object>> cache = new ConcurrentHashMap<>();
 
-    public ReferenceCache(CacheBuilder.ReferenceCacheBuilder<? super K, ? super V> referenceCacheBuilder) {
+    private CacheBuilder.ReferenceCacheBuilder<? super K, ? super V> referenceCacheBuilder;
 
+    public ReferenceCache(CacheBuilder.ReferenceCacheBuilder<? super K, ? super V> referenceCacheBuilder) {
+        this.referenceCacheBuilder = referenceCacheBuilder;
     }
 
     @Override

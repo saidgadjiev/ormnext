@@ -5,7 +5,6 @@ import ru.said.miami.orm.core.field.persisters.DataPersister;
 import ru.said.miami.orm.core.field.persisters.IntegerDataPersister;
 import ru.said.miami.orm.core.field.persisters.StringDataPersister;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 

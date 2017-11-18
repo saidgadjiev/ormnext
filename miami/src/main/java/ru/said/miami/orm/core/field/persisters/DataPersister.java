@@ -1,7 +1,7 @@
 package ru.said.miami.orm.core.field.persisters;
 
 import ru.said.miami.orm.core.field.DataType;
-import ru.said.miami.orm.core.query.core.sqlQuery.Operand;
+import ru.said.miami.orm.core.query.core.Operand;
 
 public interface DataPersister {
 
