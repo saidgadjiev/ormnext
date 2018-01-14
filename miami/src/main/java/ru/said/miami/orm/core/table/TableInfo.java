@@ -135,6 +135,10 @@ public final class TableInfo<T> {
         );
     }
 
+    private IDBFieldType resolveFieldType(Field field) {
+
+    }
+
     private static <T> List<UniqueFieldType> resolveUniques(Class<T> tClass) throws NoSuchFieldException, NoSuchMethodException {
         List<UniqueFieldType> uniqueFieldTypes = new ArrayList<>();
         if (tClass.isAnnotationPresent(DBTable.class)) {
@@ -161,8 +165,16 @@ public final class TableInfo<T> {
         return uniqueFieldTypes;
     }
 
-    public Optional<DBFieldType> getFieldTypeByFieldName(String name) {
+    public Optional<DBFieldType> getDBFieldTypeByFieldName(String name) {
         return dbFieldTypes.stream().filter(dbFieldType -> dbFieldType.getField().getName().equals(name)).findFirst();
+    }
+
+    public Optional<ForeignFieldType> getForeignFieldTypeByFieldName(String name) {
+        return foreignFieldTypes.stream().filter(foreignFieldType -> foreignFieldType.getField().getName().equals(name)).findFirst();
+    }
+
+    public Optional<ForeignCollectionFieldType> getForeignCollectionFieldTypeByFieldName(String name) {
+        return foreignCollectionFieldTypes.stream().filter(foreignCollectionFieldType -> foreignCollectionFieldType.getField().getName().equals(name)).findFirst();
     }
 
     private static Optional<Constructor<?>> lookupDefaultConstructor(Class<?> clazz) throws NoSuchMethodException {

@@ -1,6 +1,8 @@
 package ru.said.miami.orm.core.queryBuilder;
 
 import ru.said.miami.orm.core.field.fieldTypes.DBFieldType;
+import ru.said.miami.orm.core.field.fieldTypes.ForeignCollectionFieldType;
+import ru.said.miami.orm.core.field.fieldTypes.ForeignFieldType;
 import ru.said.miami.orm.core.query.core.Alias;
 import ru.said.miami.orm.core.query.core.Select;
 import ru.said.miami.orm.core.query.core.clause.GroupBy;
@@ -49,6 +51,10 @@ public class QueryBuilder<T> {
     private SelectColumnsList selectColumnsList;
 
     private List<DBFieldType> resultFieldTypes;
+
+    private List<ForeignFieldType> foreignFieldTypes;
+
+    private List<ForeignCollectionFieldType> foreignCollectionFieldTypes;
     
     private Map<Integer, Object> args = new HashMap<>();
 
@@ -210,11 +216,11 @@ public class QueryBuilder<T> {
 
         selectQuery.accept(defaultVisitor);
 
-        return new PreparedQuery(args, defaultVisitor.getQuery(), resultFieldTypes);
+        return new PreparedQuery(args, defaultVisitor.getQuery(), resultFieldTypes, foreignCollectionFieldTypes);
     }
 
     private DBFieldType getFieldType(String fieldName) {
-        return tableInfo.getFieldTypeByFieldName(fieldName)
+        return tableInfo.getDBFieldTypeByFieldName(fieldName)
                 .orElseThrow(() ->  new IllegalArgumentException("Field[" + fieldName + "] does,t found"));
     }
 }

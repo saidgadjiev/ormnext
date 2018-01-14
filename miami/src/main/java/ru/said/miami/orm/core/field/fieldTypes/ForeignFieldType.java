@@ -13,7 +13,7 @@ import java.lang.reflect.InvocationTargetException;
 /**
  * Created by said on 30.10.17.
  */
-public class ForeignFieldType {
+public class ForeignFieldType implements IDBFieldType {
 
     private static final String ID_SUFFIX = "_id";
 
@@ -31,6 +31,31 @@ public class ForeignFieldType {
 
     private DataType dataType;
 
+    @Override
+    public boolean isId() {
+        return dbFieldType.isId();
+    }
+
+    @Override
+    public boolean isNotNull() {
+        return dbFieldType.isNotNull();
+    }
+
+    @Override
+    public boolean isGenerated() {
+        return dbFieldType.isGenerated();
+    }
+
+    @Override
+    public Field getField() {
+        return dbFieldType.getField();
+    }
+
+    @Override
+    public int getLength() {
+        return dbFieldType.getLength();
+    }
+
     public boolean isForeignAutoCreate() {
         return foreignAutoCreate;
     }
@@ -39,30 +64,31 @@ public class ForeignFieldType {
         return foreignFieldClass;
     }
 
+    @Override
     public DataPersister getDataPersister() {
         return dataPersister;
     }
 
+    @Override
     public DataType getDataType() {
         return dataType;
-    }
-
-    public DBFieldType getDbFieldType() {
-        return dbFieldType;
     }
 
     public DBFieldType getForeignPrimaryKey() {
         return foreignPrimaryKey;
     }
 
+    @Override
     public Object access(Object object) throws InvocationTargetException, IllegalAccessException {
         return dbFieldType.access(object);
     }
 
+    @Override
     public void assign(Object object, Object value) throws IllegalAccessException, InvocationTargetException {
         dbFieldType.assign(object, value);
     }
 
+    @Override
     public String getColumnName() {
         return dbFieldType.getColumnName() + ID_SUFFIX;
     }

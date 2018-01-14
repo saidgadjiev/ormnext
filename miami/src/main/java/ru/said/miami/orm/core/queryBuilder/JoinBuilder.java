@@ -5,7 +5,6 @@ import ru.said.miami.orm.core.query.core.Alias;
 import ru.said.miami.orm.core.query.core.Operand;
 import ru.said.miami.orm.core.query.core.columnSpec.ColumnSpec;
 import ru.said.miami.orm.core.query.core.common.TableRef;
-import ru.said.miami.orm.core.query.core.condition.*;
 import ru.said.miami.orm.core.query.core.join.LeftJoin;
 import ru.said.miami.orm.core.table.TableInfo;
 
@@ -124,7 +123,7 @@ public class JoinBuilder extends AbstractWhereBuilder {
     }
 
     private String getColumnName(TableInfo<?> tableInfo, String fieldName) {
-        return tableInfo.getFieldTypeByFieldName(fieldName)
+        return tableInfo.getDBFieldTypeByFieldName(fieldName)
                 .orElseThrow(() ->  new IllegalArgumentException("Field[" + fieldName + "] does,t found"))
                 .getColumnName();
     }

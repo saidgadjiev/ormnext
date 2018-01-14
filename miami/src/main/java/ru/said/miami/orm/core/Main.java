@@ -29,7 +29,7 @@ public class Main {
 
         System.out.println("preparedQuery = " + preparedQuery.toString());
 
-        //List<Account> accounts = accountDao.query(preparedQuery);
+        List<Account> accounts = accountDao.query(preparedQuery);
 
         //System.out.println("order created = " + accounts);
 

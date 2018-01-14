@@ -250,8 +250,8 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
                     resultObjectList.add(
                             dataBaseObject.getObjectBuilder().newObject()
                                     .buildBase(databaseResults, preparedQuery.getResultFieldTypes())
-                                    .buildForeign(databaseResults)
-                                    .buildForeignCollection()
+                                    .buildForeign(databaseResults, preparedQuery.getResultFieldTypes())
+                                    .buildForeignCollection(preparedQuery.getResultFieldTypes())
                                     .build()
                     );
                 }

@@ -11,7 +11,7 @@ import ru.said.miami.orm.core.field.persisters.DataPersister;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 
-public class DBFieldType {
+public class DBFieldType implements IDBFieldType {
 
     private String columnName;
 
@@ -31,38 +31,47 @@ public class DBFieldType {
 
     private boolean generated;
 
+    @Override
     public boolean isId() {
         return id;
     }
 
+    @Override
     public boolean isNotNull() {
         return notNull;
     }
 
+    @Override
     public boolean isGenerated() {
         return generated;
     }
 
+    @Override
     public String getColumnName() {
         return columnName;
     }
 
+    @Override
     public DataType getDataType() {
         return dataType;
     }
 
+    @Override
     public Object access(Object object) throws InvocationTargetException, IllegalAccessException {
         return fieldAccessor.access(object);
     }
 
+    @Override
     public DataPersister getDataPersister() {
         return dataPersister;
     }
 
+    @Override
     public void assign(Object object, Object value) throws IllegalAccessException, InvocationTargetException {
         fieldAccessor.assign(object, value);
     }
 
+    @Override
     public Field getField() {
         return field;
     }
@@ -86,6 +95,7 @@ public class DBFieldType {
         return fieldType;
     }
 
+    @Override
     public int getLength() {
         return length;
     }

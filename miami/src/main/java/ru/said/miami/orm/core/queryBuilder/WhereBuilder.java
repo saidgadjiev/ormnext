@@ -1,8 +1,6 @@
 package ru.said.miami.orm.core.queryBuilder;
 
-import ru.said.miami.orm.core.field.DataPersisterManager;
 import ru.said.miami.orm.core.query.core.Alias;
-import ru.said.miami.orm.core.query.core.Operand;
 import ru.said.miami.orm.core.query.core.columnSpec.ColumnSpec;
 import ru.said.miami.orm.core.query.core.condition.Expression;
 import ru.said.miami.orm.core.query.core.literals.Param;
@@ -139,7 +137,7 @@ public class WhereBuilder extends AbstractWhereBuilder {
     }
 
     private String getColumnName(String fieldName) {
-        return tableInfo.getFieldTypeByFieldName(fieldName)
+        return tableInfo.getDBFieldTypeByFieldName(fieldName)
                 .orElseThrow(() ->  new IllegalArgumentException("Field[" + fieldName + "] does,t found"))
                 .getColumnName();
     }

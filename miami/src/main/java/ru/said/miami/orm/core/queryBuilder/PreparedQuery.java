@@ -1,6 +1,8 @@
 package ru.said.miami.orm.core.queryBuilder;
 
 import ru.said.miami.orm.core.field.fieldTypes.DBFieldType;
+import ru.said.miami.orm.core.field.fieldTypes.ForeignCollectionFieldType;
+import ru.said.miami.orm.core.field.fieldTypes.ForeignFieldType;
 import ru.said.miami.orm.core.stamentExecutor.PreparedQueryImpl;
 
 import java.sql.Connection;
@@ -20,12 +22,25 @@ public class PreparedQuery {
 
     private List<DBFieldType> resultFieldTypes;
 
-    public PreparedQuery(String sql, List<DBFieldType> resultFieldTypes) {
+    private List<ForeignFieldType> foreignFieldTypes;
+
+    private List<ForeignCollectionFieldType> foreignCollectionFieldTypes;
+
+    public PreparedQuery(String sql,
+                         List<DBFieldType> resultFieldTypes,
+                         List<ForeignFieldType> foreignFieldTypes,
+                         List<ForeignCollectionFieldType> foreignCollectionFieldTypes) {
         this.sql = sql;
         this.resultFieldTypes = resultFieldTypes;
+        this.foreignFieldTypes = foreignFieldTypes;
+        this.foreignCollectionFieldTypes = foreignCollectionFieldTypes;
     }
 
-    public PreparedQuery(Map<Integer, Object> args, String sql, List<DBFieldType> resultFieldTypes) {
+    public PreparedQuery(Map<Integer, Object> args,
+                         String sql,
+                         List<DBFieldType> resultFieldTypes,
+                         List<ForeignCollectionFieldType> foreignCollectionFieldTypes) {
+        this.foreignCollectionFieldTypes = foreignCollectionFieldTypes;
         this.args.putAll(args);
         this.sql = sql;
         this.resultFieldTypes = resultFieldTypes;
