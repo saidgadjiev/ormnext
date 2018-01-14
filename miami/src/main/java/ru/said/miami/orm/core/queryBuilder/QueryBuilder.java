@@ -14,15 +14,17 @@ import ru.said.miami.orm.core.query.core.clause.select.SelectColumnsList;
 import ru.said.miami.orm.core.query.core.columnSpec.*;
 import ru.said.miami.orm.core.query.core.common.TableRef;
 import ru.said.miami.orm.core.query.core.condition.Expression;
-import ru.said.miami.orm.core.query.core.function.CountAll;
 import ru.said.miami.orm.core.query.core.join.JoinExpression;
 import ru.said.miami.orm.core.query.core.join.LeftJoin;
 import ru.said.miami.orm.core.query.visitor.DefaultVisitor;
+import ru.said.miami.orm.core.queryBuilder.common.IndexIterator;
 import ru.said.miami.orm.core.table.TableInfo;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class QueryBuilder<T> {
 
@@ -31,6 +33,7 @@ public class QueryBuilder<T> {
     private Select selectQuery;
 
     private TableRef tableRef;
+    
     private TableInfo<T> tableInfo;
 
     private List<JoinExpression> joinExpressions = new ArrayList<>();
@@ -46,6 +49,8 @@ public class QueryBuilder<T> {
     private SelectColumnsList selectColumnsList;
 
     private List<DBFieldType> resultFieldTypes;
+    
+    private Map<Integer, Object> args = new HashMap<>();
 
     public QueryBuilder(TableInfo<T> tableInfo) {
         this.alias = new Alias(tableInfo.getTableName());
@@ -165,7 +170,7 @@ public class QueryBuilder<T> {
     }
 
     public WhereBuilder whereBuilder() {
-        return new WhereBuilder(alias, tableInfo);
+        return new WhereBuilder(args, new IndexIterator(1), alias, tableInfo);
     }
 
     private void buildSelect() {
@@ -205,7 +210,7 @@ public class QueryBuilder<T> {
 
         selectQuery.accept(defaultVisitor);
 
-        return new PreparedQuery(defaultVisitor.getQuery(), resultFieldTypes);
+        return new PreparedQuery(args, defaultVisitor.getQuery(), resultFieldTypes);
     }
 
     private DBFieldType getFieldType(String fieldName) {

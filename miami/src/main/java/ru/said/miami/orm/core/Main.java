@@ -24,14 +24,14 @@ public class Main {
 
         PreparedQuery preparedQuery = queryBuilder
                 .selectColumns("id")
-                .where(queryBuilder.whereBuilder().eq("id").build())
+                .where(queryBuilder.whereBuilder().eq("id", 18).build())
                 .prepare();
 
-        preparedQuery.setArg(1, 19);
+        System.out.println("preparedQuery = " + preparedQuery.toString());
 
-        List<Account> accounts = accountDao.query(preparedQuery);
+        //List<Account> accounts = accountDao.query(preparedQuery);
 
-        System.out.println("order created = " + accounts);
+        //System.out.println("order created = " + accounts);
 
         //preparedQuery.setArg(1, 2);
 

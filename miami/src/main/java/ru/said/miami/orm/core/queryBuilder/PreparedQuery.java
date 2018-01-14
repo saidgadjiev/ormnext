@@ -25,6 +25,12 @@ public class PreparedQuery {
         this.resultFieldTypes = resultFieldTypes;
     }
 
+    public PreparedQuery(Map<Integer, Object> args, String sql, List<DBFieldType> resultFieldTypes) {
+        this.args.putAll(args);
+        this.sql = sql;
+        this.resultFieldTypes = resultFieldTypes;
+    }
+
     public PreparedQueryImpl compile(Connection connection) throws SQLException {
         PreparedQueryImpl preparedQuery = new PreparedQueryImpl(connection.prepareStatement(sql));
 
@@ -41,5 +47,13 @@ public class PreparedQuery {
 
     public List<DBFieldType> getResultFieldTypes() {
         return resultFieldTypes;
+    }
+
+    @Override
+    public String toString() {
+        return "PreparedQuery{" +
+                "sql='" + sql + '\'' +
+                "args='" + args.toString() + "'" +
+                '}';
     }
 }
