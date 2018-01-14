@@ -3,7 +3,7 @@ package ru.said.miami.orm.core.query.core.function;
 import ru.said.miami.orm.core.query.core.condition.Expression;
 import ru.said.miami.orm.core.query.visitor.QueryVisitor;
 
-public class CountExpression implements AgregateFunction {
+public class CountExpression implements Function {
 
     private final Expression expression;
 
@@ -18,6 +18,9 @@ public class CountExpression implements AgregateFunction {
     @Override
     public void accept(QueryVisitor visitor) {
         visitor.start(this);
+        if (expression != null) {
+            expression.accept(visitor);
+        }
         visitor.finish(this);
     }
 

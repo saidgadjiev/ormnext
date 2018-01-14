@@ -1,33 +1,37 @@
 package ru.said.miami.orm.core.queryBuilder;
 
 import ru.said.miami.orm.core.field.DataPersisterManager;
+import ru.said.miami.orm.core.query.core.Alias;
 import ru.said.miami.orm.core.query.core.Operand;
 import ru.said.miami.orm.core.query.core.columnSpec.ColumnSpec;
 import ru.said.miami.orm.core.query.core.condition.Expression;
 import ru.said.miami.orm.core.query.core.literals.Param;
 import ru.said.miami.orm.core.query.core.literals.StringLiteral;
+import ru.said.miami.orm.core.table.TableInfo;
 
 import java.sql.SQLException;
 
 /**
  * Created by said on 14.10.17.
  */
-public class Where<T> extends BaseWhere {
+public class WhereBuilder extends AbstractWhereBuilder {
 
-    private final QueryBuilder<T> preparedQuery;
+    private Alias alias;
 
-    public Where(QueryBuilder<T> preparedQuery, Expression where) {
-        super(where);
-        this.preparedQuery = preparedQuery;
+    private TableInfo<?> tableInfo;
+
+    WhereBuilder(Alias alias, TableInfo<?> tableInfo) {
+        this.alias = alias;
+        this.tableInfo = tableInfo;
     }
 
-    public Where<T> eq(String name) {
+    public WhereBuilder eq(String name) {
         super.eq(createColumnSpec(name), new Param());
 
         return this;
     }
 
-    public Where<T> eq(String name, Object value) {
+    public WhereBuilder eq(String name, Object value) {
         Operand operand = DataPersisterManager.lookup(value.getClass()).getAssociatedOperand(value);
 
         super.eq(createColumnSpec(name), operand);
@@ -35,7 +39,7 @@ public class Where<T> extends BaseWhere {
         return this;
     }
 
-    public Where<T> gt(String name, Object value) {
+    public WhereBuilder gt(String name, Object value) {
         Operand operand = DataPersisterManager.lookup(value.getClass()).getAssociatedOperand(value);
 
         super.gt(createColumnSpec(name), operand);
@@ -43,13 +47,13 @@ public class Where<T> extends BaseWhere {
         return this;
     }
 
-    public Where<T> gt(String name) {
+    public WhereBuilder gt(String name) {
         super.gt(createColumnSpec(name), new Param());
 
         return this;
     }
 
-    public Where<T> ge(String name, Object value) {
+    public WhereBuilder ge(String name, Object value) {
         Operand operand = DataPersisterManager.lookup(value.getClass()).getAssociatedOperand(value);
 
         super.ge(createColumnSpec(name), operand);
@@ -57,13 +61,13 @@ public class Where<T> extends BaseWhere {
         return this;
     }
 
-    public Where<T> ge(String name) {
+    public WhereBuilder ge(String name) {
         super.ge(createColumnSpec(name), new Param());
 
         return this;
     }
 
-    public Where<T> lt(String name, Object value) {
+    public WhereBuilder lt(String name, Object value) {
         Operand operand = DataPersisterManager.lookup(value.getClass()).getAssociatedOperand(value);
 
         super.lt(createColumnSpec(name), operand);
@@ -71,62 +75,68 @@ public class Where<T> extends BaseWhere {
         return this;
     }
 
-    public Where<T> lt(String name) {
+    public WhereBuilder lt(String name) {
         super.lt(createColumnSpec(name), new Param());
 
         return this;
     }
 
-    public Where<T> le(String name, Object value) {
+    public WhereBuilder le(String name, Object value) {
         Operand operand = DataPersisterManager.lookup(value.getClass()).getAssociatedOperand(value);
 
         super.le(createColumnSpec(name), operand);
         return this;
     }
 
-    public Where<T> le(String name) {
+    public WhereBuilder le(String name) {
         super.le(createColumnSpec(name), new Param());
 
         return this;
     }
 
-    public Where<T> in(String name, QueryBuilder<T> queryBuilder) {
+    public WhereBuilder in(String name, QueryBuilder<?> queryBuilder) {
         super.in(queryBuilder.getSelect(), new StringLiteral(name));
 
         return this;
     }
 
-    public Where<T> notIn(String name, QueryBuilder<T> queryBuilder) {
+    public WhereBuilder notIn(String name, QueryBuilder<?> queryBuilder) {
         super.notIn(queryBuilder.getSelect(), new StringLiteral(name));
 
         return this;
     }
 
-    public Where<T> exists(String name, QueryBuilder<T> queryBuilder) {
+    public WhereBuilder exists(String name, QueryBuilder<?> queryBuilder) {
         super.exists(queryBuilder.getSelect(), new StringLiteral(name));
 
         return this;
     }
 
-    public Where<T> and() {
+    public WhereBuilder and() {
         super.andClause();
 
         return this;
     }
 
-    public Where<T> or() {
+    public WhereBuilder or() {
         super.orClause();
 
         return this;
     }
 
-    public QueryBuilder<T> build() throws SQLException {
-        super.checkCurrentCondition();
+    public Expression build() throws SQLException {
+        checkCurrentCondition();
 
-        return preparedQuery;
+        return expression;
     }
 
     private ColumnSpec createColumnSpec(String name) {
-        return new ColumnSpec(name).alias(preparedQuery.accessAlias());
+        return new ColumnSpec(getColumnName(name)).alias(alias);
+    }
+
+    private String getColumnName(String fieldName) {
+        return tableInfo.getFieldTypeByFieldName(fieldName)
+                .orElseThrow(() ->  new IllegalArgumentException("Field[" + fieldName + "] does,t found"))
+                .getColumnName();
     }
 }

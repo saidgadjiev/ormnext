@@ -213,7 +213,7 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V> implements Concur
     }
 
     private int indexOf(Object key) {
-        return key.hashCode() % capacity;
+        return Math.abs(key.hashCode()) % capacity;
     }
 
     final Node<K, V> removeNode(int hash, Object key) {

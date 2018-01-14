@@ -93,9 +93,13 @@ public class DefaultVisitor implements QueryVisitor {
     @Override
     public void start(Select tSelectQuery) {
         sql.append("SELECT ");
-        tSelectQuery.getSelectColumnsStrategy().accept(this);
+        if (tSelectQuery.getSelectColumnsStrategy() != null) {
+            tSelectQuery.getSelectColumnsStrategy().accept(this);
+        }
         sql.append(" FROM ");
-        tSelectQuery.getFrom().accept(this);
+        if (tSelectQuery.getFrom() != null) {
+            tSelectQuery.getFrom().accept(this);
+        }
         if (!tSelectQuery.getWhere().getConditions().isEmpty()) {
             sql.append(" WHERE ");
         }
@@ -450,8 +454,8 @@ public class DefaultVisitor implements QueryVisitor {
     public void start(GroupBy groupBy) {
         sql.append(" GROUP BY ");
 
-        for (Iterator<ColumnSpec> columnSpecIterator = groupBy.getColumns().iterator(); columnSpecIterator.hasNext();) {
-            ColumnSpec columnSpec = columnSpecIterator.next();
+        for (Iterator<GroupByItem> columnSpecIterator = groupBy.getGroupByItems().iterator(); columnSpecIterator.hasNext();) {
+            GroupByItem columnSpec = columnSpecIterator.next();
 
             columnSpec.accept(this);
             if (columnSpecIterator.hasNext()) {
@@ -532,7 +536,11 @@ public class DefaultVisitor implements QueryVisitor {
 
     @Override
     public void start(DisplayedColumns displayedColumns) {
-
+        if (displayedColumns.getAlias() != null) {
+            displayedColumns.getAlias().accept(this);
+            sql.append(".");
+        }
+        sql.append(displayedColumns.getColumnSpec().getName());
     }
 
     @Override
@@ -552,12 +560,12 @@ public class DefaultVisitor implements QueryVisitor {
 
     @Override
     public void start(CountExpression countExpression) {
-
+        sql.append("COUNT(");
     }
 
     @Override
     public void finish(CountExpression countExpression) {
-
+        sql.append(")");
     }
 
     @Override

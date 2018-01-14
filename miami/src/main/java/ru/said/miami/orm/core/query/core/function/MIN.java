@@ -3,7 +3,7 @@ package ru.said.miami.orm.core.query.core.function;
 import ru.said.miami.orm.core.query.core.condition.Expression;
 import ru.said.miami.orm.core.query.visitor.QueryVisitor;
 
-public class MIN implements AgregateFunction {
+public class MIN implements Function {
 
     private final Expression expression;
 

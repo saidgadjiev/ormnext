@@ -14,6 +14,11 @@ public class LeftJoin implements JoinExpression {
         this.joinedTableRef = joinedTableRef;
     }
 
+    public LeftJoin(TableRef joinedTableRef, Expression expression) {
+        this.joinedTableRef = joinedTableRef;
+        this.expression = expression;
+    }
+
     public Expression getExpression() {
         return expression;
     }

@@ -1,10 +1,12 @@
 package ru.said.miami.orm.core.queryBuilder;
 
+import ru.said.miami.orm.core.field.fieldTypes.DBFieldType;
 import ru.said.miami.orm.core.stamentExecutor.PreparedQueryImpl;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -16,8 +18,11 @@ public class PreparedQuery {
 
     private String sql;
 
-    public PreparedQuery(String sql) {
+    private List<DBFieldType> resultFieldTypes;
+
+    public PreparedQuery(String sql, List<DBFieldType> resultFieldTypes) {
         this.sql = sql;
+        this.resultFieldTypes = resultFieldTypes;
     }
 
     public PreparedQueryImpl compile(Connection connection) throws SQLException {
@@ -34,4 +39,7 @@ public class PreparedQuery {
         args.put(index, value);
     }
 
+    public List<DBFieldType> getResultFieldTypes() {
+        return resultFieldTypes;
+    }
 }

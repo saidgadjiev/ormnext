@@ -6,17 +6,13 @@ import ru.said.miami.orm.core.query.core.Select;
 import ru.said.miami.orm.core.query.core.columnSpec.ColumnSpec;
 import ru.said.miami.orm.core.query.core.condition.*;
 
-public class BaseWhere {
+public class AbstractWhereBuilder {
 
-    protected final Expression where;
+    protected final Expression expression = new Expression();
 
     private AndCondition currentAndCondition = new AndCondition();
 
     private Condition currentCondition;
-
-    protected BaseWhere(Expression where) {
-        this.where = where;
-    }
 
     protected void eq(Operand first, Operand second) {
         currentCondition = new Equals(first, second);
@@ -60,14 +56,14 @@ public class BaseWhere {
     }
 
     protected void orClause() {
-        where.add(currentAndCondition);
+        expression.add(currentAndCondition);
         currentAndCondition = new AndCondition();
     }
 
     protected void checkCurrentCondition() {
         if (currentCondition != null) {
             currentAndCondition.add(currentCondition);
-            where.add(currentAndCondition);
+            expression.add(currentAndCondition);
         }
     }
 }

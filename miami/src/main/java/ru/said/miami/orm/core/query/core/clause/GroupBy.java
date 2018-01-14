@@ -1,6 +1,5 @@
 package ru.said.miami.orm.core.query.core.clause;
 
-import ru.said.miami.orm.core.query.core.columnSpec.ColumnSpec;
 import ru.said.miami.orm.core.query.visitor.QueryElement;
 import ru.said.miami.orm.core.query.visitor.QueryVisitor;
 
@@ -10,18 +9,18 @@ import java.util.List;
 
 public class GroupBy implements QueryElement {
 
-    private List<ColumnSpec> columns = new ArrayList<>();
+    private List<GroupByItem> groupByItems = new ArrayList<>();
 
-    public void add(ColumnSpec columnSpec) {
-        columns.add(columnSpec);
+    public void add(GroupByItem columnSpec) {
+        groupByItems.add(columnSpec);
     }
 
-    public void addAll(Collection<ColumnSpec> columnSpecs) {
-        columns.addAll(columnSpecs);
+    public void addAll(Collection<GroupByItem> columnSpecs) {
+        groupByItems.addAll(columnSpecs);
     }
 
-    public List<ColumnSpec> getColumns() {
-        return columns;
+    public List<GroupByItem> getGroupByItems() {
+        return groupByItems;
     }
 
     @Override

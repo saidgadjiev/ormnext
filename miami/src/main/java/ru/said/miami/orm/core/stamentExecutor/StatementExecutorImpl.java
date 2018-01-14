@@ -3,6 +3,8 @@ package ru.said.miami.orm.core.stamentExecutor;
 import ru.said.miami.orm.core.field.fieldTypes.DBFieldType;
 import ru.said.miami.orm.core.field.fieldTypes.IndexFieldType;
 import ru.said.miami.orm.core.query.core.*;
+import ru.said.miami.orm.core.query.visitor.DefaultVisitor;
+import ru.said.miami.orm.core.query.visitor.QueryElement;
 import ru.said.miami.orm.core.stamentExecutor.object.DataBaseObject;
 import ru.said.miami.orm.core.queryBuilder.PreparedQuery;
 import ru.said.miami.orm.core.table.TableInfo;
@@ -45,7 +47,7 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
                     .createForeign(object)
                     .query();
 
-            try (PreparedQueryImpl preparedQuery = new PreparedQueryImpl(connection.prepareStatement(null))) {
+            try (PreparedQueryImpl preparedQuery = new PreparedQueryImpl(connection.prepareStatement(getQuery(query)))) {
                 Integer result = preparedQuery.executeUpdate();
 
                 if (tableInfo.getPrimaryKeys().isPresent()) {
@@ -76,7 +78,7 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
                 ifNotExists
         );
 
-        try (PreparedQueryImpl preparedQuery = new PreparedQueryImpl(connection.prepareStatement(null))) {
+        try (PreparedQueryImpl preparedQuery = new PreparedQueryImpl(connection.prepareStatement(getQuery(createTableQuery)))) {
             preparedQuery.executeUpdate();
 
             return true;
@@ -110,7 +112,7 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
                 object
         );
 
-        try (PreparedQueryImpl preparedQuery = new PreparedQueryImpl(connection.prepareStatement(null))) {
+        try (PreparedQueryImpl preparedQuery = new PreparedQueryImpl(connection.prepareStatement(getQuery(query)))) {
             preparedQuery.setObject(0, idFieldType.access(object));
 
             return preparedQuery.executeUpdate();
@@ -131,7 +133,7 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
             Object id = dbFieldType.access(object);
             DeleteQuery query = DeleteQuery.buildQuery(tableInfo.getTableName(), dbFieldType.getColumnName());
 
-            try (PreparedQueryImpl preparedQuery = new PreparedQueryImpl(connection.prepareStatement(null))) {
+            try (PreparedQueryImpl preparedQuery = new PreparedQueryImpl(connection.prepareStatement(getQuery(query)))) {
                 preparedQuery.setObject(0, id);
 
                 return preparedQuery.executeUpdate();
@@ -151,7 +153,7 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
         DBFieldType dbFieldType = tableInfo.getPrimaryKeys().get();
         DeleteQuery query = DeleteQuery.buildQuery(tableInfo.getTableName(), dbFieldType.getColumnName());
 
-        try (PreparedQueryImpl preparedQuery = new PreparedQueryImpl(connection.prepareStatement(null))) {
+        try (PreparedQueryImpl preparedQuery = new PreparedQueryImpl(connection.prepareStatement(getQuery(query)))) {
             preparedQuery.setObject(0, id);
 
             return preparedQuery.executeUpdate();
@@ -168,10 +170,10 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
         DBFieldType dbFieldType = tableInfo.getPrimaryKeys().get();
         Select query = Select.buildQueryById(tableInfo.getTableName(), dbFieldType, id);
 
-        try (PreparedQueryImpl preparedQuery = new PreparedQueryImpl(connection.prepareStatement(null))) {
+        try (PreparedQueryImpl preparedQuery = new PreparedQueryImpl(connection.prepareStatement(getQuery(query)))) {
             try (DatabaseResults databaseResults = preparedQuery.executeQuery()) {
                 return dataBaseObject.getObjectBuilder().newObject()
-                        .buildBase(databaseResults)
+                        .buildBase(databaseResults, null)
                         .buildForeign(databaseResults)
                         .buildForeignCollection()
                         .build();
@@ -191,12 +193,12 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
         Select select = Select.buildQueryForAll(tableInfo.getTableName());
         List<T> resultObjectList = new ArrayList<>();
 
-        try (PreparedQueryImpl preparedQueryImpl = new PreparedQueryImpl(connection.prepareStatement(null))) {
+        try (PreparedQueryImpl preparedQueryImpl = new PreparedQueryImpl(connection.prepareStatement(getQuery(select)))) {
             try (DatabaseResults databaseResults = preparedQueryImpl.executeQuery()) {
                 while (databaseResults.next()) {
                     resultObjectList.add(
                             dataBaseObject.getObjectBuilder().newObject()
-                                    .buildBase(databaseResults)
+                                    .buildBase(databaseResults, null)
                                     .buildForeign(databaseResults)
                                     .buildForeignCollection()
                                     .build()
@@ -219,7 +221,7 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
         for (IndexFieldType indexFieldType : indexFieldTypes) {
             CreateIndexQuery createIndexQuery = CreateIndexQuery.build(indexFieldType);
 
-            try (PreparedQueryImpl preparedQuery = new PreparedQueryImpl(connection.prepareStatement(null))) {
+            try (PreparedQueryImpl preparedQuery = new PreparedQueryImpl(connection.prepareStatement(getQuery(createIndexQuery)))) {
                 preparedQuery.executeUpdate();
             }
         }
@@ -232,7 +234,7 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
         for (IndexFieldType indexFieldType : indexFieldTypes) {
             DropIndexQuery dropIndexQuery = DropIndexQuery.build(indexFieldType.getName());
 
-            try (PreparedQueryImpl preparedQuery = new PreparedQueryImpl(connection.prepareStatement(null))) {
+            try (PreparedQueryImpl preparedQuery = new PreparedQueryImpl(connection.prepareStatement(getQuery(dropIndexQuery)))) {
                 preparedQuery.executeUpdate();
             }
         }
@@ -247,7 +249,7 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
                 while (databaseResults.next()) {
                     resultObjectList.add(
                             dataBaseObject.getObjectBuilder().newObject()
-                                    .buildBase(databaseResults)
+                                    .buildBase(databaseResults, preparedQuery.getResultFieldTypes())
                                     .buildForeign(databaseResults)
                                     .buildForeignCollection()
                                     .build()
@@ -259,5 +261,13 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
         }
 
         return resultObjectList;
+    }
+
+    private String getQuery(QueryElement queryElement) {
+        DefaultVisitor defaultVisitor = new DefaultVisitor();
+
+        queryElement.accept(defaultVisitor);
+
+        return defaultVisitor.getQuery();
     }
 }

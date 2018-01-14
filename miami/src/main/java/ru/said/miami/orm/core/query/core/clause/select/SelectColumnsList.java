@@ -29,9 +29,6 @@ public class SelectColumnsList implements SelectColumnsStrategy {
     @Override
     public void accept(QueryVisitor visitor) {
         visitor.start(this);
-        for (DisplayedColumnSpec displayedColumnSpec: columns) {
-            displayedColumnSpec.accept(visitor);
-        }
         visitor.finish(this);
     }
 }

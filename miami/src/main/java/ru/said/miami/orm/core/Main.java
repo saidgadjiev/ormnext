@@ -7,38 +7,37 @@ import ru.said.miami.orm.core.queryBuilder.PreparedQuery;
 import ru.said.miami.orm.core.queryBuilder.QueryBuilder;
 
 import java.sql.SQLException;
+import java.util.List;
 
 public class Main {
 
     public static void main(String[] args) throws SQLException {
         SQLiteDataSource dataSource = new SQLiteDataSource();
 
-        dataSource.setUrl("jdbc:sqlite:C:/test.sqlite");
+        dataSource.setUrl("jdbc:sqlite:/Users/said/Desktop/miami_beach/test.sqlite");
         Dao<Account, Integer> accountDao = DaoManager.createDAO(dataSource, Account.class);
         Dao<Order, Integer> orderDao = DaoManager.createDAO(dataSource, Order.class);
         //accountDao.caching(true, null);
-        //System.out.println("account created = " + orderDao.createTable(true));
-        //System.out.println("account created = " + accountDao.createTable(true));
+        System.out.println("account created = " + orderDao.createTable(true));
+        System.out.println("account created = " + accountDao.createTable(true));
         QueryBuilder<Account> queryBuilder = accountDao.queryBuilder();
 
-        PreparedQuery preparedQuery = queryBuilder.selectColumns()
-                .function(queryBuilder.function().column("id").sum())
-                .build()
-                .where()
-                .eq("id")
-                .build()
-                .leftJoin(orderDao.queryBuilder())
-                .eq("id", "id")
-                .build()
-                .groupBy("id")
-                .having()
-                .eq(queryBuilder.function().column("id").sum(), 1000)
-                .build()
+        PreparedQuery preparedQuery = queryBuilder
+                .selectColumns("id")
+                .where(queryBuilder.whereBuilder().eq("id").build())
                 .prepare();
 
-        accountDao.query(preparedQuery);
+        preparedQuery.setArg(1, 19);
 
-        //System.out.println("order created = " + orderDao.createTable());
+        List<Account> accounts = accountDao.query(preparedQuery);
+
+        System.out.println("order created = " + accounts);
+
+        //preparedQuery.setArg(1, 2);
+
+        //accounts = accountDao.query(preparedQuery);
+
+        //System.out.println("order created = " + accounts);
         /*Account account = new Account();
 
         account.setName("account_name");
@@ -48,15 +47,16 @@ public class Main {
         order.setName("test_order");
         order.setAccount(account);
         orderDao.create(order);
+
         Order order1 = new Order();
 
         order1.setName("test_order1");
         order1.setAccount(account);
         orderDao.create(order1);
-        //List<Account> accounts = accountDao.query(accountDao.queryBuilder().where().eq("id", 24).prepare());
+        //List<Account> accounts = accountDao.query(accountDao.queryBuilder().expression().eq("id", 24).prepare());
 
-        System.out.println("account = " + accountDao.queryForId(1));*/
-        //System.out.println("account = " + accountDao.queryForId(2));
+        System.out.println("account = " + accountDao.queryForId(account.getId()));
+        //System.out.println("account = " + accountDao.queryForId(2));*/
     }
 
     public static Order getTestObject() {

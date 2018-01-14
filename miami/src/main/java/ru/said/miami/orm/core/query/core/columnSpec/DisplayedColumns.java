@@ -1,25 +1,27 @@
 package ru.said.miami.orm.core.query.core.columnSpec;
 
+import ru.said.miami.orm.core.query.core.Alias;
 import ru.said.miami.orm.core.query.visitor.QueryVisitor;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class DisplayedColumns implements DisplayedColumnSpec {
+public class DisplayedColumns extends DisplayedColumnSpec {
 
-    private List<ColumnSpec> columns = new ArrayList<>();
+    private ColumnSpec columnSpec;
 
-    public void addColumn(ColumnSpec columnSpec) {
-        columns.add(columnSpec);
+    public DisplayedColumns(ColumnSpec columnSpec) {
+        this.columnSpec = columnSpec;
     }
 
-    public void addAll(Collection<ColumnSpec> columns) {
-        this.columns.addAll(columns);
+    public ColumnSpec getColumnSpec() {
+        return columnSpec;
     }
 
-    public List<ColumnSpec> getColumns() {
-        return columns;
+    @Override
+    public void setAlias(Alias alias) {
+        columnSpec.alias(alias);
     }
 
     @Override

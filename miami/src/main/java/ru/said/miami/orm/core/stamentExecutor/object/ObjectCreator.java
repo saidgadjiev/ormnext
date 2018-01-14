@@ -50,17 +50,20 @@ public class ObjectCreator<T> {
             Object foreignObject = fieldType.access(object);
             TableInfo<?> foreignTableInfo = TableInfo.TableInfoCache.build(fieldType.getForeignFieldClass());
 
-            if (fieldType.isForeignAutoCreate()) {
-                Dao<Object, ?> foreignDao = (BaseDaoImpl<Object, ?>) DaoManager.createDAOWithTableInfo(dataSource, foreignTableInfo);
+            if (foreignObject != null) {
+                if (fieldType.isForeignAutoCreate()) {
+                    Dao<Object, ?> foreignDao = (BaseDaoImpl<Object, ?>) DaoManager.createDAOWithTableInfo(dataSource, foreignTableInfo);
 
-                foreignDao.create(foreignObject);
-            }
+                    foreignDao.create(foreignObject);
+                }
 
-            if (foreignTableInfo.getPrimaryKeys().isPresent()) {
-                query.add(new UpdateValue(
-                        fieldType.getColumnName(),
-                        FieldConverter.getInstanse().convert(fieldType.getDataType(), foreignTableInfo.getPrimaryKeys().get().access(foreignObject)))
-                );
+                //TODO: эту проверку заменить на fieldType.getForeignPrimarykey
+                if (foreignTableInfo.getPrimaryKeys().isPresent()) {
+                    query.add(new UpdateValue(
+                            fieldType.getColumnName(),
+                            FieldConverter.getInstanse().convert(fieldType.getDataType(), fieldType.getForeignPrimaryKey().access(foreignObject)))
+                    );
+                }
             }
         }
 

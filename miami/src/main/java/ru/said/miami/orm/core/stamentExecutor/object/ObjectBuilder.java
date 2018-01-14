@@ -34,10 +34,17 @@ public class ObjectBuilder<T> {
         return this;
     }
 
-    public ObjectBuilder<T> buildBase(DatabaseResults data) throws Exception {
-        for (DBFieldType fieldType : tableInfo.toDBFieldTypes()) {
-            fieldType.assign(object, data.getObject(fieldType.getColumnName()));
+    public ObjectBuilder<T> buildBase(DatabaseResults data, List<DBFieldType> resultFieldTypes) throws Exception {
+        if (resultFieldTypes != null) {
+            for (DBFieldType fieldType : resultFieldTypes) {
+                fieldType.assign(object, data.getObject(fieldType.getColumnName()));
+            }
+        } else {
+            for (DBFieldType fieldType : tableInfo.toDBFieldTypes()) {
+                fieldType.assign(object, data.getObject(fieldType.getColumnName()));
+            }
         }
+
 
         return this;
     }
@@ -48,7 +55,7 @@ public class ObjectBuilder<T> {
             Object val = newObject(foreignTableInfo.getConstructor());
 
             if (foreignTableInfo.getPrimaryKeys().isPresent()) {
-                foreignTableInfo.getPrimaryKeys().get().assign(val, data.getObject(fieldType.getColumnName()));
+                fieldType.getForeignPrimaryKey().assign(val, data.getObject(fieldType.getColumnName()));
             }
             fieldType.assign(object, val);
         }
@@ -78,10 +85,11 @@ public class ObjectBuilder<T> {
 
             if (tableInfo.getPrimaryKeys().isPresent() && foreignTableInfo.getPrimaryKeys().isPresent()) {
                 DBFieldType idField = tableInfo.getPrimaryKeys().get();
-                DBFieldType foreignField = DBFieldType.DBFieldTypeCache.build(fieldType.getForeignField());
-                PreparedQuery query = queryBuilder.where()
-                        .eq(foreignField.getColumnName(), String.valueOf(idField.access(object)))
-                        .build()
+                ForeignFieldType foreignField = ForeignFieldType.ForeignFieldTypeCache.build(fieldType.getForeignField());
+                PreparedQuery query = queryBuilder
+                        .where(queryBuilder.whereBuilder()
+                                .eq(foreignField.getColumnName(), idField.access(object))
+                                .build())
                         .prepare();
 
                 List<Object> foreignObjects = foreignDao.query(query);

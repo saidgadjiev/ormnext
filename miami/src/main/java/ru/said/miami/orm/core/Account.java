@@ -5,22 +5,17 @@ import ru.said.miami.orm.core.table.DBTable;
 import ru.said.miami.orm.core.table.Index;
 import ru.said.miami.orm.core.table.Unique;
 
+import java.util.ArrayList;
+import java.util.List;
+
 //TODO: реализация индексов
 //TODO: стоит вынести primary key из DBField так как он относится не к полю а к таблце
 //TODO: подумать как добавить unique на поля
-@DBTable(
-        indexes = {
-            @Index(name = "test_index", columns = {"id", "name"})
-        },
-        uniqueConstraints = {
-                @Unique(columns = {"name"})
-        }
-)
 public class Account {
 
     @Getter(name = "getId")
     @Setter(name = "setId")
-    @DBField
+    @DBField(id = true, generated = true)
     private Integer id;
 
     @Getter(name = "getName")
@@ -28,8 +23,8 @@ public class Account {
     @DBField(dataType = DataType.STRING)
     private String name;
 
-    @DBField(foreign = true)
-    private Order order;
+    @ForeignCollectionField
+    private List<Order> orders = new ArrayList<>();
 
     public Integer getId() {
         return id;
@@ -53,14 +48,7 @@ public class Account {
         return "Account{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
+                ", orders=" + orders +
                 '}';
-    }
-
-    public Order getOrder() {
-        return order;
-    }
-
-    public void setOrder(Order order) {
-        this.order = order;
     }
 }

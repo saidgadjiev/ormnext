@@ -21,7 +21,7 @@ public class UniqueFieldType {
         UniqueFieldType uniqueFieldType = new UniqueFieldType();
 
         for (String columnName: unique.columns()) {
-            uniqueFieldType.dbFieldTypes.add(DBFieldType.build(findFieldByName(columnName, tClass)));
+            uniqueFieldType.dbFieldTypes.add(DBFieldType.DBFieldTypeCache.build(findFieldByName(columnName, tClass)));
         }
 
         return uniqueFieldType;

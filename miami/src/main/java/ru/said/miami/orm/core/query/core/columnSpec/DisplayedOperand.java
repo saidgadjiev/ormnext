@@ -4,26 +4,16 @@ import ru.said.miami.orm.core.query.core.Alias;
 import ru.said.miami.orm.core.query.core.Operand;
 import ru.said.miami.orm.core.query.visitor.QueryVisitor;
 
-public class DisplayedOperand implements DisplayedColumnSpec {
-
-    private Alias alias;
+public class DisplayedOperand extends DisplayedColumnSpec {
 
     private Operand operand;
 
-    public Alias getAlias() {
-        return alias;
-    }
-
-    public void alias(Alias alias) {
-        this.alias = alias;
+    public DisplayedOperand(Operand operand) {
+        this.operand = operand;
     }
 
     public Operand getOperand() {
         return operand;
-    }
-
-    public void setOperand(Operand operand) {
-        this.operand = operand;
     }
 
     @Override

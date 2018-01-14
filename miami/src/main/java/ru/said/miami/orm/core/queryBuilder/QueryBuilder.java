@@ -1,13 +1,16 @@
 package ru.said.miami.orm.core.queryBuilder;
 
+import ru.said.miami.orm.core.field.fieldTypes.DBFieldType;
 import ru.said.miami.orm.core.query.core.Alias;
 import ru.said.miami.orm.core.query.core.Select;
 import ru.said.miami.orm.core.query.core.clause.GroupBy;
+import ru.said.miami.orm.core.query.core.clause.GroupByItem;
 import ru.said.miami.orm.core.query.core.clause.Having;
 import ru.said.miami.orm.core.query.core.clause.from.FromJoinedTables;
 import ru.said.miami.orm.core.query.core.clause.from.FromSubQuery;
 import ru.said.miami.orm.core.query.core.clause.from.FromTable;
 import ru.said.miami.orm.core.query.core.clause.select.SelectAll;
+import ru.said.miami.orm.core.query.core.clause.select.SelectColumnsList;
 import ru.said.miami.orm.core.query.core.columnSpec.*;
 import ru.said.miami.orm.core.query.core.common.TableRef;
 import ru.said.miami.orm.core.query.core.condition.Expression;
@@ -23,15 +26,14 @@ import java.util.List;
 
 public class QueryBuilder<T> {
 
-    private Where<T> where;
+    private Expression where;
 
     private Select selectQuery;
 
     private TableRef tableRef;
+    private TableInfo<T> tableInfo;
 
     private List<JoinExpression> joinExpressions = new ArrayList<>();
-
-    private List<IHasAlias> hasAliases = new ArrayList<>();
 
     private Having having;
 
@@ -41,17 +43,15 @@ public class QueryBuilder<T> {
 
     private Alias alias;
 
-    private DisplayedColumnSpec displayedColumnSpec;
+    private SelectColumnsList selectColumnsList;
+
+    private List<DBFieldType> resultFieldTypes;
 
     public QueryBuilder(TableInfo<T> tableInfo) {
         this.alias = new Alias(tableInfo.getTableName());
         this.tableRef = new TableRef(tableInfo.getTableName());
+        this.tableInfo = tableInfo;
         this.selectQuery = new Select();
-        this.where = new Where<>(this, selectQuery.getWhere());
-    }
-
-    void addHasAlias(IHasAlias columnSpec) {
-        hasAliases.add(columnSpec);
     }
 
     public void setAlias(String alias) {
@@ -62,65 +62,90 @@ public class QueryBuilder<T> {
         }
     }
 
-    Alias accessAlias() {
-        return alias;
-    }
-
     public String getAlias() {
         return alias.getAlias();
     }
 
-    public FunctionWhere<T> function() {
-        return new FunctionWhere<>(this, new Expression());
+    public FunctionBuilder functionBuilder() {
+        return new FunctionBuilder(alias, tableInfo);
     }
 
-    public HavingWhere<T> having() {
-        if (having == null) {
-            having = new Having();
-        }
+    public QueryBuilder<T> having(Having having) {
+        this.having = having;
 
-        return new HavingWhere<>(this, having.getExpression());
+        return this;
+    }
+
+    public HavingBuilder havingBuilder() {
+        return new HavingBuilder();
+    }
+
+    public GroupByItem createGroupByItem(String name) {
+        return new GroupByItem(new ColumnSpec(getFieldType(name).getColumnName()).alias(alias));
+    }
+
+    public GroupByBuilder groupByBuilder() {
+        return new GroupByBuilder();
+    }
+
+    public QueryBuilder<T> groupBy(GroupBy groupBy) {
+        this.groupBy = groupBy;
+
+        return this;
     }
 
     public QueryBuilder<T> groupBy(String ... columns) {
-        if (groupBy == null) {
-            groupBy = new GroupBy();
-        }
+        GroupByBuilder groupByBuilder = new GroupByBuilder();
+
         for (String name: columns) {
-            groupBy.add(new ColumnSpec(name).alias(alias));
+            groupByBuilder.add(createGroupByItem(name));
+        }
+        this.groupBy = groupByBuilder.build();
+
+        return this;
+    }
+
+    public ColumnSpec createColumnSpec(String name) {
+        return new ColumnSpec(getFieldType(name).getColumnName()).alias(alias);
+    }
+
+    public JoinBuilder joinBuilder(QueryBuilder<?> queryBuilder) {
+        return new JoinBuilder(alias, queryBuilder.alias, queryBuilder.tableRef, tableInfo, queryBuilder.tableInfo);
+    }
+
+    public QueryBuilder<T> leftJoin(LeftJoin leftJoin) {
+        joinExpressions.add(leftJoin);
+
+        return this;
+    }
+
+    public SelectOperandBuilder selectOperandBuilder() {
+        return new SelectOperandBuilder();
+    }
+
+    public SelectColumnBuilder selectColumnBuilder() {
+        return new SelectColumnBuilder();
+    }
+
+    public QueryBuilder<T> selectColumns(DisplayedColumnSpec ... displayedColumnSpecs) {
+        if (selectColumnsList == null) {
+            selectColumnsList = new SelectColumnsList();
+        }
+        for (DisplayedColumnSpec displayedColumnSpec: displayedColumnSpecs) {
+            selectColumnsList.addColumn(displayedColumnSpec);
         }
 
         return this;
     }
 
-    public CountAll countAll() {
-        return new CountAll();
-    }
-
-    public JoinWhere<T> leftJoin(QueryBuilder<?> queryBuilder) {
-        LeftJoin leftJoin = new LeftJoin(queryBuilder.tableRef);
-        JoinWhere<T> joinWhere = new JoinWhere<>(this, queryBuilder, leftJoin.getExpression());
-
-        joinExpressions.add(leftJoin);
-
-        return joinWhere;
-    }
-
-    public SelectColumnsBuilder<T> selectColumns() {
-        if (displayedColumnSpec == null) {
-            displayedColumnSpec = new DisplayedOperand();
-            ((DisplayedOperand) displayedColumnSpec).alias(alias);
-        }
-
-        return new SelectColumnsBuilder<>(this, ((DisplayedOperand) displayedColumnSpec).getOperand());
-    }
-
     public QueryBuilder<T> selectColumns(String ... columns) {
-        if (displayedColumnSpec == null) {
-            displayedColumnSpec = new DisplayedColumns();
+        if (selectColumnsList == null) {
+            selectColumnsList = new SelectColumnsList();
+            resultFieldTypes = new ArrayList<>();
         }
         for (String name: columns) {
-            ((DisplayedColumns) displayedColumnSpec).addColumn(new ColumnSpec(name).alias(alias));
+            selectColumnsList.addColumn(new DisplayedColumns(new ColumnSpec(getFieldType(name).getColumnName()).alias(alias)));
+            resultFieldTypes.add(getFieldType(name));
         }
 
         return this;
@@ -133,11 +158,22 @@ public class QueryBuilder<T> {
         return this;
     }
 
-    public Where<T> where() {
-        return where;
+    public QueryBuilder<T> where(Expression where) {
+        this.where = where;
+
+        return this;
+    }
+
+    public WhereBuilder whereBuilder() {
+        return new WhereBuilder(alias, tableInfo);
     }
 
     private void buildSelect() {
+        if (selectColumnsList != null) {
+            selectQuery.setSelectColumnsStrategy(selectColumnsList);
+        } else {
+            selectQuery.setSelectColumnsStrategy(new SelectAll());
+        }
         if (joinExpressions.size() > 0) {
             FromJoinedTables fromJoinedTables = new FromJoinedTables(tableRef);
 
@@ -148,13 +184,15 @@ public class QueryBuilder<T> {
         } else {
             selectQuery.setFrom(new FromTable(tableRef));
         }
-        if (having != null) {
-            selectQuery.setHaving(having);
+        if (where != null) {
+            selectQuery.setWhere(where);
         }
         if (groupBy != null) {
             selectQuery.setGroupBy(groupBy);
         }
-        selectQuery.setSelectColumnsStrategy(new SelectAll());
+        if (having != null) {
+            selectQuery.setHaving(having);
+        }
     }
 
     Select getSelect() {
@@ -166,6 +204,12 @@ public class QueryBuilder<T> {
         DefaultVisitor defaultVisitor = new DefaultVisitor();
 
         selectQuery.accept(defaultVisitor);
-        return new PreparedQuery(defaultVisitor.getQuery());
+
+        return new PreparedQuery(defaultVisitor.getQuery(), resultFieldTypes);
+    }
+
+    private DBFieldType getFieldType(String fieldName) {
+        return tableInfo.getFieldTypeByFieldName(fieldName)
+                .orElseThrow(() ->  new IllegalArgumentException("Field[" + fieldName + "] does,t found"));
     }
 }

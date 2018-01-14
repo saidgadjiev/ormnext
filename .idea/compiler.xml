@@ -6,7 +6,6 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="miami" />
         <module name="miami-cache" />
         <module name="property-binder" />
       </profile>
@@ -16,6 +15,7 @@
       <module name="miami-cache" target="1.8" />
       <module name="miami_beach" target="1.8" />
       <module name="property-binder" target="1.8" />
+      <module name="test" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

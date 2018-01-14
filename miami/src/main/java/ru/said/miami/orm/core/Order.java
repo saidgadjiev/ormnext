@@ -11,6 +11,10 @@ public class Order {
     @DBField
     private String name;
 
+    @DBField(foreign = true)
+    private Account account;
+
+
     public Integer getId() {
         return id;
     }
@@ -32,6 +36,15 @@ public class Order {
         return "Order{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
+                ", account=" + account.getId() +
                 '}';
+    }
+
+    public Account getAccount() {
+        return account;
+    }
+
+    public void setAccount(Account account) {
+        this.account = account;
     }
 }

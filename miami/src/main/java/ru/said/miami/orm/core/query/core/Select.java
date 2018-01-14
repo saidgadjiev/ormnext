@@ -81,6 +81,8 @@ public class Select implements QueryElement {
 
     public static <ID> Select buildQueryById(String typeName, DBFieldType idField, ID id) {
         Select selectQuery = new Select();
+
+        selectQuery.setSelectColumnsStrategy(new SelectAll());
         selectQuery.setFrom(new FromTable(new TableRef(typeName)));
         AndCondition andCondition = new AndCondition();
 
@@ -102,9 +104,15 @@ public class Select implements QueryElement {
     @Override
     public void accept(QueryVisitor visitor) {
         visitor.start(this);
-        where.accept(visitor);
-        groupBy.accept(visitor);
-        having.accept(visitor);
+        if (where != null) {
+            where.accept(visitor);
+        }
+        if (groupBy != null) {
+            groupBy.accept(visitor);
+        }
+        if (having != null) {
+            having.accept(visitor);
+        }
         visitor.finish(this);
     }
 

@@ -13,6 +13,7 @@ import ru.said.miami.orm.core.table.validators.PrimaryKeyValidator;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.function.Predicate;
 
 public final class TableInfo<T> {
 
@@ -108,12 +109,10 @@ public final class TableInfo<T> {
         for (Field field : clazz.getDeclaredFields()) {
             if (field.isAnnotationPresent(DBField.class)) {
                 DBField dbField = field.getAnnotation(DBField.class);
-                DBFieldType dbFieldType = DBFieldType.DBFieldTypeCache.build(field);
-
                 if (dbField.foreign()) {
-                    foreignFieldTypes.add(ForeignFieldType.build(field, dbFieldType));
+                    foreignFieldTypes.add(ForeignFieldType.ForeignFieldTypeCache.build(field));
                 } else {
-                    dbFieldTypes.add(dbFieldType);
+                    dbFieldTypes.add(DBFieldType.DBFieldTypeCache.build(field));
                 }
             } else if (field.isAnnotationPresent(ForeignCollectionField.class)) {
                 foreignCollectionFieldTypes.add(ForeignCollectionFieldType.ForeignCollectionFieldTypeCache.build(field));
@@ -160,6 +159,10 @@ public final class TableInfo<T> {
         }
 
         return uniqueFieldTypes;
+    }
+
+    public Optional<DBFieldType> getFieldTypeByFieldName(String name) {
+        return dbFieldTypes.stream().filter(dbFieldType -> dbFieldType.getField().getName().equals(name)).findFirst();
     }
 
     private static Optional<Constructor<?>> lookupDefaultConstructor(Class<?> clazz) throws NoSuchMethodException {
