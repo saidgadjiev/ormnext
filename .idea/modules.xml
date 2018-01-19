@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/miami/miami.iml" filepath="$PROJECT_DIR$/miami/miami.iml" />
-      <module fileurl="file://$PROJECT_DIR$/miami-cache/miami-cache.iml" filepath="$PROJECT_DIR$/miami-cache/miami-cache.iml" />
+      <module fileurl="file://$PROJECT_DIR$/up-cache/miami-cache.iml" filepath="$PROJECT_DIR$/up-cache/miami-cache.iml" />
+      <module fileurl="file://$PROJECT_DIR$/orm-next/miami.iml" filepath="$PROJECT_DIR$/orm-next/miami.iml" />
       <module fileurl="file://$PROJECT_DIR$/property-binder/property-binder.iml" filepath="$PROJECT_DIR$/property-binder/property-binder.iml" />
     </modules>
   </component>

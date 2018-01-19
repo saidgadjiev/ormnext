@@ -14,8 +14,10 @@
       <module name="miami" target="1.8" />
       <module name="miami-cache" target="1.8" />
       <module name="miami_beach" target="1.8" />
+      <module name="orm-next" target="1.8" />
       <module name="property-binder" target="1.8" />
       <module name="test" target="1.8" />
+      <module name="up-cache" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

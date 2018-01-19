@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>miami_beach</groupId>
-    <artifactId>ru.said.miami_beach</artifactId>
+    <groupId>ru.said.orm.next</groupId>
+    <artifactId>orm-next</artifactId>
     <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
     <build>
@@ -48,8 +48,8 @@
         </plugins>
     </build>
     <modules>
-        <module>miami-cache</module>
-        <module>miami</module>
+        <module>orm</module>
+        <module>up-cache</module>
         <module>property-binder</module>
     </modules>
 
