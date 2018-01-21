@@ -1,7 +1,7 @@
-package ru.said.miami.orm.core.query.core.columnSpec;
+package ru.said.orm.next.core.query.core.column_spec;
 
-import ru.said.miami.orm.core.query.core.Alias;
-import ru.said.miami.orm.core.query.visitor.QueryElement;
+import ru.said.orm.next.core.query.core.Alias;
+import ru.said.orm.next.core.query.visitor.QueryElement;
 
 public abstract class DisplayedColumnSpec implements QueryElement {
 

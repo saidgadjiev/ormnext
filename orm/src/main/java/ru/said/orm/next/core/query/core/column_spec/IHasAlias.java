@@ -1,4 +1,4 @@
-package ru.said.miami.orm.core.query.core.columnSpec;
+package ru.said.orm.next.core.query.core.column_spec;
 
 public interface IHasAlias {
 

@@ -1,6 +1,6 @@
-package ru.said.miami.orm.core.query.core.constraints.attribute;
+package ru.said.orm.next.core.query.core.constraints.attribute;
 
-import ru.said.miami.orm.core.query.visitor.QueryElement;
+import ru.said.orm.next.core.query.visitor.QueryElement;
 
 public interface AttributeConstraint extends QueryElement {
 }

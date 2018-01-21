@@ -242,7 +242,27 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
     public<R> GenericResults<R> query(String query, ResultsMapper<R> resultsMapper, Connection connection) throws SQLException {
         try (PreparedQueryImpl preparedQueryImpl = new PreparedQueryImpl(connection.prepareStatement(query))) {
             try (DatabaseResults databaseResults = preparedQueryImpl.executeQuery()) {
-                return new GenericResultsImpl<>(databaseResults, resultsMapper);
+                return new GenericResults<R>() {
+                    @Override
+                    public List<R> getResults() throws SQLException {
+                        try {
+                            List<R> objects = new ArrayList<>();
+
+                            while (databaseResults.next()) {
+                                objects.add(resultsMapper.mapResults(databaseResults));
+                            }
+
+                            return objects;
+                        } catch (Exception e) {
+                            throw new SQLException(e);
+                        }
+                    }
+
+                    @Override
+                    public R getFirstResult() throws SQLException {
+                        return null;
+                    }
+                };
             } catch (Exception ex) {
                 throw new SQLException(ex);
             }

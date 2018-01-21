@@ -1,7 +1,6 @@
 package ru.said.orm.next.core.field.field_type;
 
 import ru.said.orm.next.core.table.Unique;
-import ru.said.orm.next.core.table.Unique;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;

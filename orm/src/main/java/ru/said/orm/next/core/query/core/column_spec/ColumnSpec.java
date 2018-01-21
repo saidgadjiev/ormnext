@@ -1,9 +1,9 @@
-package ru.said.miami.orm.core.query.core.columnSpec;
+package ru.said.orm.next.core.query.core.column_spec;
 
 
-import ru.said.miami.orm.core.query.core.Alias;
-import ru.said.miami.orm.core.query.core.Operand;
-import ru.said.miami.orm.core.query.visitor.QueryVisitor;
+import ru.said.orm.next.core.query.core.Alias;
+import ru.said.orm.next.core.query.core.Operand;
+import ru.said.orm.next.core.query.visitor.QueryVisitor;
 
 public class ColumnSpec implements Operand {
 

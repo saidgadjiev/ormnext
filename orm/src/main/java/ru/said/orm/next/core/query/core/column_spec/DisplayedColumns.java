@@ -1,11 +1,7 @@
-package ru.said.miami.orm.core.query.core.columnSpec;
+package ru.said.orm.next.core.query.core.column_spec;
 
-import ru.said.miami.orm.core.query.core.Alias;
-import ru.said.miami.orm.core.query.visitor.QueryVisitor;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import ru.said.orm.next.core.query.core.Alias;
+import ru.said.orm.next.core.query.visitor.QueryVisitor;
 
 public class DisplayedColumns extends DisplayedColumnSpec {
 

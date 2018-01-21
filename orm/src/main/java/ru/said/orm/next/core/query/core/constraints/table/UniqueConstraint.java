@@ -1,8 +1,8 @@
-package ru.said.miami.orm.core.query.core.constraints.table;
+package ru.said.orm.next.core.query.core.constraints.table;
 
-import ru.said.miami.orm.core.field.fieldTypes.DBFieldType;
-import ru.said.miami.orm.core.field.fieldTypes.UniqueFieldType;
-import ru.said.miami.orm.core.query.visitor.QueryVisitor;
+import ru.said.orm.next.core.field.field_type.DBFieldType;
+import ru.said.orm.next.core.field.field_type.UniqueFieldType;
+import ru.said.orm.next.core.query.visitor.QueryVisitor;
 
 import java.util.List;
 import java.util.stream.Collectors;
