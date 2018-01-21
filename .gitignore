@@ -1,6 +1,9 @@
 ## File-based project format:
 *.iws
 
+#MacOS
+*.DS_Store
+
 # IntelliJ
 /out/
 .idea/*
