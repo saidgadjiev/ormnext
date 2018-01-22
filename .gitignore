@@ -20,9 +20,4 @@ crashlytics-build.properties
 fabric.properties
 *.sqlite
 
-target/*
-miami-cache/target/
-miami/target/
-property-binder/src/main/resources/
-property-binder/src/test/
-property-binder/target/
+*target/*
