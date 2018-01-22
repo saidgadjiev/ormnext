@@ -7,8 +7,6 @@ import ru.said.orm.next.core.field.DataType;
 
 import java.lang.reflect.Field;
 
-import static org.junit.Assert.*;
-
 public class ForeignFieldTypeTest {
 
     @Test

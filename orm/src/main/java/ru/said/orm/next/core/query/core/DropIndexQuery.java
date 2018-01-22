@@ -2,8 +2,6 @@ package ru.said.orm.next.core.query.core;
 
 import ru.said.orm.next.core.query.visitor.QueryElement;
 import ru.said.orm.next.core.query.visitor.QueryVisitor;
-import ru.said.orm.next.core.query.visitor.QueryElement;
-import ru.said.orm.next.core.query.visitor.QueryVisitor;
 
 public class DropIndexQuery implements QueryElement {
 

@@ -3,9 +3,6 @@ package ru.said.orm.next.core.query.core.clause;
 import ru.said.orm.next.core.query.core.column_spec.ColumnSpec;
 import ru.said.orm.next.core.query.visitor.QueryElement;
 import ru.said.orm.next.core.query.visitor.QueryVisitor;
-import ru.said.orm.next.core.query.core.column_spec.ColumnSpec;
-import ru.said.orm.next.core.query.visitor.QueryElement;
-import ru.said.orm.next.core.query.visitor.QueryVisitor;
 
 /**
  * Created by said on 18.11.17.

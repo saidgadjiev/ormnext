@@ -2,7 +2,6 @@ package ru.said.orm.next.core.table.validators;
 
 import ru.said.orm.next.core.field.DBField;
 import ru.said.orm.next.core.table.utils.TableInfoUtils;
-import ru.said.orm.next.core.table.utils.TableInfoUtils;
 
 import java.lang.reflect.Field;
 

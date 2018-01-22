@@ -2,6 +2,9 @@ package ru.said.orm.next.core.query.visitor;
 
 import ru.said.orm.next.core.field.DataType;
 import ru.said.orm.next.core.query.core.*;
+import ru.said.orm.next.core.query.core.clause.GroupBy;
+import ru.said.orm.next.core.query.core.clause.GroupByItem;
+import ru.said.orm.next.core.query.core.clause.Having;
 import ru.said.orm.next.core.query.core.clause.from.FromJoinedTables;
 import ru.said.orm.next.core.query.core.clause.from.FromTable;
 import ru.said.orm.next.core.query.core.clause.select.SelectAll;
@@ -22,7 +25,6 @@ import ru.said.orm.next.core.query.core.join.JoinExpression;
 import ru.said.orm.next.core.query.core.join.JoinInfo;
 import ru.said.orm.next.core.query.core.join.LeftJoin;
 import ru.said.orm.next.core.query.core.literals.*;
-import ru.said.orm.next.core.query.core.clause.*;
 
 import java.util.Iterator;
 

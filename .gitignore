@@ -1,23 +1,20 @@
-## File-based project format:
+##File-based project format:
 *.iws
 
 #MacOS
 *.DS_Store
 
-# IntelliJ
+#IntelliJ
 /out/
 .idea/*
 *.iml
 
 
-# JIRA plugin
+#JIRA plugin
 atlassian-ide-plugin.xml
 
-# Crashlytics plugin (for Android Studio and IntelliJ)
-com_crashlytics_export_strings.xml
-crashlytics.properties
-crashlytics-build.properties
-fabric.properties
+#SQlite
 *.sqlite
 
-*target/*
+#Maven
+*/target/*

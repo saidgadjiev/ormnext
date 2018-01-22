@@ -6,9 +6,6 @@ import ru.said.orm.next.core.query.core.condition.Expression;
 import ru.said.orm.next.core.query.core.literals.Param;
 import ru.said.orm.next.core.query.visitor.QueryElement;
 import ru.said.orm.next.core.query.visitor.QueryVisitor;
-import ru.said.orm.next.core.query.core.column_spec.ColumnSpec;
-import ru.said.orm.next.core.query.visitor.QueryElement;
-import ru.said.orm.next.core.query.visitor.QueryVisitor;
 
 /**
  * Класс DELETE запроса

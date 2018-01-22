@@ -1,7 +1,5 @@
 package ru.said.orm.next.core.table;
 
-import ru.said.up.cache.core.Cache;
-import ru.said.up.cache.core.CacheBuilder;
 import ru.said.orm.next.core.field.DBField;
 import ru.said.orm.next.core.field.ForeignCollectionField;
 import ru.said.orm.next.core.field.field_type.*;
@@ -10,10 +8,15 @@ import ru.said.orm.next.core.table.validators.ForeignKeyValidator;
 import ru.said.orm.next.core.table.validators.HasConstructorValidator;
 import ru.said.orm.next.core.table.validators.IValidator;
 import ru.said.orm.next.core.table.validators.PrimaryKeyValidator;
+import ru.said.up.cache.core.Cache;
+import ru.said.up.cache.core.CacheBuilder;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 public final class TableInfo<T> {
 

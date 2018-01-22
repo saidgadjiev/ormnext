@@ -1,9 +1,8 @@
 package ru.said.orm.next.core.field.persisters;
 
 import ru.said.orm.next.core.field.DataType;
-import ru.said.orm.next.core.query.core.literals.BooleanLiteral;
 import ru.said.orm.next.core.query.core.Operand;
-import ru.said.orm.next.core.field.DataType;
+import ru.said.orm.next.core.query.core.literals.BooleanLiteral;
 
 public class BooleanPersister implements DataPersister {
 

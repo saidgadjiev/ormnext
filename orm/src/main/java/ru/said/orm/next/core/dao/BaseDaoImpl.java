@@ -8,12 +8,6 @@ import ru.said.orm.next.core.stament_executor.ResultsMapper;
 import ru.said.orm.next.core.stament_executor.StatementValidator;
 import ru.said.orm.next.core.stament_executor.object.DataBaseObject;
 import ru.said.orm.next.core.table.TableInfo;
-import ru.said.orm.next.core.stament_executor.GenericResults;
-import ru.said.orm.next.core.stament_executor.IStatementExecutor;
-import ru.said.orm.next.core.stament_executor.ResultsMapper;
-import ru.said.orm.next.core.stament_executor.StatementValidator;
-import ru.said.orm.next.core.stament_executor.object.DataBaseObject;
-import ru.said.orm.next.core.table.TableInfo;
 
 import javax.sql.DataSource;
 import java.sql.Connection;

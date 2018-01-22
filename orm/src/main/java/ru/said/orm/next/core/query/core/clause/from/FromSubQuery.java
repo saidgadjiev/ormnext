@@ -2,8 +2,6 @@ package ru.said.orm.next.core.query.core.clause.from;
 
 import ru.said.orm.next.core.query.core.Select;
 import ru.said.orm.next.core.query.visitor.QueryVisitor;
-import ru.said.orm.next.core.query.core.Select;
-import ru.said.orm.next.core.query.visitor.QueryVisitor;
 
 public class FromSubQuery implements FromExpression {
 

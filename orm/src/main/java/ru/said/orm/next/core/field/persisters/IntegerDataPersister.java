@@ -1,9 +1,8 @@
 package ru.said.orm.next.core.field.persisters;
 
 import ru.said.orm.next.core.field.DataType;
-import ru.said.orm.next.core.query.core.literals.IntLiteral;
 import ru.said.orm.next.core.query.core.Operand;
-import ru.said.orm.next.core.field.DataType;
+import ru.said.orm.next.core.query.core.literals.IntLiteral;
 
 public class IntegerDataPersister implements DataPersister {
 

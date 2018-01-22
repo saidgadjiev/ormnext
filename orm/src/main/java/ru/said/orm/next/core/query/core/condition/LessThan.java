@@ -2,8 +2,6 @@ package ru.said.orm.next.core.query.core.condition;
 
 import ru.said.orm.next.core.query.core.Operand;
 import ru.said.orm.next.core.query.visitor.QueryVisitor;
-import ru.said.orm.next.core.query.core.Operand;
-import ru.said.orm.next.core.query.visitor.QueryVisitor;
 
 public class LessThan implements Condition {
 

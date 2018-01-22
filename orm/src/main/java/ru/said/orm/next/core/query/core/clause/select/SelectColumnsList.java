@@ -2,8 +2,6 @@ package ru.said.orm.next.core.query.core.clause.select;
 
 import ru.said.orm.next.core.query.core.column_spec.DisplayedColumnSpec;
 import ru.said.orm.next.core.query.visitor.QueryVisitor;
-import ru.said.orm.next.core.query.core.column_spec.DisplayedColumnSpec;
-import ru.said.orm.next.core.query.visitor.QueryVisitor;
 
 import java.util.ArrayList;
 import java.util.Collection;

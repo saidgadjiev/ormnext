@@ -3,7 +3,6 @@ package ru.said.orm.next.core.stament_executor.object;
 import ru.said.orm.next.core.cache.ObjectCache;
 import ru.said.orm.next.core.field.field_type.DBFieldType;
 import ru.said.orm.next.core.table.TableInfo;
-import ru.said.orm.next.core.table.TableInfo;
 
 import javax.sql.DataSource;
 import java.util.Optional;

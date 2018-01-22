@@ -4,10 +4,6 @@ import ru.said.orm.next.core.field.DataType;
 import ru.said.orm.next.core.query.core.constraints.attribute.AttributeConstraint;
 import ru.said.orm.next.core.query.visitor.QueryElement;
 import ru.said.orm.next.core.query.visitor.QueryVisitor;
-import ru.said.orm.next.core.field.DataType;
-import ru.said.orm.next.core.query.core.constraints.attribute.AttributeConstraint;
-import ru.said.orm.next.core.query.visitor.QueryElement;
-import ru.said.orm.next.core.query.visitor.QueryVisitor;
 
 import java.util.ArrayList;
 import java.util.List;

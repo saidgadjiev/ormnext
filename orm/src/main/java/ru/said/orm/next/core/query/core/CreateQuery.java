@@ -2,16 +2,12 @@ package ru.said.orm.next.core.query.core;
 
 import ru.said.orm.next.core.field.field_type.DBFieldType;
 import ru.said.orm.next.core.query.core.common.UpdateValue;
-import ru.said.orm.next.core.stament_executor.FieldConverter;
-import ru.said.orm.next.core.query.visitor.QueryElement;
-import ru.said.orm.next.core.query.visitor.QueryVisitor;
-import ru.said.orm.next.core.field.field_type.DBFieldType;
 import ru.said.orm.next.core.query.visitor.QueryElement;
 import ru.said.orm.next.core.query.visitor.QueryVisitor;
 import ru.said.orm.next.core.stament_executor.FieldConverter;
 
 import java.lang.reflect.InvocationTargetException;
-import java.sql.*;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 

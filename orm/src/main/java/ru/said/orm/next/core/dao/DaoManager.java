@@ -1,9 +1,9 @@
 package ru.said.orm.next.core.dao;
 
-import ru.said.up.cache.core.Cache;
-import ru.said.up.cache.core.CacheBuilder;
 import ru.said.orm.next.core.table.DBTable;
 import ru.said.orm.next.core.table.TableInfo;
+import ru.said.up.cache.core.Cache;
+import ru.said.up.cache.core.CacheBuilder;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Constructor;

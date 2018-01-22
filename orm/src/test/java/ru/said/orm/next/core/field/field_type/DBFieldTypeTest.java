@@ -9,8 +9,6 @@ import ru.said.orm.next.core.field.persisters.IntegerDataPersister;
 
 import java.lang.reflect.Field;
 
-import static org.junit.Assert.*;
-
 public class DBFieldTypeTest {
 
     @Test
