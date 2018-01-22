@@ -12,7 +12,7 @@ import ru.said.orm.next.core.query.core.column_spec.DisplayedColumns;
 import ru.said.orm.next.core.query.core.common.TableRef;
 import ru.said.orm.next.core.query.core.common.UpdateValue;
 import ru.said.orm.next.core.query.core.condition.*;
-import ru.said.orm.next.core.query.core.constraints.attribute.GeneratedConstraint;
+import ru.said.orm.next.core.query.core.constraints.attribute.PrimaryKeyConstraint;
 import ru.said.orm.next.core.query.core.constraints.attribute.NotNullConstraint;
 import ru.said.orm.next.core.query.core.constraints.attribute.ReferencesConstraint;
 import ru.said.orm.next.core.query.core.constraints.table.UniqueConstraint;
@@ -88,9 +88,9 @@ public interface QueryVisitor {
 
     void finish(DropTableQuery dropTableQuery);
 
-    void start(GeneratedConstraint generatedConstraint);
+    void start(PrimaryKeyConstraint primaryKeyConstraint);
 
-    void finish(GeneratedConstraint generatedConstraint);
+    void finish(PrimaryKeyConstraint primaryKeyConstraint);
 
     void start(UniqueConstraint uniqueConstraint);
 

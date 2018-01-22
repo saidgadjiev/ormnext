@@ -3,8 +3,8 @@ package ru.said.orm.next.core.dao;
 import ru.said.orm.next.core.cache.ObjectCache;
 import ru.said.orm.next.core.stament_executor.GenericResults;
 import ru.said.orm.next.core.stament_executor.ResultsMapper;
+import ru.said.orm.next.core.support.ConnectionSource;
 
-import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -68,5 +68,5 @@ public interface Dao<T, ID> {
 
     <R> GenericResults<R> query(String query, ResultsMapper<R> resultsMapper) throws SQLException;
 
-    DataSource getDataSource();
+    ConnectionSource getDataSource();
 }

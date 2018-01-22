@@ -8,19 +8,18 @@ import ru.said.orm.next.core.field.field_type.ForeignFieldType;
 import ru.said.orm.next.core.query.core.CreateQuery;
 import ru.said.orm.next.core.query.core.common.UpdateValue;
 import ru.said.orm.next.core.stament_executor.FieldConverter;
+import ru.said.orm.next.core.support.ConnectionSource;
 import ru.said.orm.next.core.table.TableInfo;
-
-import javax.sql.DataSource;
 
 public class ObjectCreator<T> {
 
-    private DataSource dataSource;
+    private ConnectionSource dataSource;
 
     private TableInfo<T> tableInfo;
 
     private CreateQuery query;
 
-    public ObjectCreator(DataSource dataSource, TableInfo<T> tableInfo) {
+    public ObjectCreator(ConnectionSource dataSource, TableInfo<T> tableInfo) {
         this.dataSource = dataSource;
         this.tableInfo = tableInfo;
     }

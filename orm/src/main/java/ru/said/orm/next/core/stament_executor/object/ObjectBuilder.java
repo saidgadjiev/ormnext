@@ -8,9 +8,9 @@ import ru.said.orm.next.core.field.field_type.ForeignCollectionFieldType;
 import ru.said.orm.next.core.field.field_type.ForeignFieldType;
 import ru.said.orm.next.core.stament_executor.DatabaseResults;
 import ru.said.orm.next.core.stament_executor.GenericResults;
+import ru.said.orm.next.core.support.ConnectionSource;
 import ru.said.orm.next.core.table.TableInfo;
 
-import javax.sql.DataSource;
 import java.lang.reflect.Constructor;
 import java.util.List;
 
@@ -18,11 +18,11 @@ public class ObjectBuilder<T> {
 
     private TableInfo<T> tableInfo;
 
-    private DataSource dataSource;
+    private ConnectionSource dataSource;
 
     private T object;
 
-    public ObjectBuilder(DataSource dataSource, TableInfo<T> tableInfo) {
+    public ObjectBuilder(ConnectionSource dataSource, TableInfo<T> tableInfo) {
         this.tableInfo = tableInfo;
         this.dataSource = dataSource;
     }

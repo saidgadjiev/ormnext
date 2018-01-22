@@ -39,5 +39,12 @@
             <version>1.9.5</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>1.0.60</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 </project>

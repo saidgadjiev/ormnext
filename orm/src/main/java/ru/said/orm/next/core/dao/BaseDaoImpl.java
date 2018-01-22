@@ -6,10 +6,10 @@ import ru.said.orm.next.core.stament_executor.GenericResults;
 import ru.said.orm.next.core.stament_executor.IStatementExecutor;
 import ru.said.orm.next.core.stament_executor.ResultsMapper;
 import ru.said.orm.next.core.stament_executor.StatementValidator;
+import ru.said.orm.next.core.support.ConnectionSource;
 import ru.said.orm.next.core.stament_executor.object.DataBaseObject;
 import ru.said.orm.next.core.table.TableInfo;
 
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
@@ -21,13 +21,13 @@ import java.util.List;
  */
 public abstract class BaseDaoImpl<T, ID> implements Dao<T, ID> {
 
-    private final DataSource dataSource;
+    private final ConnectionSource dataSource;
 
     private IStatementExecutor<T, ID> statementExecutor;
 
     private DataBaseObject<T> dataBaseObject;
 
-    protected BaseDaoImpl(DataSource dataSource, TableInfo<T> tableInfo) {
+    protected BaseDaoImpl(ConnectionSource dataSource, TableInfo<T> tableInfo) {
         this.dataSource = dataSource;
         this.dataBaseObject = new DataBaseObject<T>(
                 dataSource,
@@ -126,12 +126,12 @@ public abstract class BaseDaoImpl<T, ID> implements Dao<T, ID> {
         }
     }
 
-    public static<T, ID> Dao<T, ID> createDao(DataSource dataSource, TableInfo<T> tableInfoBuilder) {
+    public static<T, ID> Dao<T, ID> createDao(ConnectionSource dataSource, TableInfo<T> tableInfoBuilder) {
         return new BaseDaoImpl<T, ID>(dataSource, tableInfoBuilder) {};
     }
 
     @Override
-    public DataSource getDataSource() {
+    public ConnectionSource getDataSource() {
         return dataSource;
     }
 }
