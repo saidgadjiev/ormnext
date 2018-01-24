@@ -69,4 +69,6 @@ public interface Dao<T, ID> {
     <R> GenericResults<R> query(String query, ResultsMapper<R> resultsMapper) throws SQLException;
 
     ConnectionSource getDataSource();
+
+    TransactionManager<T, ID> transaction() throws SQLException;
 }

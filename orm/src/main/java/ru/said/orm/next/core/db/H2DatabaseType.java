@@ -9,4 +9,14 @@ public class H2DatabaseType implements DatabaseType {
         }
         sql.append(" PRIMARY KEY");
     }
+
+    @Override
+    public String getDatabaseName() {
+        return "h2";
+    }
+
+    @Override
+    public String getDriverClassName() {
+        return "org.h2.Driver";
+    }
 }

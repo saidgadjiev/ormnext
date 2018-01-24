@@ -13,6 +13,7 @@ import ru.said.orm.next.core.table.TableInfo;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 /**
  * Базовый класс для DAO. Используется в DaoBuilder
@@ -122,7 +123,7 @@ public abstract class BaseDaoImpl<T, ID> implements Dao<T, ID> {
     @Override
     public <R> GenericResults<R> query(String query, ResultsMapper<R> resultsMapper) throws SQLException {
         try (Connection connection = dataSource.getConnection()) {
-            return statementExecutor.query(query, resultsMapper, connection);
+            return statementExecutor.query(connection, query, resultsMapper);
         }
     }
 
@@ -133,5 +134,16 @@ public abstract class BaseDaoImpl<T, ID> implements Dao<T, ID> {
     @Override
     public ConnectionSource getDataSource() {
         return dataSource;
+    }
+
+    @Override
+    public TransactionManager<T, ID> transaction() throws SQLException {
+        Connection connection = dataSource.getConnection();
+
+        return new TransactionManager<T, ID>(statementExecutor, connection, () -> {
+            dataSource.releaseConnection(connection);
+
+            return null;
+        });
     }
 }

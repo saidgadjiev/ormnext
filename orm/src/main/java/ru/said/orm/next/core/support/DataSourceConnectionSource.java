@@ -18,14 +18,8 @@ public class DataSourceConnectionSource implements ConnectionSource {
         this.databaseType = databaseType;
     }
 
-
     public Connection getConnection() throws SQLException {
         return dataSource.getConnection();
-    }
-
-    @Override
-    public void releaseConnection(Connection connection) throws SQLException {
-        connection.close();
     }
 
     @Override

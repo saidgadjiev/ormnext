@@ -9,7 +9,9 @@ public interface ConnectionSource {
 
     Connection getConnection() throws SQLException;
 
-    void releaseConnection(Connection connection) throws SQLException;
+    default void releaseConnection(Connection connection) throws SQLException {
+        connection.close();
+    }
 
     DatabaseType getDatabaseType();
 }

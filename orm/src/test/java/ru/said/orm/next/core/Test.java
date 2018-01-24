@@ -5,6 +5,7 @@ import org.junit.Assert;
 import org.sqlite.SQLiteDataSource;
 import ru.said.orm.next.core.dao.Dao;
 import ru.said.orm.next.core.dao.DaoManager;
+import ru.said.orm.next.core.dao.Transaction;
 import ru.said.orm.next.core.db.H2DatabaseType;
 import ru.said.orm.next.core.db.SQLiteDatabaseType;
 import ru.said.orm.next.core.field.DBField;
@@ -33,6 +34,25 @@ public class Test {
         Dao<TestClazz, Integer> dao = DaoManager.createDAO(new DataSourceConnectionSource(dataSource, new SQLiteDatabaseType()), TestClazz.class);
 
         Assert.assertTrue(dao.createTable(true));
+        Assert.assertNull(dao.queryForId(0));
+    }
+
+    @org.junit.Test
+    public void testTransaction() throws Exception {
+        SQLiteDataSource dataSource = new SQLiteDataSource();
+
+        dataSource.setUrl("jdbc:sqlite:C:/test.sqlite");
+        Dao<TestClazz, Integer> dao = DaoManager.createDAO(new DataSourceConnectionSource(dataSource, new SQLiteDatabaseType()), TestClazz.class);
+
+        Assert.assertTrue(dao.createTable(true));
+        Transaction<TestClazz, Integer> transaction = dao.transaction();
+
+        try {
+            transaction.beginTrans();
+            transaction.commitTrans();
+        } catch (Exception ex) {
+            transaction.rollback();
+        }
         Assert.assertNull(dao.queryForId(0));
     }
 

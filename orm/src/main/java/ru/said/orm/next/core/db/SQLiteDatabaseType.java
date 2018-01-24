@@ -9,4 +9,14 @@ public class SQLiteDatabaseType implements DatabaseType {
             sql.append(" AUTOINCREMENT");
         }
     }
+
+    @Override
+    public String getDatabaseName() {
+        return "sqlite";
+    }
+
+    @Override
+    public String getDriverClassName() {
+        return "org.sqlite.JDBC";
+    }
 }

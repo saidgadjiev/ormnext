@@ -119,8 +119,8 @@ public class CachedStatementExecutor<T, ID> implements IStatementExecutor<T, ID>
     }
 
     @Override
-    public <R> GenericResults<R> query(String query, ResultsMapper<R> resultsMapper, Connection connection) throws SQLException {
-        return delegate.query(query, resultsMapper, connection);
+    public <R> GenericResults<R> query(Connection connection, String query, ResultsMapper<R> resultsMapper) throws SQLException {
+        return delegate.query(connection, query, resultsMapper);
     }
 
     @Override
