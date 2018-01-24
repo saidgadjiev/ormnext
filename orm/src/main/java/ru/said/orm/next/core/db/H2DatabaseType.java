@@ -3,11 +3,15 @@ package ru.said.orm.next.core.db;
 public class H2DatabaseType implements DatabaseType {
 
     @Override
-    public void appendPrimaryKey(StringBuilder sql, boolean generated) {
+    public String appendPrimaryKey(boolean generated) {
+        StringBuilder builder = new StringBuilder();
+
         if (generated) {
-            sql.append(" AUTO_INCREMENT");
+            builder.append(" AUTO_INCREMENT");
         }
-        sql.append(" PRIMARY KEY");
+        builder.append(" PRIMARY KEY");
+
+        return builder.toString();
     }
 
     @Override

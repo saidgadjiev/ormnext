@@ -3,11 +3,15 @@ package ru.said.orm.next.core.db;
 public class SQLiteDatabaseType implements DatabaseType {
 
     @Override
-    public void appendPrimaryKey(StringBuilder sql, boolean generated) {
-        sql.append(" PRIMARY KEY");
+    public String appendPrimaryKey(boolean generated) {
+        StringBuilder builder = new StringBuilder();
+
+        builder.append(" PRIMARY KEY");
         if (generated) {
-            sql.append(" AUTOINCREMENT");
+            builder.append(" AUTOINCREMENT");
         }
+
+        return builder.toString();
     }
 
     @Override

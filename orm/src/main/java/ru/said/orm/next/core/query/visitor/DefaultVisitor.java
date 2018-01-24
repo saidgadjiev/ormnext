@@ -328,7 +328,7 @@ public class DefaultVisitor implements QueryVisitor {
 
     @Override
     public void start(PrimaryKeyConstraint primaryKeyConstraint) {
-        databaseType.appendPrimaryKey(sql, primaryKeyConstraint.isGenerated());
+        sql.append(databaseType.appendPrimaryKey(primaryKeyConstraint.isGenerated()));
     }
 
     @Override

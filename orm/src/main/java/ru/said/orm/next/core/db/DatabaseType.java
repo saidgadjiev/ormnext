@@ -4,7 +4,7 @@ import java.sql.SQLException;
 
 public interface DatabaseType {
 
-    void appendPrimaryKey(StringBuilder sql, boolean generated);
+    String appendPrimaryKey(boolean generated);
 
     default void loadDriver() throws SQLException {
         String className = getDriverClassName();
