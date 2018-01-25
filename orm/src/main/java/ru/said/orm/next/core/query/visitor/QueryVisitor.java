@@ -13,7 +13,6 @@ import ru.said.orm.next.core.query.core.common.TableRef;
 import ru.said.orm.next.core.query.core.common.UpdateValue;
 import ru.said.orm.next.core.query.core.condition.*;
 import ru.said.orm.next.core.query.core.constraints.attribute.Default;
-import ru.said.orm.next.core.query.core.constraints.attribute.GeneratedConstraint;
 import ru.said.orm.next.core.query.core.constraints.attribute.PrimaryKeyConstraint;
 import ru.said.orm.next.core.query.core.constraints.attribute.NotNullConstraint;
 import ru.said.orm.next.core.query.core.constraints.attribute.ReferencesConstraint;

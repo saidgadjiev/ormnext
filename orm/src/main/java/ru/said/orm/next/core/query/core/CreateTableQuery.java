@@ -4,8 +4,8 @@ import ru.said.orm.next.core.field.DataPersisterManager;
 import ru.said.orm.next.core.field.field_type.DBFieldType;
 import ru.said.orm.next.core.field.field_type.ForeignFieldType;
 import ru.said.orm.next.core.query.core.constraints.attribute.Default;
-import ru.said.orm.next.core.query.core.constraints.attribute.GeneratedConstraint;
 import ru.said.orm.next.core.query.core.constraints.attribute.NotNullConstraint;
+import ru.said.orm.next.core.query.core.constraints.attribute.PrimaryKeyConstraint;
 import ru.said.orm.next.core.query.core.constraints.attribute.ReferencesConstraint;
 import ru.said.orm.next.core.query.core.constraints.table.TableConstraint;
 import ru.said.orm.next.core.query.core.constraints.table.UniqueConstraint;
@@ -59,8 +59,8 @@ public class CreateTableQuery implements QueryElement {
         for (DBFieldType dbFieldType: tableInfo.toDBFieldTypes()) {
             AttributeDefinition attributeDefinition = new AttributeDefinition(dbFieldType.getColumnName(), dbFieldType.getDataType(), dbFieldType.getLength());
 
-            if (dbFieldType.isId() && dbFieldType.isGenerated()) {
-                attributeDefinition.getAttributeConstraints().add(new GeneratedConstraint());
+            if (dbFieldType.isId()) {
+                attributeDefinition.getAttributeConstraints().add(new PrimaryKeyConstraint(dbFieldType.isGenerated()));
             }
             if (dbFieldType.isNotNull()) {
                 attributeDefinition.getAttributeConstraints().add(new NotNullConstraint());
