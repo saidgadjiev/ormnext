@@ -1,9 +1,8 @@
 package ru.said.orm.next.core.query.core;
 
-import ru.said.orm.next.core.query.visitor.QueryElement;
 import ru.said.orm.next.core.query.visitor.QueryVisitor;
 
-public class Alias implements QueryElement {
+public class Alias implements Operand {
 
     private String alias;
 

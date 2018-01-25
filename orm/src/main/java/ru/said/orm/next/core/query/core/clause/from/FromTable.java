@@ -2,7 +2,6 @@ package ru.said.orm.next.core.query.core.clause.from;
 
 import ru.said.orm.next.core.query.core.common.TableRef;
 import ru.said.orm.next.core.query.visitor.QueryVisitor;
-import ru.said.orm.next.core.query.visitor.QueryVisitor;
 
 public class FromTable implements FromExpression {
 

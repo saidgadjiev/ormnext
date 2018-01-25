@@ -107,7 +107,7 @@ public class ForeignCollectionFieldType implements IDBFieldType {
         return foreignFieldClass;
     }
 
-    public static ForeignCollectionFieldType build(Field field) throws NoSuchMethodException, NoSuchFieldException {
+    public static ForeignCollectionFieldType build(Field field) throws NoSuchFieldException {
         ForeignCollectionField foreignCollectionField = field.getAnnotation(ForeignCollectionField.class);
         ForeignCollectionFieldType fieldType = new ForeignCollectionFieldType();
 

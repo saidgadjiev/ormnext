@@ -11,7 +11,7 @@
 
     <artifactId>orm</artifactId>
     <name>orm</name>
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
     
     <dependencies>
         <dependency>
@@ -37,6 +37,13 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-all</artifactId>
             <version>1.9.5</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>1.0.60</version>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>

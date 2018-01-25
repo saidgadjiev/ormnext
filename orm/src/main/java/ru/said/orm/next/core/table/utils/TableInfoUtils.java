@@ -3,7 +3,6 @@ package ru.said.orm.next.core.table.utils;
 import ru.said.orm.next.core.field.DBField;
 import ru.said.orm.next.core.field.field_type.DBFieldType;
 import ru.said.orm.next.core.table.DBTable;
-import ru.said.orm.next.core.table.DBTable;
 
 import java.lang.reflect.Field;
 import java.util.Optional;

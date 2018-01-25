@@ -26,7 +26,7 @@ public interface IStatementExecutor<T, ID> {
 
     void dropIndexes(Connection connection) throws SQLException;
 
-    <R> GenericResults<R> query(String query, ResultsMapper<R> resultsMapper, Connection connection) throws SQLException;
+    <R> GenericResults<R> query(Connection connection, String query, ResultsMapper<R> resultsMapper) throws SQLException;
 
     long query(String query, Connection connection) throws SQLException;
 }

@@ -1,11 +1,11 @@
 package ru.said.orm.next.core.dao;
 
-import ru.said.up.cache.core.Cache;
-import ru.said.up.cache.core.CacheBuilder;
+import ru.said.orm.next.core.support.ConnectionSource;
 import ru.said.orm.next.core.table.DBTable;
 import ru.said.orm.next.core.table.TableInfo;
+import ru.said.up.cache.core.Cache;
+import ru.said.up.cache.core.CacheBuilder;
 
-import javax.sql.DataSource;
 import java.lang.reflect.Constructor;
 import java.sql.SQLException;
 import java.util.Optional;
@@ -17,7 +17,7 @@ public class DaoManager {
 
     private static final Cache<Class<?>, Dao<?, ?>> CACHE = CacheBuilder.newRefenceCacheBuilder().build();
 
-    public static <D extends Dao<T, ?>, T> D createDAO(DataSource dataSource, Class<T> clazz) throws SQLException {
+    public static <D extends Dao<T, ?>, T> D createDAO(ConnectionSource dataSource, Class<T> clazz) throws SQLException {
         try {
             Optional<D> lookupDao = (Optional<D>) lookupDao(clazz);
 
@@ -74,7 +74,7 @@ public class DaoManager {
         CACHE.put(clazz, dao);
     }
 
-    public static <T, ID> Dao<T, ?> createDAOWithTableInfo(DataSource dataSource, TableInfo<T> tableInfo) {
+    public static <T, ID> Dao<T, ?> createDAOWithTableInfo(ConnectionSource dataSource, TableInfo<T> tableInfo) {
         return BaseDaoImpl.createDao(dataSource, tableInfo);
     }
 }

@@ -170,15 +170,19 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
 
         try (PreparedQueryImpl preparedQuery = new PreparedQueryImpl(connection.prepareStatement(getQuery(query)))) {
             try (DatabaseResults databaseResults = preparedQuery.executeQuery()) {
-                return dataBaseObject.getObjectBuilder().newObject()
-                        .buildBase(databaseResults, tableInfo.toDBFieldTypes())
-                        .buildForeign(databaseResults, tableInfo.toForeignFieldTypes())
-                        .buildForeignCollection(tableInfo.toForeignCollectionFieldTypes())
-                        .build();
+                if (databaseResults.next()) {
+                    return dataBaseObject.getObjectBuilder().newObject()
+                            .buildBase(databaseResults, tableInfo.toDBFieldTypes())
+                            .buildForeign(databaseResults, tableInfo.toForeignFieldTypes())
+                            .buildForeignCollection(tableInfo.toForeignCollectionFieldTypes())
+                            .build();
+                }
             } catch (Exception ex) {
                 throw new SQLException(ex);
             }
         }
+
+        return null;
     }
 
     /**
@@ -239,7 +243,7 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
     }
 
     @Override
-    public<R> GenericResults<R> query(String query, ResultsMapper<R> resultsMapper, Connection connection) throws SQLException {
+    public<R> GenericResults<R> query(Connection connection, String query, ResultsMapper<R> resultsMapper) throws SQLException {
         try (PreparedQueryImpl preparedQueryImpl = new PreparedQueryImpl(connection.prepareStatement(query))) {
             try (DatabaseResults databaseResults = preparedQueryImpl.executeQuery()) {
                 return new GenericResults<R>() {
@@ -285,7 +289,7 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
     }
 
     private String getQuery(QueryElement queryElement) {
-        DefaultVisitor defaultVisitor = new DefaultVisitor();
+        DefaultVisitor defaultVisitor = new DefaultVisitor(dataBaseObject.getDataSource().getDatabaseType());
 
         queryElement.accept(defaultVisitor);
 

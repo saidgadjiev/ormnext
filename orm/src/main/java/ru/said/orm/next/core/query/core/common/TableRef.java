@@ -1,10 +1,6 @@
 package ru.said.orm.next.core.query.core.common;
 
 import ru.said.orm.next.core.query.core.Alias;
-import ru.said.orm.next.core.query.core.column_spec.IHasAlias;
-import ru.said.orm.next.core.query.visitor.QueryElement;
-import ru.said.orm.next.core.query.visitor.QueryVisitor;
-import ru.said.orm.next.core.query.core.Alias;
 import ru.said.orm.next.core.query.visitor.QueryElement;
 import ru.said.orm.next.core.query.visitor.QueryVisitor;
 

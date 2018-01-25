@@ -2,10 +2,9 @@ package ru.said.orm.next.core.stament_executor.object;
 
 import ru.said.orm.next.core.cache.ObjectCache;
 import ru.said.orm.next.core.field.field_type.DBFieldType;
-import ru.said.orm.next.core.table.TableInfo;
+import ru.said.orm.next.core.support.ConnectionSource;
 import ru.said.orm.next.core.table.TableInfo;
 
-import javax.sql.DataSource;
 import java.util.Optional;
 
 public class DataBaseObject<T> {
@@ -14,14 +13,17 @@ public class DataBaseObject<T> {
 
     private final ObjectCreator<T> objectCreator;
 
+    private final ConnectionSource dataSource;
+
     private TableInfo<T> tableInfo;
 
     private ObjectCache objectCache;
 
-    public DataBaseObject(DataSource dataSource, TableInfo<T> tableInfo) {
+    public DataBaseObject(ConnectionSource dataSource, TableInfo<T> tableInfo) {
         this.objectBuilder = new ObjectBuilder<>(dataSource, tableInfo);
         this.objectCreator = new ObjectCreator<>(dataSource, tableInfo);
         this.tableInfo = tableInfo;
+        this.dataSource = dataSource;
     }
 
     public Optional<ObjectCache> getObjectCache() {
@@ -48,5 +50,9 @@ public class DataBaseObject<T> {
         for (DBFieldType fieldType : tableInfo.toDBFieldTypes()) {
             fieldType.assign(destObject, fieldType.access(srcObject));
         }
+    }
+
+    public ConnectionSource getDataSource() {
+        return dataSource;
     }
 }

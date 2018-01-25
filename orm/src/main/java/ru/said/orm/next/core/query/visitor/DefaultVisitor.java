@@ -1,7 +1,11 @@
 package ru.said.orm.next.core.query.visitor;
 
+import ru.said.orm.next.core.db.DatabaseType;
 import ru.said.orm.next.core.field.DataType;
 import ru.said.orm.next.core.query.core.*;
+import ru.said.orm.next.core.query.core.clause.GroupBy;
+import ru.said.orm.next.core.query.core.clause.GroupByItem;
+import ru.said.orm.next.core.query.core.clause.Having;
 import ru.said.orm.next.core.query.core.clause.from.FromJoinedTables;
 import ru.said.orm.next.core.query.core.clause.from.FromTable;
 import ru.said.orm.next.core.query.core.clause.select.SelectAll;
@@ -13,13 +17,16 @@ import ru.said.orm.next.core.query.core.common.TableRef;
 import ru.said.orm.next.core.query.core.common.UpdateValue;
 import ru.said.orm.next.core.query.core.condition.*;
 import ru.said.orm.next.core.query.core.constraints.attribute.*;
+import ru.said.orm.next.core.query.core.constraints.attribute.AttributeConstraint;
+import ru.said.orm.next.core.query.core.constraints.attribute.NotNullConstraint;
+import ru.said.orm.next.core.query.core.constraints.attribute.PrimaryKeyConstraint;
+import ru.said.orm.next.core.query.core.constraints.attribute.ReferencesConstraint;
 import ru.said.orm.next.core.query.core.constraints.table.UniqueConstraint;
 import ru.said.orm.next.core.query.core.function.*;
 import ru.said.orm.next.core.query.core.join.JoinExpression;
 import ru.said.orm.next.core.query.core.join.JoinInfo;
 import ru.said.orm.next.core.query.core.join.LeftJoin;
 import ru.said.orm.next.core.query.core.literals.*;
-import ru.said.orm.next.core.query.core.clause.*;
 
 import java.util.Iterator;
 
@@ -30,6 +37,12 @@ public class DefaultVisitor implements QueryVisitor {
 
     private StringBuilder sql = new StringBuilder();
 
+    private DatabaseType databaseType;
+
+    public DefaultVisitor(DatabaseType databaseType) {
+        this.databaseType = databaseType;
+    }
+
     @Override
     public String getQuery() {
         return sql.toString();
@@ -37,13 +50,13 @@ public class DefaultVisitor implements QueryVisitor {
 
     @Override
     public boolean start(CreateQuery tCreateQuery) {
-        sql.append("INSERT INTO '").append(tCreateQuery.getTypeName()).append("' (");
+        sql.append("INSERT INTO `").append(tCreateQuery.getTypeName()).append("` (");
         for (Iterator<UpdateValue> iterator = tCreateQuery.getUpdateValues().iterator(); iterator.hasNext(); ) {
             UpdateValue updateValue = iterator.next();
 
-            sql.append("'").append(updateValue.getName()).append("'");
+            sql.append("`").append(updateValue.getName()).append("`");
             if (iterator.hasNext()) {
-                sql.append(", ");
+                sql.append(",");
             }
         }
         sql.append(")");
@@ -54,7 +67,7 @@ public class DefaultVisitor implements QueryVisitor {
 
             value.accept(this);
             if (iterator.hasNext()) {
-                sql.append(", ");
+                sql.append(",");
             }
         }
         sql.append(")");
@@ -64,7 +77,7 @@ public class DefaultVisitor implements QueryVisitor {
 
     @Override
     public void finish(CreateQuery tCreateQuery) {
-        sql.append(";");
+
     }
 
     @Override
@@ -169,7 +182,7 @@ public class DefaultVisitor implements QueryVisitor {
             columnSpec.getAlias().accept(this);
             sql.append(".");
         }
-        sql.append("'").append(columnSpec.getName()).append("'");
+        sql.append("`").append(columnSpec.getName()).append("`");
     }
 
     @Override
@@ -184,7 +197,7 @@ public class DefaultVisitor implements QueryVisitor {
 
     @Override
     public void start(TableRef tableRef) {
-        sql.append("'").append(tableRef.getTableName()).append("'");
+        sql.append("`").append(tableRef.getTableName()).append("`");
 
         if (tableRef.getAlias() != null) {
             sql.append(" AS ");
@@ -203,11 +216,11 @@ public class DefaultVisitor implements QueryVisitor {
         if (tCreateTableQuery.isIfNotExists()) {
             sql.append("IF NOT EXISTS ");
         }
-        sql.append("'").append(tCreateTableQuery.getTypeName()).append("' (");
+        sql.append("`").append(tCreateTableQuery.getTypeName()).append("` (");
         for (Iterator<AttributeDefinition> iterator = tCreateTableQuery.getAttributeDefinitions().iterator(); iterator.hasNext(); ) {
             AttributeDefinition attributeDefinition = iterator.next();
 
-            sql.append("'").append(attributeDefinition.getName()).append("' ");
+            sql.append("`").append(attributeDefinition.getName()).append("` ");
             appendAttributeDataType(attributeDefinition);
             for (AttributeConstraint attributeConstraint: attributeDefinition.getAttributeConstraints()) {
                 attributeConstraint.accept(this);
@@ -243,7 +256,7 @@ public class DefaultVisitor implements QueryVisitor {
 
     @Override
     public void finish(CreateTableQuery tCreateTableQuery) {
-        sql.append(");");
+        sql.append(")");
     }
 
     @Override
@@ -306,7 +319,7 @@ public class DefaultVisitor implements QueryVisitor {
         if (dropTableQuery.isIfExists()) {
             sql.append("IF EXISTS ");
         }
-        sql.append("'").append(dropTableQuery.getTableName()).append("'");
+        sql.append("`").append(dropTableQuery.getTableName()).append("`");
     }
 
     @Override
@@ -315,25 +328,25 @@ public class DefaultVisitor implements QueryVisitor {
     }
 
     @Override
-    public void start(GeneratedConstraint generatedConstraint) {
-        sql.append(" PRIMARY KEY AUTOINCREMENT");
+    public void start(PrimaryKeyConstraint primaryKeyConstraint) {
+        sql.append(databaseType.appendPrimaryKey(primaryKeyConstraint.isGenerated()));
     }
 
     @Override
-    public void finish(GeneratedConstraint generatedConstraint) {
+    public void finish(PrimaryKeyConstraint primaryKeyConstraint) {
 
     }
 
     @Override
     public void start(UniqueConstraint uniqueConstraint) {
-        sql.append(", UNIQUE ('");
+        sql.append(", UNIQUE (`");
         for (Iterator<String> iterator = uniqueConstraint.getUniqueColemns().iterator(); iterator.hasNext();) {
             sql.append(iterator.next());
             if (iterator.hasNext()) {
-                sql.append("','");
+                sql.append("`,`");
             }
         }
-        sql.append("')");
+        sql.append("`)");
     }
 
     @Override
@@ -353,11 +366,11 @@ public class DefaultVisitor implements QueryVisitor {
 
     @Override
     public void start(ReferencesConstraint referencesConstraint) {
-        sql.append(" REFERENCES '")
+        sql.append(" REFERENCES `")
                 .append(referencesConstraint.getTypeName())
-                .append("'('")
+                .append("`(`")
                 .append(referencesConstraint.getColumnName())
-                .append("')");
+                .append("`)");
     }
 
     @Override
@@ -369,19 +382,19 @@ public class DefaultVisitor implements QueryVisitor {
     public void start(CreateIndexQuery createIndexQuery) {
         sql.append("CREATE ")
                 .append(createIndexQuery.isUnique() ? "UNIQUE": "INDEX")
-                .append(" '")
+                .append(" `")
                 .append(createIndexQuery.getIndexName())
-                .append("' ON '")
+                .append("` ON `")
                 .append(createIndexQuery.getTableName())
-                .append("'('");
+                .append("`(`");
         for (Iterator<String> iterator = createIndexQuery.getColumns().iterator(); iterator.hasNext();) {
             sql.append(iterator.next());
 
             if (iterator.hasNext()) {
-                sql.append("','");
+                sql.append("`,`");
             }
         }
-        sql.append("')");
+        sql.append("`)");
     }
 
     @Override
@@ -391,7 +404,7 @@ public class DefaultVisitor implements QueryVisitor {
 
     @Override
     public void start(DropIndexQuery dropIndexQuery) {
-        sql.append("DROP INDEX '").append(dropIndexQuery.getName()).append("'");
+        sql.append("DROP INDEX `").append(dropIndexQuery.getName()).append("`");
     }
 
     @Override
@@ -468,12 +481,10 @@ public class DefaultVisitor implements QueryVisitor {
 
     @Override
     public void finish(FromTable fromTable) {
-        sql.append(" ");
     }
 
     @Override
     public void start(FromTable fromTable) {
-        sql.append(" ");
     }
 
     @Override
@@ -677,7 +688,7 @@ public class DefaultVisitor implements QueryVisitor {
 
     @Override
     public void start(Alias alias) {
-        sql.append("'").append(alias.getAlias()).append("'");
+        sql.append("`").append(alias.getAlias()).append("`");
     }
 
     @Override
