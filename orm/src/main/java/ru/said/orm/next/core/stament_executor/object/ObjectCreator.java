@@ -26,7 +26,7 @@ public class ObjectCreator<T> {
     }
 
     public ObjectCreator newObject(T object) throws Exception {
-        this.query = CreateQuery.buildQuery(tableInfo.getTableName(), null, object);
+        this.query = CreateQuery.buildQuery(tableInfo.getTableName());
 
         return this;
     }

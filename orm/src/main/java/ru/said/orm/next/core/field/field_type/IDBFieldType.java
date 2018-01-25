@@ -30,4 +30,16 @@ public interface IDBFieldType {
     Field getField();
 
     int getLength();
+
+    default boolean isDbFieldType() {
+        return false;
+    }
+
+    default boolean isForeignFieldType() {
+        return false;
+    }
+
+    default boolean isForeignCollectionFieldType() {
+        return false;
+    }
 }

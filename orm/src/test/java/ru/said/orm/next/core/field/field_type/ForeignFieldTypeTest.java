@@ -14,17 +14,13 @@ public class ForeignFieldTypeTest {
     @Test
     public void isForeignAutoCreate() throws Exception {
         Field field = DBFieldTypeTest.TestClazz.class.getDeclaredFields()[0];
-        DBFieldType fieldType = DBFieldType.build(field);
+        ForeignFieldType fieldType = ForeignFieldType.build(field);
 
-        Assert.assertEquals(DataType.INTEGER, fieldType.getDataType());
+        Assert.assertTrue(fieldType.isForeignAutoCreate());
         field = DBFieldTypeTest.TestClazz.class.getDeclaredFields()[1];
-        fieldType = DBFieldType.build(field);
+        fieldType = ForeignFieldType.build(field);
 
-        Assert.assertEquals(DataType.STRING, fieldType.getDataType());
-        field = DBFieldTypeTest.TestClazz.class.getDeclaredFields()[2];
-        fieldType = DBFieldType.build(field);
-
-        Assert.assertEquals(DataType.INTEGER, fieldType.getDataType());
+        Assert.assertFalse(fieldType.isForeignAutoCreate());
     }
 
     @Test

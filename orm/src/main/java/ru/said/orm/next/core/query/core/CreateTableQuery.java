@@ -1,22 +1,15 @@
 package ru.said.orm.next.core.query.core;
 
+import ru.said.orm.next.core.field.DataPersisterManager;
 import ru.said.orm.next.core.field.field_type.DBFieldType;
 import ru.said.orm.next.core.field.field_type.ForeignFieldType;
+import ru.said.orm.next.core.query.core.constraints.attribute.Default;
 import ru.said.orm.next.core.query.core.constraints.attribute.GeneratedConstraint;
 import ru.said.orm.next.core.query.core.constraints.attribute.NotNullConstraint;
 import ru.said.orm.next.core.query.core.constraints.attribute.ReferencesConstraint;
 import ru.said.orm.next.core.query.core.constraints.table.TableConstraint;
 import ru.said.orm.next.core.query.core.constraints.table.UniqueConstraint;
-import ru.said.orm.next.core.query.visitor.QueryElement;
-import ru.said.orm.next.core.query.visitor.QueryVisitor;
-import ru.said.orm.next.core.table.TableInfo;
-import ru.said.orm.next.core.field.field_type.DBFieldType;
-import ru.said.orm.next.core.field.field_type.ForeignFieldType;
-import ru.said.orm.next.core.query.core.constraints.attribute.GeneratedConstraint;
-import ru.said.orm.next.core.query.core.constraints.attribute.NotNullConstraint;
-import ru.said.orm.next.core.query.core.constraints.attribute.ReferencesConstraint;
-import ru.said.orm.next.core.query.core.constraints.table.TableConstraint;
-import ru.said.orm.next.core.query.core.constraints.table.UniqueConstraint;
+import ru.said.orm.next.core.query.core.literals.Literal;
 import ru.said.orm.next.core.query.visitor.QueryElement;
 import ru.said.orm.next.core.query.visitor.QueryVisitor;
 import ru.said.orm.next.core.table.TableInfo;
@@ -71,6 +64,12 @@ public class CreateTableQuery implements QueryElement {
             }
             if (dbFieldType.isNotNull()) {
                 attributeDefinition.getAttributeConstraints().add(new NotNullConstraint());
+            }
+            if (dbFieldType.getDefaultValue() != null) {
+                Literal<?> literal = DataPersisterManager
+                        .lookup(dbFieldType.getDefaultValue().getClass())
+                        .getLiteral(dbFieldType.getDefaultValue());
+                attributeDefinition.getAttributeConstraints().add(new Default<>(literal));
             }
             attributeDefinitions.add(attributeDefinition);
         }

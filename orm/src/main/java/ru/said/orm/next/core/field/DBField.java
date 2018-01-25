@@ -9,6 +9,8 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface DBField {
 
+    String DEFAULT_STR = "__orm_next__ default string";
+
     String columnName() default "";
 
     DataType dataType() default DataType.UNKNOWN;
@@ -25,5 +27,5 @@ public @interface DBField {
 
     boolean foreignAutoCreate() default false;
 
-    String defaultValue() default "";
+    String defaultValue() default DEFAULT_STR;
 }
