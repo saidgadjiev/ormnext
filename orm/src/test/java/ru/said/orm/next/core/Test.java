@@ -10,6 +10,7 @@ import ru.said.orm.next.core.db.H2DatabaseType;
 import ru.said.orm.next.core.db.SQLiteDatabaseType;
 import ru.said.orm.next.core.field.DBField;
 import ru.said.orm.next.core.support.DataSourceConnectionSource;
+import ru.said.orm.next.core.support.JDBCConnectionSource;
 
 import javax.sql.DataSource;
 
@@ -17,13 +18,14 @@ public class Test {
 
     @org.junit.Test
     public void testH2DB() throws Exception {
-        JdbcDataSource dataSource = new JdbcDataSource();
+        Dao<TestClazz, Integer> dao = DaoManager.createDAO(new JDBCConnectionSource("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1", new H2DatabaseType()), TestClazz.class);
 
-        dataSource.setURL("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1");
-        Dao<TestClazz, Integer> dao = DaoManager.createDAO(new DataSourceConnectionSource(dataSource, new H2DatabaseType()), TestClazz.class);
-
-        Assert.assertTrue(dao.createTable(true));
+        Assert.assertTrue(dao.createTable(false));
         Assert.assertNull(dao.queryForId(0));
+        TestClazz testClazz = new TestClazz();
+
+        dao.create(testClazz);
+        Assert.assertEquals(1, dao.queryForAll().size());
     }
 
     @org.junit.Test
@@ -35,6 +37,10 @@ public class Test {
 
         Assert.assertTrue(dao.createTable(true));
         Assert.assertNull(dao.queryForId(0));
+
+        TestClazz testClazz = new TestClazz();
+        dao.create(testClazz);
+        Assert.assertEquals(1, dao.queryForAll().size());
     }
 
     @org.junit.Test

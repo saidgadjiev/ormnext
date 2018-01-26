@@ -23,4 +23,9 @@ public class SQLiteDatabaseType implements DatabaseType {
     public String getDriverClassName() {
         return "org.sqlite.JDBC";
     }
+
+    @Override
+    public String appendNoColumn() {
+        return "DEFAULT VALUES";
+    }
 }

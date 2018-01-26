@@ -29,4 +29,6 @@ public interface IStatementExecutor<T, ID> {
     <R> GenericResults<R> query(Connection connection, String query, ResultsMapper<R> resultsMapper) throws SQLException;
 
     long query(String query, Connection connection) throws SQLException;
+
+    long countOff(Connection connection) throws SQLException;
 }

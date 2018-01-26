@@ -25,6 +25,10 @@ public interface IDBFieldType {
 
     DataPersister getDataPersister();
 
+    default void assignId(Object object, Number value) throws IllegalAccessException, InvocationTargetException {
+
+    }
+
     void assign(Object object, Object value) throws IllegalAccessException, InvocationTargetException;
 
     Field getField();

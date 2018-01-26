@@ -25,4 +25,9 @@ public class IntegerDataPersister implements DataPersister {
     public Object convertTo(String value) throws IllegalArgumentException {
         return Integer.valueOf(value);
     }
+
+    @Override
+    public Object convertIdNumber(Number value) {
+        return (Integer) value.intValue();
+    }
 }

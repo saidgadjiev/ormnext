@@ -49,7 +49,16 @@ public class DefaultVisitor implements QueryVisitor {
 
     @Override
     public boolean start(CreateQuery tCreateQuery) {
-        sql.append("INSERT INTO `").append(tCreateQuery.getTypeName()).append("` (");
+        sql.append("INSERT INTO `").append(tCreateQuery.getTypeName()).append("`");
+
+        if (tCreateQuery.getUpdateValues().isEmpty()) {
+            sql.append(" ").append(databaseType.appendNoColumn());
+
+            return false;
+        } else {
+            sql.append(" (");
+        }
+
         for (Iterator<UpdateValue> iterator = tCreateQuery.getUpdateValues().iterator(); iterator.hasNext(); ) {
             UpdateValue updateValue = iterator.next();
 
@@ -91,7 +100,7 @@ public class DefaultVisitor implements QueryVisitor {
 
     @Override
     public void start(StringLiteral stringLiteral) {
-        sql.append("`").append(stringLiteral.getValue()).append("`");
+        sql.append("'").append(stringLiteral.getValue()).append("'");
     }
 
     @Override

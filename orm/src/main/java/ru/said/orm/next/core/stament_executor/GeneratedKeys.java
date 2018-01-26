@@ -43,4 +43,8 @@ public class GeneratedKeys implements AutoCloseable {
     public void close() throws SQLException {
         resultSet.close();
     }
+
+    public boolean next() throws SQLException {
+        return resultSet.next();
+    }
 }

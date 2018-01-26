@@ -6,17 +6,17 @@ import ru.said.orm.next.core.stament_executor.GenericResults;
 import ru.said.orm.next.core.stament_executor.IStatementExecutor;
 import ru.said.orm.next.core.stament_executor.ResultsMapper;
 import ru.said.orm.next.core.stament_executor.StatementValidator;
-import ru.said.orm.next.core.support.ConnectionSource;
 import ru.said.orm.next.core.stament_executor.object.DataBaseObject;
+import ru.said.orm.next.core.support.ConnectionSource;
 import ru.said.orm.next.core.table.TableInfo;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 /**
  * Базовый класс для DAO. Используется в DaoBuilder
+ *
  * @param <T>
  * @param <ID>
  */
@@ -39,50 +39,78 @@ public abstract class BaseDaoImpl<T, ID> implements Dao<T, ID> {
 
     @Override
     public int create(T object) throws SQLException {
-        try (Connection connection = dataSource.getConnection()) {
+        Connection connection = dataSource.getConnection();
+
+        try {
             return statementExecutor.create(connection, object);
+        } finally {
+            dataSource.releaseConnection(connection);
         }
     }
 
     @Override
     public boolean createTable(boolean ifNotExist) throws SQLException {
-        try (Connection connection = dataSource.getConnection()) {
+        Connection connection = dataSource.getConnection();
+
+        try {
             return statementExecutor.createTable(connection, ifNotExist);
+        } finally {
+            dataSource.releaseConnection(connection);
         }
     }
 
     @Override
     public T queryForId(ID id) throws SQLException {
-        try (Connection connection = dataSource.getConnection()) {
+        Connection connection = dataSource.getConnection();
+
+        try {
             return statementExecutor.queryForId(connection, id);
+        } finally {
+            dataSource.releaseConnection(connection);
         }
     }
 
     @Override
     public List<T> queryForAll() throws SQLException {
-        try (Connection connection = dataSource.getConnection()) {
+        Connection connection = dataSource.getConnection();
+
+        try {
             return statementExecutor.queryForAll(connection);
+        } finally {
+            dataSource.releaseConnection(connection);
         }
     }
 
     @Override
     public int update(T object) throws SQLException {
-        try (Connection connection = dataSource.getConnection()) {
+        Connection connection = dataSource.getConnection();
+
+        try {
             return statementExecutor.update(connection, object);
+        } finally {
+            dataSource.releaseConnection(connection);
         }
     }
 
     @Override
     public int delete(T object) throws SQLException {
-        try (Connection connection = dataSource.getConnection()) {
+        Connection connection = dataSource.getConnection();
+
+        try {
             return statementExecutor.create(connection, object);
+        } finally {
+            dataSource.releaseConnection(connection);
         }
     }
 
     @Override
     public int deleteById(ID id) throws SQLException {
-        try (Connection connection = dataSource.getConnection()) {
+        Connection connection = dataSource.getConnection();
+
+        try {
             return statementExecutor.deleteById(connection, id);
+        } finally {
+            dataSource.releaseConnection(connection);
         }
     }
 
@@ -101,22 +129,45 @@ public abstract class BaseDaoImpl<T, ID> implements Dao<T, ID> {
 
     @Override
     public boolean dropTable(boolean ifExists) throws SQLException {
-        try (Connection connection = dataSource.getConnection()) {
+        Connection connection = dataSource.getConnection();
+
+        try {
             return statementExecutor.dropTable(connection, ifExists);
+        } finally {
+            dataSource.releaseConnection(connection);
         }
     }
 
     @Override
     public void createIndexes() throws SQLException {
-        try (Connection connection = dataSource.getConnection()) {
+        Connection connection = dataSource.getConnection();
+
+        try {
             statementExecutor.createIndexes(connection);
+        } finally {
+            dataSource.releaseConnection(connection);
         }
     }
 
     @Override
     public void dropIndexes() throws SQLException {
-        try (Connection connection = dataSource.getConnection()) {
+        Connection connection = dataSource.getConnection();
+
+        try {
             statementExecutor.dropIndexes(connection);
+        } finally {
+            dataSource.releaseConnection(connection);
+        }
+    }
+
+    @Override
+    public long countOff() throws SQLException {
+        Connection connection = dataSource.getConnection();
+
+        try {
+            return statementExecutor.countOff(connection);
+        } finally {
+            dataSource.releaseConnection(connection);
         }
     }
 
@@ -127,8 +178,9 @@ public abstract class BaseDaoImpl<T, ID> implements Dao<T, ID> {
         }
     }
 
-    public static<T, ID> Dao<T, ID> createDao(ConnectionSource dataSource, TableInfo<T> tableInfoBuilder) {
-        return new BaseDaoImpl<T, ID>(dataSource, tableInfoBuilder) {};
+    public static <T, ID> Dao<T, ID> createDao(ConnectionSource dataSource, TableInfo<T> tableInfoBuilder) {
+        return new BaseDaoImpl<T, ID>(dataSource, tableInfoBuilder) {
+        };
     }
 
     @Override
@@ -137,10 +189,10 @@ public abstract class BaseDaoImpl<T, ID> implements Dao<T, ID> {
     }
 
     @Override
-    public TransactionManager<T, ID> transaction() throws SQLException {
+    public TransactionImpl<T, ID> transaction() throws SQLException {
         Connection connection = dataSource.getConnection();
 
-        return new TransactionManager<T, ID>(statementExecutor, connection, () -> {
+        return new TransactionImpl<T, ID>(statementExecutor, connection, () -> {
             dataSource.releaseConnection(connection);
 
             return null;

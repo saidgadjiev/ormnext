@@ -76,6 +76,13 @@ public class DBFieldType implements IDBFieldType {
     }
 
     @Override
+    public void assignId(Object object, Number value) throws IllegalAccessException, InvocationTargetException {
+        Object id = dataPersister.convertIdNumber(value);
+
+        fieldAccessor.assign(object, id);
+    }
+
+    @Override
     public void assign(Object object, Object value) throws IllegalAccessException, InvocationTargetException {
         fieldAccessor.assign(object, value);
     }

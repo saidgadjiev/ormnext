@@ -10,4 +10,8 @@ public interface DataPersister<T> extends FieldConverter<T> {
     Operand getAssociatedOperand(Object object);
 
     DataType getDataType();
+
+    default Object convertIdNumber(Number value) {
+        return null;
+    }
 }

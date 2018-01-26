@@ -12,6 +12,7 @@ public class JDBCConnectionSource implements ConnectionSource {
 
     private final DatabaseType databaseType;
 
+
     public JDBCConnectionSource(String dataBaseUrl, DatabaseType databaseType) throws SQLException {
         this.dataBaseUrl = dataBaseUrl;
         this.databaseType = databaseType;

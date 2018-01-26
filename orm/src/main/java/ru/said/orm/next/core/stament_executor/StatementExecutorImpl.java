@@ -3,6 +3,9 @@ package ru.said.orm.next.core.stament_executor;
 import ru.said.orm.next.core.field.field_type.DBFieldType;
 import ru.said.orm.next.core.field.field_type.IndexFieldType;
 import ru.said.orm.next.core.query.core.*;
+import ru.said.orm.next.core.query.core.clause.select.SelectColumnsList;
+import ru.said.orm.next.core.query.core.column_spec.DisplayedOperand;
+import ru.said.orm.next.core.query.core.function.CountAll;
 import ru.said.orm.next.core.query.visitor.DefaultVisitor;
 import ru.said.orm.next.core.query.visitor.QueryElement;
 import ru.said.orm.next.core.stament_executor.object.DataBaseObject;
@@ -12,6 +15,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,7 +49,7 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
                     .createForeign(object)
                     .query();
 
-            try (PreparedQueryImpl preparedQuery = new PreparedQueryImpl(connection.prepareStatement(getQuery(query)))) {
+            try (PreparedQueryImpl preparedQuery = new PreparedQueryImpl(connection.prepareStatement(getQuery(query), Statement.RETURN_GENERATED_KEYS))) {
                 Integer result = preparedQuery.executeUpdate();
 
                 if (tableInfo.getPrimaryKeys().isPresent()) {
@@ -53,10 +57,12 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
 
                     ResultSet resultSet = preparedQuery.getGeneratedKeys();
                     try (GeneratedKeys generatedKeys = new GeneratedKeys(resultSet, resultSet.getMetaData())) {
-                        try {
-                            idField.assign(object, generatedKeys.getGeneratedKey());
-                        } catch (IllegalAccessException ex) {
-                            throw new SQLException(ex);
+                        if (generatedKeys.next()) {
+                            try {
+                                idField.assignId(object, generatedKeys.getGeneratedKey());
+                            } catch (IllegalAccessException ex) {
+                                throw new SQLException(ex);
+                            }
                         }
                     }
                 }
@@ -243,7 +249,7 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
     }
 
     @Override
-    public<R> GenericResults<R> query(Connection connection, String query, ResultsMapper<R> resultsMapper) throws SQLException {
+    public <R> GenericResults<R> query(Connection connection, String query, ResultsMapper<R> resultsMapper) throws SQLException {
         try (PreparedQueryImpl preparedQueryImpl = new PreparedQueryImpl(connection.prepareStatement(query))) {
             try (DatabaseResults databaseResults = preparedQueryImpl.executeQuery()) {
                 return new GenericResults<R>() {
@@ -286,6 +292,17 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
         }
 
         throw new SQLException("No result found in queryForLong: " + query);
+    }
+
+    @Override
+    public long countOff(Connection connection) throws SQLException {
+        Select select = Select.buildQueryForAll(dataBaseObject.getTableInfo().getTableName());
+        SelectColumnsList selectColumnsList = new SelectColumnsList();
+
+        selectColumnsList.addColumn(new DisplayedOperand(new CountAll()));
+        select.setSelectColumnsStrategy(selectColumnsList);
+
+        return query(getQuery(select), connection);
     }
 
     private String getQuery(QueryElement queryElement) {

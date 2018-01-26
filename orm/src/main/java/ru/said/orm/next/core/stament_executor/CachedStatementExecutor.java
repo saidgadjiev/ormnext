@@ -127,4 +127,9 @@ public class CachedStatementExecutor<T, ID> implements IStatementExecutor<T, ID>
     public long query(String query, Connection connection) throws SQLException {
         return delegate.query(query, connection);
     }
+
+    @Override
+    public long countOff(Connection connection) throws SQLException {
+        return delegate.countOff(connection);
+    }
 }

@@ -22,4 +22,6 @@ public interface DatabaseType {
     String getDatabaseName();
 
     String getDriverClassName();
+
+    String appendNoColumn();
 }
