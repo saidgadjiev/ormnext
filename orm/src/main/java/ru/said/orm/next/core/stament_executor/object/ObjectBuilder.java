@@ -6,6 +6,7 @@ import ru.said.orm.next.core.dao.DaoManager;
 import ru.said.orm.next.core.field.field_type.DBFieldType;
 import ru.said.orm.next.core.field.field_type.ForeignCollectionFieldType;
 import ru.said.orm.next.core.field.field_type.ForeignFieldType;
+import ru.said.orm.next.core.field.field_type.IDBFieldType;
 import ru.said.orm.next.core.stament_executor.DatabaseResults;
 import ru.said.orm.next.core.stament_executor.GenericResults;
 import ru.said.orm.next.core.support.ConnectionSource;
@@ -77,7 +78,7 @@ public class ObjectBuilder<T> {
             Dao<Object, ?> foreignDao = (BaseDaoImpl<Object, ?>) DaoManager.createDAOWithTableInfo(dataSource, foreignTableInfo);
 
             if (tableInfo.getPrimaryKeys().isPresent() && foreignTableInfo.getPrimaryKeys().isPresent()) {
-                DBFieldType idField = tableInfo.getPrimaryKeys().get();
+                IDBFieldType idField = tableInfo.getPrimaryKeys().get();
                 ForeignFieldType foreignField = ForeignFieldType.ForeignFieldTypeCache.build(fieldType.getForeignField());
 
                 GenericResults<?> genericResults = foreignDao.query(

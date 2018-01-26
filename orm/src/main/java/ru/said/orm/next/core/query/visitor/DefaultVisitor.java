@@ -16,6 +16,7 @@ import ru.said.orm.next.core.query.core.column_spec.DisplayedColumns;
 import ru.said.orm.next.core.query.core.common.TableRef;
 import ru.said.orm.next.core.query.core.common.UpdateValue;
 import ru.said.orm.next.core.query.core.condition.*;
+import ru.said.orm.next.core.query.core.constraints.attribute.*;
 import ru.said.orm.next.core.query.core.constraints.attribute.AttributeConstraint;
 import ru.said.orm.next.core.query.core.constraints.attribute.NotNullConstraint;
 import ru.said.orm.next.core.query.core.constraints.attribute.PrimaryKeyConstraint;
@@ -100,7 +101,7 @@ public class DefaultVisitor implements QueryVisitor {
 
     @Override
     public void start(StringLiteral stringLiteral) {
-        sql.append("'").append(stringLiteral.getValue()).append("'");
+        sql.append(stringLiteral.getOriginal());
     }
 
     @Override
@@ -287,7 +288,7 @@ public class DefaultVisitor implements QueryVisitor {
 
     @Override
     public void start(IntLiteral intLiteral) {
-        sql.append(intLiteral.getValue());
+        sql.append(intLiteral.getOriginal());
     }
 
     @Override
@@ -513,7 +514,7 @@ public class DefaultVisitor implements QueryVisitor {
 
     @Override
     public void start(BooleanLiteral booleanLiteral) {
-        sql.append(String.valueOf(booleanLiteral.getValue()));
+        sql.append(booleanLiteral.getOriginal());
     }
 
     @Override
@@ -706,11 +707,21 @@ public class DefaultVisitor implements QueryVisitor {
 
     @Override
     public void start(TimeLiteral timeLiteral) {
-
+        sql.append(timeLiteral.getOriginal());
     }
 
     @Override
     public void finish(TimeLiteral timeLiteral) {
+
+    }
+
+    @Override
+    public void start(Default aDefault) {
+        sql.append("DEFAULT ").append(aDefault.getLiteral().getOriginal());
+    }
+
+    @Override
+    public void finish(Default aDefault) {
 
     }
 }

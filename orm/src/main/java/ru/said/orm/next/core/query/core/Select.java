@@ -1,6 +1,8 @@
 package ru.said.orm.next.core.query.core;
 
+import com.sun.java.swing.action.OpenAction;
 import ru.said.orm.next.core.field.field_type.DBFieldType;
+import ru.said.orm.next.core.field.field_type.IDBFieldType;
 import ru.said.orm.next.core.query.core.clause.GroupBy;
 import ru.said.orm.next.core.query.core.clause.Having;
 import ru.said.orm.next.core.query.core.clause.from.FromExpression;
@@ -79,14 +81,14 @@ public class Select implements QueryElement {
         this.selectionMode = selectionMode;
     }
 
-    public static <ID> Select buildQueryById(String typeName, DBFieldType idField, ID id) {
+    public static <ID> Select buildQueryById(String typeName, IDBFieldType idField, ID id) {
         Select selectQuery = new Select();
 
         selectQuery.setSelectColumnsStrategy(new SelectAll());
         selectQuery.setFrom(new FromTable(new TableRef(typeName)));
         AndCondition andCondition = new AndCondition();
 
-        andCondition.add(new Equals(new ColumnSpec(idField.getColumnName()).alias(new Alias(typeName)), idField.getDataPersister().getAssociatedOperand(id)));
+        andCondition.add(new Equals(new ColumnSpec(idField.getColumnName()).alias(new Alias(typeName)), idField.getDataPersister().getLiteral(id)));
         selectQuery.getWhere().getConditions().add(andCondition);
 
         return selectQuery;

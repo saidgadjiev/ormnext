@@ -13,7 +13,7 @@ public class HasConstructorValidator implements IValidator {
             }
         }
         if (!hasDefaultConstructor) {
-            throw new IllegalAccessException("Has no default constructor");
+            throw new IllegalAccessException("Class " + tClass.getPackage() + "." + tClass.getSimpleName() + " has no default constructor");
         }
     }
 }

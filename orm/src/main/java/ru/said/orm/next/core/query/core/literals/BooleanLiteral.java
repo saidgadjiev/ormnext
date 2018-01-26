@@ -1,9 +1,8 @@
 package ru.said.orm.next.core.query.core.literals;
 
-import ru.said.orm.next.core.query.core.Operand;
 import ru.said.orm.next.core.query.visitor.QueryVisitor;
 
-public class BooleanLiteral implements Operand, RValue {
+public class BooleanLiteral implements Literal<Boolean> {
 
     private boolean value;
 
@@ -11,7 +10,13 @@ public class BooleanLiteral implements Operand, RValue {
         this.value = value;
     }
 
-    public Boolean getValue() {
+    @Override
+    public String getOriginal() {
+        return String.valueOf(value);
+    }
+
+    @Override
+    public Boolean get() {
         return value;
     }
 

@@ -1,14 +1,18 @@
 package ru.said.orm.next.core.field.persisters;
 
 import ru.said.orm.next.core.field.DataType;
-import ru.said.orm.next.core.query.core.Operand;
+import ru.said.orm.next.core.query.core.literals.Literal;
 import ru.said.orm.next.core.query.core.literals.TimeLiteral;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 
 public class DateDataPersister implements DataPersister {
+
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
     @Override
     public Class<?>[] getAssociatedClasses() {
@@ -16,7 +20,7 @@ public class DateDataPersister implements DataPersister {
     }
 
     @Override
-    public Operand getAssociatedOperand(Object object) {
+    public Literal<Date> getLiteral(Object object) {
         return new TimeLiteral((Date) object);
     }
 
@@ -27,6 +31,11 @@ public class DateDataPersister implements DataPersister {
 
     @Override
     public Object convertTo(String value) throws IllegalArgumentException {
-        return null;
+
+        try {
+            return dateFormat.parse(value);
+        } catch (ParseException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 }

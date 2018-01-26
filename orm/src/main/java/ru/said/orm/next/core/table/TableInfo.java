@@ -1,7 +1,5 @@
 package ru.said.orm.next.core.table;
 
-import ru.said.orm.next.core.field.DBField;
-import ru.said.orm.next.core.field.ForeignCollectionField;
 import ru.said.orm.next.core.field.field_type.*;
 import ru.said.orm.next.core.table.utils.TableInfoUtils;
 import ru.said.orm.next.core.table.validators.ForeignKeyValidator;
@@ -17,6 +15,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public final class TableInfo<T> {
 
@@ -32,7 +32,7 @@ public final class TableInfo<T> {
 
     private List<IndexFieldType> indexFieldTypes;
 
-    private DBFieldType primaryKeyFieldType;
+    private IDBFieldType primaryKeyFieldType;
 
     private String tableName;
 
@@ -48,20 +48,33 @@ public final class TableInfo<T> {
                       Constructor<T> constructor,
                       List<UniqueFieldType> uniqueFieldTypes,
                       List<IndexFieldType> indexFieldTypes,
-                      DBFieldType primaryKeyFieldType,
                       String tableName,
-                      List<DBFieldType> dbFieldTypes,
-                      List<ForeignFieldType> foreignFieldTypes,
-                      List<ForeignCollectionFieldType> foreignCollectionFieldTypes) {
+                      List<IDBFieldType> fieldTypes) {
         this.tableClass = tableClass;
         this.tableName = tableName;
         this.constructor = constructor;
         this.indexFieldTypes = indexFieldTypes;
-        this.primaryKeyFieldType = primaryKeyFieldType;
+        this.primaryKeyFieldType = fieldTypes
+                .stream()
+                .filter(IDBFieldType::isId)
+                .findAny()
+                .orElse(null);
         this.uniqueFieldTypes = uniqueFieldTypes;
-        this.dbFieldTypes = dbFieldTypes;
-        this.foreignFieldTypes = foreignFieldTypes;
-        this.foreignCollectionFieldTypes = foreignCollectionFieldTypes;
+        this.dbFieldTypes = fieldTypes
+                .stream()
+                .filter(IDBFieldType::isDbFieldType)
+                .map(idbFieldType -> (DBFieldType) idbFieldType)
+                .collect(Collectors.toList());
+        this.foreignFieldTypes = fieldTypes
+                .stream()
+                .filter(IDBFieldType::isForeignFieldType)
+                .map(idbFieldType -> (ForeignFieldType) idbFieldType)
+                .collect(Collectors.toList());
+        this.foreignCollectionFieldTypes = fieldTypes
+                .stream()
+                .filter(IDBFieldType::isForeignCollectionFieldType)
+                .map(idbFieldType -> (ForeignCollectionFieldType) idbFieldType)
+                .collect(Collectors.toList());
     }
 
     public Class<T> getTableClass() {
@@ -72,7 +85,7 @@ public final class TableInfo<T> {
         return tableName;
     }
 
-    public Optional<DBFieldType> getPrimaryKeys() {
+    public Optional<IDBFieldType> getPrimaryKeys() {
         return Optional.ofNullable(primaryKeyFieldType);
     }
 
@@ -101,40 +114,22 @@ public final class TableInfo<T> {
     }
 
     public static <T> TableInfo<T> build(Class<T> clazz) throws Exception {
-        for (IValidator validator: validators) {
+        for (IValidator validator : validators) {
             validator.validate(clazz);
         }
-        List<DBFieldType> dbFieldTypes = new ArrayList<>();
-        List<ForeignFieldType> foreignFieldTypes = new ArrayList<>();
-        List<ForeignCollectionFieldType> foreignCollectionFieldTypes = new ArrayList<>();
-
+        List<IDBFieldType> fieldTypes = new ArrayList<>();
         //Не нравится этот код
         for (Field field : clazz.getDeclaredFields()) {
-            if (field.isAnnotationPresent(DBField.class)) {
-                DBField dbField = field.getAnnotation(DBField.class);
-                if (dbField.foreign()) {
-                    foreignFieldTypes.add(ForeignFieldType.ForeignFieldTypeCache.build(field));
-                } else {
-                    dbFieldTypes.add(DBFieldType.DBFieldTypeCache.build(field));
-                }
-            } else if (field.isAnnotationPresent(ForeignCollectionField.class)) {
-                foreignCollectionFieldTypes.add(ForeignCollectionFieldType.ForeignCollectionFieldTypeCache.build(field));
-            }
+            DBFieldTypeFactory.create(field).ifPresent(fieldTypes::add);
         }
-        Optional<DBFieldType> primaryKeyFieldType = dbFieldTypes.stream()
-                .filter(DBFieldType::isId)
-                .findFirst();
 
         return new TableInfo<>(
                 clazz,
                 (Constructor<T>) lookupDefaultConstructor(clazz).get(),
                 resolveUniques(clazz),
                 resolveIndexes(clazz),
-                primaryKeyFieldType.orElse(null),
                 TableInfoUtils.resolveTableName(clazz),
-                dbFieldTypes,
-                foreignFieldTypes,
-                foreignCollectionFieldTypes
+                fieldTypes
         );
     }
 

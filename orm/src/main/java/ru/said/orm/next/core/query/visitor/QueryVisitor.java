@@ -12,6 +12,7 @@ import ru.said.orm.next.core.query.core.column_spec.DisplayedColumns;
 import ru.said.orm.next.core.query.core.common.TableRef;
 import ru.said.orm.next.core.query.core.common.UpdateValue;
 import ru.said.orm.next.core.query.core.condition.*;
+import ru.said.orm.next.core.query.core.constraints.attribute.Default;
 import ru.said.orm.next.core.query.core.constraints.attribute.PrimaryKeyConstraint;
 import ru.said.orm.next.core.query.core.constraints.attribute.NotNullConstraint;
 import ru.said.orm.next.core.query.core.constraints.attribute.ReferencesConstraint;
@@ -219,4 +220,8 @@ public interface QueryVisitor {
     void start(TimeLiteral timeLiteral);
 
     void finish(TimeLiteral timeLiteral);
+
+    void start(Default aDefault);
+
+    void finish(Default aDefault);
 }

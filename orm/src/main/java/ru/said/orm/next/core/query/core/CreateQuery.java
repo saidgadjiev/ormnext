@@ -1,12 +1,13 @@
 package ru.said.orm.next.core.query.core;
 
 import ru.said.orm.next.core.field.field_type.DBFieldType;
+import ru.said.orm.next.core.field.field_type.ForeignFieldType;
 import ru.said.orm.next.core.query.core.common.UpdateValue;
 import ru.said.orm.next.core.query.visitor.QueryElement;
 import ru.said.orm.next.core.query.visitor.QueryVisitor;
 import ru.said.orm.next.core.stament_executor.FieldConverter;
+import ru.said.orm.next.core.table.TableInfo;
 
-import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -67,23 +68,41 @@ public class CreateQuery implements QueryElement {
         return typeName;
     }
 
-    public static<T> CreateQuery buildQuery(String typeName, List<DBFieldType> fieldTypes, T object) throws SQLException {
-        CreateQuery createQuery = new CreateQuery(typeName);
+    public static <T> CreateQuery buildQuery(TableInfo<T> tableInfo, T object) throws SQLException {
+        CreateQuery createQuery = new CreateQuery(tableInfo.getTableName());
 
         try {
-            if (fieldTypes != null && object != null) {
-                for (DBFieldType fieldType : fieldTypes) {
-                    createQuery.updateValues.add(
-                            new UpdateValue(
-                                    fieldType.getColumnName(), FieldConverter.getInstanse().convert(fieldType.getDataType(), fieldType.access(object)))
-                    );
+            for (DBFieldType fieldType : tableInfo.toDBFieldTypes()) {
+                if (fieldType.isId() && fieldType.isGenerated()) {
+                    continue;
+                }
+                createQuery.add(new UpdateValue(
+                        fieldType.getColumnName(),
+                        FieldConverter.getInstanse().convert(fieldType.getDataType(), fieldType.access(object)))
+                );
+            }
+            for (ForeignFieldType fieldType : tableInfo.toForeignFieldTypes()) {
+                Object foreignObject = fieldType.access(object);
+                TableInfo<?> foreignTableInfo = TableInfo.TableInfoCache.build(fieldType.getForeignFieldClass());
+
+                if (foreignObject != null) {
+                    if (foreignTableInfo.getPrimaryKeys().isPresent()) {
+                        createQuery.add(new UpdateValue(
+                                fieldType.getColumnName(),
+                                FieldConverter.getInstanse().convert(fieldType.getDataType(), fieldType.getForeignPrimaryKey().access(foreignObject)))
+                        );
+                    }
                 }
             }
-        } catch (IllegalAccessException | InvocationTargetException ex) {
+        } catch (Exception ex) {
             throw new SQLException(ex);
         }
 
         return createQuery;
+    }
+
+    public static CreateQuery buildQuery(String typeName) {
+        return new CreateQuery(typeName);
     }
 
     @Override

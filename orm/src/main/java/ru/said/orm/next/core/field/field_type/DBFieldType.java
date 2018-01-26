@@ -106,7 +106,9 @@ public class DBFieldType implements IDBFieldType {
             fieldType.dataPersister = dataType.equals(DataType.UNKNOWN) ? DataPersisterManager.lookup(field.getType()) : dataType.getDataPersister();
             fieldType.dataType = fieldType.dataPersister.getDataType();
             fieldType.fieldConverter = fieldType.dataPersister;
-            if (!dbField.defaultValue().isEmpty()) {
+            String defaultValue = dbField.defaultValue();
+
+            if (!defaultValue.equals(DBField.DEFAULT_STR)) {
                 fieldType.defaultValue = fieldType.fieldConverter.convertTo(dbField.defaultValue());
             }
         }
@@ -120,6 +122,11 @@ public class DBFieldType implements IDBFieldType {
     @Override
     public int getLength() {
         return length;
+    }
+
+    @Override
+    public boolean isDbFieldType() {
+        return true;
     }
 
     @Override

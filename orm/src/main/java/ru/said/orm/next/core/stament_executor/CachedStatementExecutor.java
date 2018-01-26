@@ -2,6 +2,7 @@ package ru.said.orm.next.core.stament_executor;
 
 import ru.said.orm.next.core.cache.ObjectCache;
 import ru.said.orm.next.core.field.field_type.DBFieldType;
+import ru.said.orm.next.core.field.field_type.IDBFieldType;
 import ru.said.orm.next.core.stament_executor.object.DataBaseObject;
 import ru.said.orm.next.core.table.TableInfo;
 
@@ -39,7 +40,7 @@ public class CachedStatementExecutor<T, ID> implements IStatementExecutor<T, ID>
     @Override
     public int update(Connection connection, T object) throws SQLException {
         TableInfo<T> tableInfo = dataBaseObject.getTableInfo();
-        DBFieldType idFieldType = tableInfo.getPrimaryKeys().get();
+        IDBFieldType idFieldType = tableInfo.getPrimaryKeys().get();
 
         try {
             if (dataBaseObject.getObjectCache().isPresent()) {
@@ -58,7 +59,7 @@ public class CachedStatementExecutor<T, ID> implements IStatementExecutor<T, ID>
     @Override
     public int delete(Connection connection, T object) throws SQLException {
         TableInfo<T> tableInfo = dataBaseObject.getTableInfo();
-        DBFieldType dbFieldType = tableInfo.getPrimaryKeys().get();
+        IDBFieldType dbFieldType = tableInfo.getPrimaryKeys().get();
         Integer result = delegate.delete(connection, object);
 
         try {

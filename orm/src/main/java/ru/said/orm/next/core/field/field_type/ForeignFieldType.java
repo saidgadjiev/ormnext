@@ -101,6 +101,11 @@ public class ForeignFieldType implements IDBFieldType {
         return foreignPrimaryKey.getColumnName();
     }
 
+    @Override
+    public boolean isForeignFieldType() {
+        return true;
+    }
+
     public static ForeignFieldType build(Field field) throws NoSuchMethodException, NoSuchFieldException {
         ForeignFieldType foreignFieldType = new ForeignFieldType();
 

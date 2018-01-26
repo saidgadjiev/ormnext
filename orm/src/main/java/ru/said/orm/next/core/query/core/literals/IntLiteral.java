@@ -1,9 +1,8 @@
 package ru.said.orm.next.core.query.core.literals;
 
-import ru.said.orm.next.core.query.core.Operand;
 import ru.said.orm.next.core.query.visitor.QueryVisitor;
 
-public class IntLiteral implements Operand, RValue {
+public class IntLiteral implements Literal<Integer> {
 
     private Integer value;
 
@@ -11,12 +10,14 @@ public class IntLiteral implements Operand, RValue {
         this.value = value;
     }
 
-    public Integer getValue() {
-        return value;
+    @Override
+    public String getOriginal() {
+        return String.valueOf(value);
     }
 
-    public void setValue(Integer value) {
-        this.value = value;
+    @Override
+    public Integer get() {
+        return value;
     }
 
     @Override

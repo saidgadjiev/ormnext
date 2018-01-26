@@ -1,6 +1,6 @@
 package ru.said.orm.next.core.stament_executor;
 
-import ru.said.orm.next.core.field.field_type.DBFieldType;
+import ru.said.orm.next.core.field.field_type.IDBFieldType;
 import ru.said.orm.next.core.field.field_type.IndexFieldType;
 import ru.said.orm.next.core.query.core.*;
 import ru.said.orm.next.core.query.core.clause.select.SelectColumnsList;
@@ -53,7 +53,7 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
                 Integer result = preparedQuery.executeUpdate();
 
                 if (tableInfo.getPrimaryKeys().isPresent()) {
-                    DBFieldType idField = tableInfo.getPrimaryKeys().get();
+                    IDBFieldType idField = tableInfo.getPrimaryKeys().get();
 
                     ResultSet resultSet = preparedQuery.getGeneratedKeys();
                     try (GeneratedKeys generatedKeys = new GeneratedKeys(resultSet, resultSet.getMetaData())) {
@@ -108,7 +108,7 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
     @Override
     public int update(Connection connection, T object) throws SQLException {
         TableInfo<T> tableInfo = dataBaseObject.getTableInfo();
-        DBFieldType idFieldType = tableInfo.getPrimaryKeys().get();
+        IDBFieldType idFieldType = tableInfo.getPrimaryKeys().get();
         UpdateQuery query = UpdateQuery.buildQuery(
                 tableInfo.getTableName(),
                 tableInfo.toDBFieldTypes(),
@@ -133,7 +133,7 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
     public int delete(Connection connection, T object) throws SQLException {
         try {
             TableInfo<T> tableInfo = dataBaseObject.getTableInfo();
-            DBFieldType dbFieldType = tableInfo.getPrimaryKeys().get();
+            IDBFieldType dbFieldType = tableInfo.getPrimaryKeys().get();
             Object id = dbFieldType.access(object);
             DeleteQuery query = DeleteQuery.buildQuery(tableInfo.getTableName(), dbFieldType.getColumnName());
 
@@ -154,7 +154,7 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
     @Override
     public int deleteById(Connection connection, ID id) throws SQLException {
         TableInfo<T> tableInfo = dataBaseObject.getTableInfo();
-        DBFieldType dbFieldType = tableInfo.getPrimaryKeys().get();
+        IDBFieldType dbFieldType = tableInfo.getPrimaryKeys().get();
         DeleteQuery query = DeleteQuery.buildQuery(tableInfo.getTableName(), dbFieldType.getColumnName());
 
         try (PreparedQueryImpl preparedQuery = new PreparedQueryImpl(connection.prepareStatement(getQuery(query)))) {
@@ -171,7 +171,7 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
     @Override
     public T queryForId(Connection connection, ID id) throws SQLException {
         TableInfo<T> tableInfo = dataBaseObject.getTableInfo();
-        DBFieldType dbFieldType = tableInfo.getPrimaryKeys().get();
+        IDBFieldType dbFieldType = tableInfo.getPrimaryKeys().get();
         Select query = Select.buildQueryById(tableInfo.getTableName(), dbFieldType, id);
 
         try (PreparedQueryImpl preparedQuery = new PreparedQueryImpl(connection.prepareStatement(getQuery(query)))) {
