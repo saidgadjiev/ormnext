@@ -39,8 +39,14 @@ public class DefaultVisitor implements QueryVisitor {
 
     private DatabaseType databaseType;
 
+    private final String escapeEntity;
+
+    private final String escapeLiteral;
+
     public DefaultVisitor(DatabaseType databaseType) {
         this.databaseType = databaseType;
+        escapeEntity = databaseType.getEntityNameEscape();
+        escapeLiteral = databaseType.getValueEscape();
     }
 
     @Override
@@ -50,7 +56,7 @@ public class DefaultVisitor implements QueryVisitor {
 
     @Override
     public boolean start(CreateQuery tCreateQuery) {
-        sql.append("INSERT INTO `").append(tCreateQuery.getTypeName()).append("`");
+        sql.append("INSERT INTO ").append(escapeEntity).append(tCreateQuery.getTypeName()).append(escapeEntity);
 
         if (tCreateQuery.getUpdateValues().isEmpty()) {
             sql.append(" ").append(databaseType.appendNoColumn());
@@ -63,7 +69,7 @@ public class DefaultVisitor implements QueryVisitor {
         for (Iterator<UpdateValue> iterator = tCreateQuery.getUpdateValues().iterator(); iterator.hasNext(); ) {
             UpdateValue updateValue = iterator.next();
 
-            sql.append("`").append(updateValue.getName()).append("`");
+            sql.append(escapeEntity).append(updateValue.getName()).append(escapeEntity);
             if (iterator.hasNext()) {
                 sql.append(",");
             }
@@ -101,7 +107,11 @@ public class DefaultVisitor implements QueryVisitor {
 
     @Override
     public void start(StringLiteral stringLiteral) {
-        sql.append(stringLiteral.getOriginal());
+        if (stringLiteral.getOriginal() == null) {
+            sql.append("null");
+        } else {
+            sql.append(escapeLiteral).append(stringLiteral.getOriginal()).append(escapeLiteral);
+        }
     }
 
     @Override
@@ -191,7 +201,7 @@ public class DefaultVisitor implements QueryVisitor {
             columnSpec.getAlias().accept(this);
             sql.append(".");
         }
-        sql.append("`").append(columnSpec.getName()).append("`");
+        sql.append(escapeEntity).append(columnSpec.getName()).append(escapeEntity);
     }
 
     @Override
@@ -206,7 +216,7 @@ public class DefaultVisitor implements QueryVisitor {
 
     @Override
     public void start(TableRef tableRef) {
-        sql.append("`").append(tableRef.getTableName()).append("`");
+        sql.append(escapeEntity).append(tableRef.getTableName()).append(escapeEntity);
 
         if (tableRef.getAlias() != null) {
             sql.append(" AS ");
@@ -225,11 +235,11 @@ public class DefaultVisitor implements QueryVisitor {
         if (tCreateTableQuery.isIfNotExists()) {
             sql.append("IF NOT EXISTS ");
         }
-        sql.append("`").append(tCreateTableQuery.getTypeName()).append("` (");
+        sql.append(escapeEntity).append(tCreateTableQuery.getTypeName()).append("` (");
         for (Iterator<AttributeDefinition> iterator = tCreateTableQuery.getAttributeDefinitions().iterator(); iterator.hasNext(); ) {
             AttributeDefinition attributeDefinition = iterator.next();
 
-            sql.append("`").append(attributeDefinition.getName()).append("` ");
+            sql.append(escapeEntity).append(attributeDefinition.getName()).append("` ");
             appendAttributeDataType(attributeDefinition);
             for (AttributeConstraint attributeConstraint: attributeDefinition.getAttributeConstraints()) {
                 attributeConstraint.accept(this);
@@ -328,7 +338,7 @@ public class DefaultVisitor implements QueryVisitor {
         if (dropTableQuery.isIfExists()) {
             sql.append("IF EXISTS ");
         }
-        sql.append("`").append(dropTableQuery.getTableName()).append("`");
+        sql.append(escapeEntity).append(dropTableQuery.getTableName()).append(escapeEntity);
     }
 
     @Override
@@ -413,7 +423,7 @@ public class DefaultVisitor implements QueryVisitor {
 
     @Override
     public void start(DropIndexQuery dropIndexQuery) {
-        sql.append("DROP INDEX `").append(dropIndexQuery.getName()).append("`");
+        sql.append("DROP INDEX `").append(dropIndexQuery.getName()).append(escapeEntity);
     }
 
     @Override
@@ -697,7 +707,7 @@ public class DefaultVisitor implements QueryVisitor {
 
     @Override
     public void start(Alias alias) {
-        sql.append("`").append(alias.getAlias()).append("`");
+        sql.append(escapeEntity).append(alias.getAlias()).append(escapeEntity);
     }
 
     @Override

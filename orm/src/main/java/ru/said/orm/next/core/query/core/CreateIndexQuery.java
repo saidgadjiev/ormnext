@@ -10,47 +10,27 @@ import java.util.stream.Collectors;
 
 public class CreateIndexQuery implements QueryElement {
 
-    private List<String> columns;
+    private IndexFieldType indexFieldType;
 
-    private String indexName;
-
-    private String tableName;
-
-    private boolean unique;
-
-    private CreateIndexQuery(List<String> columns, String indexName, String tableName, boolean unique) {
-        this.columns = columns;
-        this.indexName = indexName;
-        this.unique = unique;
-        this.tableName = tableName;
+    public CreateIndexQuery(IndexFieldType indexFieldType) {
+        this.indexFieldType = indexFieldType;
     }
 
-    public static CreateIndexQuery build(IndexFieldType indexFieldType) {
-        return new CreateIndexQuery(
-                indexFieldType.getDbFieldTypes()
-                        .stream()
-                        .map(DBFieldType::getColumnName)
-                        .collect(Collectors.toList()),
-                indexFieldType.getName(),
-                indexFieldType.getTableName(),
-                indexFieldType.isUnique()
-        );
-    }
 
     public List<String> getColumns() {
-        return columns;
+        return indexFieldType.getColumns();
     }
 
     public String getIndexName() {
-        return indexName;
+        return indexFieldType.getName();
     }
 
     public boolean isUnique() {
-        return unique;
+        return indexFieldType.isUnique();
     }
 
     public String getTableName() {
-        return tableName;
+        return indexFieldType.getTableName();
     }
 
     @Override

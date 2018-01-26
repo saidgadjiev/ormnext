@@ -1,9 +1,5 @@
 package ru.said.orm.next.core.field.field_type;
 
-import ru.said.orm.next.core.table.Unique;
-
-import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -11,24 +7,14 @@ import java.util.List;
  */
 public class UniqueFieldType {
 
-    private List<DBFieldType> dbFieldTypes = new ArrayList<>();
+    private List<String> columns;
 
-    public List<DBFieldType> getDbFieldTypes() {
-        return dbFieldTypes;
+    public UniqueFieldType(List<String> columns) {
+        this.columns = columns;
     }
 
-    public static<T> UniqueFieldType build(Unique unique, Class<T> tClass) throws NoSuchFieldException, NoSuchMethodException {
-        UniqueFieldType uniqueFieldType = new UniqueFieldType();
-
-        for (String columnName: unique.columns()) {
-            uniqueFieldType.dbFieldTypes.add(DBFieldType.DBFieldTypeCache.build(findFieldByName(columnName, tClass)));
-        }
-
-        return uniqueFieldType;
-    }
-
-    private static Field findFieldByName(String foreignFieldName, Class<?> clazz) throws NoSuchFieldException {
-        return clazz.getDeclaredField(foreignFieldName);
+    public List<String> getDbFieldTypes() {
+        return columns;
     }
 
 }

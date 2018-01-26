@@ -9,16 +9,13 @@ public class StringLiteral implements Literal<String> {
 
     private String value;
 
-    private String original;
-
     public StringLiteral(String value) {
         this.value = value;
-        this.original = value == null ? null :  "'" + value + "'";
     }
 
     @Override
     public String getOriginal() {
-        return original;
+        return value;
     }
 
     @Override

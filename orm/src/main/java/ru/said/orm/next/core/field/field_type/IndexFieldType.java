@@ -8,7 +8,7 @@ import java.util.List;
 
 public class IndexFieldType {
 
-    private List<DBFieldType> dbFieldTypes;
+    private List<String> columns;
 
     private String name;
 
@@ -16,15 +16,15 @@ public class IndexFieldType {
 
     private String tableName;
 
-    private IndexFieldType(String name, boolean unique, String tableName, List<DBFieldType> dbFieldTypes) {
-        this.dbFieldTypes = dbFieldTypes;
+    public IndexFieldType(String name, boolean unique, String tableName, List<String> columns) {
+        this.columns = columns;
         this.name = name;
         this.tableName = tableName;
         this.unique = unique;
     }
 
-    public List<DBFieldType> getDbFieldTypes() {
-        return dbFieldTypes;
+    public List<String> getColumns() {
+        return columns;
     }
 
     public String getName() {
@@ -39,13 +39,4 @@ public class IndexFieldType {
         return unique;
     }
 
-    public static<T> IndexFieldType build(Index index, Class<T> tClass) throws NoSuchFieldException, NoSuchMethodException {
-        List<DBFieldType> indexFieldTypes = new ArrayList<>();
-
-        for (String columnName: index.columns()) {
-            indexFieldTypes.add(DBFieldType.DBFieldTypeCache.build(tClass.getDeclaredField(columnName)));
-        }
-
-        return new IndexFieldType(index.name(), index.unique(), TableInfoUtils.resolveTableName(tClass), indexFieldTypes);
-    }
 }

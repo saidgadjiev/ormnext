@@ -20,15 +20,15 @@ public class TransactionImplTest {
         testClazz.name = "Test";
         dao.createTable(true);
 
-        transaction.beginTrans();
+        transaction.begin();
         transaction.create(testClazz);
         transaction.rollback();
 
         Assert.assertEquals(0, dao.queryForAll().size());
 
-        transaction.beginTrans();
+        transaction.begin();
         transaction.create(testClazz);
-        transaction.commitTrans();
+        transaction.commit();
 
         Assert.assertEquals(1, dao.queryForAll().size());
 

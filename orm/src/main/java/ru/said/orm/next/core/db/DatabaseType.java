@@ -24,4 +24,12 @@ public interface DatabaseType {
     String getDriverClassName();
 
     String appendNoColumn();
+
+    default String getEntityNameEscape() {
+        return "`";
+    }
+
+    default String getValueEscape() {
+        return "'";
+    }
 }

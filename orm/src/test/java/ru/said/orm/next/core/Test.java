@@ -1,6 +1,5 @@
 package ru.said.orm.next.core;
 
-import org.h2.jdbcx.JdbcDataSource;
 import org.junit.Assert;
 import org.sqlite.SQLiteDataSource;
 import ru.said.orm.next.core.dao.Dao;
@@ -11,8 +10,6 @@ import ru.said.orm.next.core.db.SQLiteDatabaseType;
 import ru.said.orm.next.core.field.DBField;
 import ru.said.orm.next.core.support.DataSourceConnectionSource;
 import ru.said.orm.next.core.support.JDBCConnectionSource;
-
-import javax.sql.DataSource;
 
 public class Test {
 
@@ -54,8 +51,8 @@ public class Test {
         Transaction<TestClazz, Integer> transaction = dao.transaction();
 
         try {
-            transaction.beginTrans();
-            transaction.commitTrans();
+            transaction.begin();
+            transaction.commit();
         } catch (Exception ex) {
             transaction.rollback();
         }

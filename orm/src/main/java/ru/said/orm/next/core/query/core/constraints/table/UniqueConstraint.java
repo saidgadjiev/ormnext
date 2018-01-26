@@ -19,7 +19,7 @@ public class UniqueConstraint implements TableConstraint {
     }
 
     public List<String> getUniqueColemns() {
-        return uniqueFieldType.getDbFieldTypes().stream().map(DBFieldType::getColumnName).collect(Collectors.toList());
+        return uniqueFieldType.getDbFieldTypes();
     }
 
     @Override

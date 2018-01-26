@@ -227,7 +227,7 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
         List<IndexFieldType> indexFieldTypes = dataBaseObject.getTableInfo().getIndexFieldTypes();
 
         for (IndexFieldType indexFieldType : indexFieldTypes) {
-            CreateIndexQuery createIndexQuery = CreateIndexQuery.build(indexFieldType);
+            CreateIndexQuery createIndexQuery = new CreateIndexQuery(indexFieldType);
 
             try (PreparedQueryImpl preparedQuery = new PreparedQueryImpl(connection.prepareStatement(getQuery(createIndexQuery)))) {
                 preparedQuery.executeUpdate();

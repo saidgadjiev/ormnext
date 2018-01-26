@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public final class TableInfo<T> {
@@ -122,56 +121,87 @@ public final class TableInfo<T> {
         for (Field field : clazz.getDeclaredFields()) {
             DBFieldTypeFactory.create(field).ifPresent(fieldTypes::add);
         }
+        String tableName = TableInfoUtils.resolveTableName(clazz);
 
         return new TableInfo<>(
                 clazz,
                 (Constructor<T>) lookupDefaultConstructor(clazz).get(),
-                resolveUniques(clazz),
-                resolveIndexes(clazz),
+                resolveUniques(fieldTypes, clazz),
+                resolveIndexes(fieldTypes, tableName, clazz),
                 TableInfoUtils.resolveTableName(clazz),
                 fieldTypes
         );
     }
 
-    private static <T> List<UniqueFieldType> resolveUniques(Class<T> tClass) throws NoSuchFieldException, NoSuchMethodException {
+    private static <T> List<UniqueFieldType> resolveUniques(List<IDBFieldType> fieldTypes, Class<T> tClass) {
         List<UniqueFieldType> uniqueFieldTypes = new ArrayList<>();
         if (tClass.isAnnotationPresent(DBTable.class)) {
             Unique[] uniques = tClass.getAnnotation(DBTable.class).uniqueConstraints();
 
             for (Unique unique : uniques) {
-                uniqueFieldTypes.add(UniqueFieldType.build(unique, tClass));
+                uniqueFieldTypes.add(new UniqueFieldType(validateUnique(fieldTypes, unique)));
             }
         }
 
         return uniqueFieldTypes;
     }
 
-    private static <T> List<IndexFieldType> resolveIndexes(Class<T> tClass) throws NoSuchFieldException, NoSuchMethodException {
+    private static <T> List<IndexFieldType> resolveIndexes(List<IDBFieldType> fieldTypes, String tableName, Class<T> tClass) {
         List<IndexFieldType> uniqueFieldTypes = new ArrayList<>();
+
         if (tClass.isAnnotationPresent(DBTable.class)) {
             Index[] indexes = tClass.getAnnotation(DBTable.class).indexes();
 
             for (Index index : indexes) {
-                uniqueFieldTypes.add(IndexFieldType.build(index, tClass));
+                uniqueFieldTypes.add(new IndexFieldType(index.name(), index.unique(), tableName, validateIndex(fieldTypes, index)));
             }
         }
 
         return uniqueFieldTypes;
     }
 
-    public Optional<DBFieldType> getDBFieldTypeByFieldName(String name) {
-        return dbFieldTypes.stream().filter(dbFieldType -> dbFieldType.getField().getName().equals(name)).findFirst();
+    private static List<String> validateIndex(List<IDBFieldType> fieldTypes, Index index) {
+        List<String> columns = new ArrayList<>();
+
+        for (String columnName : index.columns()) {
+            columns.add(fieldTypes
+                    .stream()
+                    .filter(idbFieldType -> {
+                        if (idbFieldType.isForeignCollectionFieldType()) {
+                            return false;
+                        }
+                        return idbFieldType.getField().getName().equals(columnName);
+                    })
+                    .findAny()
+                    .orElseThrow(() -> new IllegalArgumentException("Indexed column [" + columnName + "] not annotated with DBField!"))
+                    .getColumnName());
+        }
+
+        return columns;
     }
 
-    public Optional<ForeignFieldType> getForeignFieldTypeByFieldName(String name) {
-        return foreignFieldTypes.stream().filter(foreignFieldType -> foreignFieldType.getField().getName().equals(name)).findFirst();
+    private static List<String> validateUnique(List<IDBFieldType> fieldTypes, Unique unique) {
+        List<String> columns = new ArrayList<>();
+
+        for (String columnName : unique.columns()) {
+            columns.add(fieldTypes
+                    .stream()
+                    .filter(idbFieldType -> {
+                        if (idbFieldType.isForeignCollectionFieldType()) {
+                            return false;
+                        }
+
+                        return idbFieldType.getField().getName().equals(columnName);
+                    })
+                    .findAny()
+                    .orElseThrow(() -> new IllegalArgumentException("Indexed column [" + columnName + "] not annotated with DBField!"))
+                    .getColumnName());
+        }
+
+        return columns;
     }
 
-    public Optional<ForeignCollectionFieldType> getForeignCollectionFieldTypeByFieldName(String name) {
-        return foreignCollectionFieldTypes.stream().filter(foreignCollectionFieldType -> foreignCollectionFieldType.getField().getName().equals(name)).findFirst();
-    }
-
-    private static Optional<Constructor<?>> lookupDefaultConstructor(Class<?> clazz) throws NoSuchMethodException {
+    private static Optional<Constructor<?>> lookupDefaultConstructor(Class<?> clazz) {
         for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
             if (constructor.getParameterCount() == 0) {
                 return Optional.of(constructor);

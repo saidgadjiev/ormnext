@@ -95,25 +95,21 @@ public class TransactionImpl<T, ID> implements Transaction<T, ID> {
     }
 
     @Override
-    public void beginTrans() throws SQLException {
+    public void begin() throws SQLException {
         state = State.BEGIN;
         connection.setAutoCommit(false);
     }
 
     @Override
-    public void commitTrans() throws SQLException {
-        if (!state.equals(State.BEGIN)) {
-            throw new SQLException("Transaction not begined");
-        }
+    public void commit() throws SQLException {
+        checkTransactionState();
         connection.commit();
         state = State.COMMIT;
     }
 
     @Override
     public void rollback() throws SQLException {
-        if (!state.equals(State.BEGIN)) {
-            throw new SQLException("Transaction not begined");
-        }
+        checkTransactionState();
         connection.rollback();
         state = State.ROLLBACK;
     }
@@ -127,6 +123,12 @@ public class TransactionImpl<T, ID> implements Transaction<T, ID> {
     @Override
     public void close() throws Exception{
         close.call();
+    }
+
+    private void checkTransactionState() throws SQLException {
+        if (!state.equals(State.BEGIN)) {
+            throw new SQLException("Transaction not begined");
+        }
     }
 
     private enum State {
