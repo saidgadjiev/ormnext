@@ -2,12 +2,18 @@ package ru.said.orm.next.core.query.core;
 
 import org.junit.Assert;
 import org.junit.Test;
+import ru.said.orm.next.core.dao.Dao;
+import ru.said.orm.next.core.dao.DaoManager;
 import ru.said.orm.next.core.db.H2DatabaseType;
 import ru.said.orm.next.core.field.DBField;
 import ru.said.orm.next.core.query.visitor.DefaultVisitor;
 import ru.said.orm.next.core.query.visitor.QueryVisitor;
+import ru.said.orm.next.core.support.ConnectionSource;
+import ru.said.orm.next.core.support.JDBCConnectionSource;
 import ru.said.orm.next.core.table.DBTable;
 import ru.said.orm.next.core.table.TableInfo;
+
+import java.sql.SQLException;
 
 /**
  * Created by said on 21.01.2018.
@@ -18,7 +24,7 @@ public class CreateQueryTest {
         TableInfo<TestClazz> tableInfo = TableInfo.build(TestClazz.class);
         TestClazz testClazz = new TestClazz();
 
-        testClazz.name = null;
+        testClazz.name = "test";
         TestForeignClazz foreignClazz = new TestForeignClazz();
 
         foreignClazz.id = 1;
@@ -31,6 +37,17 @@ public class CreateQueryTest {
                 "INSERT INTO `test` (`name`,`foreign_test_id`) VALUES ('test',1)",
                 visitor.getQuery()
         );
+        Dao<TestClazz, Integer> dao = createDao(TestClazz.class);
+
+        dao.createTable(true);
+        dao.create(testClazz);
+    }
+
+    private<T> Dao<T, Integer> createDao(Class<T> clazz) throws SQLException {
+        ConnectionSource connectionSource = new JDBCConnectionSource("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1", new H2DatabaseType());
+        Dao<T, Integer> dao = DaoManager.createDAO(connectionSource, clazz);
+
+        return dao;
     }
 
     @DBTable(name = "test")
