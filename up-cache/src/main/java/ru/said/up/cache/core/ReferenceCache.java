@@ -18,9 +18,7 @@ public class ReferenceCache<K, V> implements Cache<K, V> {
 
     @Override
     public void put(K key, V value) {
-        if (get(key) == null) {
-            cache.put(key, new SoftReference<>(value));
-        }
+        cache.put(key, new SoftReference<>(value));
     }
 
     @Override
@@ -44,12 +42,12 @@ public class ReferenceCache<K, V> implements Cache<K, V> {
     }
 
     @Override
-    public void update(K key, V value) {
-        cache.put(key, new SoftReference<>(value));
+    public boolean contains(K key) {
+        return cache.containsKey(key);
     }
 
     @Override
-    public boolean contains(K key) {
-        return cache.containsKey(key);
+    public long size() {
+        return cache.size();
     }
 }

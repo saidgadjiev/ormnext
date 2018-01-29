@@ -15,7 +15,7 @@ public class CacheBuilder<K, V> {
 
     public static class LRUCacheBuilder<K, V> {
 
-        private int maxSize;
+        private int maxSize = 16;
 
         public LRUCacheBuilder<K, V> maxSize(int maxSize) {
             this.maxSize = maxSize;

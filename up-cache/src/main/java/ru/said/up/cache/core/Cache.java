@@ -10,7 +10,7 @@ public interface Cache<K, V> {
 
     V get(K key);
 
-    void update(K key, V value);
-
     boolean contains(K key);
+
+    long size();
 }

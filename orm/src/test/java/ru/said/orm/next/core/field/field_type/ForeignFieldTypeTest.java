@@ -18,11 +18,11 @@ public class ForeignFieldTypeTest {
     @Test
     public void isForeignAutoCreate() throws Exception {
         Field field = TestClazz.class.getDeclaredFields()[0];
-        ForeignFieldType fieldType = ForeignFieldType.build(field);
+        ForeignFieldType fieldType = (ForeignFieldType) new ForeignFieldTypeFactory().createFieldType(field);
 
         Assert.assertTrue(fieldType.isForeignAutoCreate());
         field = TestClazz.class.getDeclaredFields()[1];
-        fieldType = ForeignFieldType.build(field);
+        fieldType = (ForeignFieldType) new ForeignFieldTypeFactory().createFieldType(field);
 
         Assert.assertFalse(fieldType.isForeignAutoCreate());
     }
@@ -30,11 +30,11 @@ public class ForeignFieldTypeTest {
     @Test
     public void getForeignFieldClass() throws Exception {
         Field field = TestClazz.class.getDeclaredFields()[0];
-        ForeignFieldType fieldType = ForeignFieldType.build(field);
+        ForeignFieldType fieldType = (ForeignFieldType) new ForeignFieldTypeFactory().createFieldType(field);
 
         Assert.assertEquals(ForeignTestClazz1.class, fieldType.getForeignFieldClass());
         field = TestClazz.class.getDeclaredFields()[1];
-        fieldType = ForeignFieldType.build(field);
+        fieldType = (ForeignFieldType) new ForeignFieldTypeFactory().createFieldType(field);
 
         Assert.assertEquals(ForeignTestClazz2.class, fieldType.getForeignFieldClass());
     }
@@ -42,11 +42,11 @@ public class ForeignFieldTypeTest {
     @Test
     public void getDataPersister() throws Exception {
         Field field = TestClazz.class.getDeclaredFields()[0];
-        ForeignFieldType fieldType = ForeignFieldType.build(field);
+        ForeignFieldType fieldType = (ForeignFieldType) new ForeignFieldTypeFactory().createFieldType(field);
 
         Assert.assertThat(fieldType.getDataPersister(), CoreMatchers.instanceOf(IntegerDataPersister.class));
         field = TestClazz.class.getDeclaredFields()[1];
-        fieldType = ForeignFieldType.build(field);
+        fieldType = (ForeignFieldType) new ForeignFieldTypeFactory().createFieldType(field);
 
         Assert.assertThat(fieldType.getDataPersister(), CoreMatchers.instanceOf(StringDataPersister.class));
     }
@@ -54,11 +54,11 @@ public class ForeignFieldTypeTest {
     @Test
     public void getDataType() throws Exception {
         Field field = TestClazz.class.getDeclaredFields()[0];
-        ForeignFieldType fieldType = ForeignFieldType.build(field);
+        ForeignFieldType fieldType = (ForeignFieldType) new ForeignFieldTypeFactory().createFieldType(field);
 
         Assert.assertThat(fieldType.getDataType(), CoreMatchers.is(DataType.INTEGER));
         field = TestClazz.class.getDeclaredFields()[1];
-        fieldType = ForeignFieldType.build(field);
+        fieldType = (ForeignFieldType) new ForeignFieldTypeFactory().createFieldType(field);
 
         Assert.assertThat(fieldType.getDataType(), CoreMatchers.is(DataType.STRING));
     }
@@ -67,12 +67,12 @@ public class ForeignFieldTypeTest {
     public void getForeignPrimaryKey() throws Exception {
         Field field = TestClazz.class.getDeclaredFields()[0];
         Field foreignPrimaryKeyField1 = ForeignTestClazz1.class.getDeclaredFields()[0];
-        ForeignFieldType fieldType = ForeignFieldType.build(field);
+        ForeignFieldType fieldType = (ForeignFieldType) new ForeignFieldTypeFactory().createFieldType(field);
 
         Assert.assertEquals(fieldType.getForeignPrimaryKey().getField(), foreignPrimaryKeyField1);
         field = TestClazz.class.getDeclaredFields()[1];
         Field foreignPrimaryKeyField2 = ForeignTestClazz2.class.getDeclaredFields()[0];
-        fieldType = ForeignFieldType.build(field);
+        fieldType = (ForeignFieldType) new ForeignFieldTypeFactory().createFieldType(field);
 
         Assert.assertEquals(fieldType.getForeignPrimaryKey().getField(), foreignPrimaryKeyField2);
     }
@@ -80,11 +80,11 @@ public class ForeignFieldTypeTest {
     @Test
     public void getColumnName() throws Exception {
         Field field = TestClazz.class.getDeclaredFields()[0];
-        ForeignFieldType fieldType = ForeignFieldType.build(field);
+        ForeignFieldType fieldType = (ForeignFieldType) new ForeignFieldTypeFactory().createFieldType(field);
 
         Assert.assertEquals("field1_id", fieldType.getColumnName());
         field = TestClazz.class.getDeclaredFields()[1];
-        fieldType = ForeignFieldType.build(field);
+        fieldType = (ForeignFieldType) new ForeignFieldTypeFactory().createFieldType(field);
 
         Assert.assertEquals("field2_id", fieldType.getColumnName());
     }
@@ -92,11 +92,11 @@ public class ForeignFieldTypeTest {
     @Test
     public void getForeignTableName() throws Exception {
         Field field = TestClazz.class.getDeclaredFields()[0];
-        ForeignFieldType fieldType = ForeignFieldType.build(field);
+        ForeignFieldType fieldType = (ForeignFieldType) new ForeignFieldTypeFactory().createFieldType(field);
 
         Assert.assertEquals("ForeignTestClazz1", fieldType.getForeignTableName());
         field = TestClazz.class.getDeclaredFields()[1];
-        fieldType = ForeignFieldType.build(field);
+        fieldType = (ForeignFieldType) new ForeignFieldTypeFactory().createFieldType(field);
 
         Assert.assertEquals("ForeignTestClazz2", fieldType.getForeignTableName());
     }
@@ -104,11 +104,11 @@ public class ForeignFieldTypeTest {
     @Test
     public void getForeignColumnName() throws Exception {
         Field field = TestClazz.class.getDeclaredFields()[0];
-        ForeignFieldType fieldType = ForeignFieldType.build(field);
+        ForeignFieldType fieldType = (ForeignFieldType) new ForeignFieldTypeFactory().createFieldType(field);
 
         Assert.assertEquals("id", fieldType.getForeignColumnName());
         field = TestClazz.class.getDeclaredFields()[1];
-        fieldType = ForeignFieldType.build(field);
+        fieldType = (ForeignFieldType) new ForeignFieldTypeFactory().createFieldType(field);
 
         Assert.assertEquals("stringId", fieldType.getForeignColumnName());
     }

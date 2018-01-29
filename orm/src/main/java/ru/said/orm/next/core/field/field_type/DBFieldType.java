@@ -92,31 +92,48 @@ public class DBFieldType implements IDBFieldType {
         return field;
     }
 
-    public static DBFieldType build(Field field) throws NoSuchMethodException {
-        DBField dbField = field.getAnnotation(DBField.class);
-        DBFieldType fieldType = new DBFieldType();
+    public void setColumnName(String columnName) {
+        this.columnName = columnName;
+    }
 
-        fieldType.field = field;
-        fieldType.columnName = dbField.columnName().isEmpty() ? field.getName().toLowerCase() : dbField.columnName();
-        fieldType.length = dbField.length();
-        fieldType.fieldAccessor = new FieldAccessor(field);
-        if (!dbField.foreign()) {
-            DataType dataType = dbField.dataType();
+    public void setDataType(DataType dataType) {
+        this.dataType = dataType;
+    }
 
-            fieldType.dataPersister = dataType.equals(DataType.UNKNOWN) ? DataPersisterManager.lookup(field.getType()) : dataType.getDataPersister();
-            fieldType.dataType = fieldType.dataPersister.getDataType();
-            fieldType.fieldConverter = fieldType.dataPersister;
-            String defaultValue = dbField.defaultValue();
+    public void setField(Field field) {
+        this.field = field;
+    }
 
-            if (!defaultValue.equals(DBField.DEFAULT_STR)) {
-                fieldType.defaultValue = fieldType.fieldConverter.convertTo(dbField.defaultValue());
-            }
-        }
-        fieldType.notNull = dbField.notNull();
-        fieldType.id = dbField.id();
-        fieldType.generated = dbField.generated();
+    public void setLength(int length) {
+        this.length = length;
+    }
 
-        return fieldType;
+    public void setDataPersister(DataPersister<?> dataPersister) {
+        this.dataPersister = dataPersister;
+    }
+
+    public void setFieldConverter(FieldConverter<?> fieldConverter) {
+        this.fieldConverter = fieldConverter;
+    }
+
+    public void setFieldAccessor(FieldAccessor fieldAccessor) {
+        this.fieldAccessor = fieldAccessor;
+    }
+
+    public void setNotNull(boolean notNull) {
+        this.notNull = notNull;
+    }
+
+    public void setId(boolean id) {
+        this.id = id;
+    }
+
+    public void setGenerated(boolean generated) {
+        this.generated = generated;
+    }
+
+    public void setDefaultValue(Object defaultValue) {
+        this.defaultValue = defaultValue;
     }
 
     @Override
@@ -135,21 +152,5 @@ public class DBFieldType implements IDBFieldType {
                 "columnName='" + columnName + '\'' +
                 ", dataType=" + dataType +
                 '}';
-    }
-
-    public static class DBFieldTypeCache {
-
-        private static final Cache<Field, DBFieldType> CACHE = CacheBuilder.newRefenceCacheBuilder().build();
-
-        public static DBFieldType build(Field field) throws NoSuchMethodException, NoSuchFieldException {
-            if (CACHE.contains(field)) {
-                return CACHE.get(field);
-            }
-            DBFieldType dbFieldType = DBFieldType.build(field);
-
-            CACHE.put(field, dbFieldType);
-
-            return dbFieldType;
-        }
     }
 }

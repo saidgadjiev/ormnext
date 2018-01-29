@@ -13,6 +13,7 @@ import ru.said.orm.next.core.query.core.clause.select.SelectColumnsList;
 import ru.said.orm.next.core.query.core.column_spec.ColumnSpec;
 import ru.said.orm.next.core.query.core.column_spec.DisplayedColumnSpec;
 import ru.said.orm.next.core.query.core.column_spec.DisplayedColumns;
+import ru.said.orm.next.core.query.core.column_spec.DisplayedOperand;
 import ru.said.orm.next.core.query.core.common.TableRef;
 import ru.said.orm.next.core.query.core.common.UpdateValue;
 import ru.said.orm.next.core.query.core.condition.*;
@@ -732,6 +733,16 @@ public class DefaultVisitor implements QueryVisitor {
 
     @Override
     public void finish(Default aDefault) {
+
+    }
+
+    @Override
+    public void start(DisplayedOperand displayedOperand) {
+
+    }
+
+    @Override
+    public void finish(DisplayedOperand displayedOperand) {
 
     }
 }

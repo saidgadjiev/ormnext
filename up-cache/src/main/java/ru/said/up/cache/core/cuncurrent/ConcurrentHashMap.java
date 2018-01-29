@@ -282,6 +282,16 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V> implements Concur
     }
 
     @Override
+    public void clear() {
+        for (int i = 0; i < map.length; ++i) {
+            synchronized (locks[i]) {
+                map[i] = null;
+            }
+        }
+        size = 0;
+    }
+
+    @Override
     public V getOrDefault(Object key, V defaultValue) {
         return null;
     }
@@ -337,5 +347,10 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V> implements Concur
         return null;
     }
 
-
+    @Override
+    public String toString() {
+        return "ConcurrentHashMap{" +
+                "map=" + Arrays.toString(map) +
+                '}';
+    }
 }

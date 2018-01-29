@@ -1,11 +1,7 @@
 package ru.said.orm.next.core.field.field_type;
 
-import ru.said.orm.next.core.field.DBField;
 import ru.said.orm.next.core.field.DataType;
 import ru.said.orm.next.core.field.persisters.DataPersister;
-import ru.said.orm.next.core.table.utils.TableInfoUtils;
-import ru.said.up.cache.core.Cache;
-import ru.said.up.cache.core.CacheBuilder;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -17,9 +13,9 @@ public class ForeignFieldType implements IDBFieldType {
 
     private static final String ID_SUFFIX = "_id";
 
-    private DBFieldType dbFieldType;
+    private IDBFieldType dbFieldType;
 
-    private DBFieldType foreignPrimaryKey;
+    private IDBFieldType foreignPrimaryKey;
 
     private boolean foreignAutoCreate;
 
@@ -30,6 +26,10 @@ public class ForeignFieldType implements IDBFieldType {
     private String foreignTableName;
 
     private DataType dataType;
+
+    public ForeignFieldType(IDBFieldType dbFieldType) {
+        this.dbFieldType = dbFieldType;
+    }
 
     @Override
     public boolean isId() {
@@ -74,7 +74,7 @@ public class ForeignFieldType implements IDBFieldType {
         return dataType;
     }
 
-    public DBFieldType getForeignPrimaryKey() {
+    public IDBFieldType getForeignPrimaryKey() {
         return foreignPrimaryKey;
     }
 
@@ -106,33 +106,27 @@ public class ForeignFieldType implements IDBFieldType {
         return true;
     }
 
-    public static ForeignFieldType build(Field field) throws NoSuchMethodException, NoSuchFieldException {
-        ForeignFieldType foreignFieldType = new ForeignFieldType();
-
-        foreignFieldType.dbFieldType = DBFieldType.DBFieldTypeCache.build(field);
-        foreignFieldType.foreignAutoCreate = field.getAnnotation(DBField.class).foreignAutoCreate();
-        foreignFieldType.foreignPrimaryKey = TableInfoUtils.resolvePrimaryKey(field.getType()).get();
-        foreignFieldType.foreignTableName = TableInfoUtils.resolveTableName(foreignFieldType.foreignPrimaryKey.getField().getDeclaringClass());
-        foreignFieldType.foreignFieldClass = field.getType();
-        foreignFieldType.dataPersister = foreignFieldType.foreignPrimaryKey.getDataPersister();
-        foreignFieldType.dataType = foreignFieldType.foreignPrimaryKey.getDataType();
-
-        return foreignFieldType;
+    public void setForeignPrimaryKey(IDBFieldType foreignPrimaryKey) {
+        this.foreignPrimaryKey = foreignPrimaryKey;
     }
 
-    public static class ForeignFieldTypeCache {
+    public void setForeignAutoCreate(boolean foreignAutoCreate) {
+        this.foreignAutoCreate = foreignAutoCreate;
+    }
 
-        private static final Cache<Field, ForeignFieldType> CACHE = CacheBuilder.newRefenceCacheBuilder().build();
+    public void setForeignFieldClass(Class<?> foreignFieldClass) {
+        this.foreignFieldClass = foreignFieldClass;
+    }
 
-        public static ForeignFieldType build(Field field) throws NoSuchMethodException, NoSuchFieldException {
-            if (CACHE.contains(field)) {
-                return CACHE.get(field);
-            }
-            ForeignFieldType foreignFieldType = ForeignFieldType.build(field);
+    public void setDataPersister(DataPersister dataPersister) {
+        this.dataPersister = dataPersister;
+    }
 
-            CACHE.put(field, foreignFieldType);
+    public void setForeignTableName(String foreignTableName) {
+        this.foreignTableName = foreignTableName;
+    }
 
-            return foreignFieldType;
-        }
+    public void setDataType(DataType dataType) {
+        this.dataType = dataType;
     }
 }

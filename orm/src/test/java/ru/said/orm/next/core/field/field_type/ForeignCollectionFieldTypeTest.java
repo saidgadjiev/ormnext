@@ -19,7 +19,7 @@ public class ForeignCollectionFieldTypeTest {
     @Test
     public void getField() throws Exception {
         Field field = TestClazz.class.getDeclaredFields()[0];
-        ForeignCollectionFieldType fieldType = ForeignCollectionFieldType.build(field);
+        ForeignCollectionFieldType fieldType = (ForeignCollectionFieldType) new ForeignCollectionFieldTypeFactory().createFieldType(field);
 
         Assert.assertEquals(field, fieldType.getField());
     }
@@ -27,7 +27,7 @@ public class ForeignCollectionFieldTypeTest {
     @Test
     public void add() throws Exception {
         Field field = TestClazz.class.getDeclaredFields()[0];
-        ForeignCollectionFieldType fieldType = ForeignCollectionFieldType.build(field);
+        ForeignCollectionFieldType fieldType = (ForeignCollectionFieldType) new ForeignCollectionFieldTypeFactory().createFieldType(field);
         TestClazz testClazz = new TestClazz();
         ForeignCollectionTestClazz foreignCollectionTestClazz = new ForeignCollectionTestClazz();
 
@@ -40,7 +40,7 @@ public class ForeignCollectionFieldTypeTest {
     @Test
     public void addAll() throws Exception {
         Field field = TestClazz.class.getDeclaredFields()[0];
-        ForeignCollectionFieldType fieldType = ForeignCollectionFieldType.build(field);
+        ForeignCollectionFieldType fieldType = (ForeignCollectionFieldType) new ForeignCollectionFieldTypeFactory().createFieldType(field);
         TestClazz testClazz = new TestClazz();
         ForeignCollectionTestClazz foreignCollectionTestClazz = new ForeignCollectionTestClazz();
 
@@ -54,7 +54,7 @@ public class ForeignCollectionFieldTypeTest {
     public void getForeignField() throws Exception {
         Field field = TestClazz.class.getDeclaredFields()[0];
         Field foreignField = ForeignCollectionTestClazz.class.getDeclaredFields()[1];
-        ForeignCollectionFieldType fieldType = ForeignCollectionFieldType.build(field);
+        ForeignCollectionFieldType fieldType = (ForeignCollectionFieldType) new ForeignCollectionFieldTypeFactory().createFieldType(field);
 
         Assert.assertEquals(foreignField, fieldType.getForeignField());
     }
@@ -62,7 +62,7 @@ public class ForeignCollectionFieldTypeTest {
     @Test
     public void getForeignFieldClass() throws Exception {
         Field field = TestClazz.class.getDeclaredFields()[0];
-        ForeignCollectionFieldType fieldType = ForeignCollectionFieldType.build(field);
+        ForeignCollectionFieldType fieldType = (ForeignCollectionFieldType) new ForeignCollectionFieldTypeFactory().createFieldType(field);
 
         Assert.assertEquals(ForeignCollectionTestClazz.class, fieldType.getForeignFieldClass());
     }

@@ -21,8 +21,6 @@ public class ForeignCollectionFieldType implements IDBFieldType {
 
     private Class<?> foreignFieldClass;
 
-    private String foreignFieldName;
-
     private Field foreignField;
 
     @Override
@@ -99,61 +97,23 @@ public class ForeignCollectionFieldType implements IDBFieldType {
         }
     }
 
+    public void setField(Field field) {
+        this.field = field;
+    }
+
+    public void setForeignFieldClass(Class<?> foreignFieldClass) {
+        this.foreignFieldClass = foreignFieldClass;
+    }
+
+    public void setForeignField(Field foreignField) {
+        this.foreignField = foreignField;
+    }
+
     public Field getForeignField() {
         return foreignField;
     }
 
     public Class<?> getForeignFieldClass() {
         return foreignFieldClass;
-    }
-
-    public static ForeignCollectionFieldType build(Field field) throws NoSuchFieldException {
-        ForeignCollectionField foreignCollectionField = field.getAnnotation(ForeignCollectionField.class);
-        ForeignCollectionFieldType fieldType = new ForeignCollectionFieldType();
-
-        fieldType.field = field;
-        fieldType.foreignFieldName = foreignCollectionField.foreignFieldName();
-        fieldType.foreignFieldClass = getCollectionGenericClass(field);
-
-        if (fieldType.foreignFieldName.isEmpty()) {
-            fieldType.foreignField = findFieldByType(field.getDeclaringClass(), fieldType.getForeignFieldClass()).orElseThrow(() -> new NoSuchFieldException("Foreign field is not defined"));
-        } else {
-            fieldType.foreignField = findFieldByName(fieldType.foreignFieldName, fieldType.foreignFieldClass);
-        }
-
-        return fieldType;
-    }
-
-    private static Class<?> getCollectionGenericClass(Field field) {
-        Type type = field.getGenericType();
-        Type[] genericTypes = ((ParameterizedType) type).getActualTypeArguments();
-
-        return (Class<?>) genericTypes[0];
-    }
-
-    private static Field findFieldByName(String foreignFieldName, Class<?> clazz) throws NoSuchFieldException {
-        return clazz.getDeclaredField(foreignFieldName);
-    }
-
-    private static Optional<Field> findFieldByType(Class<?> type, Class<?> clazz) {
-        return Arrays.stream(clazz.getDeclaredFields())
-                .filter(field -> field.isAnnotationPresent(DBField.class) && field.getType() == type)
-                .findFirst();
-    }
-
-    public static class ForeignCollectionFieldTypeCache {
-
-        private static final Cache<Field, ForeignCollectionFieldType> CACHE = CacheBuilder.newRefenceCacheBuilder().build();
-
-        public static ForeignCollectionFieldType build(Field field) throws NoSuchMethodException, NoSuchFieldException {
-            if (CACHE.contains(field)) {
-                return CACHE.get(field);
-            }
-            ForeignCollectionFieldType fieldType = ForeignCollectionFieldType.build(field);
-
-            CACHE.put(field, fieldType);
-
-            return fieldType;
-        }
     }
 }

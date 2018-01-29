@@ -3,10 +3,7 @@ package ru.said.orm.next.core.stament_executor.object;
 import ru.said.orm.next.core.dao.BaseDaoImpl;
 import ru.said.orm.next.core.dao.Dao;
 import ru.said.orm.next.core.dao.DaoManager;
-import ru.said.orm.next.core.field.field_type.DBFieldType;
-import ru.said.orm.next.core.field.field_type.ForeignCollectionFieldType;
-import ru.said.orm.next.core.field.field_type.ForeignFieldType;
-import ru.said.orm.next.core.field.field_type.IDBFieldType;
+import ru.said.orm.next.core.field.field_type.*;
 import ru.said.orm.next.core.stament_executor.DatabaseResults;
 import ru.said.orm.next.core.stament_executor.GenericResults;
 import ru.said.orm.next.core.support.ConnectionSource;
@@ -79,7 +76,7 @@ public class ObjectBuilder<T> {
 
             if (tableInfo.getPrimaryKeys().isPresent() && foreignTableInfo.getPrimaryKeys().isPresent()) {
                 IDBFieldType idField = tableInfo.getPrimaryKeys().get();
-                ForeignFieldType foreignField = ForeignFieldType.ForeignFieldTypeCache.build(fieldType.getForeignField());
+                ForeignFieldType foreignField = (ForeignFieldType) new ForeignCollectionFieldTypeFactory().createFieldType(fieldType.getForeignField());
 
                 GenericResults<?> genericResults = foreignDao.query(
                         "SELECT * FROM '" + foreignTableInfo.getTableName() + "' WHERE '" + foreignField.getColumnName() + "' = " + idField.access(object),

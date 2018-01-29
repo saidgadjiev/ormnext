@@ -9,15 +9,13 @@ public class LRUCache<K, V> implements Cache<K, V> {
 
     private LinkedHashMap<K, V> cacheMap;
 
-    public LRUCache(CacheBuilder.LRUCacheBuilder<? super K,  ? super V> builder) {
-         cacheMap = new LinkedHashMap<>(builder.getMaxSize());
+    public LRUCache(CacheBuilder.LRUCacheBuilder<? super K, ? super V> builder) {
+        cacheMap = new LinkedHashMap<>(builder.getMaxSize());
     }
 
     @Override
     public void put(K key, V value) {
-        if (!cacheMap.containsKey(key)) {
-            cacheMap.put(key, value);
-        }
+        cacheMap.put(key, value);
     }
 
     @Override
@@ -36,12 +34,12 @@ public class LRUCache<K, V> implements Cache<K, V> {
     }
 
     @Override
-    public void update(K key, V value) {
-        cacheMap.put(key, value);
+    public boolean contains(K key) {
+        return cacheMap.containsKey(key);
     }
 
     @Override
-    public boolean contains(K key) {
-        return cacheMap.containsKey(key);
+    public long size() {
+        return cacheMap.size();
     }
 }

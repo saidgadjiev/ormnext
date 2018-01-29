@@ -16,7 +16,7 @@ public class DeleteQuery implements QueryElement {
 
     private String typeName;
 
-    public DeleteQuery(String typeName) {
+    private DeleteQuery(String typeName) {
         this.typeName = typeName;
     }
 
@@ -44,6 +44,10 @@ public class DeleteQuery implements QueryElement {
         deleteQuery.getWhere().getConditions().add(andCondition);
 
         return deleteQuery;
+    }
+
+    public static DeleteQuery newQuery(String typeName) {
+        return new DeleteQuery(typeName);
     }
 
     @Override

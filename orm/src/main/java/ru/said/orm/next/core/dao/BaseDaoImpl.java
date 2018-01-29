@@ -30,7 +30,7 @@ public abstract class BaseDaoImpl<T, ID> implements Dao<T, ID> {
 
     protected BaseDaoImpl(ConnectionSource dataSource, TableInfo<T> tableInfo) {
         this.dataSource = dataSource;
-        this.dataBaseObject = new DataBaseObject<T>(
+        this.dataBaseObject = new DataBaseObject<>(
                 dataSource,
                 tableInfo
         );
@@ -97,7 +97,7 @@ public abstract class BaseDaoImpl<T, ID> implements Dao<T, ID> {
         Connection connection = dataSource.getConnection();
 
         try {
-            return statementExecutor.create(connection, object);
+            return statementExecutor.delete(connection, object);
         } finally {
             dataSource.releaseConnection(connection);
         }
@@ -192,7 +192,7 @@ public abstract class BaseDaoImpl<T, ID> implements Dao<T, ID> {
     public TransactionImpl<T, ID> transaction() throws SQLException {
         Connection connection = dataSource.getConnection();
 
-        return new TransactionImpl<T, ID>(statementExecutor, connection, () -> {
+        return new TransactionImpl<>(statementExecutor, connection, () -> {
             dataSource.releaseConnection(connection);
 
             return null;

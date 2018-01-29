@@ -117,9 +117,8 @@ public final class TableInfo<T> {
             validator.validate(clazz);
         }
         List<IDBFieldType> fieldTypes = new ArrayList<>();
-        //Не нравится этот код
         for (Field field : clazz.getDeclaredFields()) {
-            DBFieldTypeFactory.create(field).ifPresent(fieldTypes::add);
+            FieldTypeUtils.create(field).ifPresent(fieldTypes::add);
         }
         String tableName = TableInfoUtils.resolveTableName(clazz);
 

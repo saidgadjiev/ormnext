@@ -77,4 +77,8 @@ public class DaoManager {
     public static <T, ID> Dao<T, ?> createDAOWithTableInfo(ConnectionSource dataSource, TableInfo<T> tableInfo) {
         return BaseDaoImpl.createDao(dataSource, tableInfo);
     }
+
+    public synchronized static void clearCache() {
+        CACHE.invalidateAll();
+    }
 }

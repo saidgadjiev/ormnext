@@ -117,4 +117,10 @@ public class LinkedHashMap<K, V> extends ConcurrentHashMap<K, V> {
     protected void afterRemove(Node<K, V> node) {
         unlinkEntry((LinkedEntry<K, V>) node);
     }
+
+    @Override
+    public void clear() {
+        super.clear();
+        head = tail = null;
+    }
 }

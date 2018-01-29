@@ -9,6 +9,7 @@ import ru.said.orm.next.core.query.core.clause.select.SelectAll;
 import ru.said.orm.next.core.query.core.clause.select.SelectColumnsList;
 import ru.said.orm.next.core.query.core.column_spec.ColumnSpec;
 import ru.said.orm.next.core.query.core.column_spec.DisplayedColumns;
+import ru.said.orm.next.core.query.core.column_spec.DisplayedOperand;
 import ru.said.orm.next.core.query.core.common.TableRef;
 import ru.said.orm.next.core.query.core.common.UpdateValue;
 import ru.said.orm.next.core.query.core.condition.*;
@@ -224,4 +225,8 @@ public interface QueryVisitor {
     void start(Default aDefault);
 
     void finish(Default aDefault);
+
+    void start(DisplayedOperand displayedOperand);
+
+    void finish(DisplayedOperand displayedOperand);
 }

@@ -94,7 +94,7 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
         TableInfo<T> tableInfo = dataBaseObject.getTableInfo();
         DropTableQuery dropTableQuery = DropTableQuery.buildQuery(tableInfo.getTableName(), ifExists);
 
-        try (PreparedQueryImpl preparedQuery = new PreparedQueryImpl(connection.prepareStatement(null))) {
+        try (PreparedQueryImpl preparedQuery = new PreparedQueryImpl(connection.prepareStatement(getQuery(dropTableQuery)))) {
             preparedQuery.executeUpdate();
 
             return true;
@@ -117,7 +117,7 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
         );
 
         try (PreparedQueryImpl preparedQuery = new PreparedQueryImpl(connection.prepareStatement(getQuery(query)))) {
-            preparedQuery.setObject(0, idFieldType.access(object));
+            preparedQuery.setObject(1, idFieldType.access(object));
 
             return preparedQuery.executeUpdate();
         } catch (Exception ex) {
@@ -138,7 +138,7 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
             DeleteQuery query = DeleteQuery.buildQuery(tableInfo.getTableName(), dbFieldType.getColumnName());
 
             try (PreparedQueryImpl preparedQuery = new PreparedQueryImpl(connection.prepareStatement(getQuery(query)))) {
-                preparedQuery.setObject(0, id);
+                preparedQuery.setObject(1, id);
 
                 return preparedQuery.executeUpdate();
             }
@@ -158,7 +158,7 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
         DeleteQuery query = DeleteQuery.buildQuery(tableInfo.getTableName(), dbFieldType.getColumnName());
 
         try (PreparedQueryImpl preparedQuery = new PreparedQueryImpl(connection.prepareStatement(getQuery(query)))) {
-            preparedQuery.setObject(0, id);
+            preparedQuery.setObject(1, id);
 
             return preparedQuery.executeUpdate();
         }
@@ -284,7 +284,7 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
         try (PreparedQueryImpl preparedQueryImpl = new PreparedQueryImpl(connection.prepareStatement(query))) {
             try (DatabaseResults databaseResults = preparedQueryImpl.executeQuery()) {
                 if (databaseResults.next()) {
-                    return databaseResults.getLong(0);
+                    return databaseResults.getLong(1);
                 }
             } catch (Exception ex) {
                 throw new SQLException(ex);
