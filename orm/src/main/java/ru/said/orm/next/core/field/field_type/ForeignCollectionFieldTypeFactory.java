@@ -9,6 +9,10 @@ import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Optional;
 
+import static ru.said.orm.next.core.field.field_type.FieldTypeUtils.findFieldByName;
+import static ru.said.orm.next.core.field.field_type.FieldTypeUtils.findFieldByType;
+import static ru.said.orm.next.core.field.field_type.FieldTypeUtils.getCollectionGenericClass;
+
 /**
  * Created by said on 28.01.2018.
  */
@@ -42,21 +46,6 @@ public class ForeignCollectionFieldTypeFactory implements FieldTypeFactory {
     }
 
 
-    private static Class<?> getCollectionGenericClass(Field field) {
-        Type type = field.getGenericType();
-        Type[] genericTypes = ((ParameterizedType) type).getActualTypeArguments();
 
-        return (Class<?>) genericTypes[0];
-    }
-
-    private static Field findFieldByName(String foreignFieldName, Class<?> clazz) throws NoSuchFieldException {
-        return clazz.getDeclaredField(foreignFieldName);
-    }
-
-    private static Optional<Field> findFieldByType(Class<?> type, Class<?> clazz) {
-        return Arrays.stream(clazz.getDeclaredFields())
-                .filter(field -> field.isAnnotationPresent(DBField.class) && field.getType() == type)
-                .findFirst();
-    }
 
 }

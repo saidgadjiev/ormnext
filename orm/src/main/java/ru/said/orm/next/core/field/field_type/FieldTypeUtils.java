@@ -4,6 +4,9 @@ import ru.said.orm.next.core.field.DBField;
 import ru.said.orm.next.core.field.ForeignCollectionField;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.Optional;
 
 /**
@@ -29,5 +32,22 @@ public class FieldTypeUtils {
         }
 
         return Optional.empty();
+    }
+
+    public static Class<?> getCollectionGenericClass(Field field) {
+        Type type = field.getGenericType();
+        Type[] genericTypes = ((ParameterizedType) type).getActualTypeArguments();
+
+        return (Class<?>) genericTypes[0];
+    }
+
+    public static Field findFieldByName(String foreignFieldName, Class<?> clazz) throws NoSuchFieldException {
+        return clazz.getDeclaredField(foreignFieldName);
+    }
+
+    public static Optional<Field> findFieldByType(Class<?> type, Class<?> clazz) {
+        return Arrays.stream(clazz.getDeclaredFields())
+                .filter(field -> field.isAnnotationPresent(DBField.class) && field.getType() == type)
+                .findFirst();
     }
 }

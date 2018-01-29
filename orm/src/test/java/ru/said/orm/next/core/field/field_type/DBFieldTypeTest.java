@@ -158,7 +158,6 @@ public class DBFieldTypeTest {
         Assert.assertNull(fieldType.getDefaultValue());
     }
 
-
     public static class TestClazz {
         @DBField(id = true, generated = true, notNull = true, columnName = "test1", dataType = DataType.INTEGER, length = 50, defaultValue = "5")
         private int field1;
