@@ -30,7 +30,7 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
 
     private DataBaseObject<T> dataBaseObject;
 
-    StatementExecutorImpl(DataBaseObject<T> dataBaseObject) {
+    public StatementExecutorImpl(DataBaseObject<T> dataBaseObject) {
         this.dataBaseObject = dataBaseObject;
     }
 

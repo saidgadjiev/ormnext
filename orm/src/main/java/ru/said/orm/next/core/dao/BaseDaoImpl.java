@@ -1,11 +1,7 @@
 package ru.said.orm.next.core.dao;
 
 import ru.said.orm.next.core.cache.ObjectCache;
-import ru.said.orm.next.core.cache.ReferenceObjectCache;
-import ru.said.orm.next.core.stament_executor.GenericResults;
-import ru.said.orm.next.core.stament_executor.IStatementExecutor;
-import ru.said.orm.next.core.stament_executor.ResultsMapper;
-import ru.said.orm.next.core.stament_executor.StatementValidator;
+import ru.said.orm.next.core.stament_executor.*;
 import ru.said.orm.next.core.stament_executor.object.DataBaseObject;
 import ru.said.orm.next.core.support.ConnectionSource;
 import ru.said.orm.next.core.table.TableInfo;
@@ -34,7 +30,13 @@ public abstract class BaseDaoImpl<T, ID> implements Dao<T, ID> {
                 dataSource,
                 tableInfo
         );
-        this.statementExecutor = new StatementValidator<>(this.dataBaseObject);
+        this.statementExecutor = new StatementValidator<>(
+                this.dataBaseObject,
+                new CachedStatementExecutor<>(
+                        dataBaseObject,
+                        new StatementExecutorImpl<>(dataBaseObject)
+                )
+        );
     }
 
     @Override
@@ -115,15 +117,29 @@ public abstract class BaseDaoImpl<T, ID> implements Dao<T, ID> {
     }
 
     @Override
+    public void caching(boolean flag) {
+        dataBaseObject.caching(flag);
+    }
+
+    @Override
+    public void setObjectCache(ObjectCache objectCache) {
+        dataBaseObject.getObjectCache().ifPresent(ObjectCache::invalidateAll);
+        if (objectCache != null) {
+            dataBaseObject
+                    .caching(true)
+                    .objectCache(objectCache);
+            objectCache.registerClass(dataBaseObject.getTableInfo().getTableClass());
+        }
+    }
+
+    @Override
     public void caching(boolean flag, ObjectCache objectCache) {
-        if (flag) {
-            if (objectCache != null) {
-                dataBaseObject.setObjectCache(objectCache);
-            } else {
-                dataBaseObject.setObjectCache(new ReferenceObjectCache());
-            }
-        } else {
-            dataBaseObject.setObjectCache(null);
+        dataBaseObject.objectCache(objectCache).caching(flag);
+
+        if (objectCache != null) {
+            dataBaseObject.getObjectCache().ifPresent(ObjectCache::invalidateAll);
+            dataBaseObject.objectCache(objectCache);
+            objectCache.registerClass(dataBaseObject.getTableInfo().getTableClass());
         }
     }
 

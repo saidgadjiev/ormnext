@@ -15,6 +15,10 @@ import java.util.List;
  */
 public interface Dao<T, ID> extends BaseDao<T, ID> {
 
+    void caching(boolean flag);
+
+    void setObjectCache(ObjectCache objectCache);
+
     void caching(boolean flag, ObjectCache objectCache);
 
     ConnectionSource getDataSource();

@@ -12,9 +12,9 @@ public class StatementValidator<T, ID> implements IStatementExecutor<T, ID> {
 
     private DataBaseObject<T> dataBaseObject;
 
-    public StatementValidator(DataBaseObject<T> dataBaseObject) {
+    public StatementValidator(DataBaseObject<T> dataBaseObject, IStatementExecutor<T, ID> delegate) {
         this.dataBaseObject = dataBaseObject;
-        delegate = new CachedStatementExecutor<>(dataBaseObject);
+        this.delegate = delegate;
     }
 
     @Override

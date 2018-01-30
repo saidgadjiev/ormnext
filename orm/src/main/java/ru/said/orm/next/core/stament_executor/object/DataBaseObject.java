@@ -19,6 +19,8 @@ public class DataBaseObject<T> {
 
     private ObjectCache objectCache;
 
+    private boolean caching;
+
     public DataBaseObject(ConnectionSource dataSource, TableInfo<T> tableInfo) {
         this.objectBuilder = new ObjectBuilder<>(dataSource, tableInfo);
         this.objectCreator = new ObjectCreator<>(dataSource, tableInfo);
@@ -30,8 +32,10 @@ public class DataBaseObject<T> {
         return Optional.ofNullable(objectCache);
     }
 
-    public void setObjectCache(ObjectCache objectCache) {
+    public DataBaseObject<T> objectCache(ObjectCache objectCache) {
         this.objectCache = objectCache;
+
+        return this;
     }
 
     public TableInfo<T> getTableInfo() {
@@ -54,5 +58,15 @@ public class DataBaseObject<T> {
 
     public ConnectionSource getDataSource() {
         return dataSource;
+    }
+
+    public boolean isCaching() {
+        return caching;
+    }
+
+    public DataBaseObject<T> caching(boolean caching) {
+        this.caching = caching;
+
+        return this;
     }
 }

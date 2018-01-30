@@ -2,13 +2,21 @@ package ru.said.orm.next.core.cache;
 
 public interface ObjectCache {
 
-    <T, ID> void put(ID id, T data);
+    <T> void registerClass(Class<T> tClass);
 
-    <T, ID> T get(ID id);
+    <T, ID> void put(Class<T> tClass, ID id, T data);
 
-    <ID> boolean contains(ID id);
+    <T, ID> T get(Class<T> tClass, ID id);
 
-    <ID> void invalidate(ID id);
+    <T, ID> boolean contains(Class<T> tClass, ID id);
+
+    <T, ID> void invalidate(Class<T> tClass, ID id);
+
+    <T> void invalidateAll(Class<T> tClass);
 
     void invalidateAll();
+
+    <T> long size(Class<T> tClass);
+
+    <T> long sizeAll();
 }

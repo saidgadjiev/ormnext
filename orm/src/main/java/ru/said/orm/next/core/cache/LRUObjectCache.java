@@ -3,40 +3,107 @@ package ru.said.orm.next.core.cache;
 import ru.said.up.cache.core.Cache;
 import ru.said.up.cache.core.CacheBuilder;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Consumer;
+
 public class LRUObjectCache implements ObjectCache {
 
-    private Cache<Object, Object> cache;
+    private Map<Class<?>, Cache<Object, Object>> cache = new HashMap<>();
+
+    private int maxSize;
 
     public LRUObjectCache(int maxSize) {
-        cache = CacheBuilder.newLRUCacheBuilder().maxSize(maxSize).build();
+        this.maxSize = maxSize;
     }
 
     @Override
-    public <T, ID> void put(ID id, T data) {
-        cache.put(id, data);
+    public <T> void registerClass(Class<T> tClass) {
+        Cache<Object, Object> objectCache = cache.get(tClass);
+
+        if (objectCache == null) {
+            objectCache = CacheBuilder.newLRUCacheBuilder().maxSize(maxSize).build();
+            cache.put(tClass, objectCache);
+        }
+    }
+
+    @Override
+    public <T, ID> void put(Class<T> tClass, ID id, T data) {
+        Cache<Object, Object> objectCache = cache.get(tClass);
+
+        if (objectCache != null) {
+            objectCache.put(id, data);
+        }
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T, ID> T get(ID id) {
-        Object data = cache.get(id);
+    public <T, ID> T get(Class<T> tClass, ID id) {
+        Cache<Object, Object> objectCache = cache.get(tClass);
+
+        if (objectCache == null) {
+            return null;
+        }
+        Object data = objectCache.get(id);
 
         return (T) data;
     }
 
     @Override
-    public<ID> boolean contains(ID id) {
-        return cache.contains(id);
+    public<T, ID> boolean contains(Class<T> tClass, ID id) {
+        Cache<Object, Object> objectCache = cache.get(tClass);
+
+        if (objectCache == null) {
+            return false;
+        }
+        return objectCache.contains(id);
     }
 
     @Override
-    public <ID> void invalidate(ID id) {
-        cache.invalidate(id);
+    public <T, ID> void invalidate(Class<T> tClass, ID id) {
+        Cache<Object, Object> objectCache = cache.get(tClass);
+
+        if (objectCache == null) {
+            return;
+        }
+        objectCache.invalidate(id);
+    }
+
+    @Override
+    public<T> void invalidateAll(Class<T> tClass) {
+        Cache<Object, Object> objectCache = cache.get(tClass);
+
+        if (objectCache == null) {
+            return;
+        }
+        objectCache.invalidateAll();
     }
 
     @Override
     public void invalidateAll() {
-        cache.invalidateAll();
+        cache.forEach((key, value) -> value.invalidateAll());
+    }
+
+    @Override
+    public <T> long size(Class<T> tClass) {
+        Cache<Object, Object> objectCache = cache.get(tClass);
+
+        if (objectCache == null) {
+            return 0;
+        }
+
+        return objectCache.size();
+    }
+
+    @Override
+    public <T> long sizeAll() {
+        long count = 0;
+
+        for (Cache<Object, Object> cache: cache.values()) {
+            count += cache.size();
+        }
+
+        return count;
     }
 
 }
