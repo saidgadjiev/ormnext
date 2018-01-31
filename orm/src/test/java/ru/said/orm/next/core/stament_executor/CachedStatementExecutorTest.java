@@ -101,13 +101,10 @@ public class CachedStatementExecutorTest {
 
         TestClazz queryForIdClazz1 = cachedStatementExecutor.queryForId(null, 1);
 
-        Assert.assertEquals(1, objectCache.get(TestClazz.class, 1).id);
-        Assert.assertEquals("Said", objectCache.get(TestClazz.class, 1).name);
-        Assert.assertEquals(1, objectCache.size(TestClazz.class));
-        Assert.assertEquals(1, objectCache.sizeAll());
-
         Assert.assertEquals(1, queryForIdClazz1.id);
         Assert.assertEquals("Said", queryForIdClazz1.name);
+        Assert.assertEquals(1, objectCache.size(TestClazz.class));
+        Assert.assertEquals(1, objectCache.sizeAll());
 
         TestClazz queryForIdClazz2 = cachedStatementExecutor.queryForId(null, 1);
 
@@ -133,11 +130,11 @@ public class CachedStatementExecutorTest {
         Assert.assertEquals(2, objectCache.size(TestClazz.class));
         Assert.assertEquals(2, objectCache.sizeAll());
 
-        Assert.assertEquals(1, objectCache.get(TestClazz.class, 1).id);
-        Assert.assertEquals("Said", objectCache.get(TestClazz.class, 1).name);
+        Assert.assertEquals(1, results.get(0).id);
+        Assert.assertEquals("Said", results.get(0).name);
 
-        Assert.assertEquals(2, objectCache.get(TestClazz.class, 2).id);
-        Assert.assertEquals("SaidTest", objectCache.get(TestClazz.class, 2).name);
+        Assert.assertEquals(2, results.get(1).id);
+        Assert.assertEquals("SaidTest", results.get(1).name);
     }
 
     private DataBaseObject<TestClazz> createDBObject() {
