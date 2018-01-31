@@ -1,7 +1,6 @@
 package ru.said.orm.next.core.support;
 
 import ru.said.orm.next.core.db.DatabaseType;
-import ru.said.orm.next.core.support.ConnectionSource;
 
 import javax.sql.DataSource;
 import java.sql.Connection;

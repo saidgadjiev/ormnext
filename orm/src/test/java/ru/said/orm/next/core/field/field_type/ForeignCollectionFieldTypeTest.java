@@ -4,15 +4,11 @@ import org.junit.Assert;
 import org.junit.Test;
 import ru.said.orm.next.core.field.DBField;
 import ru.said.orm.next.core.field.ForeignCollectionField;
-import ru.said.orm.next.core.table.DBTable;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
-import static org.junit.Assert.*;
 
 public class ForeignCollectionFieldTypeTest {
 

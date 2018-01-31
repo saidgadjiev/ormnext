@@ -1,17 +1,10 @@
 package ru.said.orm.next.core.field.field_type;
 
-import ru.said.orm.next.core.field.DBField;
 import ru.said.orm.next.core.field.ForeignCollectionField;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.Arrays;
-import java.util.Optional;
 
-import static ru.said.orm.next.core.field.field_type.FieldTypeUtils.findFieldByName;
-import static ru.said.orm.next.core.field.field_type.FieldTypeUtils.findFieldByType;
-import static ru.said.orm.next.core.field.field_type.FieldTypeUtils.getCollectionGenericClass;
+import static ru.said.orm.next.core.field.field_type.FieldTypeUtils.*;
 
 /**
  * Created by said on 28.01.2018.

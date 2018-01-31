@@ -5,7 +5,6 @@ import ru.said.up.cache.core.CacheBuilder;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Consumer;
 
 public class LRUObjectCache implements ObjectCache {
 

@@ -80,13 +80,13 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V> implements Concur
 
     public ConcurrentHashMap(int capacity, float loadFactor) {
         map = newMap(capacity);
-        locks = new Object[capacity];
         this.capacity = capacity;
         this.threshold = (int) (capacity * loadFactor);
         initLocks();
     }
 
     private void initLocks() {
+        locks = new Object[capacity];
         for (int i = 0; i < capacity; ++i) {
             locks[i] = new Object();
         }
@@ -163,6 +163,7 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V> implements Concur
                     rehashLinks(entry);
                 }
             }
+            initLocks();
             resizing = true;
         }
     }

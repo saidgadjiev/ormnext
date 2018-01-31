@@ -1,10 +1,8 @@
 package ru.said.orm.next.core.field.field_type;
 
 import org.hamcrest.CoreMatchers;
-import org.hamcrest.Matcher;
 import org.junit.Assert;
 import org.junit.Test;
-import ru.said.orm.next.core.db.DatabaseType;
 import ru.said.orm.next.core.field.DBField;
 import ru.said.orm.next.core.field.DataType;
 import ru.said.orm.next.core.field.persisters.IntegerDataPersister;

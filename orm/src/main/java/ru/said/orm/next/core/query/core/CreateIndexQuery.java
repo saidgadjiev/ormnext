@@ -1,12 +1,10 @@
 package ru.said.orm.next.core.query.core;
 
-import ru.said.orm.next.core.field.field_type.DBFieldType;
 import ru.said.orm.next.core.field.field_type.IndexFieldType;
 import ru.said.orm.next.core.query.visitor.QueryElement;
 import ru.said.orm.next.core.query.visitor.QueryVisitor;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class CreateIndexQuery implements QueryElement {
 

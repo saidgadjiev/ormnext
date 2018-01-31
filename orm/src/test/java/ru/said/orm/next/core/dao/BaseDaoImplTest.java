@@ -8,10 +8,7 @@ import org.junit.Test;
 import ru.said.orm.next.core.db.H2DatabaseType;
 import ru.said.orm.next.core.field.DBField;
 import ru.said.orm.next.core.support.DataSourceConnectionSource;
-import ru.said.orm.next.core.table.TableInfo;
-import ru.said.orm.next.core.table.utils.TableUtils;
 
-import java.sql.SQLException;
 import java.util.List;
 
 /**

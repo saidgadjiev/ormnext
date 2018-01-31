@@ -18,6 +18,7 @@ public class ResultsMapperImpl<T> implements ResultsMapper<T> {
 
         return dataBaseObject
                 .getObjectBuilder()
+                .newObject()
                 .buildBase(results, tableInfo.toDBFieldTypes())
                 .buildForeign(results, tableInfo.toForeignFieldTypes())
                 .buildForeignCollection(tableInfo.toForeignCollectionFieldTypes())

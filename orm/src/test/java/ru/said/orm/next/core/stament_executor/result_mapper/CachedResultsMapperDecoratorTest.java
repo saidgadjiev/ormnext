@@ -6,16 +6,11 @@ import org.mockito.Mockito;
 import ru.said.orm.next.core.cache.LRUObjectCache;
 import ru.said.orm.next.core.cache.ObjectCache;
 import ru.said.orm.next.core.field.DBField;
-import ru.said.orm.next.core.stament_executor.CachedStatementExecutorTest;
 import ru.said.orm.next.core.stament_executor.DatabaseResults;
 import ru.said.orm.next.core.stament_executor.object.DataBaseObject;
 import ru.said.orm.next.core.table.TableInfo;
 
-import javax.xml.crypto.Data;
-
 import java.lang.reflect.Field;
-
-import static org.junit.Assert.*;
 
 public class CachedResultsMapperDecoratorTest {
 
@@ -41,7 +36,7 @@ public class CachedResultsMapperDecoratorTest {
     }
 
     private DataBaseObject<TestClazz> createDBObject() throws Exception {
-        TableInfo<TestClazz> tableInfo = TableInfo.TableInfoCache.build(TestClazz.class);
+        TableInfo<TestClazz> tableInfo = TableInfo.build(TestClazz.class);
 
         ObjectCache objectCache = new LRUObjectCache(16);
 

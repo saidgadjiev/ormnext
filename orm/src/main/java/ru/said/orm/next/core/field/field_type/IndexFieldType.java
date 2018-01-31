@@ -1,9 +1,5 @@
 package ru.said.orm.next.core.field.field_type;
 
-import ru.said.orm.next.core.table.Index;
-import ru.said.orm.next.core.table.utils.TableInfoUtils;
-
-import java.util.ArrayList;
 import java.util.List;
 
 public class IndexFieldType {

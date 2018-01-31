@@ -85,13 +85,11 @@ public class CreateQuery implements QueryElement {
                 Object foreignObject = fieldType.access(object);
                 TableInfo<?> foreignTableInfo = TableInfo.TableInfoCache.build(fieldType.getForeignFieldClass());
 
-                if (foreignObject != null) {
-                    if (foreignTableInfo.getPrimaryKey().isPresent()) {
-                        createQuery.add(new UpdateValue(
-                                fieldType.getColumnName(),
-                                FieldConverter.getInstanse().convert(fieldType.getDataType(), fieldType.getForeignPrimaryKey().access(foreignObject)))
-                        );
-                    }
+                if (foreignObject != null && foreignTableInfo.getPrimaryKey().isPresent()) {
+                    createQuery.add(new UpdateValue(
+                            fieldType.getColumnName(),
+                            FieldConverter.getInstanse().convert(fieldType.getDataType(), fieldType.getForeignPrimaryKey().access(foreignObject)))
+                    );
                 }
             }
         } catch (Exception ex) {

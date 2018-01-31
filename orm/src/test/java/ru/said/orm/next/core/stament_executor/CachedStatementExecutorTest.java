@@ -8,17 +8,11 @@ import ru.said.orm.next.core.cache.LRUObjectCache;
 import ru.said.orm.next.core.cache.ObjectCache;
 import ru.said.orm.next.core.field.DBField;
 import ru.said.orm.next.core.stament_executor.object.DataBaseObject;
-import ru.said.orm.next.core.stament_executor.result_mapper.CachedResultsMapperDecorator;
-import ru.said.orm.next.core.stament_executor.result_mapper.ResultsMapper;
-import ru.said.orm.next.core.stament_executor.result_mapper.ResultsMapperImpl;
 import ru.said.orm.next.core.table.TableInfo;
 
 import java.lang.reflect.Field;
-import java.sql.Connection;
 import java.util.Arrays;
 import java.util.List;
-
-import static org.junit.Assert.*;
 
 public class CachedStatementExecutorTest {
 
@@ -26,7 +20,7 @@ public class CachedStatementExecutorTest {
 
     @Before
     public void setUp() throws Exception {
-        tableInfo = TableInfo.TableInfoCache.build(TestClazz.class);
+        tableInfo = TableInfo.build(TestClazz.class);
     }
 
     @Test

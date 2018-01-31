@@ -41,10 +41,7 @@ public abstract class BaseDaoImpl<T, ID> implements Dao<T, ID> {
                                 dataBaseObject,
                                 new CachedResultsMapperDecorator<>(
                                         dataBaseObject,
-                                        new CachedResultsMapperDecorator<>(
-                                                dataBaseObject,
-                                                new ResultsMapperImpl<>(dataBaseObject)
-                                        )
+                                        new ResultsMapperImpl<>(dataBaseObject)
                                 )
                         )
                 )

@@ -36,7 +36,7 @@ public class TransactionImplTest {
     }
 
     private Dao<TestClazz, Integer> createDao() throws SQLException {
-        ConnectionSource connectionSource = new JDBCConnectionSource("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1", new H2DatabaseType());
+        ConnectionSource connectionSource = new JDBCConnectionSource("jdbc:h2:mem:test", new H2DatabaseType());
         Dao<TestClazz, Integer> dao = DaoManager.createDAO(connectionSource, TestClazz.class);
 
         return dao;
