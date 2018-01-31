@@ -46,7 +46,7 @@ public class ObjectBuilder<T> {
             TableInfo<?> foreignTableInfo = TableInfo.TableInfoCache.build(fieldType.getForeignFieldClass());
             Object val = newObject(foreignTableInfo.getConstructor());
 
-            if (foreignTableInfo.getPrimaryKeys().isPresent()) {
+            if (foreignTableInfo.getPrimaryKey().isPresent()) {
                 fieldType.getForeignPrimaryKey().assign(val, data.getObject(fieldType.getColumnName()));
             }
             fieldType.assign(object, val);
@@ -74,8 +74,8 @@ public class ObjectBuilder<T> {
             TableInfo<?> foreignTableInfo = TableInfo.TableInfoCache.build(fieldType.getForeignFieldClass());
             Dao<Object, ?> foreignDao = (BaseDaoImpl<Object, ?>) DaoManager.createDAOWithTableInfo(dataSource, foreignTableInfo);
 
-            if (tableInfo.getPrimaryKeys().isPresent() && foreignTableInfo.getPrimaryKeys().isPresent()) {
-                IDBFieldType idField = tableInfo.getPrimaryKeys().get();
+            if (tableInfo.getPrimaryKey().isPresent() && foreignTableInfo.getPrimaryKey().isPresent()) {
+                IDBFieldType idField = tableInfo.getPrimaryKey().get();
                 ForeignFieldType foreignField = (ForeignFieldType) new ForeignCollectionFieldTypeFactory().createFieldType(fieldType.getForeignField());
 
                 GenericResults<?> genericResults = foreignDao.query(

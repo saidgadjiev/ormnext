@@ -8,10 +8,14 @@ import ru.said.orm.next.core.cache.LRUObjectCache;
 import ru.said.orm.next.core.cache.ObjectCache;
 import ru.said.orm.next.core.field.DBField;
 import ru.said.orm.next.core.stament_executor.object.DataBaseObject;
+import ru.said.orm.next.core.stament_executor.result_mapper.CachedResultsMapperDecorator;
+import ru.said.orm.next.core.stament_executor.result_mapper.ResultsMapper;
+import ru.said.orm.next.core.stament_executor.result_mapper.ResultsMapperImpl;
 import ru.said.orm.next.core.table.TableInfo;
 
 import java.lang.reflect.Field;
 import java.sql.Connection;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -115,6 +119,25 @@ public class CachedStatementExecutorTest {
 
     @Test
     public void queryForAll() throws Exception {
+        DataBaseObject<TestClazz> dataBaseObject = createDBObject();
+        ObjectCache objectCache = dataBaseObject.getObjectCache().get();
+        IStatementExecutor<TestClazz, Integer> statementExecutor = Mockito.mock(IStatementExecutor.class);
+        CachedStatementExecutor<TestClazz, Integer> cachedStatementExecutor = new CachedStatementExecutor<>(dataBaseObject, statementExecutor);
+        TestClazz clazz = createTestClazz(1, "Said");
+        TestClazz clazz1 = createTestClazz(2, "SaidTest");
+
+        Mockito.when(statementExecutor.queryForAll(null)).thenReturn(Arrays.asList(clazz, clazz1));
+
+        List<TestClazz> results = cachedStatementExecutor.queryForAll(null);
+
+        Assert.assertEquals(2, objectCache.size(TestClazz.class));
+        Assert.assertEquals(2, objectCache.sizeAll());
+
+        Assert.assertEquals(1, objectCache.get(TestClazz.class, 1).id);
+        Assert.assertEquals("Said", objectCache.get(TestClazz.class, 1).name);
+
+        Assert.assertEquals(2, objectCache.get(TestClazz.class, 2).id);
+        Assert.assertEquals("SaidTest", objectCache.get(TestClazz.class, 2).name);
     }
 
     private DataBaseObject<TestClazz> createDBObject() {

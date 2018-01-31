@@ -1,12 +1,9 @@
 package ru.said.orm.next.core.dao;
 
 import ru.said.orm.next.core.cache.ObjectCache;
-import ru.said.orm.next.core.stament_executor.GenericResults;
-import ru.said.orm.next.core.stament_executor.ResultsMapper;
 import ru.said.orm.next.core.support.ConnectionSource;
 
 import java.sql.SQLException;
-import java.util.List;
 
 /**
  * Класс для DAO

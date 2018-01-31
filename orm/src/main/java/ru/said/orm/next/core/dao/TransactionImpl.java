@@ -2,7 +2,7 @@ package ru.said.orm.next.core.dao;
 
 import ru.said.orm.next.core.stament_executor.GenericResults;
 import ru.said.orm.next.core.stament_executor.IStatementExecutor;
-import ru.said.orm.next.core.stament_executor.ResultsMapper;
+import ru.said.orm.next.core.stament_executor.result_mapper.ResultsMapper;
 
 import java.sql.Connection;
 import java.sql.SQLException;

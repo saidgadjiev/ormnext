@@ -86,7 +86,7 @@ public class CreateQuery implements QueryElement {
                 TableInfo<?> foreignTableInfo = TableInfo.TableInfoCache.build(fieldType.getForeignFieldClass());
 
                 if (foreignObject != null) {
-                    if (foreignTableInfo.getPrimaryKeys().isPresent()) {
+                    if (foreignTableInfo.getPrimaryKey().isPresent()) {
                         createQuery.add(new UpdateValue(
                                 fieldType.getColumnName(),
                                 FieldConverter.getInstanse().convert(fieldType.getDataType(), fieldType.getForeignPrimaryKey().access(foreignObject)))

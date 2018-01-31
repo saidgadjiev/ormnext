@@ -1,6 +1,7 @@
 package ru.said.orm.next.core.stament_executor;
 
 import ru.said.orm.next.core.stament_executor.object.DataBaseObject;
+import ru.said.orm.next.core.stament_executor.result_mapper.ResultsMapper;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -34,7 +35,7 @@ public class StatementValidator<T, ID> implements IStatementExecutor<T, ID> {
 
     @Override
     public int update(Connection connection, T object) throws SQLException {
-        if (!dataBaseObject.getTableInfo().getPrimaryKeys().isPresent()) {
+        if (!dataBaseObject.getTableInfo().getPrimaryKey().isPresent()) {
             throw new SQLException("Id is not defined");
         }
 
@@ -43,7 +44,7 @@ public class StatementValidator<T, ID> implements IStatementExecutor<T, ID> {
 
     @Override
     public int delete(Connection connection, T object) throws SQLException {
-        if (!dataBaseObject.getTableInfo().getPrimaryKeys().isPresent()) {
+        if (!dataBaseObject.getTableInfo().getPrimaryKey().isPresent()) {
             throw new SQLException("Id is not defined");
         }
 
@@ -52,7 +53,7 @@ public class StatementValidator<T, ID> implements IStatementExecutor<T, ID> {
 
     @Override
     public int deleteById(Connection connection, ID id) throws SQLException {
-        if (!dataBaseObject.getTableInfo().getPrimaryKeys().isPresent()) {
+        if (!dataBaseObject.getTableInfo().getPrimaryKey().isPresent()) {
             throw new SQLException("Id is not defined");
         }
 
@@ -61,7 +62,7 @@ public class StatementValidator<T, ID> implements IStatementExecutor<T, ID> {
 
     @Override
     public T queryForId(Connection connection, ID id) throws SQLException {
-        if (!dataBaseObject.getTableInfo().getPrimaryKeys().isPresent()) {
+        if (!dataBaseObject.getTableInfo().getPrimaryKey().isPresent()) {
             throw new SQLException("Id is not defined");
         }
 

@@ -3,13 +3,13 @@ package ru.said.orm.next.core.stament_executor;
 import ru.said.orm.next.core.cache.ObjectCache;
 import ru.said.orm.next.core.field.field_type.IDBFieldType;
 import ru.said.orm.next.core.stament_executor.object.DataBaseObject;
+import ru.said.orm.next.core.stament_executor.result_mapper.ResultsMapper;
 import ru.said.orm.next.core.table.TableInfo;
 
 import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.function.Consumer;
 
 public class CachedStatementExecutor<T, ID> implements IStatementExecutor<T, ID> {
 
@@ -30,8 +30,8 @@ public class CachedStatementExecutor<T, ID> implements IStatementExecutor<T, ID>
             ObjectCache objectCache = dataBaseObject.getObjectCache().get();
             TableInfo<T> tableInfo = dataBaseObject.getTableInfo();
 
-            if (tableInfo.getPrimaryKeys().isPresent()) {
-                IDBFieldType idbFieldType = tableInfo.getPrimaryKeys().get();
+            if (tableInfo.getPrimaryKey().isPresent()) {
+                IDBFieldType idbFieldType = tableInfo.getPrimaryKey().get();
 
                 try {
                     objectCache.put(tableInfo.getTableClass(), idbFieldType.access(object), object);
@@ -60,7 +60,7 @@ public class CachedStatementExecutor<T, ID> implements IStatementExecutor<T, ID>
 
         if (count > 0) {
             TableInfo<T> tableInfo = dataBaseObject.getTableInfo();
-            IDBFieldType idFieldType = tableInfo.getPrimaryKeys().get();
+            IDBFieldType idFieldType = tableInfo.getPrimaryKey().get();
 
             try {
                 if (dataBaseObject.isCaching() && dataBaseObject.getObjectCache().isPresent()) {
@@ -82,7 +82,7 @@ public class CachedStatementExecutor<T, ID> implements IStatementExecutor<T, ID>
     @Override
     public int delete(Connection connection, T object) throws SQLException {
         TableInfo<T> tableInfo = dataBaseObject.getTableInfo();
-        IDBFieldType dbFieldType = tableInfo.getPrimaryKeys().get();
+        IDBFieldType dbFieldType = tableInfo.getPrimaryKey().get();
         Integer result = delegate.delete(connection, object);
 
         try {
@@ -138,8 +138,8 @@ public class CachedStatementExecutor<T, ID> implements IStatementExecutor<T, ID>
         TableInfo<T> tableInfo = dataBaseObject.getTableInfo();
 
         try {
-            if (tableInfo.getPrimaryKeys().isPresent() && dataBaseObject.isCaching() && dataBaseObject.getObjectCache().isPresent()) {
-                IDBFieldType idbFieldType = tableInfo.getPrimaryKeys().get();
+            if (tableInfo.getPrimaryKey().isPresent() && dataBaseObject.isCaching() && dataBaseObject.getObjectCache().isPresent()) {
+                IDBFieldType idbFieldType = tableInfo.getPrimaryKey().get();
                 ObjectCache objectCache = dataBaseObject.getObjectCache().get();
 
                 for (T object : result) {

@@ -3,6 +3,8 @@ package ru.said.orm.next.core.stament_executor;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by said on 12.11.17.
@@ -17,8 +19,31 @@ public class DatabaseResults implements AutoCloseable {
     public DatabaseResults(ResultSet resultSet, ResultSetMetaData metaData) {
         this.resultSet = resultSet;
         this.metaData = metaData;
-
     }
+
+    public List<String> getColumnNames() throws SQLException {
+        int count = metaData.getColumnCount();
+        List<String> columns = new ArrayList<>();
+
+        for (int i = 0; i < count; ++i) {
+            columns.add(metaData.getColumnName(i));
+        }
+
+        return columns;
+    }
+
+    public boolean hasColumn(String name) throws SQLException {
+        int count = metaData.getColumnCount();
+
+        for (int i = 0; i < count; ++i) {
+            if (name.equals(metaData.getColumnName(i))) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 
     public boolean next() throws SQLException {
         return resultSet.next();

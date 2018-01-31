@@ -1,5 +1,7 @@
 package ru.said.orm.next.core.stament_executor;
 
+import ru.said.orm.next.core.stament_executor.result_mapper.ResultsMapper;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;

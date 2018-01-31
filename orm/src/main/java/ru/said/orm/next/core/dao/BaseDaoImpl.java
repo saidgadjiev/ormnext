@@ -3,6 +3,9 @@ package ru.said.orm.next.core.dao;
 import ru.said.orm.next.core.cache.ObjectCache;
 import ru.said.orm.next.core.stament_executor.*;
 import ru.said.orm.next.core.stament_executor.object.DataBaseObject;
+import ru.said.orm.next.core.stament_executor.result_mapper.CachedResultsMapperDecorator;
+import ru.said.orm.next.core.stament_executor.result_mapper.ResultsMapper;
+import ru.said.orm.next.core.stament_executor.result_mapper.ResultsMapperImpl;
 import ru.said.orm.next.core.support.ConnectionSource;
 import ru.said.orm.next.core.table.TableInfo;
 
@@ -34,7 +37,16 @@ public abstract class BaseDaoImpl<T, ID> implements Dao<T, ID> {
                 this.dataBaseObject,
                 new CachedStatementExecutor<>(
                         dataBaseObject,
-                        new StatementExecutorImpl<>(dataBaseObject)
+                        new StatementExecutorImpl<>(
+                                dataBaseObject,
+                                new CachedResultsMapperDecorator<>(
+                                        dataBaseObject,
+                                        new CachedResultsMapperDecorator<>(
+                                                dataBaseObject,
+                                                new ResultsMapperImpl<>(dataBaseObject)
+                                        )
+                                )
+                        )
                 )
         );
     }

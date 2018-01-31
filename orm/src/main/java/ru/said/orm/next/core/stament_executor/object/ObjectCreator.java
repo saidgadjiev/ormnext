@@ -57,7 +57,7 @@ public class ObjectCreator<T> {
                 }
 
                 //TODO: эту проверку заменить на fieldType.getForeignPrimarykey
-                if (foreignTableInfo.getPrimaryKeys().isPresent()) {
+                if (foreignTableInfo.getPrimaryKey().isPresent()) {
                     query.add(new UpdateValue(
                             fieldType.getColumnName(),
                             FieldConverter.getInstanse().convert(fieldType.getDataType(), fieldType.getForeignPrimaryKey().access(foreignObject)))

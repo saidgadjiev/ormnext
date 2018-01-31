@@ -84,7 +84,7 @@ public final class TableInfo<T> {
         return tableName;
     }
 
-    public Optional<IDBFieldType> getPrimaryKeys() {
+    public Optional<IDBFieldType> getPrimaryKey() {
         return Optional.ofNullable(primaryKeyFieldType);
     }
 
