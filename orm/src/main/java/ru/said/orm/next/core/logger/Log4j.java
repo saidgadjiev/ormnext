@@ -1,7 +1,7 @@
 package ru.said.orm.next.core.logger;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.apache.log4j.Priority;
 
 public class Log4j implements Log {
 
@@ -9,7 +9,9 @@ public class Log4j implements Log {
 
     @Override
     public void debug(Object message) {
-        logger.debug(message);
+        if (logger.isDebugEnabled()) {
+            logger.debug(message);
+        }
     }
 
     public void debug(Object message, Throwable t) {
@@ -20,13 +22,13 @@ public class Log4j implements Log {
 
     @Override
     public void error(Object message) {
-        if (logger.isEnabledFor(Priority.ERROR)) {
+        if (logger.isEnabledFor(Level.ERROR)) {
             logger.error(message);
         }
     }
 
     public void error(Object message, Throwable t) {
-        if (logger.isEnabledFor(Priority.ERROR)) {
+        if (logger.isEnabledFor(Level.ERROR)) {
             logger.error(message, t);
         }
     }
@@ -39,14 +41,20 @@ public class Log4j implements Log {
     }
 
     public void info(Object message, Throwable t) {
-        logger.info(message, t);
+        if (logger.isInfoEnabled()) {
+            logger.info(message, t);
+        }
     }
 
     public void warn(Object message) {
-        logger.warn(message);
+        if (logger.isEnabledFor(Level.WARN)) {
+            logger.warn(message);
+        }
     }
 
     public void warn(Object message, Throwable t) {
-        logger.warn(message, t);
+        if (logger.isEnabledFor(Level.WARN)) {
+            logger.warn(message, t);
+        }
     }
 }
