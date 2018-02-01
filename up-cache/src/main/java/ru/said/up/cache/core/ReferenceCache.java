@@ -1,9 +1,8 @@
 package ru.said.up.cache.core;
 
-import ru.said.up.cache.core.cuncurrent.ConcurrentHashMap;
-
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 @SuppressWarnings("PMD")

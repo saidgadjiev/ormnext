@@ -3,12 +3,12 @@ package ru.said.orm.next.core.cache;
 import ru.said.up.cache.core.Cache;
 import ru.said.up.cache.core.CacheBuilder;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class LRUObjectCache implements ObjectCache {
 
-    private Map<Class<?>, Cache<Object, Object>> cache = new HashMap<>();
+    private Map<Class<?>, Cache<Object, Object>> cache = new ConcurrentHashMap<>();
 
     private int maxSize;
 
