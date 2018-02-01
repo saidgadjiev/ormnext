@@ -2,9 +2,9 @@ package ru.said.orm.next.core.logger;
 
 public interface Log {
 
-    void info();
+    void info(Object message);
 
-    void debug();
+    void debug(Object message);
 
-    void error();
+    void error(Object message);
 }
