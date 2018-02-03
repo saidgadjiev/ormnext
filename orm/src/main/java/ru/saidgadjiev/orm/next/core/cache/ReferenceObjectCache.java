@@ -89,7 +89,7 @@ public class ReferenceObjectCache implements ObjectCache {
     }
 
     @Override
-    public <T> long sizeAll() {
+    public long sizeAll() {
         long count = 0;
 
         for (Cache<Object, Object> cache: cache.values()) {

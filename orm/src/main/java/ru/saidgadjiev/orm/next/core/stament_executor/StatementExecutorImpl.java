@@ -13,13 +13,15 @@ import ru.saidgadjiev.orm.next.core.stament_executor.object.ObjectCreator;
 import ru.saidgadjiev.orm.next.core.stament_executor.result_mapper.ResultsMapper;
 import ru.saidgadjiev.orm.next.core.table.TableInfo;
 
-import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 
 /**
  * Класс для выполнения sql запросов
@@ -32,17 +34,18 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
 
     private TableInfo<T> tableInfo;
     
-    private ObjectCreator<T> objectCreator;
+    private Supplier<ObjectCreator<T>> objectCreatorFactory;
 
     private DatabaseType databaseType;
+
     private ResultsMapper<T> resultsMapper;
 
     public StatementExecutorImpl(TableInfo<T> tableInfo,
-                                 ObjectCreator<T> objectCreator,
+                                 Supplier<ObjectCreator<T>> objectCreatorFactory,
                                  DatabaseType databaseType,
                                  ResultsMapper<T> resultsMapper) {
         this.tableInfo = tableInfo;
-        this.objectCreator = objectCreator;
+        this.objectCreatorFactory = objectCreatorFactory;
         this.databaseType = databaseType;
         this.resultsMapper = resultsMapper;
     }
@@ -55,18 +58,25 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
     @SuppressWarnings("unchecked")
     public int create(Connection connection, T object) throws SQLException {
         try {
-            CreateQuery query = objectCreator.newObject(object)
+            ObjectCreator<T> objectCreator = objectCreatorFactory.get();
+
+            CreateQuery createQuery = objectCreator
+                    .newObject()
                     .createBase(object)
                     .createForeign(object)
                     .query();
+            String query = getQuery(createQuery);
 
-            try (PreparedQueryImpl preparedQuery = new PreparedQueryImpl(connection.prepareStatement(getQuery(query), Statement.RETURN_GENERATED_KEYS))) {
-                Integer result = preparedQuery.executeUpdate();
+            try (IPreparedStatement statement = new PreparedQueryImpl(connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS), query)) {
+                for (Map.Entry<Integer, Object> entry: objectCreator.getArgs().entrySet()) {
+                    statement.setObject(entry.getKey(), entry.getValue());
+                }
+                Integer result = statement.executeUpdate();
 
                 if (tableInfo.getPrimaryKey().isPresent()) {
                     IDBFieldType idField = tableInfo.getPrimaryKey().get();
 
-                    ResultSet resultSet = preparedQuery.getGeneratedKeys();
+                    ResultSet resultSet = statement.getGeneratedKeys();
                     try (GeneratedKeys generatedKeys = new GeneratedKeys(resultSet, resultSet.getMetaData())) {
                         if (generatedKeys.next()) {
                             try {
@@ -87,28 +97,30 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
 
     @Override
     public boolean createTable(Connection connection, boolean ifNotExists) throws SQLException {
-        
         CreateTableQuery createTableQuery = CreateTableQuery.buildQuery(
                 tableInfo,
                 ifNotExists
         );
 
-        try (PreparedQueryImpl preparedQuery = new PreparedQueryImpl(connection.prepareStatement(getQuery(createTableQuery)))) {
-            preparedQuery.executeUpdate();
+        try (IStatement statement = new StatementImpl(connection.createStatement())) {
+            statement.executeUpdate(getQuery(createTableQuery));
 
             return true;
+        } catch (Exception ex) {
+            throw new SQLException(ex);
         }
     }
 
     @Override
     public boolean dropTable(Connection connection, boolean ifExists) throws SQLException {
-        
         DropTableQuery dropTableQuery = DropTableQuery.buildQuery(tableInfo.getTableName(), ifExists);
 
-        try (PreparedQueryImpl preparedQuery = new PreparedQueryImpl(connection.prepareStatement(getQuery(dropTableQuery)))) {
-            preparedQuery.executeUpdate();
+        try (IStatement statement = new StatementImpl(connection.createStatement())) {
+            statement.executeUpdate(getQuery(dropTableQuery));
 
             return true;
+        } catch (Exception ex) {
+            throw new SQLException(ex);
         }
     }
 
@@ -118,17 +130,23 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
      */
     @Override
     public int update(Connection connection, T object) throws SQLException {
-        
         IDBFieldType idFieldType = tableInfo.getPrimaryKey().get();
-        UpdateQuery query = UpdateQuery.buildQuery(
+        UpdateQuery updateQuery = UpdateQuery.buildQuery(
                 tableInfo.getTableName(),
                 tableInfo.toDBFieldTypes(),
                 idFieldType.getColumnName(),
                 object
         );
+        String query = getQuery(updateQuery);
+        AtomicInteger index = new AtomicInteger();
 
-        try (PreparedQueryImpl preparedQuery = new PreparedQueryImpl(connection.prepareStatement(getQuery(query)))) {
-            preparedQuery.setObject(1, idFieldType.access(object));
+        try (IPreparedStatement preparedQuery = new PreparedQueryImpl(connection.prepareStatement(query), query)) {
+            for (IDBFieldType idbFieldType: tableInfo.toDBFieldTypes()) {
+                Object value = idbFieldType.access(object);
+
+                preparedQuery.setObject(index.incrementAndGet(), value);
+            }
+            preparedQuery.setObject(index.incrementAndGet(), idFieldType.access(object));
 
             return preparedQuery.executeUpdate();
         } catch (Exception ex) {
@@ -145,14 +163,15 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
         try {
             IDBFieldType dbFieldType = tableInfo.getPrimaryKey().get();
             Object id = dbFieldType.access(object);
-            DeleteQuery query = DeleteQuery.buildQuery(tableInfo.getTableName(), dbFieldType.getColumnName());
+            DeleteQuery deleteQuery = DeleteQuery.buildQuery(tableInfo.getTableName(), dbFieldType.getColumnName());
+            String query = getQuery(deleteQuery);
 
-            try (PreparedQueryImpl preparedQuery = new PreparedQueryImpl(connection.prepareStatement(getQuery(query)))) {
+            try (IPreparedStatement preparedQuery = new PreparedQueryImpl(connection.prepareStatement(query), query)) {
                 preparedQuery.setObject(1, id);
 
                 return preparedQuery.executeUpdate();
             }
-        } catch (IllegalAccessException | InvocationTargetException ex) {
+        } catch (Exception ex) {
             throw new SQLException(ex);
         }
     }
@@ -164,12 +183,15 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
     @Override
     public int deleteById(Connection connection, ID id) throws SQLException {
         IDBFieldType dbFieldType = tableInfo.getPrimaryKey().get();
-        DeleteQuery query = DeleteQuery.buildQuery(tableInfo.getTableName(), dbFieldType.getColumnName());
+        DeleteQuery deleteQuery = DeleteQuery.buildQuery(tableInfo.getTableName(), dbFieldType.getColumnName());
+        String query = getQuery(deleteQuery);
 
-        try (PreparedQueryImpl preparedQuery = new PreparedQueryImpl(connection.prepareStatement(getQuery(query)))) {
+        try (IPreparedStatement preparedQuery = new PreparedQueryImpl(connection.prepareStatement(query), query)) {
             preparedQuery.setObject(1, id);
 
             return preparedQuery.executeUpdate();
+        } catch (Exception ex) {
+            throw new SQLException(ex);
         }
     }
 
@@ -180,16 +202,17 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
     @Override
     public T queryForId(Connection connection, ID id) throws SQLException {
         IDBFieldType dbFieldType = tableInfo.getPrimaryKey().get();
-        Select query = Select.buildQueryById(tableInfo.getTableName(), dbFieldType, id);
+        Select selectQuery = Select.buildQueryById(tableInfo.getTableName(), dbFieldType, id);
+        String query = getQuery(selectQuery);
 
-        try (PreparedQueryImpl preparedQuery = new PreparedQueryImpl(connection.prepareStatement(getQuery(query)))) {
+        try (IPreparedStatement preparedQuery = new PreparedQueryImpl(connection.prepareStatement(query), query)) {
             try (DatabaseResults databaseResults = preparedQuery.executeQuery()) {
                 if (databaseResults.next()) {
                     return resultsMapper.mapResults(databaseResults);
                 }
-            } catch (Exception ex) {
-                throw new SQLException(ex);
             }
+        } catch (Exception ex) {
+            throw new SQLException(ex);
         }
 
         return null;
@@ -203,16 +226,16 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
     public List<T> queryForAll(Connection connection) throws SQLException {
         Select select = Select.buildQueryForAll(tableInfo.getTableName());
         List<T> resultObjectList = new ArrayList<>();
+        String query = getQuery(select);
 
-        try (PreparedQueryImpl preparedQueryImpl = new PreparedQueryImpl(connection.prepareStatement(getQuery(select)))) {
-            try (DatabaseResults databaseResults = preparedQueryImpl.executeQuery()) {
+        try (IStatement statement = new StatementImpl(connection.createStatement())) {
+            try (DatabaseResults databaseResults = statement.executeQuery(query)) {
                 while (databaseResults.next()) {
                     resultObjectList.add(resultsMapper.mapResults(databaseResults));
                 }
-            } catch (Exception ex) {
-                throw new SQLException(ex);
             }
-
+        } catch (Exception ex) {
+            throw new SQLException(ex);
         }
 
         return resultObjectList;
@@ -226,8 +249,10 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
         for (IndexFieldType indexFieldType : indexFieldTypes) {
             CreateIndexQuery createIndexQuery = new CreateIndexQuery(indexFieldType);
 
-            try (PreparedQueryImpl preparedQuery = new PreparedQueryImpl(connection.prepareStatement(getQuery(createIndexQuery)))) {
-                preparedQuery.executeUpdate();
+            try (IStatement statement = new StatementImpl(connection.createStatement())) {
+                statement.executeUpdate(getQuery(createIndexQuery));
+            } catch (Exception ex) {
+                throw new SQLException(ex);
             }
         }
     }
@@ -239,16 +264,18 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
         for (IndexFieldType indexFieldType : indexFieldTypes) {
             DropIndexQuery dropIndexQuery = DropIndexQuery.build(indexFieldType.getName());
 
-            try (PreparedQueryImpl preparedQuery = new PreparedQueryImpl(connection.prepareStatement(getQuery(dropIndexQuery)))) {
-                preparedQuery.executeUpdate();
+            try (IStatement statement = new StatementImpl(connection.createStatement())) {
+                statement.executeUpdate(getQuery(dropIndexQuery));
+            } catch (Exception ex) {
+                throw new SQLException(ex);
             }
         }
     }
 
     @Override
     public <R> GenericResults<R> query(Connection connection, String query, ResultsMapper<R> resultsMapper) throws SQLException {
-        try (PreparedQueryImpl preparedQueryImpl = new PreparedQueryImpl(connection.prepareStatement(query))) {
-            try (DatabaseResults databaseResults = preparedQueryImpl.executeQuery()) {
+        try (IStatement statement = new StatementImpl(connection.createStatement())) {
+            try (DatabaseResults databaseResults = statement.executeQuery(query)) {
                 return new GenericResults<R>() {
                     @Override
                     public List<R> getResults() throws SQLException {
@@ -270,22 +297,22 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
                         return null;
                     }
                 };
-            } catch (Exception ex) {
-                throw new SQLException(ex);
             }
+        } catch (Exception ex) {
+            throw new SQLException(ex);
         }
     }
 
     @Override
     public long query(String query, Connection connection) throws SQLException {
-        try (PreparedQueryImpl preparedQueryImpl = new PreparedQueryImpl(connection.prepareStatement(query))) {
-            try (DatabaseResults databaseResults = preparedQueryImpl.executeQuery()) {
+        try (IStatement statement = new StatementImpl(connection.createStatement())) {
+            try (DatabaseResults databaseResults = statement.executeQuery(query)) {
                 if (databaseResults.next()) {
                     return databaseResults.getLong(1);
                 }
-            } catch (Exception ex) {
-                throw new SQLException(ex);
             }
+        } catch (Exception ex) {
+            throw new SQLException(ex);
         }
 
         throw new SQLException("No result found in queryForLong: " + query);

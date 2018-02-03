@@ -3,23 +3,23 @@ package ru.saidgadjiev.orm.next.core.query.core.literals;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryVisitor;
 
 /**
- * Created by said on 08.09.17.
+ * Created by said on 03.02.2018.
  */
-public class StringLiteral implements Literal<String> {
+public class FloatLiteral implements Literal<Float> {
 
-    private final String value;
+    private final float value;
 
-    public StringLiteral(String value) {
+    public FloatLiteral(float value) {
         this.value = value;
     }
 
     @Override
     public String getOriginal() {
-        return value;
+        return String.valueOf(value);
     }
 
     @Override
-    public String get() {
+    public Float get() {
         return value;
     }
 

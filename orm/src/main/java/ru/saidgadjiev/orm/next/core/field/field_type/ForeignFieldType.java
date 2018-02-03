@@ -52,6 +52,11 @@ public class ForeignFieldType implements IDBFieldType {
     }
 
     @Override
+    public String getFormat() {
+        return dbFieldType.getFormat();
+    }
+
+    @Override
     public int getLength() {
         return dbFieldType.getLength();
     }

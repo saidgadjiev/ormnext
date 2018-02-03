@@ -10,11 +10,15 @@ public class LoggerFactory {
 
     }
 
-    public static Log getLogger(Class<?> clazz) throws Exception {
+    public static Log getLogger(Class<?> clazz) {
         String loggerClassName = System.getProperty(LOG_CLASS_PROPERTY);
 
         if (loggerClassName != null) {
-            return loadLogger(clazz.getName(), loggerClassName);
+            try {
+                return loadLogger(clazz.getName(), loggerClassName);
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
         }
 
         return new Log4j(clazz.getName());

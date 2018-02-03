@@ -1,11 +1,11 @@
 package ru.saidgadjiev.orm.next.core.table;
 
 import ru.saidgadjiev.orm.next.core.field.field_type.*;
-import ru.saidgadjiev.orm.next.core.table.utils.TableInfoUtils;
-import ru.saidgadjiev.orm.next.core.table.validators.ForeignKeyValidator;
-import ru.saidgadjiev.orm.next.core.table.validators.HasConstructorValidator;
-import ru.saidgadjiev.orm.next.core.table.validators.IValidator;
-import ru.saidgadjiev.orm.next.core.table.validators.PrimaryKeyValidator;
+import ru.saidgadjiev.orm.next.core.utils.TableInfoUtils;
+import ru.saidgadjiev.orm.next.core.validator.table.ForeignKeyValidator;
+import ru.saidgadjiev.orm.next.core.validator.table.HasConstructorValidator;
+import ru.saidgadjiev.orm.next.core.validator.table.IValidator;
+import ru.saidgadjiev.orm.next.core.validator.table.PrimaryKeyValidator;
 import ru.saidgadjiev.up.cache.core.Cache;
 import ru.saidgadjiev.up.cache.core.CacheBuilder;
 

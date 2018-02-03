@@ -86,7 +86,7 @@ public class Select implements QueryElement {
         selectQuery.setFrom(new FromTable(new TableRef(typeName)));
         AndCondition andCondition = new AndCondition();
 
-        andCondition.add(new Equals(new ColumnSpec(idField.getColumnName()).alias(new Alias(typeName)), idField.getDataPersister().getLiteral(id)));
+        andCondition.add(new Equals(new ColumnSpec(idField.getColumnName()).alias(new Alias(typeName)), idField.getDataPersister().getLiteral(idField, id)));
         selectQuery.getWhere().getConditions().add(andCondition);
 
         return selectQuery;

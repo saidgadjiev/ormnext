@@ -34,7 +34,9 @@ public class ObjectBuilder<T> {
     public ObjectBuilder<T> buildBase(DatabaseResults data, List<DBFieldType> resultFieldTypes) throws Exception {
         if (resultFieldTypes != null) {
             for (DBFieldType fieldType : resultFieldTypes) {
-                fieldType.assign(object, data.getObject(fieldType.getColumnName()));
+                Object value = fieldType.getDataPersister().parseSqlToJava(fieldType, data.getObject(fieldType.getColumnName()));
+
+                fieldType.assign(object, value);
             }
         }
 

@@ -1,4 +1,4 @@
-package ru.saidgadjiev.orm.next.core.table.validators;
+package ru.saidgadjiev.orm.next.core.validator.table;
 
 import java.lang.reflect.Constructor;
 

@@ -18,5 +18,5 @@ public interface ObjectCache {
 
     <T> long size(Class<T> tClass);
 
-    <T> long sizeAll();
+    long sizeAll();
 }

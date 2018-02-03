@@ -238,8 +238,15 @@ public class DefaultVisitor implements QueryVisitor {
 
             sql.append(escapeEntity).append(attributeDefinition.getName()).append("` ");
             appendAttributeDataType(attributeDefinition);
-            for (AttributeConstraint attributeConstraint: attributeDefinition.getAttributeConstraints()) {
-                attributeConstraint.accept(this);
+            sql.append(" ");
+            for (Iterator<AttributeConstraint> constraintIterator = attributeDefinition.getAttributeConstraints().iterator(); constraintIterator.hasNext();) {
+                AttributeConstraint constraint = constraintIterator.next();
+
+                constraint.accept(this);
+
+                if (constraintIterator.hasNext()) {
+                    sql.append(" ");
+                }
             }
             if (iterator.hasNext()) {
                 sql.append(", ");
@@ -252,16 +259,21 @@ public class DefaultVisitor implements QueryVisitor {
 
         switch (dataType) {
             case STRING:
+            case DATE:
                 sql.append("VARCHAR").append("(").append(def.getLength()).append(")");
                 break;
             case INTEGER:
+            case LONG:
                 sql.append("INTEGER");
                 break;
             case BOOLEAN:
                 sql.append("BOOLEAN");
                 break;
-            case DATE:
-                sql.append("TIMESTAMP");
+            case FLOAT:
+                sql.append("FLOAT");
+                break;
+            case DOUBLE:
+                sql.append("DOUBLE");
                 break;
             case UNKNOWN:
                 break;
@@ -713,18 +725,18 @@ public class DefaultVisitor implements QueryVisitor {
     }
 
     @Override
-    public void start(TimeLiteral timeLiteral) {
-        sql.append(timeLiteral.getOriginal());
+    public void start(DateLiteral dateLiteral) {
+        sql.append(dateLiteral.getOriginal());
     }
 
     @Override
-    public void finish(TimeLiteral timeLiteral) {
+    public void finish(DateLiteral dateLiteral) {
 
     }
 
     @Override
     public void start(Default aDefault) {
-        sql.append("DEFAULT ").append(aDefault.getLiteral().getOriginal());
+        sql.append("DEFAULT ");
     }
 
     @Override
@@ -739,6 +751,27 @@ public class DefaultVisitor implements QueryVisitor {
 
     @Override
     public void finish(DisplayedOperand displayedOperand) {
+
+    }
+
+    @Override
+    public void start(FloatLiteral floatLiteral) {
+        sql.append(floatLiteral.getOriginal());
+
+    }
+
+    @Override
+    public void finish(FloatLiteral floatLiteral) {
+
+    }
+
+    @Override
+    public void start(DoubleLiteral doubleLiteral) {
+        sql.append(doubleLiteral.getOriginal());
+    }
+
+    @Override
+    public void finish(DoubleLiteral doubleLiteral) {
 
     }
 }

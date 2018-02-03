@@ -4,7 +4,7 @@ import ru.saidgadjiev.orm.next.core.query.visitor.QueryVisitor;
 
 public class IntLiteral implements Literal<Integer> {
 
-    private Integer value;
+    private final Integer value;
 
     public IntLiteral(Integer value) {
         this.value = value;

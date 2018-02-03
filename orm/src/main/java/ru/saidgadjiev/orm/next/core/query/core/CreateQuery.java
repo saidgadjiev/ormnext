@@ -5,7 +5,6 @@ import ru.saidgadjiev.orm.next.core.field.field_type.ForeignFieldType;
 import ru.saidgadjiev.orm.next.core.query.core.common.UpdateValue;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryElement;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryVisitor;
-import ru.saidgadjiev.orm.next.core.stament_executor.FieldConverter;
 import ru.saidgadjiev.orm.next.core.table.TableInfo;
 
 import java.sql.SQLException;
@@ -78,7 +77,7 @@ public class CreateQuery implements QueryElement {
                 }
                 createQuery.add(new UpdateValue(
                         fieldType.getColumnName(),
-                        FieldConverter.getInstanse().convert(fieldType.getDataType(), fieldType.access(object)))
+                        fieldType.getDataPersister().getLiteral(fieldType, fieldType.access(object)))
                 );
             }
             for (ForeignFieldType fieldType : tableInfo.toForeignFieldTypes()) {
@@ -88,7 +87,7 @@ public class CreateQuery implements QueryElement {
                 if (foreignObject != null && foreignTableInfo.getPrimaryKey().isPresent()) {
                     createQuery.add(new UpdateValue(
                             fieldType.getColumnName(),
-                            FieldConverter.getInstanse().convert(fieldType.getDataType(), fieldType.getForeignPrimaryKey().access(foreignObject)))
+                            fieldType.getDataPersister().getLiteral(fieldType, fieldType.getForeignPrimaryKey().access(foreignObject)))
                     );
                 }
             }

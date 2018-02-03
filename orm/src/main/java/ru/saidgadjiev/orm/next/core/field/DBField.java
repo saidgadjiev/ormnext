@@ -28,4 +28,6 @@ public @interface DBField {
     boolean foreignAutoCreate() default false;
 
     String defaultValue() default DEFAULT_STR;
+
+    String format() default "";
 }

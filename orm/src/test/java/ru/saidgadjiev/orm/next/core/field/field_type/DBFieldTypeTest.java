@@ -158,7 +158,25 @@ public class DBFieldTypeTest {
         Assert.assertNull(fieldType.getDefaultValue());
     }
 
-    public static class TestClazz {
+    @Test(expected = IllegalArgumentException.class)
+    public void testWrongType() throws Exception {
+        Field field = WrongType.class.getDeclaredFields()[0];
+        new DBFieldTypeFactory().createFieldType(field);
+    }
+
+    @Test(expected = NumberFormatException.class)
+    public void testWrongDefaultField() throws Exception {
+        Field field = WrongDefaultValue.class.getDeclaredFields()[0];
+        new DBFieldTypeFactory().createFieldType(field);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testWrongGeneratedType() throws Exception {
+        Field field = WrongGeneratedType.class.getDeclaredFields()[0];
+        new DBFieldTypeFactory().createFieldType(field);
+    }
+
+    private static class TestClazz {
         @DBField(id = true, generated = true, notNull = true, columnName = "test1", dataType = DataType.INTEGER, length = 50, defaultValue = "5")
         private int field1;
 
@@ -169,11 +187,27 @@ public class DBFieldTypeTest {
         private int field3;
     }
 
-    public static class TestAccess {
+    private static class TestAccess {
         @DBField
         private int field1;
 
         @DBField
         private String field2;
     }
+
+    private static class WrongType {
+        @DBField(dataType = DataType.INTEGER)
+        private String field;
+    }
+
+    private static class WrongDefaultValue {
+        @DBField(defaultValue = "test")
+        private int value;
+    }
+
+    private static class WrongGeneratedType {
+        @DBField(generated = true)
+        private String str;
+    }
+
 }

@@ -218,9 +218,9 @@ public interface QueryVisitor {
 
     void finish(Alias alias);
 
-    void start(TimeLiteral timeLiteral);
+    void start(DateLiteral dateLiteral);
 
-    void finish(TimeLiteral timeLiteral);
+    void finish(DateLiteral dateLiteral);
 
     void start(Default aDefault);
 
@@ -229,4 +229,12 @@ public interface QueryVisitor {
     void start(DisplayedOperand displayedOperand);
 
     void finish(DisplayedOperand displayedOperand);
+
+    void start(FloatLiteral floatLiteral);
+
+    void finish(FloatLiteral floatLiteral);
+
+    void start(DoubleLiteral doubleLiteral);
+
+    void finish(DoubleLiteral doubleLiteral);
 }

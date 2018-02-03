@@ -15,16 +15,13 @@ public class WrappedConnectionSource implements ConnectionSource, AutoCloseable 
 
     private Connection connection;
 
-    public WrappedConnectionSource(ConnectionSource connectionSource) {
+    public WrappedConnectionSource(ConnectionSource connectionSource) throws SQLException {
         this.connectionSource = connectionSource;
+        this.connection = connectionSource.getConnection();
     }
 
     @Override
     public Connection getConnection() throws SQLException {
-        if (connection == null) {
-            connection = connectionSource.getConnection();
-        }
-
         return connection;
     }
 

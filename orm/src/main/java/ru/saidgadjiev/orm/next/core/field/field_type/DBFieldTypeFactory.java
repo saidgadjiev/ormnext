@@ -5,6 +5,8 @@ import ru.saidgadjiev.orm.next.core.field.DataPersisterManager;
 import ru.saidgadjiev.orm.next.core.field.DataType;
 import ru.saidgadjiev.orm.next.core.field.FieldAccessor;
 import ru.saidgadjiev.orm.next.core.field.persisters.DataPersister;
+import ru.saidgadjiev.orm.next.core.validator.data_persister.DataTypeValidator;
+import ru.saidgadjiev.orm.next.core.validator.data_persister.GeneratedTypeValidator;
 import ru.saidgadjiev.up.cache.core.Cache;
 import ru.saidgadjiev.up.cache.core.CacheBuilder;
 
@@ -32,17 +34,22 @@ public class DBFieldTypeFactory implements FieldTypeFactory {
         fieldType.setColumnName(dbField.columnName().isEmpty() ? field.getName().toLowerCase() : dbField.columnName());
         fieldType.setLength(dbField.length());
         fieldType.setFieldAccessor(new FieldAccessor(field));
+        String format = dbField.format();
+
+        fieldType.setFormat(format);
         if (!dbField.foreign()) {
             DataType dataType = dbField.dataType();
             DataPersister<?> dataPersister = dataType.equals(DataType.UNKNOWN) ? DataPersisterManager.lookup(field.getType()) : dataType.getDataPersister();
 
+
+            new DataTypeValidator(field).validate(dataPersister);
+            new GeneratedTypeValidator(dbField.generated()).validate(dataPersister);
             fieldType.setDataPersister(dataPersister);
             fieldType.setDataType(dataPersister.getDataType());
-            fieldType.setFieldConverter(dataPersister);
             String defaultValue = dbField.defaultValue();
 
             if (!defaultValue.equals(DBField.DEFAULT_STR)) {
-                fieldType.setDefaultValue(dataPersister.convertTo(dbField.defaultValue()));
+                fieldType.setDefaultValue(dataPersister.parseDefaultTo(fieldType, dbField.defaultValue()));
             }
         }
         fieldType.setNotNull(dbField.notNull());

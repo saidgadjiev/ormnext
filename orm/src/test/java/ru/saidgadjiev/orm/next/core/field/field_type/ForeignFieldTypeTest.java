@@ -111,7 +111,37 @@ public class ForeignFieldTypeTest {
         Assert.assertEquals("stringId", fieldType.getForeignColumnName());
     }
 
-    public static class TestClazz {
+    @Test(expected = IllegalArgumentException.class)
+    public void testWrongType() throws Exception {
+        Field field = WrongTypeForeign.class.getDeclaredFields()[0];
+        new ForeignFieldTypeFactory().createFieldType(field);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testForeignPrimaryKeyMissed() throws Exception {
+        Field field = WrongTypeForeign.class.getDeclaredFields()[1];
+        new ForeignFieldTypeFactory().createFieldType(field);
+    }
+
+    private static class WrongType {
+        @DBField(id = true, dataType = DataType.INTEGER)
+        private String field;
+    }
+
+    private static class PrimaryKeyMissed {
+        @DBField
+        private String field;
+    }
+
+    private static class WrongTypeForeign {
+        @DBField(foreign = true)
+        private WrongType wrongType;
+
+        @DBField(foreign = true)
+        private PrimaryKeyMissed primaryKeyMissed;
+    }
+
+    private static class TestClazz {
         @DBField(foreign = true, foreignAutoCreate = true)
         private ForeignTestClazz1 field1;
 
@@ -120,13 +150,13 @@ public class ForeignFieldTypeTest {
     }
 
     @DBTable(name = "ForeignTestClazz1")
-    public static class ForeignTestClazz1 {
+    private static class ForeignTestClazz1 {
         @DBField(id = true)
         private int id;
     }
 
     @DBTable(name = "ForeignTestClazz2")
-    public static class ForeignTestClazz2 {
+    private static class ForeignTestClazz2 {
         @DBField(id = true, columnName = "stringId")
         private String stringId;
     }

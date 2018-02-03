@@ -7,9 +7,13 @@ import ru.saidgadjiev.orm.next.core.field.field_type.DBFieldType;
 import ru.saidgadjiev.orm.next.core.field.field_type.ForeignFieldType;
 import ru.saidgadjiev.orm.next.core.query.core.CreateQuery;
 import ru.saidgadjiev.orm.next.core.query.core.common.UpdateValue;
-import ru.saidgadjiev.orm.next.core.stament_executor.FieldConverter;
+import ru.saidgadjiev.orm.next.core.query.core.literals.Param;
 import ru.saidgadjiev.orm.next.core.support.ConnectionSource;
 import ru.saidgadjiev.orm.next.core.table.TableInfo;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ObjectCreator<T> {
 
@@ -19,12 +23,16 @@ public class ObjectCreator<T> {
 
     private CreateQuery query;
 
+    private AtomicInteger index = new AtomicInteger();
+
+    private Map<Integer, Object> args = new HashMap<>();
+
     public ObjectCreator(ConnectionSource dataSource, TableInfo<T> tableInfo) {
         this.dataSource = dataSource;
         this.tableInfo = tableInfo;
     }
 
-    public ObjectCreator newObject(T object) throws Exception {
+    public ObjectCreator newObject() throws Exception {
         this.query = CreateQuery.buildQuery(tableInfo.getTableName());
 
         return this;
@@ -35,10 +43,15 @@ public class ObjectCreator<T> {
             if (fieldType.isId() && fieldType.isGenerated()) {
                 continue;
             }
-            query.add(new UpdateValue(
-                    fieldType.getColumnName(),
-                    FieldConverter.getInstanse().convert(fieldType.getDataType(), fieldType.access(object)))
-            );
+            Object value = fieldType.access(object);
+
+            if (value != null) {
+                args.put(index.incrementAndGet(), value);
+                query.add(new UpdateValue(
+                        fieldType.getColumnName(),
+                        new Param())
+                );
+            }
         }
 
         return this;
@@ -58,15 +71,22 @@ public class ObjectCreator<T> {
 
                 //TODO: эту проверку заменить на fieldType.getForeignPrimarykey
                 if (foreignTableInfo.getPrimaryKey().isPresent()) {
+                    Object value = fieldType.getForeignPrimaryKey().access(foreignObject);
+
+                    args.put(index.incrementAndGet(), value);
                     query.add(new UpdateValue(
                             fieldType.getColumnName(),
-                            FieldConverter.getInstanse().convert(fieldType.getDataType(), fieldType.getForeignPrimaryKey().access(foreignObject)))
+                            new Param())
                     );
                 }
             }
         }
 
         return this;
+    }
+
+    public Map<Integer, Object> getArgs() {
+        return args;
     }
 
     public CreateQuery query() {

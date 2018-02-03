@@ -1,4 +1,4 @@
-package ru.saidgadjiev.orm.next.core.table.utils;
+package ru.saidgadjiev.orm.next.core.utils;
 
 import ru.saidgadjiev.orm.next.core.field.DBField;
 import ru.saidgadjiev.orm.next.core.field.field_type.DBFieldTypeFactory;

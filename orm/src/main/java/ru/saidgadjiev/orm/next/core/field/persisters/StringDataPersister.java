@@ -1,17 +1,23 @@
 package ru.saidgadjiev.orm.next.core.field.persisters;
 
 import ru.saidgadjiev.orm.next.core.field.DataType;
+import ru.saidgadjiev.orm.next.core.field.field_type.IDBFieldType;
 import ru.saidgadjiev.orm.next.core.query.core.literals.Literal;
 import ru.saidgadjiev.orm.next.core.query.core.literals.StringLiteral;
 
-public class StringDataPersister implements DataPersister {
-    @Override
-    public Class<?>[] getAssociatedClasses() {
-        return new Class<?>[] { String.class };
+public class StringDataPersister extends BaseDataPersister {
+
+    public StringDataPersister() {
+        super(new Class<?>[] { String.class });
     }
 
     @Override
-    public Literal<String> getLiteral(Object object) {
+    public Class<?>[] getAssociatedClasses() {
+        return classes;
+    }
+
+    @Override
+    public Literal<String> getLiteral(IDBFieldType fieldType, Object object) {
         return new StringLiteral((String) object);
     }
 
@@ -21,7 +27,7 @@ public class StringDataPersister implements DataPersister {
     }
 
     @Override
-    public Object convertTo(String value) throws IllegalArgumentException {
+    public Object parseDefaultTo(IDBFieldType fieldType, String value) throws IllegalArgumentException {
         return value;
     }
 }

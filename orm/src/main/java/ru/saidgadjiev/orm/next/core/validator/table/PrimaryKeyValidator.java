@@ -1,6 +1,7 @@
-package ru.saidgadjiev.orm.next.core.table.validators;
+package ru.saidgadjiev.orm.next.core.validator.table;
 
 import ru.saidgadjiev.orm.next.core.field.DBField;
+import ru.saidgadjiev.orm.next.core.utils.ExceptionUtils;
 
 import java.lang.reflect.Field;
 
@@ -16,13 +17,10 @@ public class PrimaryKeyValidator implements IValidator {
                 if (dbField.id()) {
                     ++idCount;
                 }
-                if (dbField.generated() && !dbField.id()) {
-                    throw new IllegalAccessException("Field is generated but not id");
-                }
             }
         }
-        if (idCount > 1) {
-            throw new IllegalAccessException("Many generated primary keys");
+        if (idCount == 0) {
+            throw new IllegalArgumentException(ExceptionUtils.message(ExceptionUtils.Exception.PRIMARY_KEY_MISS, tClass));
         }
     }
 }

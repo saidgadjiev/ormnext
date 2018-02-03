@@ -60,6 +60,11 @@ public class ForeignCollectionFieldType implements IDBFieldType {
     }
 
     @Override
+    public String getFormat() {
+        return null;
+    }
+
+    @Override
     public int getLength() {
         throw new UnsupportedOperationException("");
     }

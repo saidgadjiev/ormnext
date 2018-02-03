@@ -28,7 +28,6 @@ public class CreateTableQuery implements QueryElement {
 
     private boolean ifNotExists;
 
-
     private CreateTableQuery(String typeName,
                              boolean ifNotExists,
                              List<AttributeDefinition> attributeDefinitions) {
@@ -68,7 +67,7 @@ public class CreateTableQuery implements QueryElement {
             if (dbFieldType.getDefaultValue() != null) {
                 Literal<?> literal = DataPersisterManager
                         .lookup(dbFieldType.getDefaultValue().getClass())
-                        .getLiteral(dbFieldType.getDefaultValue());
+                        .getLiteral(dbFieldType, dbFieldType.getDefaultValue());
                 attributeDefinition.getAttributeConstraints().add(new Default<>(literal));
             }
             attributeDefinitions.add(attributeDefinition);

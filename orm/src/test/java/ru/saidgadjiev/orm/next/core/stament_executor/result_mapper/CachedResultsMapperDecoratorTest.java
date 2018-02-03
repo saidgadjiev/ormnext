@@ -15,7 +15,7 @@ import java.lang.reflect.Field;
 public class CachedResultsMapperDecoratorTest {
 
     @Test
-    public void mapResults() throws Exception {
+    public void mapResultsFromCache() throws Exception {
         TableInfo<TestClazz> tableInfo = TableInfo.build(TestClazz.class);
         CacheContext cacheContext = createCache();
         ObjectCache objectCache = cacheContext.getObjectCache().get();
@@ -36,6 +36,7 @@ public class CachedResultsMapperDecoratorTest {
         Assert.assertEquals(1, result.id);
         Assert.assertEquals("SaidTest", result.name);
     }
+
 
     private CacheContext createCache() {
         ObjectCache objectCache = new LRUObjectCache(16);

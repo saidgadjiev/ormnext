@@ -1,7 +1,7 @@
-package ru.saidgadjiev.orm.next.core.table.validators;
+package ru.saidgadjiev.orm.next.core.validator.table;
 
 import ru.saidgadjiev.orm.next.core.field.DBField;
-import ru.saidgadjiev.orm.next.core.table.utils.TableInfoUtils;
+import ru.saidgadjiev.orm.next.core.utils.TableInfoUtils;
 
 import java.lang.reflect.Field;
 

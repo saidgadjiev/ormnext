@@ -6,8 +6,10 @@ public enum DataType {
     STRING(new StringDataPersister()),
     INTEGER(new IntegerDataPersister()),
     BOOLEAN(new BooleanPersister()),
-    DATE(new DateDataPersister()),
+    DATE(new DateStringDataPersister()),
     LONG(new IntegerDataPersister()),
+    FLOAT(new FloatDataPersister()),
+    DOUBLE(new DoubleDataPersister()),
     UNKNOWN(null);
 
     private DataPersister<?> dataPersister;

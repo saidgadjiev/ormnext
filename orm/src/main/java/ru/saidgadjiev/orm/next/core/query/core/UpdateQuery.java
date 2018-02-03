@@ -8,9 +8,7 @@ import ru.saidgadjiev.orm.next.core.query.core.condition.Expression;
 import ru.saidgadjiev.orm.next.core.query.core.literals.Param;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryElement;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryVisitor;
-import ru.saidgadjiev.orm.next.core.stament_executor.FieldConverter;
 
-import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -83,25 +81,23 @@ public class UpdateQuery implements QueryElement {
 
     /**
      * Создание экземпляра UpdateQuery
+     *
      * @return возвращет экземляр UpdateQuery
      */
-    public static<T, ID> UpdateQuery buildQuery(String typeName, List<DBFieldType> fieldTypes, String idColumnName, T object) throws SQLException {
+    public static <T> UpdateQuery buildQuery(String typeName, List<DBFieldType> fieldTypes, String idColumnName, T object) throws SQLException {
         UpdateQuery updateQuery = new UpdateQuery(typeName);
 
-        try {
-            for (DBFieldType fieldType : fieldTypes) {
-                updateQuery.updateValues.add(
-                        new UpdateValue(
-                                fieldType.getColumnName(), FieldConverter.getInstanse().convert(fieldType.getDataType(), fieldType.access(object)))
-                );
-            }
-            AndCondition andCondition = new AndCondition();
-
-            andCondition.add(new Equals(new ColumnSpec(idColumnName).alias(new Alias(typeName)), new Param()));
-            updateQuery.getWhere().getConditions().add(andCondition);
-        } catch (IllegalAccessException | InvocationTargetException ex) {
-            throw new SQLException(ex);
+        for (DBFieldType fieldType : fieldTypes) {
+            updateQuery.updateValues.add(
+                    new UpdateValue(
+                            fieldType.getColumnName(),
+                            new Param())
+            );
         }
+        AndCondition andCondition = new AndCondition();
+
+        andCondition.add(new Equals(new ColumnSpec(idColumnName).alias(new Alias(typeName)), new Param()));
+        updateQuery.getWhere().getConditions().add(andCondition);
 
         return updateQuery;
     }

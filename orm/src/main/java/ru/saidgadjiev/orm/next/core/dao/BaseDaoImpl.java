@@ -14,6 +14,7 @@ import ru.saidgadjiev.orm.next.core.table.TableInfo;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * Базовый класс для DAO. Используется в DaoBuilder
@@ -34,6 +35,9 @@ public abstract class BaseDaoImpl<T, ID> implements Dao<T, ID> {
     protected BaseDaoImpl(ConnectionSource dataSource, TableInfo<T> tableInfo) {
         this.tableInfo = tableInfo;
         this.dataSource = dataSource;
+        Supplier<ObjectBuilder<T>> objectBuilderFactory = () -> new ObjectBuilder<>(dataSource, tableInfo);
+        Supplier<ObjectCreator<T>> objectCreatorFactory = () -> new ObjectCreator<>(dataSource, tableInfo);
+
         this.statementExecutor = new StatementValidator<>(
                 tableInfo,
                 new CachedStatementExecutor<>(
@@ -41,12 +45,12 @@ public abstract class BaseDaoImpl<T, ID> implements Dao<T, ID> {
                         cacheContext,
                         new StatementExecutorImpl<>(
                                 tableInfo,
-                                new ObjectCreator<>(dataSource, tableInfo),
+                                objectCreatorFactory,
                                 dataSource.getDatabaseType(),
                                 new CachedResultsMapperDecorator<>(
                                         tableInfo,
                                         cacheContext,
-                                        new ResultsMapperImpl<>(tableInfo, new ObjectBuilder<>(dataSource, tableInfo))
+                                        new ResultsMapperImpl<>(tableInfo, objectBuilderFactory)
                                 )
                         )
                 )

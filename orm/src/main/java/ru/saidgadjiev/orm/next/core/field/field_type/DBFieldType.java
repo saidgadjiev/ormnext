@@ -3,7 +3,6 @@ package ru.saidgadjiev.orm.next.core.field.field_type;
 import ru.saidgadjiev.orm.next.core.field.DataType;
 import ru.saidgadjiev.orm.next.core.field.FieldAccessor;
 import ru.saidgadjiev.orm.next.core.field.persisters.DataPersister;
-import ru.saidgadjiev.orm.next.core.field.persisters.FieldConverter;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -20,8 +19,6 @@ public class DBFieldType implements IDBFieldType {
 
     private DataPersister<?> dataPersister;
 
-    private FieldConverter<?> fieldConverter;
-
     private FieldAccessor fieldAccessor;
 
     private boolean notNull;
@@ -32,6 +29,10 @@ public class DBFieldType implements IDBFieldType {
 
     private Object defaultValue;
 
+    private String format;
+
+
+    @Override
     public Object getDefaultValue() {
         return defaultValue;
     }
@@ -88,6 +89,15 @@ public class DBFieldType implements IDBFieldType {
         return field;
     }
 
+    @Override
+    public String getFormat() {
+        return format;
+    }
+
+    public void setFormat(String format) {
+        this.format = format;
+    }
+
     public void setColumnName(String columnName) {
         this.columnName = columnName;
     }
@@ -106,10 +116,6 @@ public class DBFieldType implements IDBFieldType {
 
     public void setDataPersister(DataPersister<?> dataPersister) {
         this.dataPersister = dataPersister;
-    }
-
-    public void setFieldConverter(FieldConverter<?> fieldConverter) {
-        this.fieldConverter = fieldConverter;
     }
 
     public void setFieldAccessor(FieldAccessor fieldAccessor) {
@@ -150,7 +156,4 @@ public class DBFieldType implements IDBFieldType {
                 '}';
     }
 
-    public FieldConverter<?> getFieldConverter() {
-        return fieldConverter;
-    }
 }

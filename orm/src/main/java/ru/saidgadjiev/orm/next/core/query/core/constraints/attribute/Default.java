@@ -22,6 +22,7 @@ public class Default<T> implements AttributeConstraint {
     @Override
     public void accept(QueryVisitor visitor) {
         visitor.start(this);
+        literal.accept(visitor);
         visitor.finish(this);
     }
 }

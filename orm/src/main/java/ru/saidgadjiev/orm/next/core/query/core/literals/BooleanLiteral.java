@@ -4,7 +4,7 @@ import ru.saidgadjiev.orm.next.core.query.visitor.QueryVisitor;
 
 public class BooleanLiteral implements Literal<Boolean> {
 
-    private boolean value;
+    private final boolean value;
 
     public BooleanLiteral(boolean value) {
         this.value = value;

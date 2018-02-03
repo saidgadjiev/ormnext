@@ -11,6 +11,10 @@ import java.lang.reflect.InvocationTargetException;
  */
 public interface IDBFieldType {
 
+    default Object getDefaultValue() {
+        return null;
+    }
+
     boolean isId();
 
     boolean isNotNull();
@@ -32,6 +36,10 @@ public interface IDBFieldType {
     void assign(Object object, Object value) throws IllegalAccessException, InvocationTargetException;
 
     Field getField();
+
+    default String getFormat() {
+        return null;
+    }
 
     int getLength();
 
