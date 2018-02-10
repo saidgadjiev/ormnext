@@ -24,7 +24,7 @@ public class DaoManager {
             if (lookupDao.isPresent()) {
                 return lookupDao.get();
             }
-            TableInfo<T> tableInfo = TableInfo.TableInfoCache.build(clazz);
+            TableInfo<T> tableInfo = TableInfo.build(clazz);
 
             if (clazz.isAnnotationPresent(DBTable.class) && clazz.getAnnotation(DBTable.class).daoClass() != BaseDaoImpl.class) {
                 Class<? extends BaseDaoImpl> daoClass = clazz.getAnnotation(DBTable.class).daoClass();

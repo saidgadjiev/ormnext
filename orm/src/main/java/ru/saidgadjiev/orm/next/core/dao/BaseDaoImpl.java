@@ -4,7 +4,8 @@ import ru.saidgadjiev.orm.next.core.cache.CacheContext;
 import ru.saidgadjiev.orm.next.core.cache.ObjectCache;
 import ru.saidgadjiev.orm.next.core.stament_executor.*;
 import ru.saidgadjiev.orm.next.core.stament_executor.object.ObjectBuilder;
-import ru.saidgadjiev.orm.next.core.stament_executor.object.ObjectCreator;
+import ru.saidgadjiev.orm.next.core.stament_executor.object.CreateQueryBuilder;
+import ru.saidgadjiev.orm.next.core.stament_executor.object.operation.ForeignCreator;
 import ru.saidgadjiev.orm.next.core.stament_executor.result_mapper.CachedResultsMapperDecorator;
 import ru.saidgadjiev.orm.next.core.stament_executor.result_mapper.ResultsMapper;
 import ru.saidgadjiev.orm.next.core.stament_executor.result_mapper.ResultsMapperImpl;
@@ -13,6 +14,7 @@ import ru.saidgadjiev.orm.next.core.table.TableInfo;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -36,7 +38,7 @@ public abstract class BaseDaoImpl<T, ID> implements Dao<T, ID> {
         this.tableInfo = tableInfo;
         this.dataSource = dataSource;
         Supplier<ObjectBuilder<T>> objectBuilderFactory = () -> new ObjectBuilder<>(dataSource, tableInfo);
-        Supplier<ObjectCreator<T>> objectCreatorFactory = () -> new ObjectCreator<>(dataSource, tableInfo);
+        Supplier<CreateQueryBuilder<T>> objectCreatorFactory = () -> new CreateQueryBuilder<>(tableInfo);
 
         this.statementExecutor = new StatementValidator<>(
                 tableInfo,
@@ -47,14 +49,26 @@ public abstract class BaseDaoImpl<T, ID> implements Dao<T, ID> {
                                 tableInfo,
                                 objectCreatorFactory,
                                 dataSource.getDatabaseType(),
-                                new CachedResultsMapperDecorator<>(
+                                new CachedResultsMapperDecorator<T>(
                                         tableInfo,
                                         cacheContext,
                                         new ResultsMapperImpl<>(tableInfo, objectBuilderFactory)
-                                )
+                                ),
+                                new ForeignCreator<T>(tableInfo, dataSource)
                         )
                 )
         );
+    }
+
+    @Override
+    public int create(Collection<T> objects) throws SQLException {
+        Connection connection = dataSource.getConnection();
+
+        try {
+            return statementExecutor.create(connection, objects);
+        } finally {
+            dataSource.releaseConnection(connection);
+        }
     }
 
     @Override

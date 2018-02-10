@@ -4,9 +4,12 @@ import ru.saidgadjiev.orm.next.core.stament_executor.GenericResults;
 import ru.saidgadjiev.orm.next.core.stament_executor.result_mapper.ResultsMapper;
 
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.List;
 
 public interface BaseDao<T, ID> {
+
+    int create(Collection<T> objects) throws SQLException;
 
     /**
      * Метод сохраняет объект в базе

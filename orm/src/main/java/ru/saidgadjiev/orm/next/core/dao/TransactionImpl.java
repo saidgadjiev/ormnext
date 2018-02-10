@@ -6,6 +6,7 @@ import ru.saidgadjiev.orm.next.core.stament_executor.result_mapper.ResultsMapper
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -23,6 +24,12 @@ public class TransactionImpl<T, ID> implements Transaction<T, ID> {
         this.statementExecutor = statementExecutor;
         this.connection = connection;
         this.close = close;
+    }
+
+    @Override
+    public int create(Collection<T> objects) throws SQLException {
+        check();
+        return statementExecutor.create(connection, objects);
     }
 
     @Override

@@ -8,21 +8,21 @@ import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
+import ru.saidgadjiev.orm.next.core.StressUtils;
+import ru.saidgadjiev.orm.next.core.cache.LRUObjectCache;
 import ru.saidgadjiev.orm.next.core.dao.Dao;
 import ru.saidgadjiev.orm.next.core.dao.DaoManager;
 import ru.saidgadjiev.orm.next.core.db.H2DatabaseType;
 import ru.saidgadjiev.orm.next.core.field.DBField;
 import ru.saidgadjiev.orm.next.core.field.DataType;
-import ru.saidgadjiev.orm.next.core.stament_executor.CachedStatementExecutorTest;
-import ru.saidgadjiev.orm.next.core.support.DataSourceConnectionSource;
+import ru.saidgadjiev.orm.next.core.field.Getter;
+import ru.saidgadjiev.orm.next.core.field.Setter;
+import ru.saidgadjiev.orm.next.core.support.PolledConnectionSource;
 
 import javax.persistence.*;
-import javax.sql.DataSource;
-import javax.swing.plaf.TableUI;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -31,7 +31,7 @@ import java.util.List;
 public class StressTest {
 
     public static void main(String[] args) throws Exception {
-        ormHibernate();
+        ormNextCreate();
     }
 
     private static void ormLite() throws Exception {
@@ -57,11 +57,11 @@ public class StressTest {
         System.out.println(end - start);
     }
 
-    private static void ormNext() throws Exception {
+    private static void ormNextCreate() throws Exception {
         JdbcDataSource dataSource = new JdbcDataSource();
 
         dataSource.setURL("jdbc:h2:mem:h2testdb;DB_CLOSE_DELAY=-1");
-        Dao<TestClass, Integer> dao = DaoManager.createDAO(new DataSourceConnectionSource(dataSource, new H2DatabaseType()), TestClass.class);
+        Dao<TestClass, Integer> dao = DaoManager.createDAO(new PolledConnectionSource(dataSource, new H2DatabaseType()), TestClass.class);
         dao.createTable(false);
         List<TestClass> sourceClasses = new ArrayList<>();
 
@@ -77,6 +77,27 @@ public class StressTest {
         }
         long end = System.currentTimeMillis();
         System.out.println(end - start);
+        dao.getDataSource().close();
+    }
+
+
+    private static void ormNextQueryForId() throws Exception {
+        JdbcDataSource dataSource = new JdbcDataSource();
+
+        dataSource.setURL("jdbc:h2:mem:h2testdb;DB_CLOSE_DELAY=-1");
+        Dao<TestClass, Integer> dao = DaoManager.createDAO(new PolledConnectionSource(dataSource, new H2DatabaseType()), TestClass.class);
+        dao.createTable(false);
+        dao.setObjectCache(new LRUObjectCache(16));
+        TestClass testClass = createTestClazz(TestClass.class,0, "Said");
+
+        dao.create(testClass);
+
+        System.out.println(StressUtils.stress(() -> {
+            dao.queryForId(testClass.id);
+
+            return null;
+        }, 10000));
+        dao.getDataSource().close();
     }
 
     private static void ormHibernate() throws Exception {
@@ -140,12 +161,35 @@ public class StressTest {
 
     }
 
-    private static class TestClass {
+    public static class TestClass {
+        @Getter(name = "getId")
+        @Setter(name = "setId")
         @DBField(id = true, dataType = DataType.INTEGER, generated = true)
         private int id;
 
+        @Getter(name = "getName")
+        @Setter(name = "setName")
         @DBField(dataType = DataType.STRING)
         private String name;
+
+        public TestClass() {
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
     }
 
     @Entity

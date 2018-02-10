@@ -40,6 +40,11 @@ public class PreparedQueryImpl implements IPreparedStatement {
     }
 
     @Override
+    public void addBatch() throws SQLException {
+        preparedStatement.addBatch();
+    }
+
+    @Override
     public DatabaseResults executeQuery(String sql) throws SQLException {
         ResultSet resultSet = preparedStatement.executeQuery(sql);
 
@@ -54,6 +59,11 @@ public class PreparedQueryImpl implements IPreparedStatement {
     @Override
     public ResultSet getGeneratedKeys() throws SQLException {
         return preparedStatement.getGeneratedKeys();
+    }
+
+    @Override
+    public int[] executeBatch() throws SQLException {
+        return preparedStatement.executeBatch();
     }
 
     @Override

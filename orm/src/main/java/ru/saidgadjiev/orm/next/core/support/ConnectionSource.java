@@ -5,7 +5,7 @@ import ru.saidgadjiev.orm.next.core.db.DatabaseType;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public interface ConnectionSource {
+public interface ConnectionSource extends AutoCloseable {
 
     Connection getConnection() throws SQLException;
 
@@ -14,4 +14,8 @@ public interface ConnectionSource {
     }
 
     DatabaseType getDatabaseType();
+
+    default void close() throws Exception {
+
+    }
 }

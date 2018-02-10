@@ -10,6 +10,7 @@ import ru.saidgadjiev.orm.next.core.table.TableInfo;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.List;
 
 public class CachedStatementExecutor<T, ID> implements IStatementExecutor<T, ID> {
@@ -26,6 +27,29 @@ public class CachedStatementExecutor<T, ID> implements IStatementExecutor<T, ID>
         this.tableInfo = tableInfo;
         this.cacheContext = cacheContext;
         this.delegate = delegate;
+    }
+
+    @Override
+    public int create(Connection connection, Collection<T> objects) throws SQLException {
+        delegate.create(connection, objects);
+
+        if (cacheContext.isCaching() && cacheContext.getObjectCache().isPresent()) {
+            ObjectCache objectCache = cacheContext.getObjectCache().get();
+
+            if (tableInfo.getPrimaryKey().isPresent()) {
+                for (T object : objects) {
+                    IDBFieldType idbFieldType = tableInfo.getPrimaryKey().get();
+
+                    try {
+                        objectCache.put(tableInfo.getTableClass(), idbFieldType.access(object), object);
+                    } catch (Exception ex) {
+                        throw new SQLException(ex);
+                    }
+                }
+            }
+        }
+
+        return 0;
     }
 
     @Override

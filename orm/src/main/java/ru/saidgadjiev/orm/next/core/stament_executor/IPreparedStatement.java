@@ -12,4 +12,7 @@ public interface IPreparedStatement extends AutoCloseable, IStatement {
     DatabaseResults executeQuery() throws SQLException;
 
     int executeUpdate() throws SQLException;
+
+    void addBatch() throws SQLException;
+
 }

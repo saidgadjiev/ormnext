@@ -9,7 +9,9 @@ import ru.saidgadjiev.orm.next.core.query.core.column_spec.DisplayedOperand;
 import ru.saidgadjiev.orm.next.core.query.core.function.CountAll;
 import ru.saidgadjiev.orm.next.core.query.visitor.DefaultVisitor;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryElement;
-import ru.saidgadjiev.orm.next.core.stament_executor.object.ObjectCreator;
+import ru.saidgadjiev.orm.next.core.stament_executor.object.ArgumentEjector;
+import ru.saidgadjiev.orm.next.core.stament_executor.object.CreateQueryBuilder;
+import ru.saidgadjiev.orm.next.core.stament_executor.object.operation.ForeignCreator;
 import ru.saidgadjiev.orm.next.core.stament_executor.result_mapper.ResultsMapper;
 import ru.saidgadjiev.orm.next.core.table.TableInfo;
 
@@ -18,6 +20,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -33,21 +36,60 @@ import java.util.function.Supplier;
 public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
 
     private TableInfo<T> tableInfo;
-    
-    private Supplier<ObjectCreator<T>> objectCreatorFactory;
+
+    private Supplier<CreateQueryBuilder<T>> objectCreatorFactory;
 
     private DatabaseType databaseType;
 
     private ResultsMapper<T> resultsMapper;
 
+    private ForeignCreator<T> foreignCreator;
+
     public StatementExecutorImpl(TableInfo<T> tableInfo,
-                                 Supplier<ObjectCreator<T>> objectCreatorFactory,
+                                 Supplier<CreateQueryBuilder<T>> objectCreatorFactory,
                                  DatabaseType databaseType,
-                                 ResultsMapper<T> resultsMapper) {
+                                 ResultsMapper<T> resultsMapper,
+                                 ForeignCreator<T> foreignCreator) {
         this.tableInfo = tableInfo;
         this.objectCreatorFactory = objectCreatorFactory;
         this.databaseType = databaseType;
         this.resultsMapper = resultsMapper;
+        this.foreignCreator = foreignCreator;
+    }
+
+    @Override
+    public int create(Connection connection, Collection<T> objects) throws SQLException {
+        try {
+            CreateQueryBuilder<T> createQueryBuilder = objectCreatorFactory.get();
+
+            CreateQuery createQuery = createQueryBuilder
+                    .newObject()
+                    .createBase()
+                    .createForeign()
+                    .query();
+
+            String query = getQuery(createQuery);
+            try (IPreparedStatement statement = new PreparedQueryImpl(connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS), query)) {
+                for (T object : objects) {
+                    foreignCreator.execute(object);
+
+                    for (Map.Entry<Integer, Object> entry : ArgumentEjector.eject(object, tableInfo).entrySet()) {
+                        statement.setObject(entry.getKey(), entry.getValue());
+                    }
+                    statement.addBatch();
+                }
+                int[] result = statement.executeBatch();
+                int count = 0;
+
+                for (int c: result) {
+                    count += c;
+                }
+
+                return count;
+            }
+        } catch (Exception ex) {
+            throw new SQLException(ex);
+        }
     }
 
     /**
@@ -58,17 +100,18 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
     @SuppressWarnings("unchecked")
     public int create(Connection connection, T object) throws SQLException {
         try {
-            ObjectCreator<T> objectCreator = objectCreatorFactory.get();
+            CreateQueryBuilder<T> createQueryBuilder = objectCreatorFactory.get();
 
-            CreateQuery createQuery = objectCreator
+            CreateQuery createQuery = createQueryBuilder
                     .newObject()
-                    .createBase(object)
-                    .createForeign(object)
+                    .createBase()
+                    .createForeign()
                     .query();
+            foreignCreator.execute(object);
             String query = getQuery(createQuery);
 
             try (IPreparedStatement statement = new PreparedQueryImpl(connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS), query)) {
-                for (Map.Entry<Integer, Object> entry: objectCreator.getArgs().entrySet()) {
+                for (Map.Entry<Integer, Object> entry : ArgumentEjector.eject(object, tableInfo).entrySet()) {
                     statement.setObject(entry.getKey(), entry.getValue());
                 }
                 Integer result = statement.executeUpdate();
@@ -141,7 +184,7 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
         AtomicInteger index = new AtomicInteger();
 
         try (IPreparedStatement preparedQuery = new PreparedQueryImpl(connection.prepareStatement(query), query)) {
-            for (IDBFieldType idbFieldType: tableInfo.toDBFieldTypes()) {
+            for (IDBFieldType idbFieldType : tableInfo.toDBFieldTypes()) {
                 Object value = idbFieldType.access(object);
 
                 preparedQuery.setObject(index.incrementAndGet(), value);

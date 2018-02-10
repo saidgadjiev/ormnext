@@ -6,8 +6,6 @@ import ru.saidgadjiev.orm.next.core.validator.table.ForeignKeyValidator;
 import ru.saidgadjiev.orm.next.core.validator.table.HasConstructorValidator;
 import ru.saidgadjiev.orm.next.core.validator.table.IValidator;
 import ru.saidgadjiev.orm.next.core.validator.table.PrimaryKeyValidator;
-import ru.saidgadjiev.up.cache.core.Cache;
-import ru.saidgadjiev.up.cache.core.CacheBuilder;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -16,6 +14,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static ru.saidgadjiev.orm.next.core.utils.TableInfoUtils.lookupDefaultConstructor;
 
 public final class TableInfo<T> {
 
@@ -30,6 +30,8 @@ public final class TableInfo<T> {
     private List<UniqueFieldType> uniqueFieldTypes;
 
     private List<IndexFieldType> indexFieldTypes;
+
+    private List<IDBFieldType> fieldTypes;
 
     private IDBFieldType primaryKeyFieldType;
 
@@ -74,6 +76,7 @@ public final class TableInfo<T> {
                 .filter(IDBFieldType::isForeignCollectionFieldType)
                 .map(idbFieldType -> (ForeignCollectionFieldType) idbFieldType)
                 .collect(Collectors.toList());
+        this.fieldTypes = fieldTypes;
     }
 
     public Class<T> getTableClass() {
@@ -108,6 +111,10 @@ public final class TableInfo<T> {
         return Collections.unmodifiableList(foreignCollectionFieldTypes);
     }
 
+    public List<IDBFieldType> getFieldTypes() {
+        return Collections.unmodifiableList(fieldTypes);
+    }
+
     public List<IndexFieldType> getIndexFieldTypes() {
         return indexFieldTypes;
     }
@@ -124,7 +131,8 @@ public final class TableInfo<T> {
 
         return new TableInfo<>(
                 clazz,
-                (Constructor<T>) lookupDefaultConstructor(clazz).get(),
+                (Constructor<T>) lookupDefaultConstructor(clazz)
+                        .orElseThrow(() -> new IllegalArgumentException("Class " + clazz + " doesn't have default constructor")),
                 resolveUniques(fieldTypes, clazz),
                 resolveIndexes(fieldTypes, tableName, clazz),
                 TableInfoUtils.resolveTableName(clazz),
@@ -198,32 +206,6 @@ public final class TableInfo<T> {
         }
 
         return columns;
-    }
-
-    private static Optional<Constructor<?>> lookupDefaultConstructor(Class<?> clazz) {
-        for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
-            if (constructor.getParameterCount() == 0) {
-                return Optional.of(constructor);
-            }
-        }
-
-        return Optional.empty();
-    }
-
-    public static class TableInfoCache {
-
-        private static final Cache<Class<?>, TableInfo<?>> CACHE = CacheBuilder.newRefenceCacheBuilder().build();
-
-        public static <T> TableInfo<T> build(Class<T> clazz) throws Exception {
-            if (CACHE.contains(clazz)) {
-                return (TableInfo<T>) CACHE.get(clazz);
-            }
-            TableInfo<?> tableInfo = TableInfo.build(clazz);
-
-            CACHE.put(clazz, tableInfo);
-
-            return (TableInfo<T>) tableInfo;
-        }
     }
 }
 

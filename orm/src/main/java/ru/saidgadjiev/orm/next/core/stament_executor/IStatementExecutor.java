@@ -4,9 +4,13 @@ import ru.saidgadjiev.orm.next.core.stament_executor.result_mapper.ResultsMapper
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.List;
 
 public interface IStatementExecutor<T, ID> {
+
+    int create(Connection connection, Collection<T> objects) throws SQLException;
+
     @SuppressWarnings("unchecked")
     int create(Connection connection, T object) throws SQLException;
 

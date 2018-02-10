@@ -13,4 +13,6 @@ public interface IStatement extends AutoCloseable {
     int executeUpdate(String sql) throws SQLException;
 
     ResultSet getGeneratedKeys() throws SQLException;
+
+    int[] executeBatch() throws SQLException;
 }

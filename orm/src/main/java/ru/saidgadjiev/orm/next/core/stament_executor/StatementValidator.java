@@ -5,6 +5,7 @@ import ru.saidgadjiev.orm.next.core.table.TableInfo;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.List;
 
 public class StatementValidator<T, ID> implements IStatementExecutor<T, ID> {
@@ -16,6 +17,11 @@ public class StatementValidator<T, ID> implements IStatementExecutor<T, ID> {
     public StatementValidator(TableInfo<T> tableInfo, IStatementExecutor<T, ID> delegate) {
         this.tableInfo = tableInfo;
         this.delegate = delegate;
+    }
+
+    @Override
+    public int create(Connection connection, Collection<T> objects) throws SQLException {
+        return delegate.create(connection, objects);
     }
 
     @Override

@@ -36,7 +36,12 @@ public class StatementImpl implements IStatement {
 
     @Override
     public ResultSet getGeneratedKeys() throws SQLException {
-        return null;
+        return statement.getGeneratedKeys();
+    }
+
+    @Override
+    public int[] executeBatch() throws SQLException {
+        return statement.executeBatch();
     }
 
     @Override

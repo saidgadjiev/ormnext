@@ -7,8 +7,6 @@ import ru.saidgadjiev.orm.next.core.field.FieldAccessor;
 import ru.saidgadjiev.orm.next.core.field.persisters.DataPersister;
 import ru.saidgadjiev.orm.next.core.validator.data_persister.DataTypeValidator;
 import ru.saidgadjiev.orm.next.core.validator.data_persister.GeneratedTypeValidator;
-import ru.saidgadjiev.up.cache.core.Cache;
-import ru.saidgadjiev.up.cache.core.CacheBuilder;
 
 import java.lang.reflect.Field;
 
@@ -17,15 +15,10 @@ import java.lang.reflect.Field;
  */
 public class DBFieldTypeFactory implements FieldTypeFactory {
 
-    private static final Cache<Field, DBFieldType> CACHE = CacheBuilder.newRefenceCacheBuilder().build();
-
     @Override
     public IDBFieldType createFieldType(Field field) throws Exception {
         if (!field.isAnnotationPresent(DBField.class)) {
             return null;
-        }
-        if (CACHE.contains(field)) {
-            return CACHE.get(field);
         }
         DBField dbField = field.getAnnotation(DBField.class);
         DBFieldType fieldType = new DBFieldType();
@@ -55,8 +48,6 @@ public class DBFieldTypeFactory implements FieldTypeFactory {
         fieldType.setNotNull(dbField.notNull());
         fieldType.setId(dbField.id());
         fieldType.setGenerated(dbField.generated());
-
-        CACHE.put(field, fieldType);
 
         return fieldType;
     }

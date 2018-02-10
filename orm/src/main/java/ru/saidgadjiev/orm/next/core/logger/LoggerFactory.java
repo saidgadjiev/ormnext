@@ -6,6 +6,8 @@ public class LoggerFactory {
 
     public static final String LOG_CLASS_PROPERTY = "orm.next.logger";
 
+    public static final String LOG_ENABLED_PROPERTY = "orm.next.log.enabled";
+
     private LoggerFactory() {
 
     }

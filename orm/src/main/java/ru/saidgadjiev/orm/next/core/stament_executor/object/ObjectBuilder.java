@@ -8,9 +8,11 @@ import ru.saidgadjiev.orm.next.core.stament_executor.DatabaseResults;
 import ru.saidgadjiev.orm.next.core.stament_executor.GenericResults;
 import ru.saidgadjiev.orm.next.core.support.ConnectionSource;
 import ru.saidgadjiev.orm.next.core.table.TableInfo;
+import ru.saidgadjiev.orm.next.core.utils.TableInfoUtils;
 
 import java.lang.reflect.Constructor;
 import java.util.List;
+import java.util.Optional;
 
 public class ObjectBuilder<T> {
 
@@ -45,10 +47,13 @@ public class ObjectBuilder<T> {
 
     public ObjectBuilder<T> buildForeign(DatabaseResults data, List<ForeignFieldType> resultFieldTypes) throws Exception {
         for (ForeignFieldType fieldType : resultFieldTypes) {
-            TableInfo<?> foreignTableInfo = TableInfo.TableInfoCache.build(fieldType.getForeignFieldClass());
-            Object val = newObject(foreignTableInfo.getConstructor());
+            Constructor<?> foreignClassConstructor = TableInfoUtils.lookupDefaultConstructor(fieldType.getForeignFieldClass())
+                    .orElseThrow(() -> new IllegalArgumentException("Class " + fieldType.getForeignFieldClass() + " doesn't have default constructor"));
 
-            if (foreignTableInfo.getPrimaryKey().isPresent()) {
+            Object val = newObject(foreignClassConstructor);
+            Optional<IDBFieldType> primaryKey = TableInfoUtils.resolvePrimaryKey(fieldType.getForeignFieldClass());
+
+            if (primaryKey.isPresent()) {
                 fieldType.getForeignPrimaryKey().assign(val, data.getObject(fieldType.getColumnName()));
             }
             fieldType.assign(object, val);
@@ -73,7 +78,7 @@ public class ObjectBuilder<T> {
 
     public ObjectBuilder<T> buildForeignCollection(List<ForeignCollectionFieldType> resultFieldTypes) throws Exception {
         for (ForeignCollectionFieldType fieldType : resultFieldTypes) {
-            TableInfo<?> foreignTableInfo = TableInfo.TableInfoCache.build(fieldType.getForeignFieldClass());
+            TableInfo<?> foreignTableInfo = TableInfo.build(fieldType.getForeignFieldClass());
             Dao<Object, ?> foreignDao = (BaseDaoImpl<Object, ?>) DaoManager.createDAOWithTableInfo(dataSource, foreignTableInfo);
 
             if (tableInfo.getPrimaryKey().isPresent() && foreignTableInfo.getPrimaryKey().isPresent()) {
