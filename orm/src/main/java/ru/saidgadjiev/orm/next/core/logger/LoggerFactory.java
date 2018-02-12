@@ -13,17 +13,23 @@ public class LoggerFactory {
     }
 
     public static Log getLogger(Class<?> clazz) {
-        String loggerClassName = System.getProperty(LOG_CLASS_PROPERTY);
+        Boolean enable = Boolean.valueOf(System.getProperty(LOG_ENABLED_PROPERTY));
 
-        if (loggerClassName != null) {
-            try {
-                return loadLogger(clazz.getName(), loggerClassName);
-            } catch (Exception ex) {
-                throw new RuntimeException(ex);
+        if (enable) {
+            String loggerClassName = System.getProperty(LOG_CLASS_PROPERTY);
+
+            if (loggerClassName != null) {
+                try {
+                    return loadLogger(clazz.getName(), loggerClassName);
+                } catch (Exception ex) {
+                    throw new RuntimeException(ex);
+                }
             }
-        }
 
-        return new Log4j(clazz.getName());
+            return new Log4j(clazz.getName());
+        } else {
+            return new DummyLog();
+        }
     }
 
     private static Log loadLogger(String clazzName, String loggerClassName) throws Exception {
