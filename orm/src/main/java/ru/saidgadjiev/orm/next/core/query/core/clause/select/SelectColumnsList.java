@@ -12,7 +12,7 @@ import java.util.List;
  */
 public class SelectColumnsList implements SelectColumnsStrategy {
 
-    List<DisplayedColumnSpec> columns = new ArrayList<>();
+    private List<DisplayedColumnSpec> columns = new ArrayList<>();
 
     public void addColumn(DisplayedColumnSpec columnSpec) {
         columns.add(columnSpec);
