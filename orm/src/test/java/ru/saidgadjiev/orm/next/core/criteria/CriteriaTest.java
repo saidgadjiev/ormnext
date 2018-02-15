@@ -11,7 +11,7 @@ public class CriteriaTest {
 
     @Test
     public void add() {
-        SelectCriteria select = new SelectCriteria();
+        SelectCriteria select = new SelectCriteria("Test");
         Criteria where = new Criteria()
                 .add(Restrictions.eq("test",2))
                 .or()
@@ -29,6 +29,7 @@ public class CriteriaTest {
         select.accept(visitor);
 
         System.out.println(visitor.getQuery());
+        System.out.println(select.collectArgs());
     }
 
     @Test

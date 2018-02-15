@@ -1,8 +1,10 @@
 package ru.saidgadjiev.orm.next.core.query.core;
 
+import ru.saidgadjiev.orm.next.core.criteria.SelectCriteria;
 import ru.saidgadjiev.orm.next.core.field.field_type.IDBFieldType;
 import ru.saidgadjiev.orm.next.core.query.core.clause.GroupBy;
 import ru.saidgadjiev.orm.next.core.query.core.clause.Having;
+import ru.saidgadjiev.orm.next.core.query.core.clause.OrderBy;
 import ru.saidgadjiev.orm.next.core.query.core.clause.from.FromExpression;
 import ru.saidgadjiev.orm.next.core.query.core.clause.from.FromTable;
 import ru.saidgadjiev.orm.next.core.query.core.clause.select.SelectAll;
@@ -26,6 +28,8 @@ public class Select implements QueryElement {
     private SelectColumnsStrategy selectColumnsStrategy;
 
     private Expression where = new Expression();
+
+    private OrderBy orderBy;
 
     private GroupBy groupBy;
 

@@ -13,7 +13,13 @@ public class DefaultCriteriaVisitor extends DefaultVisitor implements CriteriaVi
     public void start(SelectCriteria selectCriteria) {
         sql.append("SELECT ");
 
-
+        if (selectCriteria.getSelectColumnsStrategy() != null) {
+            selectCriteria.getSelectColumnsStrategy().accept(this);
+        }
+        sql.append(" FROM ");
+        if (selectCriteria.getFromExpression() != null) {
+            selectCriteria.getFromExpression().accept(this);
+        }
         if (!selectCriteria.getWhere().getExpression().getConditions().isEmpty()) {
             sql.append(" WHERE ");
         }

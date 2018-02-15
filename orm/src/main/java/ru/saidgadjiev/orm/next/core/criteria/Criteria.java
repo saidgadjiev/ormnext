@@ -2,12 +2,9 @@ package ru.saidgadjiev.orm.next.core.criteria;
 
 import ru.saidgadjiev.orm.next.core.query.core.AndCondition;
 import ru.saidgadjiev.orm.next.core.query.core.condition.Expression;
-import ru.saidgadjiev.orm.next.core.query.visitor.QueryElement;
-import ru.saidgadjiev.orm.next.core.query.visitor.QueryVisitor;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Criteria implements CriteriaElement {
@@ -16,7 +13,7 @@ public class Criteria implements CriteriaElement {
 
     private AndCondition andCondition = new AndCondition();
 
-    private Map<Integer, Object> args = new HashMap<>();
+    private Queue<Object> args = new LinkedList<>();
 
     private AtomicInteger index = new AtomicInteger();
 
@@ -39,7 +36,11 @@ public class Criteria implements CriteriaElement {
     }
 
     private void addToArg(Object value) {
-        args.put(index.incrementAndGet(), value);
+        args.add(value);
+    }
+
+    public Queue<Object> getArgs() {
+        return args;
     }
 
     public Expression getExpression() {
