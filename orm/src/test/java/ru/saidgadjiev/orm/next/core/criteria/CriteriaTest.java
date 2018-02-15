@@ -24,7 +24,7 @@ public class CriteriaTest {
         select.setHaving(having);
         select.addOrderBy(Order.orderAsc("test", "test1"));
 
-        CriteriaVisitor visitor = new DefaultCriteriaVisitor(new H2DatabaseType());
+        DefaultVisitor visitor = new DefaultVisitor(new H2DatabaseType());
 
         select.accept(visitor);
 

@@ -83,6 +83,14 @@ public class Select implements QueryElement {
         this.selectionMode = selectionMode;
     }
 
+    public OrderBy getOrderBy() {
+        return orderBy;
+    }
+
+    public void setOrderBy(OrderBy orderBy) {
+        this.orderBy = orderBy;
+    }
+
     public static <ID> Select buildQueryById(String typeName, IDBFieldType idField, ID id) {
         Select selectQuery = new Select();
 
@@ -113,6 +121,9 @@ public class Select implements QueryElement {
         }
         if (groupBy != null) {
             groupBy.accept(visitor);
+        }
+        if (orderBy != null) {
+            orderBy.accept(visitor);
         }
         if (having != null) {
             having.accept(visitor);

@@ -4,18 +4,18 @@ import ru.saidgadjiev.orm.next.core.query.core.Select;
 import ru.saidgadjiev.orm.next.core.query.core.clause.Having;
 import ru.saidgadjiev.orm.next.core.query.core.clause.OrderBy;
 import ru.saidgadjiev.orm.next.core.query.core.clause.OrderByItem;
-import ru.saidgadjiev.orm.next.core.query.core.clause.from.FromExpression;
 import ru.saidgadjiev.orm.next.core.query.core.clause.from.FromTable;
 import ru.saidgadjiev.orm.next.core.query.core.clause.select.SelectAll;
-import ru.saidgadjiev.orm.next.core.query.core.clause.select.SelectColumnsStrategy;
 import ru.saidgadjiev.orm.next.core.query.core.common.TableRef;
+import ru.saidgadjiev.orm.next.core.query.visitor.QueryElement;
+import ru.saidgadjiev.orm.next.core.query.visitor.QueryVisitor;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class SelectCriteria implements CriteriaElement {
+public class SelectCriteria implements QueryElement {
 
     private Select select = new Select();
 
@@ -25,15 +25,14 @@ public class SelectCriteria implements CriteriaElement {
 
     private Criteria having;
 
-    private Having preparedHaving;
-
     private Map<Integer, Object> args = new HashMap<>();
 
     private AtomicInteger index = new AtomicInteger();
 
+    private String tableName;
+
     public SelectCriteria(String tableName) {
-        select.setFrom(new FromTable(new TableRef(tableName)));
-        select.setSelectColumnsStrategy(new SelectAll());
+        this.tableName = tableName;
     }
 
     public void setWhere(Criteria where) {
@@ -42,23 +41,10 @@ public class SelectCriteria implements CriteriaElement {
 
     public void setHaving(Criteria having) {
         this.having = having;
-        this.preparedHaving = new Having(having.getExpression());
     }
 
     public void addOrderBy(OrderByItem orderByItem) {
         orderBy.add(orderByItem);
-    }
-
-    public Criteria getWhere() {
-        return where;
-    }
-
-    public OrderBy getOrderBy() {
-        return orderBy;
-    }
-
-    public Having getHaving() {
-        return preparedHaving;
     }
 
     public Map<Integer, Object> collectArgs() {
@@ -76,18 +62,18 @@ public class SelectCriteria implements CriteriaElement {
         return args;
     }
 
+    private void prepareSelect() {
+        collectArgs();
+        select.setSelectColumnsStrategy(new SelectAll());
+        select.setFrom(new FromTable(new TableRef(tableName)));
+        select.setWhere(where.getExpression());
+        select.setOrderBy(orderBy);
+        select.setHaving(new Having(having.getExpression()));
+    }
+
     @Override
-    public void accept(CriteriaVisitor visitor) {
-        visitor.start(this);
-        if (where != null) {
-            where.accept(visitor);
-        }
-        if (!orderBy.getOrderByItems().isEmpty()) {
-            orderBy.accept(visitor);
-        }
-        if (having != null) {
-            having.accept(visitor);
-        }
-        visitor.finish(this);
+    public void accept(QueryVisitor visitor) {
+        prepareSelect();
+        select.accept(visitor);
     }
 }
