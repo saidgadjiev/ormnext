@@ -3,9 +3,7 @@ package ru.saidgadjiev.orm.next.core.query.visitor;
 import ru.saidgadjiev.orm.next.core.db.DatabaseType;
 import ru.saidgadjiev.orm.next.core.field.DataType;
 import ru.saidgadjiev.orm.next.core.query.core.*;
-import ru.saidgadjiev.orm.next.core.query.core.clause.GroupBy;
-import ru.saidgadjiev.orm.next.core.query.core.clause.GroupByItem;
-import ru.saidgadjiev.orm.next.core.query.core.clause.Having;
+import ru.saidgadjiev.orm.next.core.query.core.clause.*;
 import ru.saidgadjiev.orm.next.core.query.core.clause.from.FromJoinedTables;
 import ru.saidgadjiev.orm.next.core.query.core.clause.from.FromTable;
 import ru.saidgadjiev.orm.next.core.query.core.clause.select.SelectAll;
@@ -32,13 +30,13 @@ import java.util.Iterator;
  */
 public class DefaultVisitor implements QueryVisitor {
 
-    private StringBuilder sql = new StringBuilder();
+    protected StringBuilder sql = new StringBuilder();
 
-    private DatabaseType databaseType;
+    protected DatabaseType databaseType;
 
-    private final String escapeEntity;
+    protected final String escapeEntity;
 
-    private final String escapeLiteral;
+    protected final String escapeLiteral;
 
     public DefaultVisitor(DatabaseType databaseType) {
         this.databaseType = databaseType;
@@ -773,5 +771,33 @@ public class DefaultVisitor implements QueryVisitor {
     @Override
     public void finish(DoubleLiteral doubleLiteral) {
 
+    }
+
+    @Override
+    public void start(OrderBy orderBy) {
+        sql.append(" ORDER BY ");
+    }
+
+    @Override
+    public void finish(OrderBy orderBy) {
+
+    }
+
+    @Override
+    public void start(OrderByItem orderByItem) {
+        for (Iterator<ColumnSpec> iterator = orderByItem.getColumns().iterator(); iterator.hasNext();) {
+            iterator.next().accept(this);
+
+            if (iterator.hasNext()) {
+                sql.append(", ");
+            }
+        }
+    }
+
+    @Override
+    public void finish(OrderByItem orderByItem) {
+        if (!orderByItem.getColumns().isEmpty()) {
+            sql.append(" ASC ");
+        }
     }
 }

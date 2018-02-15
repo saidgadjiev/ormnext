@@ -1,8 +1,11 @@
 package ru.saidgadjiev.orm.next.core.query.visitor;
 
+import ru.saidgadjiev.orm.next.core.criteria.SelectCriteria;
 import ru.saidgadjiev.orm.next.core.query.core.*;
 import ru.saidgadjiev.orm.next.core.query.core.clause.GroupBy;
 import ru.saidgadjiev.orm.next.core.query.core.clause.Having;
+import ru.saidgadjiev.orm.next.core.query.core.clause.OrderBy;
+import ru.saidgadjiev.orm.next.core.query.core.clause.OrderByItem;
 import ru.saidgadjiev.orm.next.core.query.core.clause.from.FromJoinedTables;
 import ru.saidgadjiev.orm.next.core.query.core.clause.from.FromTable;
 import ru.saidgadjiev.orm.next.core.query.core.clause.select.SelectAll;
@@ -237,4 +240,13 @@ public interface QueryVisitor {
     void start(DoubleLiteral doubleLiteral);
 
     void finish(DoubleLiteral doubleLiteral);
+
+    void start(OrderBy orderBy);
+
+    void finish(OrderBy orderBy);
+
+    void start(OrderByItem orderByItem);
+
+    void finish(OrderByItem orderByItem);
+
 }

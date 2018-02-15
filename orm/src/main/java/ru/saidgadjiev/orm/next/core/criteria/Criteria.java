@@ -6,10 +6,11 @@ import ru.saidgadjiev.orm.next.core.query.visitor.QueryElement;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryVisitor;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class Criteria implements QueryElement {
+public class Criteria implements CriteriaElement {
 
     private Expression expression = new Expression();
 
@@ -41,12 +42,12 @@ public class Criteria implements QueryElement {
         args.put(index.incrementAndGet(), value);
     }
 
-    public Expression prepare() {
+    public Expression getExpression() {
         return expression;
     }
 
     @Override
-    public void accept(QueryVisitor visitor) {
+    public void accept(CriteriaVisitor visitor) {
         expression.accept(visitor);
     }
 }

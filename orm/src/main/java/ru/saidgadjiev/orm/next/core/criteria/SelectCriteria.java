@@ -4,14 +4,12 @@ import ru.saidgadjiev.orm.next.core.query.core.clause.Having;
 import ru.saidgadjiev.orm.next.core.query.core.clause.OrderBy;
 import ru.saidgadjiev.orm.next.core.query.core.clause.OrderByItem;
 import ru.saidgadjiev.orm.next.core.query.core.clause.select.SelectColumnsStrategy;
-import ru.saidgadjiev.orm.next.core.query.visitor.QueryElement;
-import ru.saidgadjiev.orm.next.core.query.visitor.QueryVisitor;
 
-public class SelectCriteria implements QueryElement {
+public class SelectCriteria implements CriteriaElement {
 
     SelectColumnsStrategy selectColumnsStrategy;
 
-    Criteria where = new Criteria();
+    Criteria where;
 
     OrderBy orderBy = new OrderBy();
 
@@ -22,16 +20,41 @@ public class SelectCriteria implements QueryElement {
     }
 
     public void setHaving(Criteria having) {
-        this.having = new Having(having.prepare());
+        this.having = new Having(having.getExpression());
     }
 
     public void addOrderBy(OrderByItem orderByItem) {
         orderBy.add(orderByItem);
     }
 
+    public SelectColumnsStrategy getSelectColumnsStrategy() {
+        return selectColumnsStrategy;
+    }
+
+    public Criteria getWhere() {
+        return where;
+    }
+
+    public OrderBy getOrderBy() {
+        return orderBy;
+    }
+
+    public Having getHaving() {
+        return having;
+    }
+
     @Override
-    public void accept(QueryVisitor visitor) {
-        where.accept(visitor);
-        having.accept(visitor);
+    public void accept(CriteriaVisitor visitor) {
+        visitor.start(this);
+        if (where != null) {
+            where.accept(visitor);
+        }
+        if (!orderBy.getOrderByItems().isEmpty()) {
+            orderBy.accept(visitor);
+        }
+        if (having != null) {
+            having.accept(visitor);
+        }
+        visitor.finish(this);
     }
 }
