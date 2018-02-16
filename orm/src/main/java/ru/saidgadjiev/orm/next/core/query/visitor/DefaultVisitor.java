@@ -194,7 +194,6 @@ public class DefaultVisitor implements QueryVisitor {
     public void start(ColumnSpec columnSpec) {
         if (columnSpec.getAlias() != null) {
             columnSpec.getAlias().accept(this);
-            sql.append(".");
         }
         sql.append(escapeEntity).append(columnSpec.getName()).append(escapeEntity);
     }
@@ -572,7 +571,6 @@ public class DefaultVisitor implements QueryVisitor {
     public void start(DisplayedColumns displayedColumns) {
         if (displayedColumns.getAlias() != null) {
             displayedColumns.getAlias().accept(this);
-            sql.append(".");
         }
         sql.append(displayedColumns.getColumnSpec().getName());
     }
@@ -634,7 +632,10 @@ public class DefaultVisitor implements QueryVisitor {
 
     @Override
     public void start(InSelect inSelect) {
-
+        inSelect.getOperand().accept(this);
+        sql.append(" IN (");
+        inSelect.getSelect().accept(this);
+        sql.append(")");
     }
 
     @Override
@@ -714,7 +715,7 @@ public class DefaultVisitor implements QueryVisitor {
 
     @Override
     public void start(Alias alias) {
-        sql.append(escapeEntity).append(alias.getAlias()).append(escapeEntity);
+        sql.append(escapeEntity).append(alias.getAlias()).append(escapeEntity).append(".");
     }
 
     @Override

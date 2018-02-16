@@ -15,15 +15,13 @@ public class Criteria implements CriteriaElement {
 
     private Queue<Object> args = new LinkedList<>();
 
-    private AtomicInteger index = new AtomicInteger();
-
     public Criteria() {
         expression.add(andCondition);
     }
 
     public Criteria add(Criterion criterion) {
         andCondition.add(criterion.getCondition());
-        addToArg(criterion.getValue());
+        addToArg(criterion.getArgs());
 
         return this;
     }
@@ -35,8 +33,8 @@ public class Criteria implements CriteriaElement {
         return this;
     }
 
-    private void addToArg(Object value) {
-        args.add(value);
+    private void addToArg(Queue<Object> value) {
+        args.addAll(value);
     }
 
     public Queue<Object> getArgs() {

@@ -2,22 +2,26 @@ package ru.saidgadjiev.orm.next.core.criteria;
 
 import ru.saidgadjiev.orm.next.core.query.core.condition.Condition;
 
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.Queue;
+
 public class Criterion {
 
-    private final Condition condition;
+    private Condition condition;
 
-    private final Object value;
+    private Queue<Object> args = new LinkedList<>();
 
-    public Criterion(Condition condition, Object value) {
+    public Criterion(Condition condition, Collection<Object> args) {
         this.condition = condition;
-        this.value = value;
+        this.args.addAll(args);
     }
 
     public Condition getCondition() {
         return condition;
     }
 
-    public Object getValue() {
-        return value;
+    public Queue<Object> getArgs() {
+        return args;
     }
 }

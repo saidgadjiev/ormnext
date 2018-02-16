@@ -1,6 +1,5 @@
 package ru.saidgadjiev.orm.next.core.query.visitor;
 
-import ru.saidgadjiev.orm.next.core.criteria.SelectCriteria;
 import ru.saidgadjiev.orm.next.core.query.core.*;
 import ru.saidgadjiev.orm.next.core.query.core.clause.GroupBy;
 import ru.saidgadjiev.orm.next.core.query.core.clause.Having;
