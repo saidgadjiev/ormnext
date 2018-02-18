@@ -25,7 +25,7 @@ public class FloatLiteral implements Literal<Float> {
 
     @Override
     public void accept(QueryVisitor visitor) {
-        visitor.start(this);
-        visitor.finish(this);
+        visitor.visit(this);
+
     }
 }

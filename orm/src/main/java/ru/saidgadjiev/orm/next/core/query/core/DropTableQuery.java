@@ -23,8 +23,8 @@ public class DropTableQuery implements QueryElement {
 
     @Override
     public void accept(QueryVisitor visitor) {
-        visitor.start(this);
-        visitor.finish(this);
+        visitor.visit(this);
+
     }
 
     public static DropTableQuery buildQuery(String typeName, boolean ifExists) {

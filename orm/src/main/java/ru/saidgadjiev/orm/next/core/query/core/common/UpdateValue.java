@@ -50,8 +50,8 @@ public class UpdateValue implements QueryElement {
 
     @Override
     public void accept(QueryVisitor visitor) {
-        visitor.start(this);
+        visitor.visit(this);
         value.accept(visitor);
-        visitor.finish(this);
+
     }
 }

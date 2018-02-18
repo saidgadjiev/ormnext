@@ -1,6 +1,5 @@
 package ru.saidgadjiev.orm.next.core.criteria;
 
-import ru.saidgadjiev.orm.next.core.db.DatabaseType;
 import ru.saidgadjiev.orm.next.core.query.core.Alias;
 import ru.saidgadjiev.orm.next.core.query.core.Select;
 import ru.saidgadjiev.orm.next.core.query.core.clause.Having;
@@ -10,9 +9,9 @@ import ru.saidgadjiev.orm.next.core.query.core.clause.from.FromTable;
 import ru.saidgadjiev.orm.next.core.query.core.clause.select.SelectAll;
 import ru.saidgadjiev.orm.next.core.query.core.column_spec.ColumnSpec;
 import ru.saidgadjiev.orm.next.core.query.core.common.TableRef;
-import ru.saidgadjiev.orm.next.core.query.visitor.DefaultVisitor;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryVisitor;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
@@ -56,7 +55,7 @@ public class SelectCriteria {
         this.alias = new Alias(alias);
     }
 
-    public Map<Integer, Object> collectArgs() {
+    public Collection<Object> collectArgs() {
         Queue<Object> whereArgs = where.getArgs();
 
         while (!whereArgs.isEmpty()) {
@@ -68,7 +67,11 @@ public class SelectCriteria {
             args.put(index.incrementAndGet(), havingArgs.poll());
         }
 
-        return args;
+        return args.values();
+    }
+
+    public Alias getAlias() {
+        return alias;
     }
 
     public Select prepareSelect() {
@@ -84,7 +87,13 @@ public class SelectCriteria {
 
     public String accept(QueryVisitor visitor) {
         prepareSelect();
-        select.accept(new AliasedQueryVisitor(alias, visitor));
+        select.accept(new VisitorWrapper(visitor.getOriginal()) {
+            @Override
+            public void visit(ColumnSpec columnSpec, QueryVisitor visitor) {
+                columnSpec.alias(alias);
+                super.visit(columnSpec, visitor);
+            }
+        });
 
         return visitor.getQuery();
     }

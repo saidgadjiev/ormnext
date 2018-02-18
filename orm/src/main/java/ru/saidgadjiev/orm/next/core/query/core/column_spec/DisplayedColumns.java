@@ -25,7 +25,7 @@ public class DisplayedColumns extends DisplayedColumnSpec {
         if (alias != null) {
             alias.accept(visitor);
         }
-        visitor.start(this);
-        visitor.finish(this);
+        visitor.visit(this, visitor);
+
     }
 }

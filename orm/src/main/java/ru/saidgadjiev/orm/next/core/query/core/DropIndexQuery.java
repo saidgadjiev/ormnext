@@ -17,8 +17,8 @@ public class DropIndexQuery implements QueryElement {
 
     @Override
     public void accept(QueryVisitor visitor) {
-        visitor.start(this);
-        visitor.finish(this);
+        visitor.visit(this);
+
     }
 
     public static DropIndexQuery build(String name) {

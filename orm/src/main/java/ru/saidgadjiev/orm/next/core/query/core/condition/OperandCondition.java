@@ -13,8 +13,8 @@ public class OperandCondition implements Condition {
 
     @Override
     public void accept(QueryVisitor visitor) {
-        visitor.start(this);
-        visitor.finish(this);
+        visitor.visit(this, visitor);
+
     }
 
     public Operand getOperand() {

@@ -20,10 +20,10 @@ public class OrderBy implements QueryElement {
 
     @Override
     public void accept(QueryVisitor visitor) {
-        visitor.start(this);
+        visitor.visit(this);
         for (OrderByItem item: orderByItems) {
             item.accept(visitor);
         }
-        visitor.finish(this);
+
     }
 }

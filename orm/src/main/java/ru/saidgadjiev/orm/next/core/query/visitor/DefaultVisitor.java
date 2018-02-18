@@ -50,13 +50,11 @@ public class DefaultVisitor implements QueryVisitor {
     }
 
     @Override
-    public boolean start(CreateQuery tCreateQuery) {
+    public void visit(CreateQuery tCreateQuery, QueryVisitor visitor) {
         sql.append("INSERT INTO ").append(escapeEntity).append(tCreateQuery.getTypeName()).append(escapeEntity);
 
         if (tCreateQuery.getUpdateValues().isEmpty()) {
             sql.append(" ").append(databaseType.appendNoColumn());
-
-            return false;
         } else {
             sql.append(" (");
         }
@@ -75,33 +73,21 @@ public class DefaultVisitor implements QueryVisitor {
             UpdateValue updateValue = iterator.next();
             RValue value = updateValue.getValue();
 
-            value.accept(this);
+            value.accept(visitor);
             if (iterator.hasNext()) {
                 sql.append(",");
             }
         }
         sql.append(")");
-
-        return false;
     }
 
     @Override
-    public void finish(CreateQuery tCreateQuery) {
-
-    }
-
-    @Override
-    public void start(UpdateValue updateValue) {
+    public void visit(UpdateValue updateValue) {
 
     }
 
     @Override
-    public void finish(UpdateValue updateValue) {
-
-    }
-
-    @Override
-    public void start(StringLiteral stringLiteral) {
+    public void visit(StringLiteral stringLiteral) {
         if (stringLiteral.getOriginal() == null) {
             sql.append("null");
         } else {
@@ -110,19 +96,14 @@ public class DefaultVisitor implements QueryVisitor {
     }
 
     @Override
-    public void finish(StringLiteral stringLiteral) {
-
-    }
-
-    @Override
-    public void start(Select tSelectQuery) {
+    public void visit(Select tSelectQuery, QueryVisitor visitor) {
         sql.append("SELECT ");
         if (tSelectQuery.getSelectColumnsStrategy() != null) {
-            tSelectQuery.getSelectColumnsStrategy().accept(this);
+            tSelectQuery.getSelectColumnsStrategy().accept(visitor);
         }
         sql.append(" FROM ");
         if (tSelectQuery.getFrom() != null) {
-            tSelectQuery.getFrom().accept(this);
+            tSelectQuery.getFrom().accept(visitor);
         }
         if (!tSelectQuery.getWhere().getConditions().isEmpty()) {
             sql.append(" WHERE ");
@@ -130,12 +111,7 @@ public class DefaultVisitor implements QueryVisitor {
     }
 
     @Override
-    public void finish(Select tSelectQuery) {
-
-    }
-
-    @Override
-    public void start(Expression expression) {
+    public void visit(Expression expression, QueryVisitor visitor) {
         for (Iterator<AndCondition> iterator = expression.getConditions().iterator(); iterator.hasNext(); ) {
             AndCondition andCondition = iterator.next();
 
@@ -146,7 +122,7 @@ public class DefaultVisitor implements QueryVisitor {
 
                 sql.append("(");
 
-                condition.accept(this);
+                condition.accept(visitor);
 
                 sql.append(")");
 
@@ -164,67 +140,43 @@ public class DefaultVisitor implements QueryVisitor {
     }
 
     @Override
-    public void finish(Expression expression) {
+    public void visit(AndCondition andCondition) {
 
     }
 
     @Override
-    public void start(AndCondition andCondition) {
-
-    }
-
-    @Override
-    public void finish(AndCondition andCondition) {
-
-    }
-
-    @Override
-    public void start(Equals equals) {
-        equals.getFirst().accept(this);
+    public void visit(Equals equals, QueryVisitor visitor) {
+        equals.getFirst().accept(visitor);
         sql.append(" = ");
-        equals.getSecond().accept(this);
+        equals.getSecond().accept(visitor);
     }
 
     @Override
-    public void finish(Equals equals) {
-
-    }
-
-    @Override
-    public void start(ColumnSpec columnSpec) {
+    public void visit(ColumnSpec columnSpec, QueryVisitor visitor) {
         if (columnSpec.getAlias() != null) {
-            columnSpec.getAlias().accept(this);
+            columnSpec.getAlias().accept(visitor);
+            sql.append(".");
         }
         sql.append(escapeEntity).append(columnSpec.getName()).append(escapeEntity);
     }
 
     @Override
-    public void finish(ColumnSpec columnSpec) {
-
-    }
-
-    @Override
-    public void finish(TableRef tableRef) {
-
-    }
-
-    @Override
-    public void start(TableRef tableRef) {
+    public void visit(TableRef tableRef, QueryVisitor visitor) {
         sql.append(escapeEntity).append(tableRef.getTableName()).append(escapeEntity);
 
         if (tableRef.getAlias() != null) {
             sql.append(" AS ");
-            tableRef.getAlias().accept(this);
+            tableRef.getAlias().accept(visitor);
         }
     }
 
     @Override
-    public void start(AttributeDefinition attributeDefinition) {
+    public void visit(AttributeDefinition attributeDefinition) {
 
     }
 
     @Override
-    public void start(CreateTableQuery tCreateTableQuery) {
+    public void visit(CreateTableQuery tCreateTableQuery, QueryVisitor visitor) {
         sql.append("CREATE TABLE ");
         if (tCreateTableQuery.isIfNotExists()) {
             sql.append("IF NOT EXISTS ");
@@ -239,7 +191,7 @@ public class DefaultVisitor implements QueryVisitor {
             for (Iterator<AttributeConstraint> constraintIterator = attributeDefinition.getAttributeConstraints().iterator(); constraintIterator.hasNext();) {
                 AttributeConstraint constraint = constraintIterator.next();
 
-                constraint.accept(this);
+                constraint.accept(visitor);
 
                 if (constraintIterator.hasNext()) {
                     sql.append(" ");
@@ -249,6 +201,7 @@ public class DefaultVisitor implements QueryVisitor {
                 sql.append(", ");
             }
         }
+        sql.append(")");
     }
 
     private void appendAttributeDataType(AttributeDefinition def) {
@@ -280,17 +233,7 @@ public class DefaultVisitor implements QueryVisitor {
     }
 
     @Override
-    public void finish(CreateTableQuery tCreateTableQuery) {
-        sql.append(")");
-    }
-
-    @Override
-    public void finish(AttributeDefinition attributeDefinition) {
-
-    }
-
-    @Override
-    public void start(DeleteQuery deleteQuery) {
+    public void visit(DeleteQuery deleteQuery) {
         sql.append("DELETE FROM ").append(deleteQuery.getTypeName());
         if (!deleteQuery.getWhere().getConditions().isEmpty()) {
             sql.append(" WHERE ");
@@ -298,22 +241,12 @@ public class DefaultVisitor implements QueryVisitor {
     }
 
     @Override
-    public void finish(DeleteQuery deleteQuery) {
-
-    }
-
-    @Override
-    public void start(IntLiteral intLiteral) {
+    public void visit(IntLiteral intLiteral) {
         sql.append(intLiteral.getOriginal());
     }
 
     @Override
-    public void finish(IntLiteral intLiteral) {
-
-    }
-
-    @Override
-    public boolean start(UpdateQuery updateQuery) {
+    public boolean visit(UpdateQuery updateQuery, QueryVisitor visitor) {
         sql.append("UPDATE ").append(updateQuery.getTypeName()).append(" SET ");
 
         for (Iterator<UpdateValue> iterator = updateQuery.getUpdateValues().iterator(); iterator.hasNext(); ) {
@@ -321,7 +254,7 @@ public class DefaultVisitor implements QueryVisitor {
             RValue value = updateValue.getValue();
 
             sql.append(updateValue.getName()).append("=");
-            value.accept(this);
+            value.accept(visitor);
             if (iterator.hasNext()) {
                 sql.append(",");
             }
@@ -334,12 +267,7 @@ public class DefaultVisitor implements QueryVisitor {
     }
 
     @Override
-    public void finish(UpdateQuery updateQuery) {
-
-    }
-
-    @Override
-    public void start(DropTableQuery dropTableQuery) {
+    public void visit(DropTableQuery dropTableQuery) {
         sql.append("DROP TABLE ");
         if (dropTableQuery.isIfExists()) {
             sql.append("IF EXISTS ");
@@ -348,22 +276,12 @@ public class DefaultVisitor implements QueryVisitor {
     }
 
     @Override
-    public void finish(DropTableQuery dropTableQuery) {
-
-    }
-
-    @Override
-    public void start(PrimaryKeyConstraint primaryKeyConstraint) {
+    public void visit(PrimaryKeyConstraint primaryKeyConstraint) {
         sql.append(databaseType.appendPrimaryKey(primaryKeyConstraint.isGenerated()));
     }
 
     @Override
-    public void finish(PrimaryKeyConstraint primaryKeyConstraint) {
-
-    }
-
-    @Override
-    public void start(UniqueConstraint uniqueConstraint) {
+    public void visit(UniqueConstraint uniqueConstraint) {
         sql.append(", UNIQUE (`");
         for (Iterator<String> iterator = uniqueConstraint.getUniqueColemns().iterator(); iterator.hasNext();) {
             sql.append(iterator.next());
@@ -375,22 +293,12 @@ public class DefaultVisitor implements QueryVisitor {
     }
 
     @Override
-    public void finish(UniqueConstraint uniqueConstraint) {
-
-    }
-
-    @Override
-    public void start(NotNullConstraint notNullConstraint) {
+    public void visit(NotNullConstraint notNullConstraint) {
         sql.append("NOT NULL");
     }
 
     @Override
-    public void finish(NotNullConstraint notNullConstraint) {
-
-    }
-
-    @Override
-    public void start(ReferencesConstraint referencesConstraint) {
+    public void visit(ReferencesConstraint referencesConstraint) {
         sql.append(" REFERENCES `")
                 .append(referencesConstraint.getTypeName())
                 .append("`(`")
@@ -399,12 +307,7 @@ public class DefaultVisitor implements QueryVisitor {
     }
 
     @Override
-    public void finish(ReferencesConstraint referencesConstraint) {
-
-    }
-
-    @Override
-    public void start(CreateIndexQuery createIndexQuery) {
+    public void visit(CreateIndexQuery createIndexQuery) {
         sql.append("CREATE ")
                 .append(createIndexQuery.isUnique() ? "UNIQUE": "INDEX")
                 .append(" `")
@@ -423,46 +326,26 @@ public class DefaultVisitor implements QueryVisitor {
     }
 
     @Override
-    public void finish(CreateIndexQuery createIndexQuery) {
-
-    }
-
-    @Override
-    public void start(DropIndexQuery dropIndexQuery) {
+    public void visit(DropIndexQuery dropIndexQuery) {
         sql.append("DROP INDEX `").append(dropIndexQuery.getName()).append(escapeEntity);
     }
 
     @Override
-    public void finish(DropIndexQuery dropIndexQuery) {
-
-    }
-
-    @Override
-    public void start(Param param) {
+    public void visit(Param param) {
         sql.append("?");
     }
 
     @Override
-    public void finish(Param param) {
-
-    }
-
-    @Override
-    public void start(SelectAll selectAll) {
+    public void visit(SelectAll selectAll) {
         sql.append("*");
     }
 
     @Override
-    public void finish(SelectAll selectAll) {
-
-    }
-
-    @Override
-    public void start(SelectColumnsList selectColumnsList) {
+    public void visit(SelectColumnsList selectColumnsList, QueryVisitor visitor) {
         for (Iterator<DisplayedColumnSpec> columnIterator = selectColumnsList.getColumns().iterator(); columnIterator.hasNext();) {
             DisplayedColumnSpec columnSpec = columnIterator.next();
 
-            columnSpec.accept(this);
+            columnSpec.accept(visitor);
             if (columnIterator.hasNext()) {
                 sql.append(", ");
             }
@@ -470,29 +353,19 @@ public class DefaultVisitor implements QueryVisitor {
     }
 
     @Override
-    public void finish(SelectColumnsList selectColumnsList) {
-
-    }
-
-    @Override
-    public void start(Having having) {
+    public void visit(Having having) {
         sql.append(" HAVING ");
 
     }
 
     @Override
-    public void finish(GroupBy groupBy) {
-
-    }
-
-    @Override
-    public void start(GroupBy groupBy) {
+    public void visit(GroupBy groupBy, QueryVisitor visitor) {
         sql.append(" GROUP BY ");
 
         for (Iterator<GroupByItem> columnSpecIterator = groupBy.getGroupByItems().iterator(); columnSpecIterator.hasNext();) {
             GroupByItem columnSpec = columnSpecIterator.next();
 
-            columnSpec.accept(this);
+            columnSpec.accept(visitor);
             if (columnSpecIterator.hasNext()) {
                 sql.append(",");
             }
@@ -500,303 +373,170 @@ public class DefaultVisitor implements QueryVisitor {
     }
 
     @Override
-    public void finish(Having having) {
-
+    public void visit(FromTable fromTable) {
     }
 
     @Override
-    public void finish(FromTable fromTable) {
-    }
-
-    @Override
-    public void start(FromTable fromTable) {
-    }
-
-    @Override
-    public void start(LeftJoin leftJoin) {
+    public void visit(LeftJoin leftJoin, QueryVisitor visitor) {
         sql.append(" LEFT JOIN ");
-        leftJoin.getJoinedTableRef().accept(this);
+        leftJoin.getJoinedTableRef().accept(visitor);
         sql.append(" ON ");
     }
 
     @Override
-    public void finish(LeftJoin leftJoin) {
-    }
-
-    @Override
-    public void finish(BooleanLiteral booleanLiteral) {
-
-    }
-
-    @Override
-    public void start(BooleanLiteral booleanLiteral) {
+    public void visit(BooleanLiteral booleanLiteral) {
         sql.append(booleanLiteral.getOriginal());
     }
 
     @Override
-    public void start(JoinInfo joinInfo) {
-        joinInfo.getTableRef().accept(this);
+    public void visit(JoinInfo joinInfo, QueryVisitor visitor) {
+        joinInfo.getTableRef().accept(visitor);
         sql.append(" ON ");
     }
 
     @Override
-    public void finish(JoinInfo joinInfo) {
-
-    }
-
-    @Override
-    public void start(CountAll countAll) {
-
-    }
-
-    @Override
-    public void finish(CountAll countAll) {
+    public void visit(CountAll countAll) {
         sql.append("COUNT(*)");
     }
 
     @Override
-    public void start(FromJoinedTables fromJoinedTables) {
-        fromJoinedTables.getTableRef().accept(this);
+    public void visit(FromJoinedTables fromJoinedTables, QueryVisitor visitor) {
+        fromJoinedTables.getTableRef().accept(visitor);
         for (JoinExpression joinExpression: fromJoinedTables.getJoinExpression()) {
-            joinExpression.accept(this);
+            joinExpression.accept(visitor);
         }
     }
 
     @Override
-    public void finish(FromJoinedTables fromJoinedTables) {
-
-    }
-
-    @Override
-    public void start(DisplayedColumns displayedColumns) {
+    public void visit(DisplayedColumns displayedColumns, QueryVisitor visitor) {
         if (displayedColumns.getAlias() != null) {
-            displayedColumns.getAlias().accept(this);
+            displayedColumns.getAlias().accept(visitor);
         }
         sql.append(displayedColumns.getColumnSpec().getName());
     }
 
     @Override
-    public void finish(DisplayedColumns displayedColumns) {
+    public void visit(AVG avg) {
 
     }
 
     @Override
-    public void start(AVG avg) {
-
-    }
-
-    @Override
-    public void finish(AVG avg) {
-
-    }
-
-    @Override
-    public void start(CountExpression countExpression) {
+    public void visit(CountExpression countExpression, QueryVisitor visitor) {
         sql.append("COUNT(");
-    }
+        if (countExpression.getExpression() != null) {
+            countExpression.getExpression().accept(visitor);
+        }
 
-    @Override
-    public void finish(CountExpression countExpression) {
         sql.append(")");
     }
 
     @Override
-    public void start(MAX max) {
+    public void visit(MAX max) {
 
     }
 
     @Override
-    public void finish(MAX max) {
+    public void visit(MIN min) {
 
     }
 
     @Override
-    public void start(MIN min) {
+    public void visit(Exists exists) {
 
     }
 
     @Override
-    public void finish(MIN min) {
-
-    }
-
-    @Override
-    public void start(Exists exists) {
-
-    }
-
-    @Override
-    public void finish(Exists exists) {
-
-    }
-
-    @Override
-    public void start(InSelect inSelect) {
-        inSelect.getOperand().accept(this);
+    public void visit(InSelect inSelect, QueryVisitor visitor) {
+        inSelect.getOperand().accept(visitor);
         sql.append(" IN (");
-        inSelect.getSelect().accept(this);
+        inSelect.getSelect().accept(visitor);
         sql.append(")");
     }
 
     @Override
-    public void finish(InSelect inSelect) {
+    public void visit(NotInSelect notInSelect) {
 
     }
 
     @Override
-    public void start(NotInSelect notInSelect) {
+    public void visit(GreaterThan greaterThan) {
 
     }
 
     @Override
-    public void finish(NotInSelect notInSelect) {
+    public void visit(GreaterThanOrEquals greaterThanOrEquals) {
 
     }
 
     @Override
-    public void start(GreaterThan greaterThan) {
+    public void visit(LessThan lessThan) {
 
     }
 
     @Override
-    public void finish(GreaterThan greaterThan) {
+    public void visit(LessThanOrEquals lessThanOrEquals) {
 
     }
 
     @Override
-    public void start(GreaterThanOrEquals greaterThanOrEquals) {
-
-    }
-
-    @Override
-    public void finish(GreaterThanOrEquals greaterThanOrEquals) {
-
-    }
-
-    @Override
-    public void start(LessThan lessThan) {
-
-    }
-
-    @Override
-    public void finish(LessThan lessThan) {
-
-    }
-
-    @Override
-    public void start(LessThanOrEquals lessThanOrEquals) {
-
-    }
-
-    @Override
-    public void finish(LessThanOrEquals lessThanOrEquals) {
-
-    }
-
-    @Override
-    public void start(SUM sum) {
+    public void visit(SUM sum, QueryVisitor visitor) {
         sql.append("SUM(");
-    }
-
-    @Override
-    public void finish(SUM sum) {
+        if (sum.getExpression() != null) {
+            sum.getExpression().accept(visitor);
+        }
         sql.append(")");
     }
 
     @Override
-    public void start(OperandCondition operandCondition) {
-        operandCondition.getOperand().accept(this);
+    public void visit(OperandCondition operandCondition, QueryVisitor visitor) {
+        operandCondition.getOperand().accept(visitor);
     }
 
     @Override
-    public void finish(OperandCondition operandCondition) {
-
-    }
-
-    @Override
-    public void start(Alias alias) {
+    public void visit(Alias alias) {
         sql.append(escapeEntity).append(alias.getAlias()).append(escapeEntity).append(".");
     }
 
     @Override
-    public void finish(Alias alias) {
-
-    }
-
-    @Override
-    public void start(DateLiteral dateLiteral) {
+    public void visit(DateLiteral dateLiteral) {
         sql.append(dateLiteral.getOriginal());
     }
 
     @Override
-    public void finish(DateLiteral dateLiteral) {
-
-    }
-
-    @Override
-    public void start(Default aDefault) {
+    public void visit(Default aDefault) {
         sql.append("DEFAULT ");
     }
 
     @Override
-    public void finish(Default aDefault) {
+    public void visit(DisplayedOperand displayedOperand) {
 
     }
 
     @Override
-    public void start(DisplayedOperand displayedOperand) {
-
-    }
-
-    @Override
-    public void finish(DisplayedOperand displayedOperand) {
-
-    }
-
-    @Override
-    public void start(FloatLiteral floatLiteral) {
+    public void visit(FloatLiteral floatLiteral) {
         sql.append(floatLiteral.getOriginal());
 
     }
 
     @Override
-    public void finish(FloatLiteral floatLiteral) {
-
-    }
-
-    @Override
-    public void start(DoubleLiteral doubleLiteral) {
+    public void visit(DoubleLiteral doubleLiteral) {
         sql.append(doubleLiteral.getOriginal());
     }
 
     @Override
-    public void finish(DoubleLiteral doubleLiteral) {
-
-    }
-
-    @Override
-    public void start(OrderBy orderBy) {
+    public void visit(OrderBy orderBy) {
         sql.append(" ORDER BY ");
     }
 
     @Override
-    public void finish(OrderBy orderBy) {
-
-    }
-
-    @Override
-    public void start(OrderByItem orderByItem) {
+    public void visit(OrderByItem orderByItem, QueryVisitor visitor) {
         for (Iterator<ColumnSpec> iterator = orderByItem.getColumns().iterator(); iterator.hasNext();) {
-            iterator.next().accept(this);
+            iterator.next().accept(visitor);
 
             if (iterator.hasNext()) {
                 sql.append(", ");
             }
         }
-    }
-
-    @Override
-    public void finish(OrderByItem orderByItem) {
         if (!orderByItem.getColumns().isEmpty()) {
             sql.append(" ASC ");
         }

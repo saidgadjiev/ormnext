@@ -11,7 +11,7 @@ public class Param implements RValue, Operand {
 
     @Override
     public void accept(QueryVisitor visitor) {
-        visitor.start(this);
-        visitor.finish(this);
+        visitor.visit(this);
+
     }
 }

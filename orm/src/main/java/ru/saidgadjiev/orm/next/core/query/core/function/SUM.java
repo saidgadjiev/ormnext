@@ -16,8 +16,8 @@ public class SUM implements Function {
 
     @Override
     public void accept(QueryVisitor visitor) {
-        visitor.start(this);
+        visitor.visit(this, visitor);
         expression.accept(visitor);
-        visitor.finish(this);
+
     }
 }

@@ -31,10 +31,7 @@ public class ColumnSpec implements Operand {
 
     @Override
     public void accept(QueryVisitor visitor) {
-        if (alias != null) {
-            alias.accept(visitor);
-        }
-        visitor.start(this);
-        visitor.finish(this);
+        visitor.visit(this, visitor);
+
     }
 }

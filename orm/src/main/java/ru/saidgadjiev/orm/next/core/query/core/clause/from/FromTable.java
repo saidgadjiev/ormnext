@@ -17,8 +17,8 @@ public class FromTable implements FromExpression {
 
     @Override
     public void accept(QueryVisitor visitor) {
-        visitor.start(this);
+        visitor.visit(this);
         tableRef.accept(visitor);
-        visitor.finish(this);
+
     }
 }

@@ -99,13 +99,13 @@ public class CreateTableQuery implements QueryElement {
 
     @Override
     public void accept(QueryVisitor visitor) {
-        visitor.start(this);
+        visitor.visit(this, visitor);
         for (AttributeDefinition attributeDefinition : attributeDefinitions) {
             attributeDefinition.accept(visitor);
         }
         for (TableConstraint tableConstraint: tableConstraints) {
             tableConstraint.accept(visitor);
         }
-        visitor.finish(this);
+
     }
 }

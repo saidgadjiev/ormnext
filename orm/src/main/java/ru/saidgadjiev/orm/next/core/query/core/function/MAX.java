@@ -17,7 +17,7 @@ public class MAX implements Function {
 
     @Override
     public void accept(QueryVisitor visitor) {
-        visitor.start(this);
-        visitor.finish(this);
+        visitor.visit(this);
+
     }
 }

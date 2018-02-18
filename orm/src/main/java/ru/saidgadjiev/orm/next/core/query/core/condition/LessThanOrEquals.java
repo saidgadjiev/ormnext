@@ -23,7 +23,7 @@ public class LessThanOrEquals implements Condition {
 
     @Override
     public void accept(QueryVisitor visitor) {
-        visitor.start(this);
-        visitor.finish(this);
+        visitor.visit(this);
+
     }
 }

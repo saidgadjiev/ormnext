@@ -17,11 +17,7 @@ public class CountExpression implements Function {
 
     @Override
     public void accept(QueryVisitor visitor) {
-        visitor.start(this);
-        if (expression != null) {
-            expression.accept(visitor);
-        }
-        visitor.finish(this);
+        visitor.visit(this, visitor);
     }
 
 }

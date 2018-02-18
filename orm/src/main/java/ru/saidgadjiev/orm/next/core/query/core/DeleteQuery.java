@@ -52,8 +52,8 @@ public class DeleteQuery implements QueryElement {
 
     @Override
     public void accept(QueryVisitor visitor) {
-        visitor.start(this);
+        visitor.visit(this);
         where.accept(visitor);
-        visitor.finish(this);
+
     }
 }

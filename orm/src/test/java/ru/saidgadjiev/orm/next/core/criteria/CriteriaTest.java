@@ -42,7 +42,7 @@ public class CriteriaTest {
 
         select.setHaving(having);
         select.addOrderBy(Order.orderAsc("test", "test1"));
-        select.createAlias("this_is_sparta");
+        select.createAlias("this_is_sparta_in_select");
 
         return select;
     }

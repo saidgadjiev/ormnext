@@ -36,8 +36,8 @@ public class TableRef implements QueryElement {
         if (alias != null) {
             alias.accept(visitor);
         }
-        visitor.start(this);
-        visitor.finish(this);
+        visitor.visit(this, visitor);
+
     }
 }
 

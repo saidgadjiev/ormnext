@@ -1,6 +1,5 @@
 package ru.saidgadjiev.orm.next.core.criteria;
 
-import ru.saidgadjiev.orm.next.core.query.core.clause.OrderBy;
 import ru.saidgadjiev.orm.next.core.query.core.clause.OrderByItem;
 import ru.saidgadjiev.orm.next.core.query.core.column_spec.ColumnSpec;
 

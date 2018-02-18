@@ -33,9 +33,9 @@ public class LeftJoin implements JoinExpression {
 
     @Override
     public void accept(QueryVisitor visitor) {
-        visitor.start(this);
+        visitor.visit(this, visitor);
         expression.accept(visitor);
-        visitor.finish(this);
+
     }
 
 }

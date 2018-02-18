@@ -65,11 +65,6 @@ public class CreateQuery implements QueryElement {
 
     @Override
     public void accept(QueryVisitor visitor) {
-        if (visitor.start(this)) {
-            for (UpdateValue updateValue : updateValues) {
-                updateValue.accept(visitor);
-            }
-        }
-        visitor.finish(this);
+        visitor.visit(this, visitor);
     }
 }

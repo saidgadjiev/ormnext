@@ -25,10 +25,10 @@ public class Having implements QueryElement {
 
     @Override
     public void accept(QueryVisitor visitor) {
-        visitor.start(this);
+        visitor.visit(this);
         if (expression != null) {
             expression.accept(visitor);
         }
-        visitor.finish(this);
+
     }
 }

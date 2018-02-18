@@ -115,7 +115,7 @@ public class Select implements QueryElement {
 
     @Override
     public void accept(QueryVisitor visitor) {
-        visitor.start(this);
+        visitor.visit(this, visitor);
         if (where != null) {
             where.accept(visitor);
         }
@@ -128,7 +128,7 @@ public class Select implements QueryElement {
         if (having != null) {
             having.accept(visitor);
         }
-        visitor.finish(this);
+
     }
 
     enum SelectionMode {

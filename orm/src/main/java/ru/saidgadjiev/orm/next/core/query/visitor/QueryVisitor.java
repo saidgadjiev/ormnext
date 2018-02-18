@@ -32,220 +32,115 @@ public interface QueryVisitor {
 
     String getQuery();
 
-    boolean start(CreateQuery tCreateQuery);
+    void visit(CreateQuery tCreateQuery, QueryVisitor visitor);
 
-    void finish(CreateQuery tCreateQuery);
+    void visit(UpdateValue updateValue);
 
-    void start(UpdateValue updateValue);
+    void visit(StringLiteral stringLiteral);
 
-    void finish(UpdateValue updateValue);
+    void visit(Select tSelectQuery, QueryVisitor visitor);
 
-    void start(StringLiteral stringLiteral);
+    void visit(Expression expression, QueryVisitor visitor);
 
-    void finish(StringLiteral stringLiteral);
+    void visit(AndCondition andCondition);
 
-    void start(Select tSelectQuery);
+    void visit(Equals equals, QueryVisitor visitor);
 
-    void finish(Select tSelectQuery);
+    void visit(ColumnSpec columnSpec, QueryVisitor visitor);
 
-    void start(Expression expression);
+    void visit(TableRef tableRef, QueryVisitor visitor);
 
-    void finish(Expression expression);
+    void visit(AttributeDefinition attributeDefinition);
 
-    void start(AndCondition andCondition);
+    void visit(CreateTableQuery tCreateTableQuery, QueryVisitor visitor);
 
-    void finish(AndCondition andCondition);
+    void visit(DeleteQuery deleteQuery);
 
-    void start(Equals equals);
+    void visit(IntLiteral intLiteral);
 
-    void finish(Equals equals);
+    boolean visit(UpdateQuery updateQuery, QueryVisitor visitor);
 
-    void start(ColumnSpec columnSpec);
+    void visit(DropTableQuery dropTableQuery);
 
-    void finish(ColumnSpec columnSpec);
+    void visit(PrimaryKeyConstraint primaryKeyConstraint);
 
-    void finish(TableRef tableRef);
+    void visit(UniqueConstraint uniqueConstraint);
 
-    void start(TableRef tableRef);
+    void visit(NotNullConstraint notNullConstraint);
 
-    void start(AttributeDefinition attributeDefinition);
+    void visit(ReferencesConstraint referencesConstraint);
 
-    void start(CreateTableQuery tCreateTableQuery);
+    void visit(CreateIndexQuery createIndexQuery);
 
-    void finish(CreateTableQuery tCreateTableQuery);
+    void visit(DropIndexQuery dropIndexQuery);
 
-    void finish(AttributeDefinition attributeDefinition);
+    void visit(Param param);
 
-    void start(DeleteQuery deleteQuery);
+    void visit(SelectAll selectAll);
 
-    void finish(DeleteQuery deleteQuery);
+    void visit(SelectColumnsList selectColumnsList, QueryVisitor visitor);
 
-    void start(IntLiteral intLiteral);
+    void visit(Having having);
 
-    void finish(IntLiteral intLiteral);
+    void visit(GroupBy groupBy, QueryVisitor visitor);
 
-    boolean start(UpdateQuery updateQuery);
+    void visit(FromTable fromTable);
 
-    void finish(UpdateQuery updateQuery);
+    void visit(LeftJoin leftJoin, QueryVisitor visitor);
 
-    void start(DropTableQuery dropTableQuery);
+    void visit(BooleanLiteral booleanLiteral);
 
-    void finish(DropTableQuery dropTableQuery);
+    void visit(JoinInfo joinInfo, QueryVisitor visitor);
 
-    void start(PrimaryKeyConstraint primaryKeyConstraint);
+    void visit(CountAll countAll);
 
-    void finish(PrimaryKeyConstraint primaryKeyConstraint);
+    void visit(FromJoinedTables fromJoinedTables, QueryVisitor visitor);
 
-    void start(UniqueConstraint uniqueConstraint);
+    void visit(DisplayedColumns displayedColumns, QueryVisitor visitor);
 
-    void finish(UniqueConstraint uniqueConstraint);
+    void visit(AVG avg);
 
-    void start(NotNullConstraint notNullConstraint);
+    void visit(CountExpression countExpression, QueryVisitor visitor);
 
-    void finish(NotNullConstraint notNullConstraint);
+    void visit(MAX max);
 
-    void start(ReferencesConstraint referencesConstraint);
+    void visit(MIN min);
 
-    void finish(ReferencesConstraint referencesConstraint);
+    void visit(Exists exists);
 
-    void start(CreateIndexQuery createIndexQuery);
+    void visit(InSelect inSelect, QueryVisitor visitor);
 
-    void finish(CreateIndexQuery createIndexQuery);
+    void visit(NotInSelect notInSelect);
 
-    void start(DropIndexQuery dropIndexQuery);
+    void visit(GreaterThan greaterThan);
 
-    void finish(DropIndexQuery dropIndexQuery);
+    void visit(GreaterThanOrEquals greaterThanOrEquals);
 
-    void start(Param param);
+    void visit(LessThan lessThan);
 
-    void finish(Param param);
+    void visit(LessThanOrEquals lessThanOrEquals);
 
-    void start(SelectAll selectAll);
+    void visit(SUM sum, QueryVisitor visitor);
 
-    void finish(SelectAll selectAll);
+    void visit(OperandCondition operandCondition, QueryVisitor visitor);
 
-    void start(SelectColumnsList selectColumnsList);
+    void visit(Alias alias);
 
-    void finish(SelectColumnsList selectColumnsList);
+    void visit(DateLiteral dateLiteral);
 
-    void start(Having having);
+    void visit(Default aDefault);
 
-    void finish(GroupBy groupBy);
+    void visit(DisplayedOperand displayedOperand);
 
-    void start(GroupBy groupBy);
+    void visit(FloatLiteral floatLiteral);
 
-    void finish(Having having);
+    void visit(DoubleLiteral doubleLiteral);
 
-    void finish(FromTable fromTable);
+    void visit(OrderBy orderBy);
 
-    void start(FromTable fromTable);
+    void visit(OrderByItem orderByItem, QueryVisitor visitor);
 
-    void start(LeftJoin leftJoin);
-
-    void finish(LeftJoin leftJoin);
-
-    void finish(BooleanLiteral booleanLiteral);
-
-    void start(BooleanLiteral booleanLiteral);
-
-    void start(JoinInfo joinInfo);
-
-    void finish(JoinInfo joinInfo);
-
-    void start(CountAll countAll);
-
-    void finish(CountAll countAll);
-
-    void start(FromJoinedTables fromJoinedTables);
-
-    void finish(FromJoinedTables fromJoinedTables);
-
-    void start(DisplayedColumns displayedColumns);
-
-    void finish(DisplayedColumns displayedColumns);
-
-    void start(AVG avg);
-
-    void finish(AVG avg);
-
-    void start(CountExpression countExpression);
-
-    void finish(CountExpression countExpression);
-
-    void start(MAX max);
-
-    void finish(MAX max);
-
-    void start(MIN min);
-
-    void finish(MIN min);
-
-    void start(Exists exists);
-
-    void finish(Exists exists);
-
-    void start(InSelect inSelect);
-
-    void finish(InSelect inSelect);
-
-    void start(NotInSelect notInSelect);
-
-    void finish(NotInSelect notInSelect);
-
-    void start(GreaterThan greaterThan);
-
-    void finish(GreaterThan greaterThan);
-
-    void start(GreaterThanOrEquals greaterThanOrEquals);
-
-    void finish(GreaterThanOrEquals greaterThanOrEquals);
-
-    void start(LessThan lessThan);
-
-    void finish(LessThan lessThan);
-
-    void start(LessThanOrEquals lessThanOrEquals);
-
-    void finish(LessThanOrEquals lessThanOrEquals);
-
-    void start(SUM sum);
-
-    void finish(SUM sum);
-
-    void start(OperandCondition operandCondition);
-
-    void finish(OperandCondition operandCondition);
-
-    void start(Alias alias);
-
-    void finish(Alias alias);
-
-    void start(DateLiteral dateLiteral);
-
-    void finish(DateLiteral dateLiteral);
-
-    void start(Default aDefault);
-
-    void finish(Default aDefault);
-
-    void start(DisplayedOperand displayedOperand);
-
-    void finish(DisplayedOperand displayedOperand);
-
-    void start(FloatLiteral floatLiteral);
-
-    void finish(FloatLiteral floatLiteral);
-
-    void start(DoubleLiteral doubleLiteral);
-
-    void finish(DoubleLiteral doubleLiteral);
-
-    void start(OrderBy orderBy);
-
-    void finish(OrderBy orderBy);
-
-    void start(OrderByItem orderByItem);
-
-    void finish(OrderByItem orderByItem);
-
+    default QueryVisitor getOriginal() {
+        return this;
+    }
 }
