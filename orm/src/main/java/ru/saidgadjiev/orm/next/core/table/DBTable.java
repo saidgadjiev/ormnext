@@ -1,7 +1,7 @@
 package ru.saidgadjiev.orm.next.core.table;
 
 
-import ru.saidgadjiev.orm.next.core.dao.BaseDaoImpl;
+import ru.saidgadjiev.orm.next.core.dao.BaseSessionManagerImpl;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -14,7 +14,7 @@ public @interface DBTable {
 
     String name() default "";
 
-    Class<? extends BaseDaoImpl> daoClass() default BaseDaoImpl.class;
+    Class<? extends BaseSessionManagerImpl> daoClass() default BaseSessionManagerImpl.class;
 
     Index[] indexes() default {};
 

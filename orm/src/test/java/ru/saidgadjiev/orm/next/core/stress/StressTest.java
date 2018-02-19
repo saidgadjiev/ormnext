@@ -10,8 +10,8 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
 import ru.saidgadjiev.orm.next.core.StressUtils;
 import ru.saidgadjiev.orm.next.core.cache.LRUObjectCache;
-import ru.saidgadjiev.orm.next.core.dao.Dao;
-import ru.saidgadjiev.orm.next.core.dao.DaoManager;
+import ru.saidgadjiev.orm.next.core.dao.BaseSessionManagerImpl;
+import ru.saidgadjiev.orm.next.core.dao.SessionManager;
 import ru.saidgadjiev.orm.next.core.db.H2DatabaseType;
 import ru.saidgadjiev.orm.next.core.field.DBField;
 import ru.saidgadjiev.orm.next.core.field.DataType;
@@ -61,8 +61,9 @@ public class StressTest {
         JdbcDataSource dataSource = new JdbcDataSource();
 
         dataSource.setURL("jdbc:h2:mem:h2testdb;DB_CLOSE_DELAY=-1");
-        Dao<TestClass, Integer> dao = DaoManager.createDAO(new PolledConnectionSource(dataSource, new H2DatabaseType()), TestClass.class);
-        dao.createTable(false);
+        BaseSessionManagerImpl sessionManager = new BaseSessionManagerImpl(new PolledConnectionSource(dataSource, new H2DatabaseType()));
+        ru.saidgadjiev.orm.next.core.dao.Session<TestClass, Integer> session = sessionManager.forClass(TestClass.class);
+        session.createTable(false);
         List<TestClass> sourceClasses = new ArrayList<>();
 
         for (int i = 0; i < 10000; ++i) {
@@ -73,11 +74,11 @@ public class StressTest {
         long start = System.currentTimeMillis();
 
         for (TestClass testClass: sourceClasses) {
-            dao.create(testClass);
+            session.create(testClass);
         }
         long end = System.currentTimeMillis();
         System.out.println(end - start);
-        dao.getDataSource().close();
+        sessionManager.getDataSource().close();
     }
 
 
@@ -85,19 +86,20 @@ public class StressTest {
         JdbcDataSource dataSource = new JdbcDataSource();
 
         dataSource.setURL("jdbc:h2:mem:h2testdb;DB_CLOSE_DELAY=-1");
-        Dao<TestClass, Integer> dao = DaoManager.createDAO(new PolledConnectionSource(dataSource, new H2DatabaseType()), TestClass.class);
-        dao.createTable(false);
-        dao.setObjectCache(new LRUObjectCache(16));
+        BaseSessionManagerImpl sessionManager = new BaseSessionManagerImpl(new PolledConnectionSource(dataSource, new H2DatabaseType()));
+        ru.saidgadjiev.orm.next.core.dao.Session<TestClass, Integer> session = sessionManager.forClass(TestClass.class);
+        session.createTable(false);
+        sessionManager.setObjectCache(new LRUObjectCache(16), TestClass.class);
         TestClass testClass = createTestClazz(TestClass.class,0, "Said");
 
-        dao.create(testClass);
+        session.create(testClass);
 
         System.out.println(StressUtils.stress(() -> {
-            dao.queryForId(testClass.id);
+            session.queryForId(testClass.id);
 
             return null;
         }, 10000));
-        dao.getDataSource().close();
+        sessionManager.getDataSource().close();
     }
 
     private static void ormHibernate() throws Exception {

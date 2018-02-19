@@ -43,7 +43,7 @@ public class CachedResultsMapperDecoratorTest {
 
         objectCache.registerClass(TestClazz.class);
 
-        return new CacheContext().caching(true).objectCache(objectCache);
+        return new CacheContext().caching(TestClazz.class, true).objectCache(objectCache);
     }
 
     private TestClazz createTestClazz(Object ... args) throws IllegalAccessException {

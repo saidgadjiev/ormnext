@@ -12,12 +12,7 @@ public class ReferenceObjectCache implements ObjectCache {
 
     @Override
     public <T> void registerClass(Class<T> tClass) {
-        Cache<Object, Object> objectCache = cache.get(tClass);
-
-        if (objectCache == null) {
-            objectCache = CacheBuilder.newRefenceCacheBuilder().build();
-            cache.put(tClass, objectCache);
-        }
+        cache.computeIfAbsent(tClass, k -> CacheBuilder.newRefenceCacheBuilder().build());
     }
 
     @Override

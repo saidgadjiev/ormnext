@@ -28,7 +28,11 @@ public class CacheContext {
     }
 
     public boolean isCaching(Class<?> clazz) {
-        return caching.get(clazz);
+        if (caching.containsKey(clazz)) {
+            return caching.get(clazz);
+        }
+
+        return false;
     }
 
     public CacheContext caching(Class<?> clazz, boolean caching) {

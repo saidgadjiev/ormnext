@@ -7,34 +7,34 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
 
-public interface IStatementExecutor {
+public interface IStatementExecutor<T, ID> {
 
-    <T> int create(Connection connection, Collection<T> objects, Class<T> tClass) throws SQLException;
+    int create(Connection connection, Collection<T> objects) throws SQLException;
 
     @SuppressWarnings("unchecked")
-    <T> int create(Connection connection, T object) throws SQLException;
+    int create(Connection connection, T object) throws SQLException;
 
-    <T> boolean createTable(Connection connection, Class<T> tClass, boolean ifNotExists) throws SQLException;
+    boolean createTable(Connection connection, boolean ifNotExists) throws SQLException;
 
-    <T> boolean dropTable(Connection connection, Class<T> tClass, boolean ifExists) throws SQLException;
+    boolean dropTable(Connection connection, boolean ifExists) throws SQLException;
 
-    <T> int update(Connection connection, T object) throws SQLException;
+    int update(Connection connection, T object) throws SQLException;
 
-    <T> int delete(Connection connection, T object) throws SQLException;
+    int delete(Connection connection, T object) throws SQLException;
 
-    <T, ID> int deleteById(Connection connection, Class<T> tClass, ID id) throws SQLException;
+    int deleteById(Connection connection, ID id) throws SQLException;
 
-    <T, ID> T queryForId(Connection connection, Class<T> tClass, ID id) throws SQLException;
+    T queryForId(Connection connection, ID id) throws SQLException;
 
-    <T> List<T> queryForAll(Connection connection, Class<T> tClass) throws SQLException;
+    List<T> queryForAll(Connection connection) throws SQLException;
 
-    <T> void createIndexes(Connection connection, Class<T> tClass) throws SQLException;
+    void createIndexes(Connection connection) throws SQLException;
 
-    <T> void dropIndexes(Connection connection, Class<T> tClass) throws SQLException;
+    void dropIndexes(Connection connection) throws SQLException;
 
     <R> GenericResults<R> query(Connection connection, String query, ResultsMapper<R> resultsMapper) throws SQLException;
 
-    long queryForLong(String query, Connection connection) throws SQLException;
+    long query(String query, Connection connection) throws SQLException;
 
-    <T> long countOff(Connection connection, Class<T> tClass) throws SQLException;
+    long countOff(Connection connection) throws SQLException;
 }

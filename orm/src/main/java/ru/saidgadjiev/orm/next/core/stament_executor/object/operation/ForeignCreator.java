@@ -1,8 +1,7 @@
 package ru.saidgadjiev.orm.next.core.stament_executor.object.operation;
 
-import ru.saidgadjiev.orm.next.core.dao.BaseDaoImpl;
-import ru.saidgadjiev.orm.next.core.dao.Dao;
-import ru.saidgadjiev.orm.next.core.dao.DaoManager;
+import ru.saidgadjiev.orm.next.core.dao.BaseSessionManagerImpl;
+import ru.saidgadjiev.orm.next.core.dao.Session;
 import ru.saidgadjiev.orm.next.core.field.field_type.ForeignFieldType;
 import ru.saidgadjiev.orm.next.core.support.ConnectionSource;
 import ru.saidgadjiev.orm.next.core.table.TableInfo;
@@ -10,22 +9,24 @@ import ru.saidgadjiev.orm.next.core.table.TableInfo;
 /**
  * Created by said on 10.02.2018.
  */
-public class ForeignCreator implements IObjectOperation<Void> {
+public class ForeignCreator<O> implements IObjectOperation<Void, O> {
+
+    private TableInfo<O> tableInfo;
 
     private ConnectionSource source;
 
-    public ForeignCreator(ConnectionSource source) {
+    public ForeignCreator(TableInfo<O> tableInfo, ConnectionSource source) {
+        this.tableInfo = tableInfo;
         this.source = source;
     }
 
     @Override
-    public<O> Void execute(TableInfo<O> tableInfo, O object) throws Exception {
+    public Void execute(O object) throws Exception {
         for (ForeignFieldType fieldType : tableInfo.toForeignFieldTypes()) {
             Object foreignObject = fieldType.access(object);
-            TableInfo<?> foreignTableInfo = TableInfo.build(fieldType.getForeignFieldClass());
 
             if (foreignObject != null && fieldType.isForeignAutoCreate()) {
-                Dao foreignDao = DaoManager.createDAOWithTableInfo(source, foreignTableInfo);
+                Session<Object, ?> foreignDao = new BaseSessionManagerImpl(source).forClass(fieldType.getForeignFieldClass());
 
                 foreignDao.create(foreignObject);
             }

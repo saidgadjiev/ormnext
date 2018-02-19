@@ -19,12 +19,8 @@ public class LRUObjectCache implements ObjectCache {
 
     @Override
     public <T> void registerClass(Class<T> tClass) {
-        Cache<Object, Object> objectCache = cache.get(tClass);
+        cache.computeIfAbsent(tClass, k -> CacheBuilder.newLRUCacheBuilder().maxSize(maxSize).build());
 
-        if (objectCache == null) {
-            objectCache = CacheBuilder.newLRUCacheBuilder().maxSize(maxSize).build();
-            cache.put(tClass, objectCache);
-        }
     }
 
     @Override

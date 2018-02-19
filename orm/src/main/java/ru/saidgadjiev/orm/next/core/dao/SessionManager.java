@@ -10,7 +10,7 @@ import java.sql.SQLException;
  * @param <T> тип объекта
  * @param <ID> тип id
  */
-public interface Dao extends BaseDao {
+public interface SessionManager {
 
     void caching(boolean flag, Class<?> ... classes);
 
@@ -18,5 +18,5 @@ public interface Dao extends BaseDao {
 
     ConnectionSource getDataSource();
 
-    TransactionImpl transaction() throws SQLException;
+    <T, ID> Session<T, ID> forClass(Class<?> clazz) throws SQLException;
 }

@@ -1,7 +1,6 @@
 package ru.saidgadjiev.orm.next.core.dao;
 
 import ru.saidgadjiev.orm.next.core.cache.CacheContext;
-import ru.saidgadjiev.orm.next.core.cache.ObjectCache;
 import ru.saidgadjiev.orm.next.core.stament_executor.*;
 import ru.saidgadjiev.orm.next.core.stament_executor.object.CreateQueryBuilder;
 import ru.saidgadjiev.orm.next.core.stament_executor.object.ObjectBuilder;
@@ -16,44 +15,44 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
- * Базовый класс для DAO. Используется в DaoBuilder
+ * Created by said on 19.02.2018.
  */
-public abstract class BaseDaoImpl implements Dao {
+public class SessionImpl<T, ID> implements Session<T, ID> {
 
     private final ConnectionSource dataSource;
 
-    private IStatementExecutor statementExecutor;
+    private IStatementExecutor<T, ID> statementExecutor;
 
-    private CacheContext cacheContext = new CacheContext();
-
-    protected BaseDaoImpl(ConnectionSource dataSource) {
+    SessionImpl(ConnectionSource dataSource, CacheContext cacheContext, TableInfo<T> tableInfo) {
         this.dataSource = dataSource;
-        Function<TableInfo<?>, ObjectBuilder<?>> objectBuilderFactory = (tableInfo) -> new ObjectBuilder<>(dataSource, tableInfo);
-        Function<TableInfo<?>, CreateQueryBuilder<?>> objectCreatorFactory = CreateQueryBuilder::new;
-        Function<TableInfo<?>, ResultsMapper<?>> resultsMapperFactory = (tableInfo) -> new CachedResultsMapperDecorator<>(
-                cacheContext,
-                new ResultsMapperImpl(tableInfo, objectBuilderFactory.apply(tableInfo))
-        );
+        Supplier<ObjectBuilder<T>> objectBuilderFactory = () -> new ObjectBuilder<>(dataSource, tableInfo);
+        Supplier<CreateQueryBuilder<T>> objectCreatorFactory = () -> new CreateQueryBuilder<>(tableInfo);
 
-        this.statementExecutor = new StatementValidator(
-                new CachedStatementExecutor(
+        this.statementExecutor = new StatementValidator<>(
+                tableInfo,
+                new CachedStatementExecutor<>(
+                        tableInfo,
                         cacheContext,
-                        new StatementExecutorImpl(
+                        new StatementExecutorImpl<>(
+                                tableInfo,
                                 objectCreatorFactory,
                                 dataSource.getDatabaseType(),
-                                resultsMapperFactory,
-                                new ForeignCreator(dataSource)
+                                new CachedResultsMapperDecorator<>(
+                                        tableInfo,
+                                        cacheContext,
+                                        new ResultsMapperImpl<>(tableInfo, objectBuilderFactory)
+                                ),
+                                new ForeignCreator<>(tableInfo, dataSource)
                         )
                 )
         );
     }
 
     @Override
-    public <T> int create(Collection<T> objects) throws SQLException {
+    public int create(Collection<T> objects) throws SQLException {
         Connection connection = dataSource.getConnection();
 
         try {
@@ -64,7 +63,7 @@ public abstract class BaseDaoImpl implements Dao {
     }
 
     @Override
-    public <T> int create(T object) throws SQLException {
+    public int create(T object) throws SQLException {
         Connection connection = dataSource.getConnection();
 
         try {
@@ -75,40 +74,40 @@ public abstract class BaseDaoImpl implements Dao {
     }
 
     @Override
-    public <T> boolean createTable(Class<T> tClass, boolean ifNotExist) throws SQLException {
+    public boolean createTable(boolean ifNotExist) throws SQLException {
         Connection connection = dataSource.getConnection();
 
         try {
-            return statementExecutor.createTable(connection, tClass, ifNotExist);
+            return statementExecutor.createTable(connection, ifNotExist);
         } finally {
             dataSource.releaseConnection(connection);
         }
     }
 
     @Override
-    public <T, ID> T queryForId(ID id, Class<T> tClass) throws SQLException {
+    public T queryForId(ID id) throws SQLException {
         Connection connection = dataSource.getConnection();
 
         try {
-            return statementExecutor.queryForId(connection, tClass, id);
+            return statementExecutor.queryForId(connection, id);
         } finally {
             dataSource.releaseConnection(connection);
         }
     }
 
     @Override
-    public <T> List<T> queryForAll(Class<T> tClass) throws SQLException {
+    public List<T> queryForAll() throws SQLException {
         Connection connection = dataSource.getConnection();
 
         try {
-            return statementExecutor.queryForAll(connection, tClass);
+            return statementExecutor.queryForAll(connection);
         } finally {
             dataSource.releaseConnection(connection);
         }
     }
 
     @Override
-    public <T> int update(T object) throws SQLException {
+    public int update(T object) throws SQLException {
         Connection connection = dataSource.getConnection();
 
         try {
@@ -119,7 +118,7 @@ public abstract class BaseDaoImpl implements Dao {
     }
 
     @Override
-    public <T> int delete(T object) throws SQLException {
+    public int delete(T object) throws SQLException {
         Connection connection = dataSource.getConnection();
 
         try {
@@ -130,82 +129,55 @@ public abstract class BaseDaoImpl implements Dao {
     }
 
     @Override
-    public <T, ID> int deleteById(ID id, Class<T> tClass) throws SQLException {
+    public int deleteById(ID id) throws SQLException {
         Connection connection = dataSource.getConnection();
 
         try {
-            return statementExecutor.deleteById(connection, tClass, id);
+            return statementExecutor.deleteById(connection, id);
         } finally {
             dataSource.releaseConnection(connection);
         }
     }
 
     @Override
-    public void caching(boolean flag, Class<?>... classes) {
-        Optional<ObjectCache> objectCache = cacheContext.getObjectCache();
-
-        objectCache.ifPresent(objectCache1 -> {
-            for (Class<?> clazz : classes) {
-                cacheContext.caching(clazz, flag);
-                objectCache1.registerClass(clazz);
-            }
-        });
-
-    }
-
-    @Override
-    public void setObjectCache(ObjectCache objectCache, Class<?>... classes) {
-        cacheContext.getObjectCache().ifPresent(ObjectCache::invalidateAll);
-        if (objectCache != null) {
-            cacheContext
-                    .objectCache(objectCache);
-
-            for (Class<?> clazz : classes) {
-                cacheContext.caching(clazz, true);
-                objectCache.registerClass(clazz);
-            }
-        }
-    }
-
-    @Override
-    public <T> boolean dropTable(Class<T> tClass, boolean ifExists) throws SQLException {
+    public boolean dropTable(boolean ifExists) throws SQLException {
         Connection connection = dataSource.getConnection();
 
         try {
-            return statementExecutor.dropTable(connection, tClass, ifExists);
+            return statementExecutor.dropTable(connection, ifExists);
         } finally {
             dataSource.releaseConnection(connection);
         }
     }
 
     @Override
-    public<T> void createIndexes(Class<T> tClass) throws SQLException {
+    public void createIndexes() throws SQLException {
         Connection connection = dataSource.getConnection();
 
         try {
-            statementExecutor.createIndexes(connection, tClass);
+            statementExecutor.createIndexes(connection);
         } finally {
             dataSource.releaseConnection(connection);
         }
     }
 
     @Override
-    public<T> void dropIndexes(Class<T> tClass) throws SQLException {
+    public void dropIndexes() throws SQLException {
         Connection connection = dataSource.getConnection();
 
         try {
-            statementExecutor.dropIndexes(connection, tClass);
+            statementExecutor.dropIndexes(connection);
         } finally {
             dataSource.releaseConnection(connection);
         }
     }
 
     @Override
-    public<T> long countOff(Class<T> tClass) throws SQLException {
+    public long countOff() throws SQLException {
         Connection connection = dataSource.getConnection();
 
         try {
-            return statementExecutor.countOff(connection, tClass);
+            return statementExecutor.countOff(connection);
         } finally {
             dataSource.releaseConnection(connection);
         }
@@ -218,20 +190,11 @@ public abstract class BaseDaoImpl implements Dao {
         }
     }
 
-    public static Dao createDao(ConnectionSource dataSource) {
-        return new BaseDaoImpl(dataSource) {};
-    }
-
     @Override
-    public ConnectionSource getDataSource() {
-        return dataSource;
-    }
-
-    @Override
-    public TransactionImpl transaction() throws SQLException {
+    public TransactionImpl<T, ID> transaction() throws SQLException {
         Connection connection = dataSource.getConnection();
 
-        return new TransactionImpl(statementExecutor, connection, () -> {
+        return new TransactionImpl<>(statementExecutor, connection, () -> {
             dataSource.releaseConnection(connection);
 
             return null;
