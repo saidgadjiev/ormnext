@@ -10,9 +10,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-public class TransactionImpl<T, ID> implements Transaction<T, ID> {
+public class TransactionImpl implements Transaction {
 
-    private final IStatementExecutor<T, ID> statementExecutor;
+    private final IStatementExecutor statementExecutor;
 
     private final Connection connection;
 
@@ -20,79 +20,79 @@ public class TransactionImpl<T, ID> implements Transaction<T, ID> {
 
     private State state;
 
-    public TransactionImpl(IStatementExecutor<T, ID> statementExecutor, Connection connection, Callable<Void> close) {
+    public TransactionImpl(IStatementExecutor statementExecutor, Connection connection, Callable<Void> close) {
         this.statementExecutor = statementExecutor;
         this.connection = connection;
         this.close = close;
     }
 
     @Override
-    public int create(Collection<T> objects) throws SQLException {
+    public<T> int create(Collection<T> objects) throws SQLException {
         check();
         return statementExecutor.create(connection, objects);
     }
 
     @Override
-    public int create(T object) throws SQLException {
+    public<T> int create(T object) throws SQLException {
         check();
         return statementExecutor.create(connection, object);
     }
 
     @Override
-    public boolean createTable(boolean ifNotExists) throws SQLException {
+    public<T> boolean createTable(Class<T> tClass, boolean ifNotExists) throws SQLException {
         check();
-        return statementExecutor.createTable(connection, ifNotExists);
+        return statementExecutor.createTable(connection, tClass, ifNotExists);
     }
 
     @Override
-    public T queryForId(ID id) throws SQLException {
+    public<T, ID> T queryForId(ID id, Class<T> tClass) throws SQLException {
         check();
-        return statementExecutor.queryForId(connection, id);
+        return statementExecutor.queryForId(connection, tClass, id);
     }
 
     @Override
-    public List<T> queryForAll() throws SQLException {
+    public<T> List<T> queryForAll(Class<T> tClass) throws SQLException {
         check();
-        return statementExecutor.queryForAll(connection);
+        return statementExecutor.queryForAll(connection, tClass);
     }
 
     @Override
-    public int update(T object) throws SQLException {
+    public<T> int update(T object) throws SQLException {
         check();
         return statementExecutor.update(connection, object);
     }
 
     @Override
-    public int delete(T object) throws SQLException {
+    public<T> int delete(T object) throws SQLException {
         check();
         return statementExecutor.delete(connection, object);
     }
 
     @Override
-    public int deleteById(ID id) throws SQLException {
+    public<T, ID> int deleteById(ID id, Class<T> tClass) throws SQLException {
         check();
-        return statementExecutor.deleteById(connection, id);
+        return statementExecutor.deleteById(connection, tClass, id);
     }
 
     @Override
-    public boolean dropTable(boolean ifExists) throws SQLException {
+    public<T> boolean dropTable(Class<T> tClass, boolean ifExists) throws SQLException {
         check();
-        return statementExecutor.dropTable(connection, ifExists);
+        return statementExecutor.dropTable(connection, tClass, ifExists);
     }
 
     @Override
-    public void createIndexes() {
+    public<T> void createIndexes(Class<T> tClass) {
         throw new UnsupportedOperationException("");
     }
 
     @Override
-    public void dropIndexes() {
+    public<T> void dropIndexes(Class<T> tClass) {
         throw new UnsupportedOperationException("");
     }
 
     @Override
-    public long countOff() throws SQLException {
-        return statementExecutor.countOff(connection);
+    public<T> long countOff(Class<T> tClass) throws SQLException {
+        return statementExecutor.countOff(connection, tClass);
     }
 
     @Override

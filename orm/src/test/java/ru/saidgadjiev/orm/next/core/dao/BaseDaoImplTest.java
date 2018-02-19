@@ -38,8 +38,10 @@ public class BaseDaoImplTest {
     @Test
     public void createAndQueryForId() throws Exception {
         Dao<TestClazz, Integer> dao = createDao(TestClazz.class, true);
+
         TestClazz employee = new TestClazz();
 
+        dao.create(employee);
         employee.name = "Said";
         Assert.assertEquals(1, dao.create(employee));
         TestClazz result = dao.queryForId(employee.id);

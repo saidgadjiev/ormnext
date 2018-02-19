@@ -1,21 +1,17 @@
 package ru.saidgadjiev.orm.next.core.stament_executor;
 
 import ru.saidgadjiev.orm.next.core.stament_executor.result_mapper.ResultsMapper;
-import ru.saidgadjiev.orm.next.core.table.TableInfo;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
 
-public class StatementValidator<T, ID> implements IStatementExecutor<T, ID> {
+public class StatementValidator implements IStatementExecutor<T, ID> {
 
     private IStatementExecutor<T, ID> delegate;
 
-    private TableInfo<T> tableInfo;
-
-    public StatementValidator(TableInfo<T> tableInfo, IStatementExecutor<T, ID> delegate) {
-        this.tableInfo = tableInfo;
+    public StatementValidator(IStatementExecutor<T, ID> delegate) {
         this.delegate = delegate;
     }
 
@@ -96,8 +92,8 @@ public class StatementValidator<T, ID> implements IStatementExecutor<T, ID> {
     }
 
     @Override
-    public long query(String query, Connection connection) throws SQLException {
-        return delegate.query(query, connection);
+    public long queryForLong(String query, Connection connection) throws SQLException {
+        return delegate.queryForLong(query, connection);
     }
 
     @Override

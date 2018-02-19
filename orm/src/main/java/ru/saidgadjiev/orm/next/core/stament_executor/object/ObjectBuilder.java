@@ -16,18 +16,18 @@ import java.util.Optional;
 
 public class ObjectBuilder<T> {
 
-    private TableInfo<T> tableInfo;
-
     private ConnectionSource dataSource;
 
     private T object;
 
+    private TableInfo<T> tableInfo;
+
     public ObjectBuilder(ConnectionSource dataSource, TableInfo<T> tableInfo) {
-        this.tableInfo = tableInfo;
         this.dataSource = dataSource;
+        this.tableInfo = tableInfo;
     }
 
-    public ObjectBuilder<T> newObject() throws Exception {
+    public ObjectBuilder<T> newObject(TableInfo<T> tableInfo) throws Exception {
         this.object = (T) newObject(tableInfo.getConstructor());
 
         return this;

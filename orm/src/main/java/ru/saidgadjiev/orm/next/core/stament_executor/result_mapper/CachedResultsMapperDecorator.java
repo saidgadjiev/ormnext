@@ -14,7 +14,7 @@ public class CachedResultsMapperDecorator<R> implements ResultsMapper<R> {
 
     private ResultsMapper<R> resultsMapper;
 
-    public CachedResultsMapperDecorator(TableInfo<?> tableInfo, CacheContext cacheContext, ResultsMapper<R> resultsMapper) {
+    public CachedResultsMapperDecorator(CacheContext cacheContext, ResultsMapper<R> resultsMapper) {
         this.tableInfo = tableInfo;
         this.cacheContext = cacheContext;
         this.resultsMapper = resultsMapper;
@@ -22,7 +22,7 @@ public class CachedResultsMapperDecorator<R> implements ResultsMapper<R> {
 
     @Override
     public R mapResults(DatabaseResults results) throws Exception {
-        if (cacheContext.isCaching() && cacheContext.getObjectCache().isPresent() && tableInfo.getPrimaryKey().isPresent()) {
+        if (cacheContext.isCaching(tClass) && cacheContext.getObjectCache().isPresent() && tableInfo.getPrimaryKey().isPresent()) {
             ObjectCache objectCache = cacheContext.getObjectCache().get();
             IDBFieldType idbFieldType = tableInfo.getPrimaryKey().get();
 

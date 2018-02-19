@@ -1,16 +1,17 @@
 package ru.saidgadjiev.orm.next.core.cache;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 public class CacheContext {
 
     private ObjectCache objectCache;
 
-    private boolean caching;
+    private Map<Class<?>, Boolean> caching = new HashMap<>();
 
-    public CacheContext(ObjectCache objectCache, boolean caching) {
+    public CacheContext(ObjectCache objectCache) {
         this.objectCache = objectCache;
-        this.caching = caching;
     }
 
     public CacheContext() {
@@ -26,12 +27,12 @@ public class CacheContext {
         return this;
     }
 
-    public boolean isCaching() {
-        return caching;
+    public boolean isCaching(Class<?> clazz) {
+        return caching.get(clazz);
     }
 
-    public CacheContext caching(boolean caching) {
-        this.caching = caching;
+    public CacheContext caching(Class<?> clazz, boolean caching) {
+        this.caching.put(clazz, caching);
 
         return this;
     }
