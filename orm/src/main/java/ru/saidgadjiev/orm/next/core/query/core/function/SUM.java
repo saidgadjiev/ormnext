@@ -1,6 +1,5 @@
 package ru.saidgadjiev.orm.next.core.query.core.function;
 
-import ru.saidgadjiev.orm.next.core.query.core.Alias;
 import ru.saidgadjiev.orm.next.core.query.core.condition.Expression;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryVisitor;
 

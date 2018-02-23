@@ -104,12 +104,6 @@ public class UpdateQuery implements QueryElement {
 
     @Override
     public void accept(QueryVisitor visitor) {
-        if (visitor.visit(this)) {
-            for (UpdateValue updateValue : updateValues) {
-                updateValue.accept(visitor);
-            }
-        }
-        where.accept(visitor);
-
+        visitor.visit(this);
     }
 }

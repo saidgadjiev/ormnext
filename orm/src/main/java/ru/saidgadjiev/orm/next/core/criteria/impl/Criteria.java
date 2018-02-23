@@ -1,5 +1,6 @@
-package ru.saidgadjiev.orm.next.core.criteria;
+package ru.saidgadjiev.orm.next.core.criteria.impl;
 
+import ru.saidgadjiev.orm.next.core.criteria.api.Criterion;
 import ru.saidgadjiev.orm.next.core.query.core.AndCondition;
 import ru.saidgadjiev.orm.next.core.query.core.condition.Expression;
 
@@ -26,7 +27,7 @@ public class Criteria {
         return this;
     }
 
-    public Criteria in(SubQueryCriterion criterion) {
+    public Criteria in(Criterion criterion) {
         andCondition.add(criterion.getCondition());
         addToArg(criterion.getArgs());
 

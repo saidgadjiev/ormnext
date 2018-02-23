@@ -11,13 +11,15 @@ import ru.saidgadjiev.orm.next.core.query.core.clause.select.SelectColumnsList;
 import ru.saidgadjiev.orm.next.core.query.core.column_spec.ColumnSpec;
 import ru.saidgadjiev.orm.next.core.query.core.column_spec.DisplayedColumnSpec;
 import ru.saidgadjiev.orm.next.core.query.core.column_spec.DisplayedColumns;
-import ru.saidgadjiev.orm.next.core.query.core.column_spec.DisplayedOperand;
 import ru.saidgadjiev.orm.next.core.query.core.common.TableRef;
 import ru.saidgadjiev.orm.next.core.query.core.common.UpdateValue;
 import ru.saidgadjiev.orm.next.core.query.core.condition.*;
 import ru.saidgadjiev.orm.next.core.query.core.constraints.attribute.*;
 import ru.saidgadjiev.orm.next.core.query.core.constraints.table.UniqueConstraint;
-import ru.saidgadjiev.orm.next.core.query.core.function.*;
+import ru.saidgadjiev.orm.next.core.query.core.function.AVG;
+import ru.saidgadjiev.orm.next.core.query.core.function.CountAll;
+import ru.saidgadjiev.orm.next.core.query.core.function.CountExpression;
+import ru.saidgadjiev.orm.next.core.query.core.function.SUM;
 import ru.saidgadjiev.orm.next.core.query.core.join.JoinExpression;
 import ru.saidgadjiev.orm.next.core.query.core.join.JoinInfo;
 import ru.saidgadjiev.orm.next.core.query.core.join.LeftJoin;
@@ -28,15 +30,15 @@ import java.util.Iterator;
 /**
  * Visitor по умолчанию
  */
-public class DefaultVisitor implements QueryVisitor {
+public class DefaultVisitor extends NoActionVisitor {
 
     protected StringBuilder sql = new StringBuilder();
 
-    protected DatabaseType databaseType;
+    private DatabaseType databaseType;
 
-    protected final String escapeEntity;
+    private final String escapeEntity;
 
-    protected final String escapeLiteral;
+    private final String escapeLiteral;
 
     public DefaultVisitor(DatabaseType databaseType) {
         this.databaseType = databaseType;
@@ -44,7 +46,6 @@ public class DefaultVisitor implements QueryVisitor {
         escapeLiteral = databaseType.getValueEscape();
     }
 
-    @Override
     public String getQuery() {
         return sql.toString();
     }
@@ -79,11 +80,6 @@ public class DefaultVisitor implements QueryVisitor {
             }
         }
         sql.append(")");
-    }
-
-    @Override
-    public void visit(UpdateValue updateValue) {
-
     }
 
     @Override
@@ -140,11 +136,6 @@ public class DefaultVisitor implements QueryVisitor {
     }
 
     @Override
-    public void visit(AndCondition andCondition) {
-
-    }
-
-    @Override
     public void visit(Equals equals) {
         equals.getFirst().accept(this);
         sql.append(" = ");
@@ -168,11 +159,6 @@ public class DefaultVisitor implements QueryVisitor {
             sql.append(" AS ");
             tableRef.getAlias().accept(this);
         }
-    }
-
-    @Override
-    public void visit(AttributeDefinition attributeDefinition) {
-
     }
 
     @Override
@@ -246,7 +232,7 @@ public class DefaultVisitor implements QueryVisitor {
     }
 
     @Override
-    public boolean visit(UpdateQuery updateQuery) {
+    public void visit(UpdateQuery updateQuery) {
         sql.append("UPDATE ").append(updateQuery.getTypeName()).append(" SET ");
 
         for (Iterator<UpdateValue> iterator = updateQuery.getUpdateValues().iterator(); iterator.hasNext(); ) {
@@ -261,9 +247,8 @@ public class DefaultVisitor implements QueryVisitor {
         }
         if (!updateQuery.getWhere().getConditions().isEmpty()) {
             sql.append(" WHERE ");
+            updateQuery.getWhere().accept(this);
         }
-
-        return false;
     }
 
     @Override
@@ -434,51 +419,11 @@ public class DefaultVisitor implements QueryVisitor {
     }
 
     @Override
-    public void visit(MAX max) {
-
-    }
-
-    @Override
-    public void visit(MIN min) {
-
-    }
-
-    @Override
-    public void visit(Exists exists) {
-
-    }
-
-    @Override
     public void visit(InSelect inSelect) {
         inSelect.getOperand().accept(this);
         sql.append(" IN (");
         inSelect.getSelect().accept(this);
         sql.append(")");
-    }
-
-    @Override
-    public void visit(NotInSelect notInSelect) {
-
-    }
-
-    @Override
-    public void visit(GreaterThan greaterThan) {
-
-    }
-
-    @Override
-    public void visit(GreaterThanOrEquals greaterThanOrEquals) {
-
-    }
-
-    @Override
-    public void visit(LessThan lessThan) {
-
-    }
-
-    @Override
-    public void visit(LessThanOrEquals lessThanOrEquals) {
-
     }
 
     @Override
@@ -508,11 +453,6 @@ public class DefaultVisitor implements QueryVisitor {
     @Override
     public void visit(Default aDefault) {
         sql.append("DEFAULT ");
-    }
-
-    @Override
-    public void visit(DisplayedOperand displayedOperand) {
-
     }
 
     @Override

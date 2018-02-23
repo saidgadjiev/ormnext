@@ -1,5 +1,6 @@
-package ru.saidgadjiev.orm.next.core.criteria;
+package ru.saidgadjiev.orm.next.core.criteria.impl;
 
+import ru.saidgadjiev.orm.next.core.criteria.api.Criterion;
 import ru.saidgadjiev.orm.next.core.query.core.column_spec.ColumnSpec;
 import ru.saidgadjiev.orm.next.core.query.core.condition.Condition;
 import ru.saidgadjiev.orm.next.core.query.core.condition.Equals;
@@ -56,8 +57,8 @@ public class Restrictions {
         };
     }
 
-    public static SubQueryCriterion in(String columnName, SelectCriteria select) {
-        return new SubQueryCriterion() {
+    public static Criterion in(String columnName, SelectCriteria select) {
+        return new Criterion() {
             @Override
             public Condition getCondition() {
                 return new InSelect(select.prepareSelect(), new ColumnSpec(columnName));

@@ -1,5 +1,6 @@
-package ru.saidgadjiev.orm.next.core.criteria;
+package ru.saidgadjiev.orm.next.core.criteria.impl;
 
+import ru.saidgadjiev.orm.next.core.criteria.CriteriaQueryVisitor;
 import ru.saidgadjiev.orm.next.core.query.core.Alias;
 import ru.saidgadjiev.orm.next.core.query.core.Select;
 import ru.saidgadjiev.orm.next.core.query.core.clause.Having;
@@ -8,6 +9,7 @@ import ru.saidgadjiev.orm.next.core.query.core.clause.OrderByItem;
 import ru.saidgadjiev.orm.next.core.query.core.clause.from.FromTable;
 import ru.saidgadjiev.orm.next.core.query.core.clause.select.SelectAll;
 import ru.saidgadjiev.orm.next.core.query.core.common.TableRef;
+import ru.saidgadjiev.orm.next.core.query.visitor.QueryElement;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryVisitor;
 import ru.saidgadjiev.orm.next.core.table.TableInfo;
 
@@ -17,7 +19,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class SelectCriteria<T> {
+public class SelectCriteria<T> implements QueryElement {
 
     private Criteria where;
 
@@ -97,11 +99,10 @@ public class SelectCriteria<T> {
         return select;
     }
 
-    public String accept(QueryVisitor visitor) {
+    @Override
+    public void accept(QueryVisitor visitor) {
         Select select = prepareSelect();
 
         select.accept(visitor);
-
-        return visitor.getQuery();
     }
 }

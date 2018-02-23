@@ -1,6 +1,10 @@
 package ru.saidgadjiev.orm.next.core.criteria;
 
 import org.junit.Test;
+import ru.saidgadjiev.orm.next.core.criteria.impl.Criteria;
+import ru.saidgadjiev.orm.next.core.criteria.impl.Projections;
+import ru.saidgadjiev.orm.next.core.criteria.impl.Restrictions;
+import ru.saidgadjiev.orm.next.core.criteria.impl.SelectCriteria;
 import ru.saidgadjiev.orm.next.core.db.H2DatabaseType;
 import ru.saidgadjiev.orm.next.core.field.DBField;
 import ru.saidgadjiev.orm.next.core.field.DataType;

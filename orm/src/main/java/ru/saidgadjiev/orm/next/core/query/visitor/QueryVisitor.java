@@ -30,8 +30,6 @@ import ru.saidgadjiev.orm.next.core.query.core.literals.*;
  */
 public interface QueryVisitor {
 
-    String getQuery();
-
     void visit(CreateQuery tCreateQuery);
 
     void visit(UpdateValue updateValue);
@@ -58,7 +56,7 @@ public interface QueryVisitor {
 
     void visit(IntLiteral intLiteral);
 
-    boolean visit(UpdateQuery updateQuery);
+    void visit(UpdateQuery updateQuery);
 
     void visit(DropTableQuery dropTableQuery);
 

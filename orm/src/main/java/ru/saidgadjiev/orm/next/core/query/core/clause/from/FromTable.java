@@ -1,6 +1,5 @@
 package ru.saidgadjiev.orm.next.core.query.core.clause.from;
 
-import ru.saidgadjiev.orm.next.core.query.core.Alias;
 import ru.saidgadjiev.orm.next.core.query.core.common.TableRef;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryVisitor;
 
