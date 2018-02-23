@@ -1,10 +1,9 @@
 package ru.saidgadjiev.orm.next.core.dao;
 
 import ru.saidgadjiev.orm.next.core.cache.CacheContext;
-import ru.saidgadjiev.orm.next.core.cache.ObjectCache;
 import ru.saidgadjiev.orm.next.core.stament_executor.*;
-import ru.saidgadjiev.orm.next.core.stament_executor.object.ObjectBuilder;
 import ru.saidgadjiev.orm.next.core.stament_executor.object.CreateQueryBuilder;
+import ru.saidgadjiev.orm.next.core.stament_executor.object.ObjectBuilder;
 import ru.saidgadjiev.orm.next.core.stament_executor.object.operation.ForeignCreator;
 import ru.saidgadjiev.orm.next.core.stament_executor.result_mapper.CachedResultsMapperDecorator;
 import ru.saidgadjiev.orm.next.core.stament_executor.result_mapper.ResultsMapper;
@@ -19,23 +18,15 @@ import java.util.List;
 import java.util.function.Supplier;
 
 /**
- * Базовый класс для DAO. Используется в DaoBuilder
- *
- * @param <T>
- * @param <ID>
+ * Created by said on 19.02.2018.
  */
-public abstract class BaseDaoImpl<T, ID> implements Dao<T, ID> {
+public class SessionImpl<T, ID> implements Session<T, ID> {
 
     private final ConnectionSource dataSource;
 
-    private final TableInfo<T> tableInfo;
-
     private IStatementExecutor<T, ID> statementExecutor;
 
-    private CacheContext cacheContext = new CacheContext();
-
-    protected BaseDaoImpl(ConnectionSource dataSource, TableInfo<T> tableInfo) {
-        this.tableInfo = tableInfo;
+    SessionImpl(ConnectionSource dataSource, CacheContext cacheContext, TableInfo<T> tableInfo) {
         this.dataSource = dataSource;
         Supplier<ObjectBuilder<T>> objectBuilderFactory = () -> new ObjectBuilder<>(dataSource, tableInfo);
         Supplier<CreateQueryBuilder<T>> objectCreatorFactory = () -> new CreateQueryBuilder<>(tableInfo);
@@ -49,12 +40,12 @@ public abstract class BaseDaoImpl<T, ID> implements Dao<T, ID> {
                                 tableInfo,
                                 objectCreatorFactory,
                                 dataSource.getDatabaseType(),
-                                new CachedResultsMapperDecorator<T>(
+                                new CachedResultsMapperDecorator<>(
                                         tableInfo,
                                         cacheContext,
                                         new ResultsMapperImpl<>(tableInfo, objectBuilderFactory)
                                 ),
-                                new ForeignCreator<T>(tableInfo, dataSource)
+                                new ForeignCreator<>(tableInfo, dataSource)
                         )
                 )
         );
@@ -149,33 +140,6 @@ public abstract class BaseDaoImpl<T, ID> implements Dao<T, ID> {
     }
 
     @Override
-    public void caching(boolean flag) {
-        cacheContext.caching(flag);
-    }
-
-    @Override
-    public void setObjectCache(ObjectCache objectCache) {
-        cacheContext.getObjectCache().ifPresent(ObjectCache::invalidateAll);
-        if (objectCache != null) {
-            cacheContext
-                    .caching(true)
-                    .objectCache(objectCache);
-            objectCache.registerClass(tableInfo.getTableClass());
-        }
-    }
-
-    @Override
-    public void caching(boolean flag, ObjectCache objectCache) {
-        cacheContext.objectCache(objectCache).caching(flag);
-
-        if (objectCache != null) {
-            cacheContext.getObjectCache().ifPresent(ObjectCache::invalidateAll);
-            cacheContext.objectCache(objectCache);
-            objectCache.registerClass(tableInfo.getTableClass());
-        }
-    }
-
-    @Override
     public boolean dropTable(boolean ifExists) throws SQLException {
         Connection connection = dataSource.getConnection();
 
@@ -224,16 +188,6 @@ public abstract class BaseDaoImpl<T, ID> implements Dao<T, ID> {
         try (Connection connection = dataSource.getConnection()) {
             return statementExecutor.query(connection, query, resultsMapper);
         }
-    }
-
-    public static <T, ID> Dao<T, ID> createDao(ConnectionSource dataSource, TableInfo<T> tableInfoBuilder) {
-        return new BaseDaoImpl<T, ID>(dataSource, tableInfoBuilder) {
-        };
-    }
-
-    @Override
-    public ConnectionSource getDataSource() {
-        return dataSource;
     }
 
     @Override

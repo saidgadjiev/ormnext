@@ -22,7 +22,7 @@ public class CachedResultsMapperDecorator<R> implements ResultsMapper<R> {
 
     @Override
     public R mapResults(DatabaseResults results) throws Exception {
-        if (cacheContext.isCaching() && cacheContext.getObjectCache().isPresent() && tableInfo.getPrimaryKey().isPresent()) {
+        if (cacheContext.isCaching(tableInfo.getTableClass()) && cacheContext.getObjectCache().isPresent() && tableInfo.getPrimaryKey().isPresent()) {
             ObjectCache objectCache = cacheContext.getObjectCache().get();
             IDBFieldType idbFieldType = tableInfo.getPrimaryKey().get();
 

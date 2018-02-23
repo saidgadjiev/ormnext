@@ -26,7 +26,6 @@ public class BaseDaoImplTest {
 
         dataSource.setURL("jdbc:h2:mem:h2testdb");
         connectionSource = new WrappedConnectionSource(new DataSourceConnectionSource(dataSource, new H2DatabaseType()));
-        DaoManager.clearCache();
     }
 
     @After
@@ -37,7 +36,7 @@ public class BaseDaoImplTest {
 
     @Test
     public void createAndQueryForId() throws Exception {
-        Dao<TestClazz, Integer> dao = createDao(TestClazz.class, true);
+        Session<TestClazz, Integer> dao = createDao(TestClazz.class, true);
         TestClazz employee = new TestClazz();
 
         employee.name = "Said";
@@ -50,7 +49,7 @@ public class BaseDaoImplTest {
 
     @Test
     public void queryForAll() throws Exception {
-        Dao<TestClazz, Integer> dao = createDao(TestClazz.class, true);
+        Session<TestClazz, Integer> dao = createDao(TestClazz.class, true);
         TestClazz employee = new TestClazz();
 
         employee.name = "Said";
@@ -64,7 +63,7 @@ public class BaseDaoImplTest {
 
     @Test
     public void update() throws Exception {
-        Dao<TestClazz, Integer> dao = createDao(TestClazz.class, true);
+        Session<TestClazz, Integer> dao = createDao(TestClazz.class, true);
         TestClazz employee = new TestClazz();
 
         employee.name = "Said";
@@ -79,7 +78,7 @@ public class BaseDaoImplTest {
 
     @Test
     public void delete() throws Exception {
-        Dao<TestClazz, Integer> dao = createDao(TestClazz.class, true);
+        Session<TestClazz, Integer> dao = createDao(TestClazz.class, true);
         TestClazz employee = new TestClazz();
 
         employee.name = "Said";
@@ -93,7 +92,7 @@ public class BaseDaoImplTest {
 
     @Test
     public void deleteById() throws Exception {
-        Dao<TestClazz, Integer> dao = createDao(TestClazz.class, true);
+        Session<TestClazz, Integer> dao = createDao(TestClazz.class, true);
         TestClazz employee = new TestClazz();
 
         employee.name = "Said";
@@ -107,7 +106,7 @@ public class BaseDaoImplTest {
 
     @Test
     public void countOff() throws Exception {
-        Dao<TestClazz, Integer> dao = createDao(TestClazz.class, true);
+        Session<TestClazz, Integer> dao = createDao(TestClazz.class, true);
         TestClazz employee = new TestClazz();
 
         Assert.assertEquals(1, dao.create(employee));
@@ -116,7 +115,7 @@ public class BaseDaoImplTest {
 
     @Test
     public void createTable() throws Exception {
-        Dao<TestCreateTable, Integer> dao = createDao(TestCreateTable.class, false);
+        Session<TestCreateTable, Integer> dao = createDao(TestCreateTable.class, false);
 
         Assert.assertTrue(dao.createTable(true));
     }
@@ -156,8 +155,8 @@ public class BaseDaoImplTest {
         private Long lon;
     }
 
-    protected <T, ID> Dao<T, ID> createDao(Class<T> clazz, boolean createTable) throws Exception {
-        Dao<T, ID> dao = DaoManager.createDAO(connectionSource, clazz);
+    protected <T, ID> Session<T, ID> createDao(Class<T> clazz, boolean createTable) throws Exception {
+        Session<T, ID> dao = new BaseSessionManagerImpl(connectionSource).forClass(clazz);
 
         if (createTable) {
             dao.createTable(true);

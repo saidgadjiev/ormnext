@@ -33,7 +33,7 @@ public class CachedStatementExecutor<T, ID> implements IStatementExecutor<T, ID>
     public int create(Connection connection, Collection<T> objects) throws SQLException {
         delegate.create(connection, objects);
 
-        if (cacheContext.isCaching() && cacheContext.getObjectCache().isPresent()) {
+        if (cacheContext.isCaching(tableInfo.getTableClass()) && cacheContext.getObjectCache().isPresent()) {
             ObjectCache objectCache = cacheContext.getObjectCache().get();
 
             if (tableInfo.getPrimaryKey().isPresent()) {
@@ -56,7 +56,7 @@ public class CachedStatementExecutor<T, ID> implements IStatementExecutor<T, ID>
     public int create(Connection connection, T object) throws SQLException {
         Integer count = delegate.create(connection, object);
 
-        if (count > 0 && cacheContext.isCaching() && cacheContext.getObjectCache().isPresent()) {
+        if (count > 0 && cacheContext.isCaching(tableInfo.getTableClass()) && cacheContext.getObjectCache().isPresent()) {
             ObjectCache objectCache = cacheContext.getObjectCache().get();
 
             if (tableInfo.getPrimaryKey().isPresent()) {
@@ -91,7 +91,7 @@ public class CachedStatementExecutor<T, ID> implements IStatementExecutor<T, ID>
             IDBFieldType idFieldType = tableInfo.getPrimaryKey().get();
 
             try {
-                if (cacheContext.isCaching() && cacheContext.getObjectCache().isPresent()) {
+                if (cacheContext.isCaching(tableInfo.getTableClass()) && cacheContext.getObjectCache().isPresent()) {
                     ObjectCache objectCache = cacheContext.getObjectCache().get();
                     T cachedData = objectCache.get(tableInfo.getTableClass(), idFieldType.access(object));
 
@@ -115,7 +115,7 @@ public class CachedStatementExecutor<T, ID> implements IStatementExecutor<T, ID>
         try {
             Object id = dbFieldType.access(object);
 
-            if (cacheContext.isCaching()) {
+            if (cacheContext.isCaching(tableInfo.getTableClass())) {
                 cacheContext.getObjectCache().ifPresent(objectCache -> objectCache.invalidate(tableInfo.getTableClass(), id));
             }
         } catch (IllegalAccessException | InvocationTargetException ex) {
@@ -129,7 +129,7 @@ public class CachedStatementExecutor<T, ID> implements IStatementExecutor<T, ID>
     public int deleteById(Connection connection, ID id) throws SQLException {
         Integer result = delegate.deleteById(connection, id);
 
-        if (cacheContext.isCaching()) {
+        if (cacheContext.isCaching(tableInfo.getTableClass())) {
             cacheContext.getObjectCache().ifPresent(objectCache -> objectCache.invalidate(tableInfo.getTableClass(), id));
         }
 
@@ -138,7 +138,7 @@ public class CachedStatementExecutor<T, ID> implements IStatementExecutor<T, ID>
 
     @Override
     public T queryForId(Connection connection, ID id) throws SQLException {
-        if (cacheContext.isCaching() && cacheContext.getObjectCache().isPresent()) {
+        if (cacheContext.isCaching(tableInfo.getTableClass()) && cacheContext.getObjectCache().isPresent()) {
             ObjectCache objectCache = cacheContext.getObjectCache().get();
 
             if (objectCache.contains(tableInfo.getTableClass(), id)) {
@@ -148,7 +148,7 @@ public class CachedStatementExecutor<T, ID> implements IStatementExecutor<T, ID>
 
         T object = delegate.queryForId(connection, id);
 
-        if (object != null && cacheContext.isCaching()) {
+        if (object != null && cacheContext.isCaching(tableInfo.getTableClass())) {
             cacheContext.getObjectCache().ifPresent(objectCache -> objectCache.put(tableInfo.getTableClass(), id, object));
         }
 
@@ -160,7 +160,7 @@ public class CachedStatementExecutor<T, ID> implements IStatementExecutor<T, ID>
 
         List<T> result = delegate.queryForAll(connection);
         try {
-            if (tableInfo.getPrimaryKey().isPresent() && cacheContext.isCaching() && cacheContext.getObjectCache().isPresent()) {
+            if (tableInfo.getPrimaryKey().isPresent() && cacheContext.isCaching(tableInfo.getTableClass()) && cacheContext.getObjectCache().isPresent()) {
                 IDBFieldType idbFieldType = tableInfo.getPrimaryKey().get();
                 ObjectCache objectCache = cacheContext.getObjectCache().get();
 

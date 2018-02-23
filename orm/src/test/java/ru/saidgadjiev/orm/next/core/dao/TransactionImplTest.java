@@ -13,33 +13,32 @@ public class TransactionImplTest {
 
     @Test
     public void commitTrans() throws Exception {
-        Dao<TestClazz, Integer> dao = createDao();
-        TransactionImpl<TestClazz, Integer> transaction = dao.transaction();
+        Session<TestClazz, Integer> sessionManager = createDao();
+        TransactionImpl<TestClazz, Integer> transaction = sessionManager.transaction();
         TestClazz testClazz = new TestClazz();
 
         testClazz.name = "Test";
-        dao.createTable(true);
+        sessionManager.createTable(true);
 
         transaction.begin();
         transaction.create(testClazz);
         transaction.rollback();
 
-        Assert.assertEquals(0, dao.queryForAll().size());
+        Assert.assertEquals(0, sessionManager.queryForAll().size());
 
         transaction.begin();
         transaction.create(testClazz);
         transaction.commit();
 
-        Assert.assertEquals(1, dao.queryForAll().size());
+        Assert.assertEquals(1, sessionManager.queryForAll().size());
 
         transaction.close();
     }
 
-    private Dao<TestClazz, Integer> createDao() throws SQLException {
+    private Session<TestClazz, Integer> createDao() throws SQLException {
         ConnectionSource connectionSource = new JDBCConnectionSource("jdbc:h2:mem:test", new H2DatabaseType());
-        Dao<TestClazz, Integer> dao = DaoManager.createDAO(connectionSource, TestClazz.class);
 
-        return dao;
+        return new BaseSessionManagerImpl(connectionSource).forClass(TestClazz.class);
     }
 
     private static class TestClazz {

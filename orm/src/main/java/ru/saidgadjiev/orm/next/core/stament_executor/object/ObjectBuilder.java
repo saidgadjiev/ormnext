@@ -1,8 +1,7 @@
 package ru.saidgadjiev.orm.next.core.stament_executor.object;
 
-import ru.saidgadjiev.orm.next.core.dao.BaseDaoImpl;
-import ru.saidgadjiev.orm.next.core.dao.Dao;
-import ru.saidgadjiev.orm.next.core.dao.DaoManager;
+import ru.saidgadjiev.orm.next.core.dao.BaseSessionManagerImpl;
+import ru.saidgadjiev.orm.next.core.dao.Session;
 import ru.saidgadjiev.orm.next.core.field.field_type.*;
 import ru.saidgadjiev.orm.next.core.stament_executor.DatabaseResults;
 import ru.saidgadjiev.orm.next.core.stament_executor.GenericResults;
@@ -79,7 +78,7 @@ public class ObjectBuilder<T> {
     public ObjectBuilder<T> buildForeignCollection(List<ForeignCollectionFieldType> resultFieldTypes) throws Exception {
         for (ForeignCollectionFieldType fieldType : resultFieldTypes) {
             TableInfo<?> foreignTableInfo = TableInfo.build(fieldType.getForeignFieldClass());
-            Dao<Object, ?> foreignDao = (BaseDaoImpl<Object, ?>) DaoManager.createDAOWithTableInfo(dataSource, foreignTableInfo);
+            Session<Object, ?> foreignDao = new BaseSessionManagerImpl(dataSource).forClass(foreignTableInfo.getTableClass());
 
             if (tableInfo.getPrimaryKey().isPresent() && foreignTableInfo.getPrimaryKey().isPresent()) {
                 IDBFieldType idField = tableInfo.getPrimaryKey().get();
