@@ -37,6 +37,10 @@ public interface IDBFieldType {
 
     Field getField();
 
+    default String getFieldName() {
+        return getField().getName();
+    }
+
     default String getFormat() {
         return null;
     }

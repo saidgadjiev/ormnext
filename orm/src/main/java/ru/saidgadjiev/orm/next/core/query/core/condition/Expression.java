@@ -1,5 +1,6 @@
 package ru.saidgadjiev.orm.next.core.query.core.condition;
 
+import ru.saidgadjiev.orm.next.core.query.core.Alias;
 import ru.saidgadjiev.orm.next.core.query.core.AndCondition;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryVisitor;
 
@@ -11,7 +12,7 @@ import java.util.List;
  */
 public class Expression implements Condition {
 
-    private List<AndCondition> conditions = new ArrayList<>();
+    protected final List<AndCondition> conditions = new ArrayList<>();
 
     public void add(AndCondition condition) {
         conditions.add(condition);
@@ -23,7 +24,7 @@ public class Expression implements Condition {
 
     @Override
     public void accept(QueryVisitor visitor) {
-        visitor.visit(this, visitor);
-
+        visitor.visit(this);
     }
+
 }

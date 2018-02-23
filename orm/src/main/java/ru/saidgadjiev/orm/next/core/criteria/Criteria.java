@@ -2,14 +2,12 @@ package ru.saidgadjiev.orm.next.core.criteria;
 
 import ru.saidgadjiev.orm.next.core.query.core.AndCondition;
 import ru.saidgadjiev.orm.next.core.query.core.condition.Expression;
-import ru.saidgadjiev.orm.next.core.query.visitor.QueryElement;
-import ru.saidgadjiev.orm.next.core.query.visitor.QueryVisitor;
 
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Queue;
 
-public class Criteria implements QueryElement {
+public class Criteria {
 
     private Expression expression = new Expression();
 
@@ -54,8 +52,4 @@ public class Criteria implements QueryElement {
         return expression;
     }
 
-    @Override
-    public void accept(QueryVisitor visitor) {
-        expression.accept(visitor);
-    }
 }

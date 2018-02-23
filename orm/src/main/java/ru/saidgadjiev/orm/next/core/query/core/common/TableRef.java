@@ -33,11 +33,9 @@ public class TableRef implements QueryElement {
 
     @Override
     public void accept(QueryVisitor visitor) {
-        if (alias != null) {
-            alias.accept(visitor);
-        }
-        visitor.visit(this, visitor);
+        visitor.visit(this);
 
     }
+
 }
 

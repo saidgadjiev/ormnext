@@ -32,33 +32,33 @@ public interface QueryVisitor {
 
     String getQuery();
 
-    void visit(CreateQuery tCreateQuery, QueryVisitor visitor);
+    void visit(CreateQuery tCreateQuery);
 
     void visit(UpdateValue updateValue);
 
     void visit(StringLiteral stringLiteral);
 
-    void visit(Select tSelectQuery, QueryVisitor visitor);
+    void visit(Select tSelectQuery);
 
-    void visit(Expression expression, QueryVisitor visitor);
+    void visit(Expression expression);
 
     void visit(AndCondition andCondition);
 
-    void visit(Equals equals, QueryVisitor visitor);
+    void visit(Equals equals);
 
-    void visit(ColumnSpec columnSpec, QueryVisitor visitor);
+    void visit(ColumnSpec columnSpec);
 
-    void visit(TableRef tableRef, QueryVisitor visitor);
+    void visit(TableRef tableRef);
 
     void visit(AttributeDefinition attributeDefinition);
 
-    void visit(CreateTableQuery tCreateTableQuery, QueryVisitor visitor);
+    void visit(CreateTableQuery tCreateTableQuery);
 
     void visit(DeleteQuery deleteQuery);
 
     void visit(IntLiteral intLiteral);
 
-    boolean visit(UpdateQuery updateQuery, QueryVisitor visitor);
+    boolean visit(UpdateQuery updateQuery);
 
     void visit(DropTableQuery dropTableQuery);
 
@@ -78,29 +78,29 @@ public interface QueryVisitor {
 
     void visit(SelectAll selectAll);
 
-    void visit(SelectColumnsList selectColumnsList, QueryVisitor visitor);
+    void visit(SelectColumnsList selectColumnsList);
 
     void visit(Having having);
 
-    void visit(GroupBy groupBy, QueryVisitor visitor);
+    void visit(GroupBy groupBy);
 
     void visit(FromTable fromTable);
 
-    void visit(LeftJoin leftJoin, QueryVisitor visitor);
+    void visit(LeftJoin leftJoin);
 
     void visit(BooleanLiteral booleanLiteral);
 
-    void visit(JoinInfo joinInfo, QueryVisitor visitor);
+    void visit(JoinInfo joinInfo);
 
     void visit(CountAll countAll);
 
-    void visit(FromJoinedTables fromJoinedTables, QueryVisitor visitor);
+    void visit(FromJoinedTables fromJoinedTables);
 
-    void visit(DisplayedColumns displayedColumns, QueryVisitor visitor);
+    void visit(DisplayedColumns displayedColumns);
 
     void visit(AVG avg);
 
-    void visit(CountExpression countExpression, QueryVisitor visitor);
+    void visit(CountExpression countExpression);
 
     void visit(MAX max);
 
@@ -108,7 +108,7 @@ public interface QueryVisitor {
 
     void visit(Exists exists);
 
-    void visit(InSelect inSelect, QueryVisitor visitor);
+    void visit(InSelect inSelect);
 
     void visit(NotInSelect notInSelect);
 
@@ -120,9 +120,9 @@ public interface QueryVisitor {
 
     void visit(LessThanOrEquals lessThanOrEquals);
 
-    void visit(SUM sum, QueryVisitor visitor);
+    void visit(SUM sum);
 
-    void visit(OperandCondition operandCondition, QueryVisitor visitor);
+    void visit(OperandCondition operandCondition);
 
     void visit(Alias alias);
 
@@ -140,7 +140,4 @@ public interface QueryVisitor {
 
     void visit(OrderByItem orderByItem, QueryVisitor visitor);
 
-    default QueryVisitor getOriginal() {
-        return this;
-    }
 }

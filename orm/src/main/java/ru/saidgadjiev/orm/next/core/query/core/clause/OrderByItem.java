@@ -1,5 +1,6 @@
 package ru.saidgadjiev.orm.next.core.query.core.clause;
 
+import ru.saidgadjiev.orm.next.core.query.core.Alias;
 import ru.saidgadjiev.orm.next.core.query.core.column_spec.ColumnSpec;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryElement;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryVisitor;
@@ -35,6 +36,6 @@ public class OrderByItem implements QueryElement {
     @Override
     public void accept(QueryVisitor visitor) {
         visitor.visit(this, visitor);
-
     }
+
 }

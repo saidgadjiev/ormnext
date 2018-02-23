@@ -10,7 +10,7 @@ import java.util.List;
 
 public class AndCondition implements LogicalCondition, QueryElement {
 
-    private List<Condition> conditions = new ArrayList<>();
+    private final List<Condition> conditions = new ArrayList<>();
 
     public void add(Condition qualification) {
         conditions.add(qualification);
@@ -23,6 +23,6 @@ public class AndCondition implements LogicalCondition, QueryElement {
     @Override
     public void accept(QueryVisitor visitor) {
         visitor.visit(this);
-
     }
+
 }

@@ -1,5 +1,6 @@
 package ru.saidgadjiev.orm.next.core.query.core.condition;
 
+import ru.saidgadjiev.orm.next.core.query.core.Alias;
 import ru.saidgadjiev.orm.next.core.query.core.Operand;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryVisitor;
 
@@ -13,7 +14,7 @@ public class OperandCondition implements Condition {
 
     @Override
     public void accept(QueryVisitor visitor) {
-        visitor.visit(this, visitor);
+        visitor.visit(this);
 
     }
 

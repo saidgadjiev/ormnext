@@ -29,9 +29,16 @@ public class ColumnSpec implements Operand {
         return name;
     }
 
+    public ColumnSpec name(String name) {
+        this.name = name;
+
+        return this;
+    }
+
     @Override
     public void accept(QueryVisitor visitor) {
-        visitor.visit(this, visitor);
+        visitor.visit(this);
 
     }
+
 }

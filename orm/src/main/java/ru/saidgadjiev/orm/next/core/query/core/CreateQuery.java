@@ -65,6 +65,6 @@ public class CreateQuery implements QueryElement {
 
     @Override
     public void accept(QueryVisitor visitor) {
-        visitor.visit(this, visitor);
+        visitor.visit(this);
     }
 }

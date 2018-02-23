@@ -7,9 +7,9 @@ import ru.saidgadjiev.orm.next.core.query.core.clause.OrderBy;
 import ru.saidgadjiev.orm.next.core.query.core.clause.OrderByItem;
 import ru.saidgadjiev.orm.next.core.query.core.clause.from.FromTable;
 import ru.saidgadjiev.orm.next.core.query.core.clause.select.SelectAll;
-import ru.saidgadjiev.orm.next.core.query.core.column_spec.ColumnSpec;
 import ru.saidgadjiev.orm.next.core.query.core.common.TableRef;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryVisitor;
+import ru.saidgadjiev.orm.next.core.table.TableInfo;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -17,9 +17,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class SelectCriteria {
-
-    private Select select = new Select();
+public class SelectCriteria<T> {
 
     private Criteria where;
 
@@ -31,12 +29,12 @@ public class SelectCriteria {
 
     private AtomicInteger index = new AtomicInteger();
 
-    private String tableName;
-
     private Alias alias;
 
-    public SelectCriteria(String tableName) {
-        this.tableName = tableName;
+    private TableInfo<T> tableInfo;
+
+    public SelectCriteria(TableInfo<T> tableInfo) {
+        this.tableInfo = tableInfo;
     }
 
     public void setWhere(Criteria where) {
@@ -56,15 +54,19 @@ public class SelectCriteria {
     }
 
     public Collection<Object> collectArgs() {
-        Queue<Object> whereArgs = where.getArgs();
+        if (where != null) {
+            Queue<Object> whereArgs = where.getArgs();
 
-        while (!whereArgs.isEmpty()) {
-            args.put(index.incrementAndGet(), whereArgs.poll());
+            while (!whereArgs.isEmpty()) {
+                args.put(index.incrementAndGet(), whereArgs.poll());
+            }
         }
-        Queue<Object> havingArgs = having.getArgs();
+        if (having != null) {
+            Queue<Object> havingArgs = having.getArgs();
 
-        while (!havingArgs.isEmpty()) {
-            args.put(index.incrementAndGet(), havingArgs.poll());
+            while (!havingArgs.isEmpty()) {
+                args.put(index.incrementAndGet(), havingArgs.poll());
+            }
         }
 
         return args.values();
@@ -74,26 +76,31 @@ public class SelectCriteria {
         return alias;
     }
 
-    public Select prepareSelect() {
+    Select prepareSelect() {
         collectArgs();
+        Select select = new Select();
+
         select.setSelectColumnsStrategy(new SelectAll());
-        select.setFrom(new FromTable(new TableRef(tableName)));
-        select.setWhere(where.getExpression());
-        select.setOrderBy(orderBy);
-        select.setHaving(new Having(having.getExpression()));
+        select.setFrom(new FromTable(new TableRef(tableInfo.getTableName())));
+        if (where != null) {
+            select.setWhere(where.getExpression());
+        }
+        if (having != null) {
+            select.setHaving(new Having(having.getExpression()));
+        }
+        if (!orderBy.getOrderByItems().isEmpty()) {
+            select.setOrderBy(orderBy);
+        }
+
+        select.accept(new CriteriaQueryVisitor(tableInfo, alias));
 
         return select;
     }
 
     public String accept(QueryVisitor visitor) {
-        prepareSelect();
-        select.accept(new VisitorWrapper(visitor.getOriginal()) {
-            @Override
-            public void visit(ColumnSpec columnSpec, QueryVisitor visitor) {
-                columnSpec.alias(alias);
-                super.visit(columnSpec, visitor);
-            }
-        });
+        Select select = prepareSelect();
+
+        select.accept(visitor);
 
         return visitor.getQuery();
     }

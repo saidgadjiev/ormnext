@@ -1,6 +1,5 @@
 package ru.saidgadjiev.orm.next.core.query.core;
 
-import ru.saidgadjiev.orm.next.core.criteria.SelectCriteria;
 import ru.saidgadjiev.orm.next.core.field.field_type.IDBFieldType;
 import ru.saidgadjiev.orm.next.core.query.core.clause.GroupBy;
 import ru.saidgadjiev.orm.next.core.query.core.clause.Having;
@@ -115,7 +114,7 @@ public class Select implements QueryElement {
 
     @Override
     public void accept(QueryVisitor visitor) {
-        visitor.visit(this, visitor);
+        visitor.visit(this);
         if (where != null) {
             where.accept(visitor);
         }
@@ -128,7 +127,6 @@ public class Select implements QueryElement {
         if (having != null) {
             having.accept(visitor);
         }
-
     }
 
     enum SelectionMode {

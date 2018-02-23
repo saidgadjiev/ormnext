@@ -207,6 +207,20 @@ public final class TableInfo<T> {
 
         return columns;
     }
+
+    public String getPersistenceName(String fieldName) {
+        for (IDBFieldType fieldType: fieldTypes) {
+            if (fieldType.isForeignCollectionFieldType()) {
+                continue;
+            }
+
+            if (fieldType.getFieldName().equals(fieldName)) {
+                return fieldType.getColumnName();
+            }
+        }
+
+        throw new IllegalArgumentException("Field " + fieldName + " not exists in " + tableClass);
+    }
 }
 
 

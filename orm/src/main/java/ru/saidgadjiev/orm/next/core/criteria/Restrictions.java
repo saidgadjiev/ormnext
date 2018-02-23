@@ -60,7 +60,7 @@ public class Restrictions {
         return new SubQueryCriterion() {
             @Override
             public Condition getCondition() {
-                return new InSubQuery(select.getAlias(), new InSelect(select.prepareSelect(), new ColumnSpec(columnName)));
+                return new InSelect(select.prepareSelect(), new ColumnSpec(columnName));
             }
 
             @Override

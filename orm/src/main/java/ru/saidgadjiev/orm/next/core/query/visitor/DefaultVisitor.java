@@ -50,7 +50,7 @@ public class DefaultVisitor implements QueryVisitor {
     }
 
     @Override
-    public void visit(CreateQuery tCreateQuery, QueryVisitor visitor) {
+    public void visit(CreateQuery tCreateQuery) {
         sql.append("INSERT INTO ").append(escapeEntity).append(tCreateQuery.getTypeName()).append(escapeEntity);
 
         if (tCreateQuery.getUpdateValues().isEmpty()) {
@@ -73,7 +73,7 @@ public class DefaultVisitor implements QueryVisitor {
             UpdateValue updateValue = iterator.next();
             RValue value = updateValue.getValue();
 
-            value.accept(visitor);
+            value.accept(this);
             if (iterator.hasNext()) {
                 sql.append(",");
             }
@@ -96,14 +96,14 @@ public class DefaultVisitor implements QueryVisitor {
     }
 
     @Override
-    public void visit(Select tSelectQuery, QueryVisitor visitor) {
+    public void visit(Select tSelectQuery) {
         sql.append("SELECT ");
         if (tSelectQuery.getSelectColumnsStrategy() != null) {
-            tSelectQuery.getSelectColumnsStrategy().accept(visitor);
+            tSelectQuery.getSelectColumnsStrategy().accept(this);
         }
         sql.append(" FROM ");
         if (tSelectQuery.getFrom() != null) {
-            tSelectQuery.getFrom().accept(visitor);
+            tSelectQuery.getFrom().accept(this);
         }
         if (!tSelectQuery.getWhere().getConditions().isEmpty()) {
             sql.append(" WHERE ");
@@ -111,7 +111,7 @@ public class DefaultVisitor implements QueryVisitor {
     }
 
     @Override
-    public void visit(Expression expression, QueryVisitor visitor) {
+    public void visit(Expression expression) {
         for (Iterator<AndCondition> iterator = expression.getConditions().iterator(); iterator.hasNext(); ) {
             AndCondition andCondition = iterator.next();
 
@@ -122,7 +122,7 @@ public class DefaultVisitor implements QueryVisitor {
 
                 sql.append("(");
 
-                condition.accept(visitor);
+                condition.accept(this);
 
                 sql.append(")");
 
@@ -145,28 +145,28 @@ public class DefaultVisitor implements QueryVisitor {
     }
 
     @Override
-    public void visit(Equals equals, QueryVisitor visitor) {
-        equals.getFirst().accept(visitor);
+    public void visit(Equals equals) {
+        equals.getFirst().accept(this);
         sql.append(" = ");
-        equals.getSecond().accept(visitor);
+        equals.getSecond().accept(this);
     }
 
     @Override
-    public void visit(ColumnSpec columnSpec, QueryVisitor visitor) {
+    public void visit(ColumnSpec columnSpec) {
         if (columnSpec.getAlias() != null) {
-            columnSpec.getAlias().accept(visitor);
+            columnSpec.getAlias().accept(this);
             sql.append(".");
         }
         sql.append(escapeEntity).append(columnSpec.getName()).append(escapeEntity);
     }
 
     @Override
-    public void visit(TableRef tableRef, QueryVisitor visitor) {
+    public void visit(TableRef tableRef) {
         sql.append(escapeEntity).append(tableRef.getTableName()).append(escapeEntity);
 
         if (tableRef.getAlias() != null) {
             sql.append(" AS ");
-            tableRef.getAlias().accept(visitor);
+            tableRef.getAlias().accept(this);
         }
     }
 
@@ -176,7 +176,7 @@ public class DefaultVisitor implements QueryVisitor {
     }
 
     @Override
-    public void visit(CreateTableQuery tCreateTableQuery, QueryVisitor visitor) {
+    public void visit(CreateTableQuery tCreateTableQuery) {
         sql.append("CREATE TABLE ");
         if (tCreateTableQuery.isIfNotExists()) {
             sql.append("IF NOT EXISTS ");
@@ -191,7 +191,7 @@ public class DefaultVisitor implements QueryVisitor {
             for (Iterator<AttributeConstraint> constraintIterator = attributeDefinition.getAttributeConstraints().iterator(); constraintIterator.hasNext();) {
                 AttributeConstraint constraint = constraintIterator.next();
 
-                constraint.accept(visitor);
+                constraint.accept(this);
 
                 if (constraintIterator.hasNext()) {
                     sql.append(" ");
@@ -246,7 +246,7 @@ public class DefaultVisitor implements QueryVisitor {
     }
 
     @Override
-    public boolean visit(UpdateQuery updateQuery, QueryVisitor visitor) {
+    public boolean visit(UpdateQuery updateQuery) {
         sql.append("UPDATE ").append(updateQuery.getTypeName()).append(" SET ");
 
         for (Iterator<UpdateValue> iterator = updateQuery.getUpdateValues().iterator(); iterator.hasNext(); ) {
@@ -254,7 +254,7 @@ public class DefaultVisitor implements QueryVisitor {
             RValue value = updateValue.getValue();
 
             sql.append(updateValue.getName()).append("=");
-            value.accept(visitor);
+            value.accept(this);
             if (iterator.hasNext()) {
                 sql.append(",");
             }
@@ -341,11 +341,11 @@ public class DefaultVisitor implements QueryVisitor {
     }
 
     @Override
-    public void visit(SelectColumnsList selectColumnsList, QueryVisitor visitor) {
+    public void visit(SelectColumnsList selectColumnsList) {
         for (Iterator<DisplayedColumnSpec> columnIterator = selectColumnsList.getColumns().iterator(); columnIterator.hasNext();) {
             DisplayedColumnSpec columnSpec = columnIterator.next();
 
-            columnSpec.accept(visitor);
+            columnSpec.accept(this);
             if (columnIterator.hasNext()) {
                 sql.append(", ");
             }
@@ -355,17 +355,19 @@ public class DefaultVisitor implements QueryVisitor {
     @Override
     public void visit(Having having) {
         sql.append(" HAVING ");
-
+        if (having.getExpression() != null) {
+            having.getExpression().accept(this);
+        }
     }
 
     @Override
-    public void visit(GroupBy groupBy, QueryVisitor visitor) {
+    public void visit(GroupBy groupBy) {
         sql.append(" GROUP BY ");
 
         for (Iterator<GroupByItem> columnSpecIterator = groupBy.getGroupByItems().iterator(); columnSpecIterator.hasNext();) {
             GroupByItem columnSpec = columnSpecIterator.next();
 
-            columnSpec.accept(visitor);
+            columnSpec.accept(this);
             if (columnSpecIterator.hasNext()) {
                 sql.append(",");
             }
@@ -374,12 +376,13 @@ public class DefaultVisitor implements QueryVisitor {
 
     @Override
     public void visit(FromTable fromTable) {
+        fromTable.getTableRef().accept(this);
     }
 
     @Override
-    public void visit(LeftJoin leftJoin, QueryVisitor visitor) {
+    public void visit(LeftJoin leftJoin) {
         sql.append(" LEFT JOIN ");
-        leftJoin.getJoinedTableRef().accept(visitor);
+        leftJoin.getJoinedTableRef().accept(this);
         sql.append(" ON ");
     }
 
@@ -389,8 +392,8 @@ public class DefaultVisitor implements QueryVisitor {
     }
 
     @Override
-    public void visit(JoinInfo joinInfo, QueryVisitor visitor) {
-        joinInfo.getTableRef().accept(visitor);
+    public void visit(JoinInfo joinInfo) {
+        joinInfo.getTableRef().accept(this);
         sql.append(" ON ");
     }
 
@@ -400,17 +403,17 @@ public class DefaultVisitor implements QueryVisitor {
     }
 
     @Override
-    public void visit(FromJoinedTables fromJoinedTables, QueryVisitor visitor) {
-        fromJoinedTables.getTableRef().accept(visitor);
+    public void visit(FromJoinedTables fromJoinedTables) {
+        fromJoinedTables.getTableRef().accept(this);
         for (JoinExpression joinExpression: fromJoinedTables.getJoinExpression()) {
-            joinExpression.accept(visitor);
+            joinExpression.accept(this);
         }
     }
 
     @Override
-    public void visit(DisplayedColumns displayedColumns, QueryVisitor visitor) {
+    public void visit(DisplayedColumns displayedColumns) {
         if (displayedColumns.getAlias() != null) {
-            displayedColumns.getAlias().accept(visitor);
+            displayedColumns.getAlias().accept(this);
         }
         sql.append(displayedColumns.getColumnSpec().getName());
     }
@@ -421,10 +424,10 @@ public class DefaultVisitor implements QueryVisitor {
     }
 
     @Override
-    public void visit(CountExpression countExpression, QueryVisitor visitor) {
+    public void visit(CountExpression countExpression) {
         sql.append("COUNT(");
         if (countExpression.getExpression() != null) {
-            countExpression.getExpression().accept(visitor);
+            countExpression.getExpression().accept(this);
         }
 
         sql.append(")");
@@ -446,10 +449,10 @@ public class DefaultVisitor implements QueryVisitor {
     }
 
     @Override
-    public void visit(InSelect inSelect, QueryVisitor visitor) {
-        inSelect.getOperand().accept(visitor);
+    public void visit(InSelect inSelect) {
+        inSelect.getOperand().accept(this);
         sql.append(" IN (");
-        inSelect.getSelect().accept(visitor);
+        inSelect.getSelect().accept(this);
         sql.append(")");
     }
 
@@ -479,22 +482,22 @@ public class DefaultVisitor implements QueryVisitor {
     }
 
     @Override
-    public void visit(SUM sum, QueryVisitor visitor) {
+    public void visit(SUM sum) {
         sql.append("SUM(");
         if (sum.getExpression() != null) {
-            sum.getExpression().accept(visitor);
+            sum.getExpression().accept(this);
         }
         sql.append(")");
     }
 
     @Override
-    public void visit(OperandCondition operandCondition, QueryVisitor visitor) {
-        operandCondition.getOperand().accept(visitor);
+    public void visit(OperandCondition operandCondition) {
+        operandCondition.getOperand().accept(this);
     }
 
     @Override
     public void visit(Alias alias) {
-        sql.append(escapeEntity).append(alias.getAlias()).append(escapeEntity).append(".");
+        sql.append(escapeEntity).append(alias.getAlias()).append(escapeEntity);
     }
 
     @Override
@@ -531,7 +534,7 @@ public class DefaultVisitor implements QueryVisitor {
     @Override
     public void visit(OrderByItem orderByItem, QueryVisitor visitor) {
         for (Iterator<ColumnSpec> iterator = orderByItem.getColumns().iterator(); iterator.hasNext();) {
-            iterator.next().accept(visitor);
+            iterator.next().accept(this);
 
             if (iterator.hasNext()) {
                 sql.append(", ");
