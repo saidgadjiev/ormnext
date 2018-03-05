@@ -28,7 +28,7 @@ public class FieldTypeUtils {
                 return Optional.of(new DBFieldTypeFactory().createFieldType(field));
             }
         } else if (field.isAnnotationPresent(ForeignCollectionField.class)) {
-            return Optional.of(new ForeignFieldTypeFactory().createFieldType(field));
+            return Optional.of(new ForeignCollectionFieldTypeFactory().createFieldType(field));
         }
 
         return Optional.empty();
