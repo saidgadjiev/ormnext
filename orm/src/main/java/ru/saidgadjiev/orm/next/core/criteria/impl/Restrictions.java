@@ -57,7 +57,7 @@ public class Restrictions {
         };
     }
 
-    public static Criterion in(String columnName, SelectCriteria select) {
+    public static Criterion in(String columnName, SelectStatement select) {
         return new Criterion() {
             @Override
             public Condition getCondition() {

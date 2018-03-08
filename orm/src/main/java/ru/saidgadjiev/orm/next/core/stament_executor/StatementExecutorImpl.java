@@ -1,5 +1,6 @@
 package ru.saidgadjiev.orm.next.core.stament_executor;
 
+import ru.saidgadjiev.orm.next.core.criteria.impl.SelectStatement;
 import ru.saidgadjiev.orm.next.core.db.DatabaseType;
 import ru.saidgadjiev.orm.next.core.field.field_type.IDBFieldType;
 import ru.saidgadjiev.orm.next.core.field.field_type.IndexFieldType;
@@ -9,7 +10,7 @@ import ru.saidgadjiev.orm.next.core.query.core.column_spec.DisplayedOperand;
 import ru.saidgadjiev.orm.next.core.query.core.function.CountAll;
 import ru.saidgadjiev.orm.next.core.query.visitor.DefaultVisitor;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryElement;
-import ru.saidgadjiev.orm.next.core.stament_executor.object.ArgumentEjector;
+import ru.saidgadjiev.orm.next.core.utils.ArgumentUtils;
 import ru.saidgadjiev.orm.next.core.stament_executor.object.CreateQueryBuilder;
 import ru.saidgadjiev.orm.next.core.stament_executor.object.operation.ForeignCreator;
 import ru.saidgadjiev.orm.next.core.stament_executor.result_mapper.ResultsMapper;
@@ -73,7 +74,7 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
                 for (T object : objects) {
                     foreignCreator.execute(object);
 
-                    for (Map.Entry<Integer, Object> entry : ArgumentEjector.eject(object, tableInfo).entrySet()) {
+                    for (Map.Entry<Integer, Object> entry : ArgumentUtils.eject(object, tableInfo).entrySet()) {
                         statement.setObject(entry.getKey(), entry.getValue());
                     }
                     statement.addBatch();
@@ -111,7 +112,7 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
             String query = getQuery(createQuery);
 
             try (IPreparedStatement statement = new PreparedQueryImpl(connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS), query)) {
-                for (Map.Entry<Integer, Object> entry : ArgumentEjector.eject(object, tableInfo).entrySet()) {
+                for (Map.Entry<Integer, Object> entry : ArgumentUtils.eject(object, tableInfo).entrySet()) {
                     statement.setObject(entry.getKey(), entry.getValue());
                 }
                 Integer result = statement.executeUpdate();
@@ -370,6 +371,27 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
         select.setSelectColumnsStrategy(selectColumnsList);
 
         return query(getQuery(select), connection);
+    }
+
+    @Override
+    public List<T> query(Connection connection, SelectStatement<T> statement) throws SQLException {
+        List<T> resultObjectList = new ArrayList<>();
+        String query = getQuery(statement);
+
+        try (IPreparedStatement preparedStatement = new PreparedQueryImpl(connection.prepareStatement(query), query)) {
+            for (Map.Entry<Integer, Object> entry: statement.getArgs().entrySet()) {
+                preparedStatement.setObject(entry.getKey(), entry.getValue());
+            }
+            try (DatabaseResults databaseResults = preparedStatement.executeQuery()) {
+                while (databaseResults.next()) {
+                    resultObjectList.add(resultsMapper.mapResults(databaseResults));
+                }
+            }
+        } catch (Exception ex) {
+            throw new SQLException(ex);
+        }
+
+        return resultObjectList;
     }
 
     private String getQuery(QueryElement queryElement) {

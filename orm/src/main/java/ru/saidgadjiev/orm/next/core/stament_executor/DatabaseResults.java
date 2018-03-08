@@ -29,7 +29,7 @@ public class DatabaseResults implements ResultSet, AutoCloseable {
         int count = metaData.getColumnCount();
         List<String> columns = new ArrayList<>();
 
-        for (int i = 0; i < count; ++i) {
+        for (int i = 1; i < count; ++i) {
             columns.add(metaData.getColumnName(i));
         }
 
@@ -39,7 +39,7 @@ public class DatabaseResults implements ResultSet, AutoCloseable {
     public boolean hasColumn(String name) throws SQLException {
         int count = metaData.getColumnCount();
 
-        for (int i = 0; i < count; ++i) {
+        for (int i = 1; i < count; ++i) {
             if (name.equals(metaData.getColumnName(i))) {
                 return true;
             }

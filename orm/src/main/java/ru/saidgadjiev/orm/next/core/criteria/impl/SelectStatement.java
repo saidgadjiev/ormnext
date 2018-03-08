@@ -13,13 +13,13 @@ import ru.saidgadjiev.orm.next.core.query.visitor.QueryElement;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryVisitor;
 import ru.saidgadjiev.orm.next.core.table.TableInfo;
 
-import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class SelectCriteria<T> implements QueryElement {
+public class SelectStatement<T> implements QueryElement {
 
     private Criteria where;
 
@@ -35,7 +35,9 @@ public class SelectCriteria<T> implements QueryElement {
 
     private TableInfo<T> tableInfo;
 
-    public SelectCriteria(TableInfo<T> tableInfo) {
+    private boolean argsCollected = false;
+
+    public SelectStatement(TableInfo<T> tableInfo) {
         this.tableInfo = tableInfo;
     }
 
@@ -55,10 +57,13 @@ public class SelectCriteria<T> implements QueryElement {
         this.alias = new Alias(alias);
     }
 
-    public Collection<Object> collectArgs() {
+    Queue<Object> collectArgs() {
+        Queue<Object> argsQueue = new LinkedList<>();
+
         if (where != null) {
             Queue<Object> whereArgs = where.getArgs();
 
+            argsQueue.addAll(whereArgs);
             while (!whereArgs.isEmpty()) {
                 args.put(index.incrementAndGet(), whereArgs.poll());
             }
@@ -66,12 +71,21 @@ public class SelectCriteria<T> implements QueryElement {
         if (having != null) {
             Queue<Object> havingArgs = having.getArgs();
 
+            argsQueue.addAll(havingArgs);
             while (!havingArgs.isEmpty()) {
                 args.put(index.incrementAndGet(), havingArgs.poll());
             }
         }
+        argsCollected = true;
 
-        return args.values();
+        return argsQueue;
+    }
+
+    public Map<Integer, Object> getArgs() {
+        if (!argsCollected) {
+            collectArgs();
+        }
+        return args;
     }
 
     public Alias getAlias() {
@@ -79,7 +93,6 @@ public class SelectCriteria<T> implements QueryElement {
     }
 
     Select prepareSelect() {
-        collectArgs();
         Select select = new Select();
 
         select.setSelectColumnsStrategy(new SelectAll());

@@ -1,5 +1,6 @@
 package ru.saidgadjiev.orm.next.core.stament_executor;
 
+import ru.saidgadjiev.orm.next.core.criteria.impl.SelectStatement;
 import ru.saidgadjiev.orm.next.core.stament_executor.result_mapper.ResultsMapper;
 import ru.saidgadjiev.orm.next.core.table.TableInfo;
 
@@ -103,5 +104,10 @@ public class StatementValidator<T, ID> implements IStatementExecutor<T, ID> {
     @Override
     public long countOff(Connection connection) throws SQLException {
         return delegate.countOff(connection);
+    }
+
+    @Override
+    public List<T> query(Connection connection, SelectStatement<T> statement) throws SQLException {
+        return delegate.query(connection, statement);
     }
 }

@@ -56,6 +56,8 @@ public class DefaultVisitor extends NoActionVisitor {
 
         if (tCreateQuery.getUpdateValues().isEmpty()) {
             sql.append(" ").append(databaseType.appendNoColumn());
+
+            return;
         } else {
             sql.append(" (");
         }

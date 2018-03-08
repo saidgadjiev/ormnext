@@ -79,11 +79,6 @@ public class UpdateQuery implements QueryElement {
         this.where = where;
     }
 
-    /**
-     * Создание экземпляра UpdateQuery
-     *
-     * @return возвращет экземляр UpdateQuery
-     */
     public static <T> UpdateQuery buildQuery(String typeName, List<DBFieldType> fieldTypes, String idColumnName, T object) throws SQLException {
         UpdateQuery updateQuery = new UpdateQuery(typeName);
 

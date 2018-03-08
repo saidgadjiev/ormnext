@@ -1,5 +1,6 @@
 package ru.saidgadjiev.orm.next.core.dao;
 
+import ru.saidgadjiev.orm.next.core.criteria.impl.SelectStatement;
 import ru.saidgadjiev.orm.next.core.stament_executor.GenericResults;
 import ru.saidgadjiev.orm.next.core.stament_executor.result_mapper.ResultsMapper;
 
@@ -64,4 +65,5 @@ public interface BaseDao<T, ID> {
 
     <R> GenericResults<R> query(String query, ResultsMapper<R> resultsMapper) throws SQLException;
 
+    List<T> query(SelectStatement<T> statement) throws SQLException;
 }

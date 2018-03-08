@@ -1,5 +1,6 @@
 package ru.saidgadjiev.orm.next.core.stament_executor;
 
+import ru.saidgadjiev.orm.next.core.criteria.impl.SelectStatement;
 import ru.saidgadjiev.orm.next.core.stament_executor.result_mapper.ResultsMapper;
 
 import java.sql.Connection;
@@ -37,4 +38,6 @@ public interface IStatementExecutor<T, ID> {
     long query(String query, Connection connection) throws SQLException;
 
     long countOff(Connection connection) throws SQLException;
+
+    List<T> query(Connection connection, SelectStatement<T> statement) throws SQLException;
 }

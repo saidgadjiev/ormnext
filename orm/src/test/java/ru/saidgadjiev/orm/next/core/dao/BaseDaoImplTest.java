@@ -5,11 +5,15 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import ru.saidgadjiev.orm.next.core.criteria.impl.SelectStatement;
 import ru.saidgadjiev.orm.next.core.db.H2DatabaseType;
 import ru.saidgadjiev.orm.next.core.field.DBField;
 import ru.saidgadjiev.orm.next.core.field.DataType;
+import ru.saidgadjiev.orm.next.core.field.ForeignCollectionField;
 import ru.saidgadjiev.orm.next.core.support.DataSourceConnectionSource;
+import ru.saidgadjiev.orm.next.core.utils.TableUtils;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -32,6 +36,34 @@ public class BaseDaoImplTest {
     public void after() throws Exception {
         connectionSource.close();
         connectionSource = null;
+    }
+
+    @Test
+    public void createNoColumn() throws Exception {
+        Session<TestNoColumn, Integer> dao = createDao(TestNoColumn.class, true);
+        TestNoColumn testNoColumn = new TestNoColumn();
+
+        Assert.assertEquals(1, dao.create(testNoColumn));
+        TestNoColumn result = dao.queryForId(testNoColumn.id);
+
+        Assert.assertEquals(1, result.id);
+    }
+
+    @Test
+    public void createAndQueryForIdForeignCollection() throws Exception {
+        Session<TestForeignCollectionClass, Integer> daoTestForeignClass = createDao(TestForeignCollectionClass.class, true);
+        Session<TestForeignClass, Integer> daoTestForeign = createDao(TestForeignClass.class, true);
+        TestForeignCollectionClass employee = new TestForeignCollectionClass();
+
+        Assert.assertEquals(1, daoTestForeignClass.create(employee));
+        TestForeignClass testForeignClass1 = new TestForeignClass();
+
+        testForeignClass1.foreign = employee;
+        Assert.assertEquals(1, daoTestForeign.create(testForeignClass1));
+        TestForeignCollectionClass result = daoTestForeignClass.queryForId(employee.id);
+
+        Assert.assertEquals(1, result.id);
+        Assert.assertEquals(1, result.foreignClasses.size());
     }
 
     @Test
@@ -120,6 +152,23 @@ public class BaseDaoImplTest {
         Assert.assertTrue(dao.createTable(true));
     }
 
+    private static class TestForeignCollectionClass {
+        @DBField(id = true, generated = true)
+        private int id;
+
+        @ForeignCollectionField(foreignFieldName = "foreign")
+        private List<TestForeignClass> foreignClasses = new ArrayList<>();
+
+    }
+
+    private static class TestForeignClass {
+        @DBField(id = true, generated = true)
+        private int id;
+
+        @DBField(foreign = true)
+        private TestForeignCollectionClass foreign;
+    }
+
     private static class TestClazz {
         @DBField(id = true, generated = true)
         private int id;
@@ -153,6 +202,11 @@ public class BaseDaoImplTest {
 
         @DBField(dataType = DataType.LONG)
         private Long lon;
+    }
+
+    public static class TestNoColumn {
+        @DBField(id = true, generated = true)
+        private int id;
     }
 
     protected <T, ID> Session<T, ID> createDao(Class<T> clazz, boolean createTable) throws Exception {

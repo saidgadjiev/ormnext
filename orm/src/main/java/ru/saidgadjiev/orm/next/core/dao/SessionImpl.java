@@ -1,6 +1,9 @@
 package ru.saidgadjiev.orm.next.core.dao;
 
 import ru.saidgadjiev.orm.next.core.cache.CacheContext;
+import ru.saidgadjiev.orm.next.core.criteria.impl.DeleteStatement;
+import ru.saidgadjiev.orm.next.core.criteria.impl.SelectStatement;
+import ru.saidgadjiev.orm.next.core.criteria.impl.UpdateStatement;
 import ru.saidgadjiev.orm.next.core.stament_executor.*;
 import ru.saidgadjiev.orm.next.core.stament_executor.object.CreateQueryBuilder;
 import ru.saidgadjiev.orm.next.core.stament_executor.object.ObjectBuilder;
@@ -24,10 +27,13 @@ public class SessionImpl<T, ID> implements Session<T, ID> {
 
     private final ConnectionSource dataSource;
 
+    private TableInfo<T> tableInfo;
+
     private IStatementExecutor<T, ID> statementExecutor;
 
     SessionImpl(ConnectionSource dataSource, CacheContext cacheContext, TableInfo<T> tableInfo) {
         this.dataSource = dataSource;
+        this.tableInfo = tableInfo;
         Supplier<ObjectBuilder<T>> objectBuilderFactory = () -> new ObjectBuilder<>(dataSource, tableInfo);
         Supplier<CreateQueryBuilder<T>> objectCreatorFactory = () -> new CreateQueryBuilder<>(tableInfo);
 
@@ -191,6 +197,13 @@ public class SessionImpl<T, ID> implements Session<T, ID> {
     }
 
     @Override
+    public List<T> query(SelectStatement<T> statement) throws SQLException {
+        try (Connection connection = dataSource.getConnection()) {
+            return statementExecutor.query(connection, statement);
+        }
+    }
+
+    @Override
     public TransactionImpl<T, ID> transaction() throws SQLException {
         Connection connection = dataSource.getConnection();
 
@@ -199,5 +212,20 @@ public class SessionImpl<T, ID> implements Session<T, ID> {
 
             return null;
         });
+    }
+
+    @Override
+    public SelectStatement<T> selectQuery() {
+        return new SelectStatement<>(tableInfo);
+    }
+
+    @Override
+    public UpdateStatement<T> updateQuery() {
+        return null;
+    }
+
+    @Override
+    public DeleteStatement<T> deleteQuery() {
+        return null;
     }
 }

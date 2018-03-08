@@ -7,6 +7,7 @@ import ru.saidgadjiev.orm.next.core.query.core.common.UpdateValue;
 import ru.saidgadjiev.orm.next.core.query.core.literals.Param;
 import ru.saidgadjiev.orm.next.core.table.TableInfo;
 
+//TODO: Поменять логику: порядок полей в запросе должен соблюдаться как в классе
 public class CreateQueryBuilder<T> {
 
     private TableInfo<T> tableInfo;

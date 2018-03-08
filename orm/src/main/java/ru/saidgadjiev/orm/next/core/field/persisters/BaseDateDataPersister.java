@@ -8,11 +8,12 @@ import java.util.Date;
 public abstract class BaseDateDataPersister extends BaseDataPersister {
 
     public BaseDateDataPersister() {
-        super(new Class[] {Date.class});
+        super(new Class[]{Date.class});
     }
 
     @Override
     public Class<?>[] getAssociatedClasses() {
         return classes;
     }
+
 }

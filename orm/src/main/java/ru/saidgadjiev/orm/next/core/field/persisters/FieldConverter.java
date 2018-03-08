@@ -9,4 +9,8 @@ public interface FieldConverter<T> {
     default Object parseSqlToJava(IDBFieldType fieldType, Object object) throws Exception {
         return object;
     }
+
+    default Object parseJavaToSql(IDBFieldType fieldType, Object object) {
+        return object;
+    }
 }

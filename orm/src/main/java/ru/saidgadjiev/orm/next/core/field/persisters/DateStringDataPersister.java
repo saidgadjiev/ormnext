@@ -40,6 +40,15 @@ public class DateStringDataPersister extends BaseDateDataPersister {
         return getFormatter(fieldType).parse(String.valueOf(object));
     }
 
+    @Override
+    public Object parseJavaToSql(IDBFieldType fieldType, Object object) {
+        if (object == null) {
+            return null;
+        }
+
+        return getFormatter(fieldType).format(object);
+    }
+
     private SimpleDateFormat getFormatter(IDBFieldType fieldType) {
         String format = fieldType.getFormat();
 

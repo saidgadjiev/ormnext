@@ -2,10 +2,14 @@ package ru.saidgadjiev.orm.next.core.stament_executor;
 
 import ru.saidgadjiev.orm.next.core.cache.CacheContext;
 import ru.saidgadjiev.orm.next.core.cache.ObjectCache;
+import ru.saidgadjiev.orm.next.core.criteria.impl.SelectStatement;
 import ru.saidgadjiev.orm.next.core.field.field_type.DBFieldType;
+import ru.saidgadjiev.orm.next.core.field.field_type.ForeignCollectionFieldType;
+import ru.saidgadjiev.orm.next.core.field.field_type.ForeignFieldType;
 import ru.saidgadjiev.orm.next.core.field.field_type.IDBFieldType;
 import ru.saidgadjiev.orm.next.core.stament_executor.result_mapper.ResultsMapper;
 import ru.saidgadjiev.orm.next.core.table.TableInfo;
+import ru.saidgadjiev.orm.next.core.table.TableInfoManager;
 
 import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
@@ -13,6 +17,7 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
 
+@SuppressWarnings("CPD-START")
 public class CachedStatementExecutor<T, ID> implements IStatementExecutor<T, ID> {
 
     private TableInfo<T> tableInfo;
@@ -69,6 +74,28 @@ public class CachedStatementExecutor<T, ID> implements IStatementExecutor<T, ID>
                 }
             }
         }
+
+       try {
+            for (IDBFieldType fieldType: tableInfo.getFieldTypes()) {
+               if (fieldType.isForeignFieldType()) {
+                   ForeignFieldType foreignFieldType = (ForeignFieldType) fieldType;
+                   Class<?> foreignClass = foreignFieldType.getForeignFieldClass();
+                   TableInfo<?> foreignTableInfo = TableInfoManager.buildOrGet(foreignClass);
+
+                   for (ForeignCollectionFieldType foreignCollectionFieldType: foreignTableInfo.toForeignCollectionFieldTypes()) {
+                       if (foreignCollectionFieldType.getForeignFieldClass().equals(object.getClass())) {
+                           Object foreignObject = foreignFieldType.access(object);
+
+                           if (foreignObject != null) {
+                               foreignCollectionFieldType.add(foreignObject, object);
+                           }
+                       }
+                   }
+               }
+           }
+       } catch (Exception ex) {
+            throw new SQLException(ex);
+       }
 
         return count;
     }
@@ -198,6 +225,11 @@ public class CachedStatementExecutor<T, ID> implements IStatementExecutor<T, ID>
     @Override
     public long countOff(Connection connection) throws SQLException {
         return delegate.countOff(connection);
+    }
+
+    @Override
+    public List<T> query(Connection connection, SelectStatement<T> statement) throws SQLException {
+        return delegate.query(connection, statement);
     }
 
     private void copy(T srcObject, T destObject) throws Exception {

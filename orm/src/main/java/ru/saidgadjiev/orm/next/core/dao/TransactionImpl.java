@@ -1,5 +1,6 @@
 package ru.saidgadjiev.orm.next.core.dao;
 
+import ru.saidgadjiev.orm.next.core.criteria.impl.SelectStatement;
 import ru.saidgadjiev.orm.next.core.stament_executor.GenericResults;
 import ru.saidgadjiev.orm.next.core.stament_executor.IStatementExecutor;
 import ru.saidgadjiev.orm.next.core.stament_executor.result_mapper.ResultsMapper;
@@ -99,6 +100,12 @@ public class TransactionImpl<T, ID> implements Transaction<T, ID> {
     public <R> GenericResults<R> query(String query, ResultsMapper<R> resultsMapper) throws SQLException {
         check();
         return statementExecutor.query(connection, query, resultsMapper);
+    }
+
+    @Override
+    public List<T> query(SelectStatement<T> statement) throws SQLException {
+        check();
+        return statementExecutor.query(connection, statement);
     }
 
     @Override
