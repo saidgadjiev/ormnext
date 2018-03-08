@@ -68,9 +68,12 @@ public class BaseDaoImplTest {
 
     @Test
     public void createAndQueryForId() throws Exception {
+        Session<TestForeign, Integer> foreignDao = createDao(TestForeign.class, true);
         Session<TestClazz, Integer> dao = createDao(TestClazz.class, true);
+        TestForeign testForeign = new TestForeign();
         TestClazz employee = new TestClazz();
 
+        employee.testForeign = testForeign;
         employee.name = "Said";
         Assert.assertEquals(1, dao.create(employee));
         TestClazz result = dao.queryForId(employee.id);
@@ -178,6 +181,20 @@ public class BaseDaoImplTest {
 
         @DBField
         private Date date;
+
+        @DBField(foreign = true)
+        private TestForeign testForeign;
+    }
+
+    private static class TestForeign {
+        @DBField(id = true, generated = true)
+        private int id;
+
+        @DBField
+        private String name;
+
+        @ForeignCollectionField
+        private List<TestClazz> testClazz = new ArrayList<>();
     }
 
     private static class TestCreateTable {

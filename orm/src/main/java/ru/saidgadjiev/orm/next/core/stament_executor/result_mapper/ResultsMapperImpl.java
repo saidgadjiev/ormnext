@@ -4,6 +4,7 @@ import ru.saidgadjiev.orm.next.core.stament_executor.DatabaseResults;
 import ru.saidgadjiev.orm.next.core.stament_executor.object.ObjectBuilder;
 import ru.saidgadjiev.orm.next.core.table.TableInfo;
 
+import java.util.HashSet;
 import java.util.function.Supplier;
 
 public class ResultsMapperImpl<T> implements ResultsMapper<T> {
@@ -24,7 +25,7 @@ public class ResultsMapperImpl<T> implements ResultsMapper<T> {
                 .get()
                 .newObject()
                 .buildBase(results, tableInfo.toDBFieldTypes())
-                .buildForeign(results, tableInfo.toForeignFieldTypes())
+                .buildForeign(results, tableInfo.toForeignFieldTypes(), new HashSet<>())
                 .buildForeignCollection(tableInfo.toForeignCollectionFieldTypes())
                 .build();
     }

@@ -6,14 +6,16 @@ import ru.saidgadjiev.orm.next.core.criteria.impl.SelectStatement;
 import ru.saidgadjiev.orm.next.core.dao.BaseSessionManagerImpl;
 import ru.saidgadjiev.orm.next.core.dao.Session;
 import ru.saidgadjiev.orm.next.core.field.field_type.*;
+import ru.saidgadjiev.orm.next.core.query.core.Select;
+import ru.saidgadjiev.orm.next.core.query.visitor.DefaultVisitor;
 import ru.saidgadjiev.orm.next.core.stament_executor.DatabaseResults;
+import ru.saidgadjiev.orm.next.core.stament_executor.GenericResults;
 import ru.saidgadjiev.orm.next.core.support.ConnectionSource;
 import ru.saidgadjiev.orm.next.core.table.TableInfo;
-import ru.saidgadjiev.orm.next.core.utils.TableInfoUtils;
 
 import java.lang.reflect.Constructor;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 
 public class ObjectBuilder<T> {
 
@@ -46,18 +48,28 @@ public class ObjectBuilder<T> {
         return this;
     }
 
-    public ObjectBuilder<T> buildForeign(DatabaseResults data, List<ForeignFieldType> resultFieldTypes) throws Exception {
+    public ObjectBuilder<T> buildForeign(DatabaseResults data, List<ForeignFieldType> resultFieldTypes, Set<Class<?>> parents) throws Exception {
+        parents.add(tableInfo.getTableClass());
+
         for (ForeignFieldType fieldType : resultFieldTypes) {
-            Constructor<?> foreignClassConstructor = TableInfoUtils.lookupDefaultConstructor(fieldType.getForeignFieldClass())
-                    .orElseThrow(() -> new IllegalArgumentException("Class " + fieldType.getForeignFieldClass() + " doesn't have default constructor"));
+            if (!parents.contains(fieldType.getForeignFieldClass())) {
+                TableInfo<?> foreignTableInfo = TableInfo.build(fieldType.getForeignFieldClass());
+                Session<Object, Object> foreignDao = new BaseSessionManagerImpl(dataSource).forClass(foreignTableInfo.getTableClass());
+                Select select = Select.buildQueryById(foreignTableInfo.getTableName(), foreignTableInfo.getPrimaryKey().get(), data.getObject(fieldType.getColumnName()));
+                DefaultVisitor visitor = new DefaultVisitor(dataSource.getDatabaseType());
 
-            Object val = newObject(foreignClassConstructor);
-            Optional<IDBFieldType> primaryKey = TableInfoUtils.resolvePrimaryKey(fieldType.getForeignFieldClass());
+                select.accept(visitor);
+                parents.add(tableInfo.getTableClass());
+                Object foreignObject = foreignDao.query(visitor.getQuery(), results -> new ObjectBuilder<>(dataSource, foreignTableInfo)
+                        .newObject()
+                        .buildBase(results, tableInfo.toDBFieldTypes())
+                        .buildForeign(results, tableInfo.toForeignFieldTypes(), parents)
+                        .buildForeignCollection(tableInfo.toForeignCollectionFieldTypes())
+                        .build())
+                        .getFirstResult();
 
-            if (primaryKey.isPresent()) {
-                fieldType.getForeignPrimaryKey().assign(val, data.getObject(fieldType.getColumnName()));
+                fieldType.assign(object, foreignObject);
             }
-            fieldType.assign(object, val);
         }
 
         return this;
