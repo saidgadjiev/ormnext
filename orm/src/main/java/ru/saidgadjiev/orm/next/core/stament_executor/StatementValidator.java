@@ -107,7 +107,7 @@ public class StatementValidator<T, ID> implements IStatementExecutor<T, ID> {
     }
 
     @Override
-    public List<T> query(Connection connection, SelectStatement<T> statement) throws SQLException {
-        return delegate.query(connection, statement);
+    public List<T> query(Connection connection, SelectStatement<T> statement, ResultsMapper<T> resultsMapper) throws SQLException {
+        return delegate.query(connection, statement, resultsMapper);
     }
 }

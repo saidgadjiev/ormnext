@@ -18,5 +18,5 @@ public interface SessionManager {
 
     ConnectionSource getDataSource();
 
-    <T, ID> Session<T, ID> forClass(Class<?> clazz) throws SQLException;
+    <T, ID> Session<T, ID> forClass(Class<T> clazz) throws SQLException;
 }

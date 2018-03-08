@@ -6,10 +6,7 @@ import ru.saidgadjiev.orm.next.core.criteria.impl.SelectStatement;
 import ru.saidgadjiev.orm.next.core.dao.BaseSessionManagerImpl;
 import ru.saidgadjiev.orm.next.core.dao.Session;
 import ru.saidgadjiev.orm.next.core.field.field_type.*;
-import ru.saidgadjiev.orm.next.core.query.core.Select;
-import ru.saidgadjiev.orm.next.core.query.visitor.DefaultVisitor;
 import ru.saidgadjiev.orm.next.core.stament_executor.DatabaseResults;
-import ru.saidgadjiev.orm.next.core.stament_executor.GenericResults;
 import ru.saidgadjiev.orm.next.core.support.ConnectionSource;
 import ru.saidgadjiev.orm.next.core.table.TableInfo;
 
@@ -54,19 +51,17 @@ public class ObjectBuilder<T> {
         for (ForeignFieldType fieldType : resultFieldTypes) {
             if (!parents.contains(fieldType.getForeignFieldClass())) {
                 TableInfo<?> foreignTableInfo = TableInfo.build(fieldType.getForeignFieldClass());
-                Session<Object, Object> foreignDao = new BaseSessionManagerImpl(dataSource).forClass(foreignTableInfo.getTableClass());
-                Select select = Select.buildQueryById(foreignTableInfo.getTableName(), foreignTableInfo.getPrimaryKey().get(), data.getObject(fieldType.getColumnName()));
-                DefaultVisitor visitor = new DefaultVisitor(dataSource.getDatabaseType());
+                Session foreignDao = new BaseSessionManagerImpl(dataSource).forClass(foreignTableInfo.getTableClass());
+                SelectStatement selectStatement = foreignDao.selectQuery();
 
-                select.accept(visitor);
-                parents.add(tableInfo.getTableClass());
-                Object foreignObject = foreignDao.query(visitor.getQuery(), results -> new ObjectBuilder<>(dataSource, foreignTableInfo)
+                selectStatement.setWhere(new Criteria().add(Restrictions.eq(foreignTableInfo.getPrimaryKey().get().getColumnName(), data.getObject(fieldType.getColumnName()))));
+                Object foreignObject = foreignDao.query(selectStatement, results -> new ObjectBuilder<>(dataSource, foreignTableInfo)
                         .newObject()
-                        .buildBase(results, tableInfo.toDBFieldTypes())
-                        .buildForeign(results, tableInfo.toForeignFieldTypes(), parents)
-                        .buildForeignCollection(tableInfo.toForeignCollectionFieldTypes())
+                        .buildBase(results, foreignTableInfo.toDBFieldTypes())
+                        .buildForeign(results, foreignTableInfo.toForeignFieldTypes(), parents)
+                        .buildForeignCollection(foreignTableInfo.toForeignCollectionFieldTypes(), parents)
                         .build())
-                        .getFirstResult();
+                        .get(0);
 
                 fieldType.assign(object, foreignObject);
             }
@@ -89,10 +84,11 @@ public class ObjectBuilder<T> {
         return object;
     }
 
-    public ObjectBuilder<T> buildForeignCollection(List<ForeignCollectionFieldType> resultFieldTypes) throws Exception {
+    public ObjectBuilder<T> buildForeignCollection(List<ForeignCollectionFieldType> resultFieldTypes, Set<Class<?>> parents) throws Exception {
+        parents.add(tableInfo.getTableClass());
         for (ForeignCollectionFieldType fieldType : resultFieldTypes) {
-            TableInfo<?> foreignTableInfo = TableInfo.build(fieldType.getForeignFieldClass());
-            Session<Object, ?> foreignDao = new BaseSessionManagerImpl(dataSource).forClass(foreignTableInfo.getTableClass());
+            TableInfo<Object> foreignTableInfo = TableInfo.build((Class<Object>)fieldType.getForeignFieldClass());
+            Session<Object, Object> foreignDao = new BaseSessionManagerImpl(dataSource).forClass(foreignTableInfo.getTableClass());
 
             if (tableInfo.getPrimaryKey().isPresent() && foreignTableInfo.getPrimaryKey().isPresent()) {
                 IDBFieldType idField = tableInfo.getPrimaryKey().get();
@@ -100,12 +96,17 @@ public class ObjectBuilder<T> {
                 SelectStatement<Object> selectStatement = foreignDao.selectQuery();
 
                 selectStatement.setWhere(new Criteria().add(Restrictions.eq(foreignField.getFieldName(), idField.access(object))));
-
-                List<?> objects = foreignDao.query(selectStatement);
+                List<Object> objects = foreignDao.query(selectStatement, results -> new ObjectBuilder<>(dataSource, foreignTableInfo)
+                        .newObject()
+                        .buildBase(results, foreignTableInfo.toDBFieldTypes())
+                        .buildForeign(results, foreignTableInfo.toForeignFieldTypes(), parents)
+                        .buildForeignCollection(foreignTableInfo.toForeignCollectionFieldTypes(), parents)
+                        .build());
 
                 for (Object foreignObject : objects) {
                     foreignField.assign(foreignObject, object);
                 }
+
                 fieldType.addAll(object, objects);
             }
         }

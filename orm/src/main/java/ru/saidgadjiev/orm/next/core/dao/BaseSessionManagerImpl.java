@@ -54,7 +54,7 @@ public class BaseSessionManagerImpl implements SessionManager {
     }
 
     @Override
-    public<T, ID> Session<T, ID> forClass(Class<?> clazz) throws SQLException {
+    public<T, ID> Session<T, ID> forClass(Class<T> clazz) throws SQLException {
         try {
             return new SessionImpl<>(dataSource, cacheContext, TableInfoManager.buildOrGet(clazz));
         } catch (Exception ex) {

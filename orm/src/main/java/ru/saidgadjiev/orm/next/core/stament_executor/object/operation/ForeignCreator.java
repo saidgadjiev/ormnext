@@ -26,7 +26,7 @@ public class ForeignCreator<O> implements IObjectOperation<Void, O> {
             Object foreignObject = fieldType.access(object);
 
             if (foreignObject != null && fieldType.isForeignAutoCreate()) {
-                Session<Object, ?> foreignDao = new BaseSessionManagerImpl(source).forClass(fieldType.getForeignFieldClass());
+                Session foreignDao = new BaseSessionManagerImpl(source).forClass((Class) fieldType.getForeignFieldClass());
 
                 foreignDao.create(foreignObject);
             }

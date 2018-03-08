@@ -118,18 +118,9 @@ public class StressTest {
 
         SessionFactory sessionFactory = createSessionFactory(configuration);
         Session session = sessionFactory.openSession();
-        TestOneToMany testOneToMany1 = session.get(TestOneToMany.class, 1);
+        TestOneToMany testOneToMany1 = session.load(TestOneToMany.class, 1);
 
-        Transaction transaction = session.beginTransaction();
-        TestForeign testForeign = new TestForeign();
-
-        testForeign.testOneToMany = testOneToMany1;
-        testForeign.name = "test_foriegn";
-        testForeign.id = 7;
-
-        session.save(testForeign);
-        transaction.commit();
-        System.out.println("Yes");
+        testOneToMany1.getName();
     }
 
     private static<T> T createTestClazz(Class<T> tClass, Object ... args) throws Exception {

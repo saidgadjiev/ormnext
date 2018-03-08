@@ -10,11 +10,11 @@ import ru.saidgadjiev.orm.next.core.query.core.column_spec.DisplayedOperand;
 import ru.saidgadjiev.orm.next.core.query.core.function.CountAll;
 import ru.saidgadjiev.orm.next.core.query.visitor.DefaultVisitor;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryElement;
-import ru.saidgadjiev.orm.next.core.utils.ArgumentUtils;
 import ru.saidgadjiev.orm.next.core.stament_executor.object.CreateQueryBuilder;
 import ru.saidgadjiev.orm.next.core.stament_executor.object.operation.ForeignCreator;
 import ru.saidgadjiev.orm.next.core.stament_executor.result_mapper.ResultsMapper;
 import ru.saidgadjiev.orm.next.core.table.TableInfo;
+import ru.saidgadjiev.orm.next.core.utils.ArgumentUtils;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -374,7 +374,7 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
     }
 
     @Override
-    public List<T> query(Connection connection, SelectStatement<T> statement) throws SQLException {
+    public List<T> query(Connection connection, SelectStatement<T> statement, ResultsMapper<T> resultsMapper) throws SQLException {
         List<T> resultObjectList = new ArrayList<>();
         String query = getQuery(statement);
 
@@ -384,7 +384,11 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
             }
             try (DatabaseResults databaseResults = preparedStatement.executeQuery()) {
                 while (databaseResults.next()) {
-                    resultObjectList.add(resultsMapper.mapResults(databaseResults));
+                    if (resultsMapper != null) {
+                        resultObjectList.add(resultsMapper.mapResults(databaseResults));
+                    } else {
+                        resultObjectList.add(this.resultsMapper.mapResults(databaseResults));
+                    }
                 }
             }
         } catch (Exception ex) {

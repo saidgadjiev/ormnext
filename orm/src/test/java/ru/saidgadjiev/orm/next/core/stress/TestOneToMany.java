@@ -17,9 +17,25 @@ public class TestOneToMany {
     @Column(name = "name")
     public String name;
 
-    @OneToMany(mappedBy = "testOneToMany")
+    @OneToMany(mappedBy = "testOneToMany", fetch = FetchType.LAZY)
     public List<TestForeign> testForeign;
 
     public TestOneToMany() {
+    }
+
+    public List<TestForeign> getTestForeign() {
+        return testForeign;
+    }
+
+    public void setTestForeign(List<TestForeign> testForeign) {
+        this.testForeign = testForeign;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

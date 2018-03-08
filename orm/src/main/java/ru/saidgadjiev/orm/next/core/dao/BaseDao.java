@@ -66,4 +66,6 @@ public interface BaseDao<T, ID> {
     <R> GenericResults<R> query(String query, ResultsMapper<R> resultsMapper) throws SQLException;
 
     List<T> query(SelectStatement<T> statement) throws SQLException;
+
+    List<T> query(SelectStatement<T> statement, ResultsMapper<T> resultsMapper) throws SQLException;
 }

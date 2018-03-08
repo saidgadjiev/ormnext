@@ -199,7 +199,14 @@ public class SessionImpl<T, ID> implements Session<T, ID> {
     @Override
     public List<T> query(SelectStatement<T> statement) throws SQLException {
         try (Connection connection = dataSource.getConnection()) {
-            return statementExecutor.query(connection, statement);
+            return statementExecutor.query(connection, statement, null);
+        }
+    }
+
+    @Override
+    public List<T> query(SelectStatement<T> statement, ResultsMapper<T> resultsMapper) throws SQLException {
+        try (Connection connection = dataSource.getConnection()) {
+            return statementExecutor.query(connection, statement, resultsMapper);
         }
     }
 

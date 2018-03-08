@@ -39,5 +39,5 @@ public interface IStatementExecutor<T, ID> {
 
     long countOff(Connection connection) throws SQLException;
 
-    List<T> query(Connection connection, SelectStatement<T> statement) throws SQLException;
+    List<T> query(Connection connection, SelectStatement<T> statement, ResultsMapper<T> resultsMapper) throws SQLException;
 }

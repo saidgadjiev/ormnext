@@ -105,7 +105,12 @@ public class TransactionImpl<T, ID> implements Transaction<T, ID> {
     @Override
     public List<T> query(SelectStatement<T> statement) throws SQLException {
         check();
-        return statementExecutor.query(connection, statement);
+        return statementExecutor.query(connection, statement, null);
+    }
+
+    @Override
+    public List<T> query(SelectStatement<T> statement, ResultsMapper<T> resultsMapper) throws SQLException {
+        return null;
     }
 
     @Override
