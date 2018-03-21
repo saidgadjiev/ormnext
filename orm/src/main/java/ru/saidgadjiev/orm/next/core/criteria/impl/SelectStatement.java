@@ -2,16 +2,19 @@ package ru.saidgadjiev.orm.next.core.criteria.impl;
 
 import ru.saidgadjiev.orm.next.core.criteria.CriteriaQueryVisitor;
 import ru.saidgadjiev.orm.next.core.query.core.Alias;
+import ru.saidgadjiev.orm.next.core.query.core.Limit;
+import ru.saidgadjiev.orm.next.core.query.core.Offset;
 import ru.saidgadjiev.orm.next.core.query.core.Select;
 import ru.saidgadjiev.orm.next.core.query.core.clause.Having;
 import ru.saidgadjiev.orm.next.core.query.core.clause.OrderBy;
-import ru.saidgadjiev.orm.next.core.query.core.clause.OrderByItem;
 import ru.saidgadjiev.orm.next.core.query.core.clause.from.FromTable;
 import ru.saidgadjiev.orm.next.core.query.core.clause.select.SelectAll;
+import ru.saidgadjiev.orm.next.core.query.core.clause.select.SelectColumnsStrategy;
 import ru.saidgadjiev.orm.next.core.query.core.common.TableRef;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryElement;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryVisitor;
 import ru.saidgadjiev.orm.next.core.table.TableInfo;
+import ru.saidgadjiev.orm.next.core.table.TableInfoManager;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -23,7 +26,7 @@ public class SelectStatement<T> implements QueryElement {
 
     private Criteria where;
 
-    private OrderBy orderBy = new OrderBy();
+    private OrderBy orderBy;
 
     private Criteria having;
 
@@ -33,28 +36,66 @@ public class SelectStatement<T> implements QueryElement {
 
     private Alias alias;
 
-    private TableInfo<T> tableInfo;
+    private TableInfo<?> tableInfo;
 
     private boolean argsCollected = false;
 
-    public SelectStatement(TableInfo<T> tableInfo) {
-        this.tableInfo = tableInfo;
+    private Limit limit;
+
+    private Offset offset;
+
+    private SelectColumnsStrategy selectColumnsStrategy;
+
+    public SelectStatement(Class<?> tClass) {
+        this.tableInfo = TableInfoManager.buildOrGet(tClass);
     }
 
-    public void setWhere(Criteria where) {
+    public SelectStatement<T> where(Criteria where) {
         this.where = where;
+
+        return this;
     }
 
-    public void setHaving(Criteria having) {
+    public SelectStatement<T> having(Criteria having) {
         this.having = having;
+
+        return this;
     }
 
-    public void addOrderBy(OrderByItem orderByItem) {
-        orderBy.add(orderByItem);
+    public SelectStatement<T> orderBy(OrderByList orderByList) {
+        this.orderBy = orderByList.create();
+
+        return this;
     }
 
-    public void createAlias(String alias) {
+    public SelectStatement<T> alias(String alias) {
         this.alias = new Alias(alias);
+
+        return this;
+    }
+
+    public SelectStatement<T> limit(int limit) {
+        this.limit = new Limit(limit);
+
+        return this;
+    }
+
+    public SelectStatement<T> offset(int offset) {
+        this.offset = new Offset(offset);
+
+        return this;
+    }
+
+    public SelectStatement<T> selectProjections(ProjectionList projectionList) {
+        this.selectColumnsStrategy = projectionList.create();
+
+        return this;
+    }
+
+    public SelectStatement<T> selectAll() {
+        this.selectColumnsStrategy = new SelectAll();
+
+        return this;
     }
 
     Queue<Object> collectArgs() {
@@ -103,8 +144,17 @@ public class SelectStatement<T> implements QueryElement {
         if (having != null) {
             select.setHaving(new Having(having.getExpression()));
         }
-        if (!orderBy.getOrderByItems().isEmpty()) {
+        if (orderBy != null) {
             select.setOrderBy(orderBy);
+        }
+        if (limit != null) {
+            select.setLimit(limit);
+        }
+        if (offset != null) {
+            select.setOffset(offset);
+        }
+        if (selectColumnsStrategy != null) {
+            select.setSelectColumnsStrategy(selectColumnsStrategy);
         }
 
         select.accept(new CriteriaQueryVisitor(tableInfo, alias));

@@ -18,7 +18,7 @@ public class FieldTypeUtils {
 
     }
 
-    public static Optional<IDBFieldType> create(Field field) throws Exception {
+    public static Optional<IDBFieldType> create(Field field) {
         if (field.isAnnotationPresent(DBField.class)) {
             DBField dbField = field.getAnnotation(DBField.class);
 
@@ -41,8 +41,12 @@ public class FieldTypeUtils {
         return (Class<?>) genericTypes[0];
     }
 
-    public static Field findFieldByName(String foreignFieldName, Class<?> clazz) throws NoSuchFieldException {
-        return clazz.getDeclaredField(foreignFieldName);
+    public static Field findFieldByName(String foreignFieldName, Class<?> clazz) {
+        try {
+            return clazz.getDeclaredField(foreignFieldName);
+        } catch (NoSuchFieldException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 
     public static Optional<Field> findFieldByType(Class<?> type, Class<?> clazz) {

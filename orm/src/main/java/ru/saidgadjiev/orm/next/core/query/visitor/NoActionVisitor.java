@@ -10,7 +10,7 @@ import ru.saidgadjiev.orm.next.core.query.core.clause.from.FromTable;
 import ru.saidgadjiev.orm.next.core.query.core.clause.select.SelectAll;
 import ru.saidgadjiev.orm.next.core.query.core.clause.select.SelectColumnsList;
 import ru.saidgadjiev.orm.next.core.query.core.column_spec.ColumnSpec;
-import ru.saidgadjiev.orm.next.core.query.core.column_spec.DisplayedColumns;
+import ru.saidgadjiev.orm.next.core.query.core.column_spec.DisplayedColumn;
 import ru.saidgadjiev.orm.next.core.query.core.column_spec.DisplayedOperand;
 import ru.saidgadjiev.orm.next.core.query.core.common.TableRef;
 import ru.saidgadjiev.orm.next.core.query.core.common.UpdateValue;
@@ -190,7 +190,7 @@ public class NoActionVisitor implements QueryVisitor {
     }
 
     @Override
-    public void visit(DisplayedColumns displayedColumns) {
+    public void visit(DisplayedColumn displayedColumn) {
 
     }
 
@@ -296,6 +296,16 @@ public class NoActionVisitor implements QueryVisitor {
 
     @Override
     public void visit(OrderByItem orderByItem, QueryVisitor visitor) {
+
+    }
+
+    @Override
+    public void visit(Limit limit) {
+
+    }
+
+    @Override
+    public void visit(Offset offset) {
 
     }
 }

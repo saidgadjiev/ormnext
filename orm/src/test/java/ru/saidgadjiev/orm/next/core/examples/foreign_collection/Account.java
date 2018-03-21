@@ -20,7 +20,7 @@ public class Account {
     @DBField
     private String name;
 
-    @ForeignCollectionField
+    @ForeignCollectionField(fetchType = FetchType.LAZY)
     private List<Order> orders = new ArrayList<>();
 
     //For OrmNext

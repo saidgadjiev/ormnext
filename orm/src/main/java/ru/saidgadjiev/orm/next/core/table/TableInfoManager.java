@@ -14,7 +14,7 @@ public class TableInfoManager {
 
     }
 
-    public static<T> TableInfo<T> buildOrGet(Class<?> tClass) throws Exception {
+    public static<T> TableInfo<T> buildOrGet(Class<T> tClass) {
         if (CACHE.contains(tClass)) {
             return (TableInfo<T>) CACHE.get(tClass);
         }

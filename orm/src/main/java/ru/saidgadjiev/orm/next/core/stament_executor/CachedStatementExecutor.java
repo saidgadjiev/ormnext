@@ -7,7 +7,7 @@ import ru.saidgadjiev.orm.next.core.field.field_type.DBFieldType;
 import ru.saidgadjiev.orm.next.core.field.field_type.ForeignCollectionFieldType;
 import ru.saidgadjiev.orm.next.core.field.field_type.ForeignFieldType;
 import ru.saidgadjiev.orm.next.core.field.field_type.IDBFieldType;
-import ru.saidgadjiev.orm.next.core.stament_executor.result_mapper.ResultsMapper;
+import ru.saidgadjiev.orm.next.core.support.ConnectionSource;
 import ru.saidgadjiev.orm.next.core.table.TableInfo;
 import ru.saidgadjiev.orm.next.core.table.TableInfoManager;
 
@@ -16,6 +16,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 @SuppressWarnings("CPD-START")
 public class CachedStatementExecutor<T, ID> implements IStatementExecutor<T, ID> {
@@ -213,13 +214,13 @@ public class CachedStatementExecutor<T, ID> implements IStatementExecutor<T, ID>
     }
 
     @Override
-    public <R> GenericResults<R> query(Connection connection, String query, ResultsMapper<R> resultsMapper) throws SQLException {
-        return delegate.query(connection, query, resultsMapper);
+    public <R> GenericResults<R> query(ConnectionSource connectionSource, String query, Map<Integer, Object> args) throws SQLException {
+        return delegate.query(connectionSource, query, args);
     }
 
     @Override
-    public long query(String query, Connection connection) throws SQLException {
-        return delegate.query(query, connection);
+    public long queryForLong(Connection connection, String query) throws SQLException {
+        return delegate.queryForLong(connection, query);
     }
 
     @Override
@@ -228,8 +229,8 @@ public class CachedStatementExecutor<T, ID> implements IStatementExecutor<T, ID>
     }
 
     @Override
-    public List<T> query(Connection connection, SelectStatement<T> statement, ResultsMapper<T> resultsMapper) throws SQLException {
-        return delegate.query(connection, statement, resultsMapper);
+    public<R> GenericResults<R> query(ConnectionSource connectionSource, SelectStatement<R> statement) throws SQLException {
+        return delegate.query(connectionSource, statement);
     }
 
     private void copy(T srcObject, T destObject) throws Exception {

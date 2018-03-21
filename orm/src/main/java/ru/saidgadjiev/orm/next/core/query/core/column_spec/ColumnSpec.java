@@ -38,7 +38,6 @@ public class ColumnSpec implements Operand {
     @Override
     public void accept(QueryVisitor visitor) {
         visitor.visit(this);
-
     }
 
 }

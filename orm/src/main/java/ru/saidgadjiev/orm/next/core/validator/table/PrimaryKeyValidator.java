@@ -7,7 +7,7 @@ import java.lang.reflect.Field;
 
 public class PrimaryKeyValidator implements IValidator {
 
-    public<T> void validate(Class<T> tClass) throws IllegalAccessException {
+    public<T> void validate(Class<T> tClass) {
         int idCount = 0;
 
         for (Field field : tClass.getDeclaredFields()) {

@@ -5,7 +5,6 @@ import ru.saidgadjiev.orm.next.core.cache.ObjectCache;
 import ru.saidgadjiev.orm.next.core.support.ConnectionSource;
 import ru.saidgadjiev.orm.next.core.table.TableInfoManager;
 
-import java.sql.SQLException;
 import java.util.Optional;
 
 /**
@@ -54,11 +53,7 @@ public class BaseSessionManagerImpl implements SessionManager {
     }
 
     @Override
-    public<T, ID> Session<T, ID> forClass(Class<T> clazz) throws SQLException {
-        try {
-            return new SessionImpl<>(dataSource, cacheContext, TableInfoManager.buildOrGet(clazz));
-        } catch (Exception ex) {
-            throw new SQLException(ex);
-        }
+    public<T, ID> Session<T, ID> forClass(Class<T> clazz) {
+        return new SessionImpl<>(dataSource, cacheContext, TableInfoManager.buildOrGet(clazz));
     }
 }

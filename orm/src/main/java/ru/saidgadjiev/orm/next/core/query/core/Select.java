@@ -34,6 +34,10 @@ public class Select implements QueryElement {
 
     private Having having;
 
+    private Limit limit;
+
+    private Offset offset;
+
     public FromExpression getFrom() {
         return from;
     }
@@ -90,6 +94,14 @@ public class Select implements QueryElement {
         this.orderBy = orderBy;
     }
 
+    public void setLimit(Limit limit) {
+        this.limit = limit;
+    }
+
+    public void setOffset(Offset offset) {
+        this.offset = offset;
+    }
+
     public static <ID> Select buildQueryById(String typeName, IDBFieldType idField, ID id) {
         Select selectQuery = new Select();
 
@@ -126,6 +138,12 @@ public class Select implements QueryElement {
         }
         if (having != null) {
             having.accept(visitor);
+        }
+        if (limit != null) {
+            limit.accept(visitor);
+        }
+        if (offset != null) {
+            offset.accept(visitor);
         }
     }
 

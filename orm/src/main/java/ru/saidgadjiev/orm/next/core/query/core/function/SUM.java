@@ -4,6 +4,7 @@ import ru.saidgadjiev.orm.next.core.query.core.condition.Expression;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryVisitor;
 
 public class SUM implements Function {
+
     private final Expression expression;
 
     public SUM(Expression expression) {

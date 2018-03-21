@@ -3,11 +3,13 @@ package ru.saidgadjiev.orm.next.core.stress;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.TableUtils;
 import org.h2.jdbcx.JdbcDataSource;
+import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.service.ServiceRegistry;
 import org.junit.Test;
 import ru.saidgadjiev.orm.next.core.StressUtils;
@@ -117,6 +119,7 @@ public class StressTest {
         configuration.setProperty("hibernate.hbmdl.auto", "update");
 
         SessionFactory sessionFactory = createSessionFactory(configuration);
+        Criteria criteria;
         Session session = sessionFactory.openSession();
         TestOneToMany testOneToMany1 = session.load(TestOneToMany.class, 1);
 

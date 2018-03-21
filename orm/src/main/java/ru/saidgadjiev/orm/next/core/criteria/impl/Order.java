@@ -8,6 +8,10 @@ import java.util.List;
 
 public class Order {
 
+    public static OrderByList orderBy() {
+        return new OrderByList();
+    }
+
     public static OrderByItem orderAsc(String ... columns) {
         List<ColumnSpec> columnSpecs = new ArrayList<>();
 

@@ -3,13 +3,14 @@ package ru.saidgadjiev.orm.next.core.dao;
 import ru.saidgadjiev.orm.next.core.criteria.impl.SelectStatement;
 import ru.saidgadjiev.orm.next.core.stament_executor.GenericResults;
 import ru.saidgadjiev.orm.next.core.stament_executor.IStatementExecutor;
-import ru.saidgadjiev.orm.next.core.stament_executor.result_mapper.ResultsMapper;
+import ru.saidgadjiev.orm.next.core.support.ConnectionSource;
+import ru.saidgadjiev.orm.next.core.support.WrappedConnectionSource;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.Callable;
+import java.util.Map;
 
 public class TransactionImpl<T, ID> implements Transaction<T, ID> {
 
@@ -17,14 +18,14 @@ public class TransactionImpl<T, ID> implements Transaction<T, ID> {
 
     private final Connection connection;
 
-    private Callable<Void> close;
+    private ConnectionSource connectionSource;
 
     private State state;
 
-    public TransactionImpl(IStatementExecutor<T, ID> statementExecutor, Connection connection, Callable<Void> close) {
+    public TransactionImpl(IStatementExecutor<T, ID> statementExecutor, ConnectionSource connectionSource) throws SQLException {
         this.statementExecutor = statementExecutor;
-        this.connection = connection;
-        this.close = close;
+        this.connection = connectionSource.getConnection();
+        this.connectionSource = connectionSource;
     }
 
     @Override
@@ -93,24 +94,59 @@ public class TransactionImpl<T, ID> implements Transaction<T, ID> {
 
     @Override
     public long countOff() throws SQLException {
+        check();
         return statementExecutor.countOff(connection);
     }
 
     @Override
-    public <R> GenericResults<R> query(String query, ResultsMapper<R> resultsMapper) throws SQLException {
+    public long queryForLong(String query) throws SQLException {
         check();
-        return statementExecutor.query(connection, query, resultsMapper);
+        return statementExecutor.queryForLong(connection, query);
     }
 
     @Override
-    public List<T> query(SelectStatement<T> statement) throws SQLException {
+    public <R> GenericResults<R> query(String query) throws SQLException {
         check();
-        return statementExecutor.query(connection, statement, null);
+        return statementExecutor.query(new WrappedConnectionSource(connectionSource) {
+            @Override
+            public Connection getConnection() throws SQLException {
+                return connection;
+            }
+
+            @Override
+            public void releaseConnection(Connection connection) throws SQLException {
+            }
+        }, query, null);
     }
 
     @Override
-    public List<T> query(SelectStatement<T> statement, ResultsMapper<T> resultsMapper) throws SQLException {
-        return null;
+    public <R> GenericResults<R> query(String query, Map<Integer, Object> args) throws SQLException {
+        check();
+        return statementExecutor.query(new WrappedConnectionSource(connectionSource) {
+            @Override
+            public Connection getConnection() throws SQLException {
+                return connection;
+            }
+
+            @Override
+            public void releaseConnection(Connection connection) throws SQLException {
+            }
+        }, query, args);
+    }
+
+    @Override
+    public<R> GenericResults<R> query(SelectStatement<R> statement) throws SQLException {
+        check();
+        return statementExecutor.query(new WrappedConnectionSource(connectionSource) {
+            @Override
+            public Connection getConnection() throws SQLException {
+                return connection;
+            }
+
+            @Override
+            public void releaseConnection(Connection connection) throws SQLException {
+            }
+        }, statement);
     }
 
     @Override
@@ -124,6 +160,7 @@ public class TransactionImpl<T, ID> implements Transaction<T, ID> {
         checkTransactionState();
         connection.commit();
         state = State.COMMIT;
+        connectionSource.releaseConnection(connection);
     }
 
     @Override
@@ -131,17 +168,13 @@ public class TransactionImpl<T, ID> implements Transaction<T, ID> {
         checkTransactionState();
         connection.rollback();
         state = State.ROLLBACK;
+        connectionSource.releaseConnection(connection);
     }
 
     private void check() throws SQLException {
         if (connection == null || connection.isClosed()) {
             throw new SQLException("Connection is invalid");
         }
-    }
-
-    @Override
-    public void close() throws Exception{
-        close.call();
     }
 
     private void checkTransactionState() throws SQLException {

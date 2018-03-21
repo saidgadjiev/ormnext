@@ -4,6 +4,7 @@ import ru.saidgadjiev.orm.next.core.query.visitor.QueryElement;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryVisitor;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class OrderBy implements QueryElement {
@@ -12,6 +13,11 @@ public class OrderBy implements QueryElement {
 
     public List<OrderByItem> getOrderByItems() {
         return orderByItems;
+    }
+
+
+    public void addAll(Collection<OrderByItem> collection) {
+        orderByItems.addAll(collection);
     }
 
     public void add(OrderByItem item) {

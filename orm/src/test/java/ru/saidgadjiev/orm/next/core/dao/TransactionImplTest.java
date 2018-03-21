@@ -1,44 +1,66 @@
 package ru.saidgadjiev.orm.next.core.dao;
 
+import org.h2.jdbcx.JdbcDataSource;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import ru.saidgadjiev.orm.next.core.db.H2DatabaseType;
 import ru.saidgadjiev.orm.next.core.field.DBField;
 import ru.saidgadjiev.orm.next.core.support.ConnectionSource;
+import ru.saidgadjiev.orm.next.core.support.DataSourceConnectionSource;
 import ru.saidgadjiev.orm.next.core.support.JDBCConnectionSource;
 
 import java.sql.SQLException;
 
 public class TransactionImplTest {
 
+    private WrappedConnectionSource connectionSource;
+
+    @Before
+    public void setUp() throws Exception {
+        JdbcDataSource dataSource = new JdbcDataSource();
+
+        dataSource.setURL("jdbc:h2:mem:h2testdb");
+        connectionSource = new WrappedConnectionSource(new DataSourceConnectionSource(dataSource, new H2DatabaseType()));
+    }
+
+    @After
+    public void after() throws Exception {
+        connectionSource.close();
+        connectionSource = null;
+    }
+
+
     @Test
     public void commitTrans() throws Exception {
-        Session<TestClazz, Integer> sessionManager = createDao();
-        TransactionImpl<TestClazz, Integer> transaction = sessionManager.transaction();
+        Session<TestClazz, Integer> dao = createDao(TestClazz.class, true);
+        dao.createTable(true);
+        TransactionImpl<TestClazz, Integer> transaction = dao.transaction();
         TestClazz testClazz = new TestClazz();
 
         testClazz.name = "Test";
-        sessionManager.createTable(true);
-
         transaction.begin();
         transaction.create(testClazz);
         transaction.rollback();
 
-        Assert.assertEquals(0, sessionManager.queryForAll().size());
+        Assert.assertEquals(0, dao.queryForAll().size());
 
         transaction.begin();
         transaction.create(testClazz);
         transaction.commit();
 
-        Assert.assertEquals(1, sessionManager.queryForAll().size());
-
-        transaction.close();
+        Assert.assertEquals(1, dao.queryForAll().size());
     }
 
-    private Session<TestClazz, Integer> createDao() throws SQLException {
-        ConnectionSource connectionSource = new JDBCConnectionSource("jdbc:h2:mem:test", new H2DatabaseType());
+    protected <T, ID> Session<T, ID> createDao(Class<T> clazz, boolean createTable) throws Exception {
+        Session<T, ID> dao = new BaseSessionManagerImpl(connectionSource).forClass(clazz);
 
-        return new BaseSessionManagerImpl(connectionSource).forClass(TestClazz.class);
+        if (createTable) {
+            dao.createTable(true);
+        }
+
+        return dao;
     }
 
     private static class TestClazz {

@@ -1,6 +1,9 @@
 package ru.saidgadjiev.orm.next.core.field.field_type;
 
+import ru.saidgadjiev.orm.next.core.field.CollectionType;
 import ru.saidgadjiev.orm.next.core.field.DataType;
+import ru.saidgadjiev.orm.next.core.field.FetchType;
+import ru.saidgadjiev.orm.next.core.field.FieldAccessor;
 import ru.saidgadjiev.orm.next.core.field.persisters.DataPersister;
 
 import java.lang.reflect.Field;
@@ -14,6 +17,12 @@ public class ForeignCollectionFieldType implements IDBFieldType {
     private Class<?> foreignFieldClass;
 
     private Field foreignField;
+
+    private FetchType fetchType;
+
+    private CollectionType collectionType;
+
+    private FieldAccessor fieldAccessor;
 
     @Override
     public boolean isId() {
@@ -42,7 +51,7 @@ public class ForeignCollectionFieldType implements IDBFieldType {
 
     @Override
     public Object access(Object object) throws InvocationTargetException, IllegalAccessException {
-        throw new UnsupportedOperationException("");
+        return fieldAccessor.access(object);
     }
 
     @Override
@@ -52,7 +61,7 @@ public class ForeignCollectionFieldType implements IDBFieldType {
 
     @Override
     public void assign(Object object, Object value) throws IllegalAccessException, InvocationTargetException {
-        throw new UnsupportedOperationException("");
+        fieldAccessor.assign(object, value);
     }
 
     public Field getField() {
@@ -112,5 +121,25 @@ public class ForeignCollectionFieldType implements IDBFieldType {
 
     public Class<?> getForeignFieldClass() {
         return foreignFieldClass;
+    }
+
+    public FetchType getFetchType() {
+        return fetchType;
+    }
+
+    public void setFetchType(FetchType fetchType) {
+        this.fetchType = fetchType;
+    }
+
+    public CollectionType getCollectionType() {
+        return collectionType;
+    }
+
+    public void setCollectionType(CollectionType collectionType) {
+        this.collectionType = collectionType;
+    }
+
+    public void setFieldAccessor(FieldAccessor fieldAccessor) {
+        this.fieldAccessor = fieldAccessor;
     }
 }

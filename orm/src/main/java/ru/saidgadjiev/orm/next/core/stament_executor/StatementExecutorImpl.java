@@ -2,17 +2,21 @@ package ru.saidgadjiev.orm.next.core.stament_executor;
 
 import ru.saidgadjiev.orm.next.core.criteria.impl.SelectStatement;
 import ru.saidgadjiev.orm.next.core.db.DatabaseType;
+import ru.saidgadjiev.orm.next.core.field.field_type.DBFieldType;
+import ru.saidgadjiev.orm.next.core.field.field_type.ForeignFieldType;
 import ru.saidgadjiev.orm.next.core.field.field_type.IDBFieldType;
 import ru.saidgadjiev.orm.next.core.field.field_type.IndexFieldType;
 import ru.saidgadjiev.orm.next.core.query.core.*;
 import ru.saidgadjiev.orm.next.core.query.core.clause.select.SelectColumnsList;
 import ru.saidgadjiev.orm.next.core.query.core.column_spec.DisplayedOperand;
+import ru.saidgadjiev.orm.next.core.query.core.common.UpdateValue;
 import ru.saidgadjiev.orm.next.core.query.core.function.CountAll;
+import ru.saidgadjiev.orm.next.core.query.core.literals.Param;
 import ru.saidgadjiev.orm.next.core.query.visitor.DefaultVisitor;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryElement;
-import ru.saidgadjiev.orm.next.core.stament_executor.object.CreateQueryBuilder;
 import ru.saidgadjiev.orm.next.core.stament_executor.object.operation.ForeignCreator;
 import ru.saidgadjiev.orm.next.core.stament_executor.result_mapper.ResultsMapper;
+import ru.saidgadjiev.orm.next.core.support.ConnectionSource;
 import ru.saidgadjiev.orm.next.core.table.TableInfo;
 import ru.saidgadjiev.orm.next.core.utils.ArgumentUtils;
 
@@ -25,7 +29,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Supplier;
 
 /**
  * Класс для выполнения sql запросов
@@ -38,8 +41,6 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
 
     private TableInfo<T> tableInfo;
 
-    private Supplier<CreateQueryBuilder<T>> objectCreatorFactory;
-
     private DatabaseType databaseType;
 
     private ResultsMapper<T> resultsMapper;
@@ -47,12 +48,10 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
     private ForeignCreator<T> foreignCreator;
 
     public StatementExecutorImpl(TableInfo<T> tableInfo,
-                                 Supplier<CreateQueryBuilder<T>> objectCreatorFactory,
                                  DatabaseType databaseType,
                                  ResultsMapper<T> resultsMapper,
                                  ForeignCreator<T> foreignCreator) {
         this.tableInfo = tableInfo;
-        this.objectCreatorFactory = objectCreatorFactory;
         this.databaseType = databaseType;
         this.resultsMapper = resultsMapper;
         this.foreignCreator = foreignCreator;
@@ -61,13 +60,23 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
     @Override
     public int create(Connection connection, Collection<T> objects) throws SQLException {
         try {
-            CreateQueryBuilder<T> createQueryBuilder = objectCreatorFactory.get();
+            CreateQuery createQuery = new CreateQuery(tableInfo.getTableName());
 
-            CreateQuery createQuery = createQueryBuilder
-                    .newObject()
-                    .createBase()
-                    .createForeign()
-                    .query();
+            for (DBFieldType fieldType : tableInfo.toDBFieldTypes()) {
+                if (fieldType.isId() && fieldType.isGenerated()) {
+                    continue;
+                }
+                createQuery.add(new UpdateValue(
+                        fieldType.getColumnName(),
+                        new Param())
+                );
+            }
+            for (ForeignFieldType fieldType : tableInfo.toForeignFieldTypes()) {
+                createQuery.add(new UpdateValue(
+                        fieldType.getColumnName(),
+                        new Param())
+                );
+            }
 
             String query = getQuery(createQuery);
             try (IPreparedStatement statement = new PreparedQueryImpl(connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS), query)) {
@@ -82,7 +91,7 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
                 int[] result = statement.executeBatch();
                 int count = 0;
 
-                for (int c: result) {
+                for (int c : result) {
                     count += c;
                 }
 
@@ -101,13 +110,24 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
     @SuppressWarnings("unchecked")
     public int create(Connection connection, T object) throws SQLException {
         try {
-            CreateQueryBuilder<T> createQueryBuilder = objectCreatorFactory.get();
+            CreateQuery createQuery = new CreateQuery(tableInfo.getTableName());
 
-            CreateQuery createQuery = createQueryBuilder
-                    .newObject()
-                    .createBase()
-                    .createForeign()
-                    .query();
+            for (DBFieldType fieldType : tableInfo.toDBFieldTypes()) {
+                if (fieldType.isId() && fieldType.isGenerated()) {
+                    continue;
+                }
+                createQuery.add(new UpdateValue(
+                        fieldType.getColumnName(),
+                        new Param())
+                );
+            }
+            for (ForeignFieldType fieldType : tableInfo.toForeignFieldTypes()) {
+                createQuery.add(new UpdateValue(
+                        fieldType.getColumnName(),
+                        new Param())
+                );
+            }
+
             foreignCreator.execute(object);
             String query = getQuery(createQuery);
 
@@ -317,38 +337,21 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
     }
 
     @Override
-    public <R> GenericResults<R> query(Connection connection, String query, ResultsMapper<R> resultsMapper) throws SQLException {
-        try (IStatement statement = new StatementImpl(connection.createStatement())) {
-            try (DatabaseResults databaseResults = statement.executeQuery(query)) {
-                return new GenericResults<R>() {
-                    @Override
-                    public List<R> getResults() throws SQLException {
-                        try {
-                            List<R> objects = new ArrayList<>();
+    public <R> GenericResults<R> query(ConnectionSource connectionSource, String query, Map<Integer, Object> args) throws SQLException {
+        Connection connection = connectionSource.getConnection();
+        IPreparedStatement statement = new PreparedQueryImpl(connection.prepareStatement(query), query);
 
-                            while (databaseResults.next()) {
-                                objects.add(resultsMapper.mapResults(databaseResults));
-                            }
-
-                            return objects;
-                        } catch (Exception e) {
-                            throw new SQLException(e);
-                        }
-                    }
-
-                    @Override
-                    public R getFirstResult() throws SQLException {
-                        return null;
-                    }
-                };
+        if (args != null) {
+            for (Map.Entry<Integer, Object> entry : args.entrySet()) {
+                statement.setObject(entry.getKey(), entry.getValue());
             }
-        } catch (Exception ex) {
-            throw new SQLException(ex);
         }
+
+        return new GenericResultsImpl<>(connectionSource, connection, statement, (ResultsMapper<R>) resultsMapper);
     }
 
     @Override
-    public long query(String query, Connection connection) throws SQLException {
+    public long queryForLong(Connection connection, String query) throws SQLException {
         try (IStatement statement = new StatementImpl(connection.createStatement())) {
             try (DatabaseResults databaseResults = statement.executeQuery(query)) {
                 if (databaseResults.next()) {
@@ -370,32 +373,19 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
         selectColumnsList.addColumn(new DisplayedOperand(new CountAll()));
         select.setSelectColumnsStrategy(selectColumnsList);
 
-        return query(getQuery(select), connection);
+        return queryForLong(connection, getQuery(select));
     }
 
     @Override
-    public List<T> query(Connection connection, SelectStatement<T> statement, ResultsMapper<T> resultsMapper) throws SQLException {
-        List<T> resultObjectList = new ArrayList<>();
+    public <R> GenericResults<R> query(ConnectionSource connectionSource, SelectStatement<R> statement) throws SQLException {
         String query = getQuery(statement);
-
-        try (IPreparedStatement preparedStatement = new PreparedQueryImpl(connection.prepareStatement(query), query)) {
-            for (Map.Entry<Integer, Object> entry: statement.getArgs().entrySet()) {
-                preparedStatement.setObject(entry.getKey(), entry.getValue());
-            }
-            try (DatabaseResults databaseResults = preparedStatement.executeQuery()) {
-                while (databaseResults.next()) {
-                    if (resultsMapper != null) {
-                        resultObjectList.add(resultsMapper.mapResults(databaseResults));
-                    } else {
-                        resultObjectList.add(this.resultsMapper.mapResults(databaseResults));
-                    }
-                }
-            }
-        } catch (Exception ex) {
-            throw new SQLException(ex);
+        Connection connection = connectionSource.getConnection();
+        IPreparedStatement preparedStatement = new PreparedQueryImpl(connection.prepareStatement(query), query);
+        for (Map.Entry<Integer, Object> entry : statement.getArgs().entrySet()) {
+            preparedStatement.setObject(entry.getKey(), entry.getValue());
         }
 
-        return resultObjectList;
+        return new GenericResultsImpl<>(connectionSource, connection, preparedStatement, (ResultsMapper<R>) resultsMapper);
     }
 
     private String getQuery(QueryElement queryElement) {

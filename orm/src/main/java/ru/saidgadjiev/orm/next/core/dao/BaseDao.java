@@ -2,11 +2,11 @@ package ru.saidgadjiev.orm.next.core.dao;
 
 import ru.saidgadjiev.orm.next.core.criteria.impl.SelectStatement;
 import ru.saidgadjiev.orm.next.core.stament_executor.GenericResults;
-import ru.saidgadjiev.orm.next.core.stament_executor.result_mapper.ResultsMapper;
 
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 public interface BaseDao<T, ID> {
 
@@ -63,9 +63,11 @@ public interface BaseDao<T, ID> {
 
     long countOff() throws SQLException;
 
-    <R> GenericResults<R> query(String query, ResultsMapper<R> resultsMapper) throws SQLException;
+    long queryForLong(String query) throws SQLException;
 
-    List<T> query(SelectStatement<T> statement) throws SQLException;
+    <R> GenericResults<R> query(String query) throws SQLException;
 
-    List<T> query(SelectStatement<T> statement, ResultsMapper<T> resultsMapper) throws SQLException;
+    <R> GenericResults<R> query(String query, Map<Integer, Object> args) throws SQLException;
+
+    <R> GenericResults<R> query(SelectStatement<R> statement) throws SQLException;
 }

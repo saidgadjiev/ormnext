@@ -4,7 +4,7 @@ import java.lang.reflect.Constructor;
 
 public class HasConstructorValidator implements IValidator {
 
-    public<T> void validate(Class<T> tClass) throws IllegalAccessException {
+    public<T> void validate(Class<T> tClass) {
         boolean hasDefaultConstructor = false;
 
         for (Constructor<?> constructor : tClass.getDeclaredConstructors()) {
@@ -13,7 +13,7 @@ public class HasConstructorValidator implements IValidator {
             }
         }
         if (!hasDefaultConstructor) {
-            throw new IllegalAccessException("Class " + tClass.getPackage() + "." + tClass.getSimpleName() + " has no default constructor");
+            throw new IllegalArgumentException("Class " + tClass.getPackage() + "." + tClass.getSimpleName() + " has no default constructor");
         }
     }
 }

@@ -9,30 +9,29 @@ import ru.saidgadjiev.orm.next.core.db.H2DatabaseType;
 import ru.saidgadjiev.orm.next.core.field.DBField;
 import ru.saidgadjiev.orm.next.core.field.DataType;
 import ru.saidgadjiev.orm.next.core.query.visitor.DefaultVisitor;
-import ru.saidgadjiev.orm.next.core.table.TableInfo;
 
 public class CriteriaTest {
 
     @Test
     public void add() throws Exception {
-        SelectStatement<TestClazz> selectStatement = new SelectStatement<>(TableInfo.build(TestClazz.class));
+        SelectStatement<TestClazz> selectStatement = new SelectStatement<>(TestClazz.class);
         Criteria where = new Criteria().add(Restrictions.eq("id", 1)).add(Restrictions.in("name", createSubQuery()));
 
-        selectStatement.setWhere(where);
+        selectStatement.where(where);
         DefaultVisitor visitor = new DefaultVisitor(new H2DatabaseType());
 
-        selectStatement.createAlias("test_alias");
-        selectStatement.setHaving(new Criteria().add(Restrictions.eq(Projections.sum("name"), 2)));
+        selectStatement.alias("test_alias");
+        selectStatement.having(new Criteria().add(Restrictions.eq(Projections.sum("name"), 2)));
 
         selectStatement.accept(visitor);
         System.out.println(visitor.getQuery());
     }
 
     private SelectStatement<TestClazz> createSubQuery() throws Exception {
-        SelectStatement<TestClazz> selectStatement = new SelectStatement<>(TableInfo.build(TestClazz.class));
+        SelectStatement<TestClazz> selectStatement = new SelectStatement<>(TestClazz.class);
 
-        selectStatement.createAlias("test_alias_in_sub_query");
-        selectStatement.setWhere(new Criteria().add(Restrictions.eq("name", "said")));
+        selectStatement.alias("test_alias_in_sub_query");
+        selectStatement.where(new Criteria().add(Restrictions.eq("name", "said")));
 
         return selectStatement;
     }

@@ -15,7 +15,7 @@ import java.lang.reflect.Field;
 public class ForeignFieldTypeFactory implements FieldTypeFactory {
 
     @Override
-    public IDBFieldType createFieldType(Field field) throws Exception {
+    public IDBFieldType createFieldType(Field field) throws IllegalArgumentException {
         if (!field.isAnnotationPresent(DBField.class)) {
             return null;
         }

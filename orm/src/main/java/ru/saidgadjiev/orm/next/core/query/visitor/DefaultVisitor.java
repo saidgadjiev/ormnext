@@ -9,8 +9,9 @@ import ru.saidgadjiev.orm.next.core.query.core.clause.from.FromTable;
 import ru.saidgadjiev.orm.next.core.query.core.clause.select.SelectAll;
 import ru.saidgadjiev.orm.next.core.query.core.clause.select.SelectColumnsList;
 import ru.saidgadjiev.orm.next.core.query.core.column_spec.ColumnSpec;
+import ru.saidgadjiev.orm.next.core.query.core.column_spec.DisplayedColumn;
 import ru.saidgadjiev.orm.next.core.query.core.column_spec.DisplayedColumnSpec;
-import ru.saidgadjiev.orm.next.core.query.core.column_spec.DisplayedColumns;
+import ru.saidgadjiev.orm.next.core.query.core.column_spec.DisplayedOperand;
 import ru.saidgadjiev.orm.next.core.query.core.common.TableRef;
 import ru.saidgadjiev.orm.next.core.query.core.common.UpdateValue;
 import ru.saidgadjiev.orm.next.core.query.core.condition.*;
@@ -176,7 +177,7 @@ public class DefaultVisitor extends NoActionVisitor {
             sql.append(escapeEntity).append(attributeDefinition.getName()).append("` ");
             appendAttributeDataType(attributeDefinition);
             sql.append(" ");
-            for (Iterator<AttributeConstraint> constraintIterator = attributeDefinition.getAttributeConstraints().iterator(); constraintIterator.hasNext();) {
+            for (Iterator<AttributeConstraint> constraintIterator = attributeDefinition.getAttributeConstraints().iterator(); constraintIterator.hasNext(); ) {
                 AttributeConstraint constraint = constraintIterator.next();
 
                 constraint.accept(this);
@@ -270,7 +271,7 @@ public class DefaultVisitor extends NoActionVisitor {
     @Override
     public void visit(UniqueConstraint uniqueConstraint) {
         sql.append(", UNIQUE (`");
-        for (Iterator<String> iterator = uniqueConstraint.getUniqueColemns().iterator(); iterator.hasNext();) {
+        for (Iterator<String> iterator = uniqueConstraint.getUniqueColemns().iterator(); iterator.hasNext(); ) {
             sql.append(iterator.next());
             if (iterator.hasNext()) {
                 sql.append("`,`");
@@ -296,13 +297,13 @@ public class DefaultVisitor extends NoActionVisitor {
     @Override
     public void visit(CreateIndexQuery createIndexQuery) {
         sql.append("CREATE ")
-                .append(createIndexQuery.isUnique() ? "UNIQUE": "INDEX")
+                .append(createIndexQuery.isUnique() ? "UNIQUE" : "INDEX")
                 .append(" `")
                 .append(createIndexQuery.getIndexName())
                 .append("` ON `")
                 .append(createIndexQuery.getTableName())
                 .append("`(`");
-        for (Iterator<String> iterator = createIndexQuery.getColumns().iterator(); iterator.hasNext();) {
+        for (Iterator<String> iterator = createIndexQuery.getColumns().iterator(); iterator.hasNext(); ) {
             sql.append(iterator.next());
 
             if (iterator.hasNext()) {
@@ -329,7 +330,7 @@ public class DefaultVisitor extends NoActionVisitor {
 
     @Override
     public void visit(SelectColumnsList selectColumnsList) {
-        for (Iterator<DisplayedColumnSpec> columnIterator = selectColumnsList.getColumns().iterator(); columnIterator.hasNext();) {
+        for (Iterator<DisplayedColumnSpec> columnIterator = selectColumnsList.getColumns().iterator(); columnIterator.hasNext(); ) {
             DisplayedColumnSpec columnSpec = columnIterator.next();
 
             columnSpec.accept(this);
@@ -351,7 +352,7 @@ public class DefaultVisitor extends NoActionVisitor {
     public void visit(GroupBy groupBy) {
         sql.append(" GROUP BY ");
 
-        for (Iterator<GroupByItem> columnSpecIterator = groupBy.getGroupByItems().iterator(); columnSpecIterator.hasNext();) {
+        for (Iterator<GroupByItem> columnSpecIterator = groupBy.getGroupByItems().iterator(); columnSpecIterator.hasNext(); ) {
             GroupByItem columnSpec = columnSpecIterator.next();
 
             columnSpec.accept(this);
@@ -392,17 +393,18 @@ public class DefaultVisitor extends NoActionVisitor {
     @Override
     public void visit(FromJoinedTables fromJoinedTables) {
         fromJoinedTables.getTableRef().accept(this);
-        for (JoinExpression joinExpression: fromJoinedTables.getJoinExpression()) {
+        for (JoinExpression joinExpression : fromJoinedTables.getJoinExpression()) {
             joinExpression.accept(this);
         }
     }
 
     @Override
-    public void visit(DisplayedColumns displayedColumns) {
-        if (displayedColumns.getAlias() != null) {
-            displayedColumns.getAlias().accept(this);
+    public void visit(DisplayedColumn displayedColumn) {
+        displayedColumn.getColumnSpec().accept(this);
+        if (displayedColumn.getAlias() != null) {
+            sql.append(" AS ");
+            displayedColumn.getAlias().accept(this);
         }
-        sql.append(displayedColumns.getColumnSpec().getName());
     }
 
     @Override
@@ -475,7 +477,7 @@ public class DefaultVisitor extends NoActionVisitor {
 
     @Override
     public void visit(OrderByItem orderByItem, QueryVisitor visitor) {
-        for (Iterator<ColumnSpec> iterator = orderByItem.getColumns().iterator(); iterator.hasNext();) {
+        for (Iterator<ColumnSpec> iterator = orderByItem.getColumns().iterator(); iterator.hasNext(); ) {
             iterator.next().accept(this);
 
             if (iterator.hasNext()) {
@@ -484,6 +486,25 @@ public class DefaultVisitor extends NoActionVisitor {
         }
         if (!orderByItem.getColumns().isEmpty()) {
             sql.append(" ASC ");
+        }
+    }
+
+    @Override
+    public void visit(Limit limit) {
+        sql.append(" LIMIT ").append(limit.getLimit());
+    }
+
+    @Override
+    public void visit(Offset offset) {
+        sql.append(" OFFSET ").append(offset.getOffset());
+    }
+
+    @Override
+    public void visit(DisplayedOperand displayedOperand) {
+        displayedOperand.getOperand().accept(this);
+        if (displayedOperand.getAlias() != null) {
+            sql.append(" AS ");
+            displayedOperand.getAlias().accept(this);
         }
     }
 }

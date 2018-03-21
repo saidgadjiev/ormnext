@@ -11,4 +11,6 @@ import java.lang.annotation.Target;
 public @interface ForeignCollectionField {
 
     String foreignFieldName() default "";
+
+    FetchType fetchType() default FetchType.LAZY;
 }

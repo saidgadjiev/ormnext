@@ -16,7 +16,7 @@ import java.lang.reflect.Field;
 public class DBFieldTypeFactory implements FieldTypeFactory {
 
     @Override
-    public IDBFieldType createFieldType(Field field) throws Exception {
+    public IDBFieldType createFieldType(Field field) throws IllegalArgumentException {
         if (!field.isAnnotationPresent(DBField.class)) {
             return null;
         }
@@ -26,7 +26,11 @@ public class DBFieldTypeFactory implements FieldTypeFactory {
         fieldType.setField(field);
         fieldType.setColumnName(dbField.columnName().isEmpty() ? field.getName().toLowerCase() : dbField.columnName());
         fieldType.setLength(dbField.length());
-        fieldType.setFieldAccessor(new FieldAccessor(field));
+        try {
+            fieldType.setFieldAccessor(new FieldAccessor(field));
+        } catch (NoSuchMethodException ex) {
+            throw new IllegalArgumentException(ex);
+        }
         String format = dbField.format();
 
         fieldType.setFormat(format);

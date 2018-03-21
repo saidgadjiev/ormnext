@@ -1,13 +1,12 @@
 package ru.saidgadjiev.orm.next.core.query.core.column_spec;
 
-import ru.saidgadjiev.orm.next.core.query.core.Alias;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryVisitor;
 
-public class DisplayedColumns extends DisplayedColumnSpec {
+public class DisplayedColumn extends DisplayedColumnSpec {
 
     private ColumnSpec columnSpec;
 
-    public DisplayedColumns(ColumnSpec columnSpec) {
+    public DisplayedColumn(ColumnSpec columnSpec) {
         this.columnSpec = columnSpec;
     }
 
@@ -16,16 +15,7 @@ public class DisplayedColumns extends DisplayedColumnSpec {
     }
 
     @Override
-    public void setAlias(Alias alias) {
-        columnSpec.alias(alias);
-    }
-
-    @Override
     public void accept(QueryVisitor visitor) {
-        if (alias != null) {
-            alias.accept(visitor);
-        }
         visitor.visit(this);
-
     }
 }

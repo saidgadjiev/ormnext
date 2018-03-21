@@ -119,7 +119,7 @@ public final class TableInfo<T> {
         return indexFieldTypes;
     }
 
-    public static <T> TableInfo<T> build(Class<T> clazz) throws Exception {
+    public static <T> TableInfo<T> build(Class<T> clazz) {
         for (IValidator validator : validators) {
             validator.validate(clazz);
         }
@@ -201,7 +201,7 @@ public final class TableInfo<T> {
                         return idbFieldType.getField().getName().equals(columnName);
                     })
                     .findAny()
-                    .orElseThrow(() -> new IllegalArgumentException("Indexed column [" + columnName + "] not annotated with DBField!"))
+                    .orElseThrow(() -> new IllegalArgumentException("Unique column [" + columnName + "] not annotated with DBField!"))
                     .getColumnName());
         }
 

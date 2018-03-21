@@ -18,7 +18,5 @@ public class DisplayedOperand extends DisplayedColumnSpec {
     @Override
     public void accept(QueryVisitor visitor) {
         visitor.visit(this);
-        operand.accept(visitor);
-
     }
 }

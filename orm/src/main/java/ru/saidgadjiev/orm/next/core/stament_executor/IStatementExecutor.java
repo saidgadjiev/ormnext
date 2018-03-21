@@ -1,12 +1,13 @@
 package ru.saidgadjiev.orm.next.core.stament_executor;
 
 import ru.saidgadjiev.orm.next.core.criteria.impl.SelectStatement;
-import ru.saidgadjiev.orm.next.core.stament_executor.result_mapper.ResultsMapper;
+import ru.saidgadjiev.orm.next.core.support.ConnectionSource;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 public interface IStatementExecutor<T, ID> {
 
@@ -33,11 +34,11 @@ public interface IStatementExecutor<T, ID> {
 
     void dropIndexes(Connection connection) throws SQLException;
 
-    <R> GenericResults<R> query(Connection connection, String query, ResultsMapper<R> resultsMapper) throws SQLException;
+    <R> GenericResults<R> query(ConnectionSource connectionSource, String query, Map<Integer, Object> args) throws SQLException;
 
-    long query(String query, Connection connection) throws SQLException;
+    long queryForLong(Connection connection, String query) throws SQLException;
 
     long countOff(Connection connection) throws SQLException;
 
-    List<T> query(Connection connection, SelectStatement<T> statement, ResultsMapper<T> resultsMapper) throws SQLException;
+    <R> GenericResults<R> query(ConnectionSource connectionSource, SelectStatement<R> statement) throws SQLException;
 }
