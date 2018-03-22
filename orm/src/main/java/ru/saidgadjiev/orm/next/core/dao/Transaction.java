@@ -2,7 +2,7 @@ package ru.saidgadjiev.orm.next.core.dao;
 
 import java.sql.SQLException;
 
-public interface Transaction<T, ID> extends BaseDao<T, ID> {
+public interface Transaction extends BaseDao {
 
     void begin() throws SQLException;
 

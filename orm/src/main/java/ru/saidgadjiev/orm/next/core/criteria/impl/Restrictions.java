@@ -264,6 +264,7 @@ public class Restrictions {
         };
     }
 
+    @SuppressWarnings("PMD")
     public static Criterion in(String columnName, Object ... values) {
         return new Criterion() {
             @Override
@@ -298,6 +299,7 @@ public class Restrictions {
         };
     }
 
+    @SuppressWarnings("PMD")
     public static Criterion notIn(String columnName, Object ... values) {
         return new Criterion() {
             @Override

@@ -12,9 +12,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-public class TransactionImpl<T, ID> implements Transaction<T, ID> {
+public class TransactionImpl implements Transaction {
 
-    private final IStatementExecutor<T, ID> statementExecutor;
+    private final IStatementExecutor statementExecutor;
 
     private final Connection connection;
 
@@ -22,20 +22,20 @@ public class TransactionImpl<T, ID> implements Transaction<T, ID> {
 
     private State state;
 
-    public TransactionImpl(IStatementExecutor<T, ID> statementExecutor, ConnectionSource connectionSource) throws SQLException {
+    public TransactionImpl(IStatementExecutor statementExecutor, ConnectionSource connectionSource) throws SQLException {
         this.statementExecutor = statementExecutor;
         this.connection = connectionSource.getConnection();
         this.connectionSource = connectionSource;
     }
 
     @Override
-    public int create(Collection<T> objects) throws SQLException {
+    public<T> int create(Collection<T> objects) throws SQLException {
         check();
         return statementExecutor.create(connection, objects);
     }
 
     @Override
-    public int create(T object) throws SQLException {
+    public<T> int create(T object) throws SQLException {
         check();
         return statementExecutor.create(connection, object);
     }
@@ -47,31 +47,31 @@ public class TransactionImpl<T, ID> implements Transaction<T, ID> {
     }
 
     @Override
-    public T queryForId(ID id) throws SQLException {
+    public<T, ID> T queryForId(ID id) throws SQLException {
         check();
         return statementExecutor.queryForId(connection, id);
     }
 
     @Override
-    public List<T> queryForAll() throws SQLException {
+    public<T> List<T> queryForAll() throws SQLException {
         check();
         return statementExecutor.queryForAll(connection);
     }
 
     @Override
-    public int update(T object) throws SQLException {
+    public<T> int update(T object) throws SQLException {
         check();
         return statementExecutor.update(connection, object);
     }
 
     @Override
-    public int delete(T object) throws SQLException {
+    public<T> int delete(T object) throws SQLException {
         check();
         return statementExecutor.delete(connection, object);
     }
 
     @Override
-    public int deleteById(ID id) throws SQLException {
+    public<ID> int deleteById(ID id) throws SQLException {
         check();
         return statementExecutor.deleteById(connection, id);
     }

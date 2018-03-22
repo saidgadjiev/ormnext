@@ -29,8 +29,8 @@ public class ForeignCollectionMain {
         dataSource.setPassword("said1995");
         dataSource.setURL("jdbc:mysql://localhost:3306/overtalk");
         SessionManager sessionManager = new BaseSessionManagerImpl(new PolledConnectionSource(dataSource, new MySQLDatabaseType()));
-        Session<Account, Integer> accountDao = sessionManager.forClass(Account.class);
-        Session<Order, Integer> orderDao = sessionManager.forClass(Order.class);
+        Session accountDao = sessionManager.forClass(Account.class);
+        Session orderDao = sessionManager.forClass(Order.class);
 
         accountDao.createTable(true);
         orderDao.createTable(true);

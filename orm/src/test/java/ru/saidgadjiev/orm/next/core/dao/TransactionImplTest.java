@@ -34,9 +34,9 @@ public class TransactionImplTest {
 
     @Test
     public void commitTrans() throws Exception {
-        Session<TestClazz, Integer> dao = createDao(TestClazz.class, true);
+        Session dao = createDao(TestClazz.class, true);
         dao.createTable(true);
-        TransactionImpl<TestClazz, Integer> transaction = dao.transaction();
+        TransactionImpl transaction = dao.transaction();
         TestClazz testClazz = new TestClazz();
 
         testClazz.name = "Test";
@@ -53,8 +53,8 @@ public class TransactionImplTest {
         Assert.assertEquals(1, dao.queryForAll().size());
     }
 
-    protected <T, ID> Session<T, ID> createDao(Class<T> clazz, boolean createTable) throws Exception {
-        Session<T, ID> dao = new BaseSessionManagerImpl(connectionSource).forClass(clazz);
+    protected <T> Session createDao(Class<T> clazz, boolean createTable) throws Exception {
+        Session dao = new BaseSessionManagerImpl(connectionSource).forClass(clazz);
 
         if (createTable) {
             dao.createTable(true);

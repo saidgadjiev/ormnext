@@ -308,4 +308,44 @@ public class NoActionVisitor implements QueryVisitor {
     public void visit(Offset offset) {
 
     }
+
+    @Override
+    public void visit(NotNull notNull) {
+
+    }
+
+    @Override
+    public void visit(IsNull isNull) {
+
+    }
+
+    @Override
+    public void visit(NotEquals notEquals) {
+
+    }
+
+    @Override
+    public void visit(Like like) {
+
+    }
+
+    @Override
+    public void visit(Between between) {
+
+    }
+
+    @Override
+    public void visit(Not not) {
+
+    }
+
+    @Override
+    public void visit(NotInValues notInValues) {
+
+    }
+
+    @Override
+    public void visit(InValues inValues) {
+
+    }
 }

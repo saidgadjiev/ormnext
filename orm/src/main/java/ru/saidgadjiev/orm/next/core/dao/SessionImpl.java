@@ -19,20 +19,20 @@ import java.util.Map;
 /**
  * Created by said on 19.02.2018.
  */
-public class SessionImpl<T, ID> implements Session<T, ID> {
+public class SessionImpl implements Session {
 
     private final ConnectionSource dataSource;
 
-    private IStatementExecutor<T, ID> statementExecutor;
+    private IStatementExecutor statementExecutor;
 
-    SessionImpl(ConnectionSource dataSource, CacheContext cacheContext, TableInfo<T> tableInfo) {
+    <T> SessionImpl(ConnectionSource dataSource, CacheContext cacheContext, TableInfo<T> tableInfo) {
         this.dataSource = dataSource;
-        this.statementExecutor = new StatementValidator<>(
+        this.statementExecutor = new StatementValidator(
                 tableInfo,
-                new CachedStatementExecutor<>(
+                new CachedStatementExecutor(
                         tableInfo,
                         cacheContext,
-                        new StatementExecutorImpl<>(
+                        new StatementExecutorImpl(
                                 tableInfo,
                                 dataSource.getDatabaseType(),
                                 new CachedResultsMapperDecorator<>(
@@ -47,7 +47,7 @@ public class SessionImpl<T, ID> implements Session<T, ID> {
     }
 
     @Override
-    public int create(Collection<T> objects) throws SQLException {
+    public<T> int create(Collection<T> objects) throws SQLException {
         Connection connection = dataSource.getConnection();
 
         try {
@@ -58,7 +58,7 @@ public class SessionImpl<T, ID> implements Session<T, ID> {
     }
 
     @Override
-    public int create(T object) throws SQLException {
+    public<T> int create(T object) throws SQLException {
         Connection connection = dataSource.getConnection();
 
         try {
@@ -80,7 +80,7 @@ public class SessionImpl<T, ID> implements Session<T, ID> {
     }
 
     @Override
-    public T queryForId(ID id) throws SQLException {
+    public<T, ID> T queryForId(ID id) throws SQLException {
         Connection connection = dataSource.getConnection();
 
         try {
@@ -91,7 +91,7 @@ public class SessionImpl<T, ID> implements Session<T, ID> {
     }
 
     @Override
-    public List<T> queryForAll() throws SQLException {
+    public<T> List<T> queryForAll() throws SQLException {
         Connection connection = dataSource.getConnection();
 
         try {
@@ -102,7 +102,7 @@ public class SessionImpl<T, ID> implements Session<T, ID> {
     }
 
     @Override
-    public int update(T object) throws SQLException {
+    public<T> int update(T object) throws SQLException {
         Connection connection = dataSource.getConnection();
 
         try {
@@ -113,7 +113,7 @@ public class SessionImpl<T, ID> implements Session<T, ID> {
     }
 
     @Override
-    public int delete(T object) throws SQLException {
+    public<T> int delete(T object) throws SQLException {
         Connection connection = dataSource.getConnection();
 
         try {
@@ -124,7 +124,7 @@ public class SessionImpl<T, ID> implements Session<T, ID> {
     }
 
     @Override
-    public int deleteById(ID id) throws SQLException {
+    public<ID> int deleteById(ID id) throws SQLException {
         Connection connection = dataSource.getConnection();
 
         try {
@@ -212,7 +212,7 @@ public class SessionImpl<T, ID> implements Session<T, ID> {
     }
 
     @Override
-    public TransactionImpl<T, ID> transaction() throws SQLException {
-        return new TransactionImpl<>(statementExecutor, dataSource);
+    public TransactionImpl transaction() throws SQLException {
+        return new TransactionImpl(statementExecutor, dataSource);
     }
 }

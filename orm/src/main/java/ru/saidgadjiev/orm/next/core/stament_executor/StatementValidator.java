@@ -10,24 +10,24 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-public class StatementValidator<T, ID> implements IStatementExecutor<T, ID> {
+public class StatementValidator implements IStatementExecutor {
 
-    private IStatementExecutor<T, ID> delegate;
+    private IStatementExecutor delegate;
 
-    private TableInfo<T> tableInfo;
+    private TableInfo<?> tableInfo;
 
-    public StatementValidator(TableInfo<T> tableInfo, IStatementExecutor<T, ID> delegate) {
+    public StatementValidator(TableInfo<?> tableInfo, IStatementExecutor delegate) {
         this.tableInfo = tableInfo;
         this.delegate = delegate;
     }
 
     @Override
-    public int create(Connection connection, Collection<T> objects) throws SQLException {
+    public<T> int create(Connection connection, Collection<T> objects) throws SQLException {
         return delegate.create(connection, objects);
     }
 
     @Override
-    public int create(Connection connection, T object) throws SQLException {
+    public<T> int create(Connection connection, T object) throws SQLException {
         return delegate.create(connection, object);
     }
 
@@ -42,7 +42,7 @@ public class StatementValidator<T, ID> implements IStatementExecutor<T, ID> {
     }
 
     @Override
-    public int update(Connection connection, T object) throws SQLException {
+    public<T> int update(Connection connection, T object) throws SQLException {
         if (!tableInfo.getPrimaryKey().isPresent()) {
             throw new SQLException("Id is not defined");
         }
@@ -51,7 +51,7 @@ public class StatementValidator<T, ID> implements IStatementExecutor<T, ID> {
     }
 
     @Override
-    public int delete(Connection connection, T object) throws SQLException {
+    public<T> int delete(Connection connection, T object) throws SQLException {
         if (!tableInfo.getPrimaryKey().isPresent()) {
             throw new SQLException("Id is not defined");
         }
@@ -60,7 +60,7 @@ public class StatementValidator<T, ID> implements IStatementExecutor<T, ID> {
     }
 
     @Override
-    public int deleteById(Connection connection, ID id) throws SQLException {
+    public<ID> int deleteById(Connection connection, ID id) throws SQLException {
         if (!tableInfo.getPrimaryKey().isPresent()) {
             throw new SQLException("Id is not defined");
         }
@@ -69,7 +69,7 @@ public class StatementValidator<T, ID> implements IStatementExecutor<T, ID> {
     }
 
     @Override
-    public T queryForId(Connection connection, ID id) throws SQLException {
+    public<T, ID> T queryForId(Connection connection, ID id) throws SQLException {
         if (!tableInfo.getPrimaryKey().isPresent()) {
             throw new SQLException("Id is not defined");
         }
@@ -78,7 +78,7 @@ public class StatementValidator<T, ID> implements IStatementExecutor<T, ID> {
     }
 
     @Override
-    public List<T> queryForAll(Connection connection) throws SQLException {
+    public<T> List<T> queryForAll(Connection connection) throws SQLException {
         return delegate.queryForAll(connection);
     }
 

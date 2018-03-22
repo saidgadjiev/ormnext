@@ -64,7 +64,7 @@ public class StressTest {
 
         dataSource.setURL("jdbc:h2:mem:h2testdb;DB_CLOSE_DELAY=-1");
         BaseSessionManagerImpl sessionManager = new BaseSessionManagerImpl(new PolledConnectionSource(dataSource, new H2DatabaseType()));
-        ru.saidgadjiev.orm.next.core.dao.Session<TestClass, Integer> session = sessionManager.forClass(TestClass.class);
+        ru.saidgadjiev.orm.next.core.dao.Session session = sessionManager.forClass(TestClass.class);
         session.createTable(false);
         List<TestClass> sourceClasses = new ArrayList<>();
 
@@ -89,7 +89,7 @@ public class StressTest {
 
         dataSource.setURL("jdbc:h2:mem:h2testdb;DB_CLOSE_DELAY=-1");
         BaseSessionManagerImpl sessionManager = new BaseSessionManagerImpl(new PolledConnectionSource(dataSource, new H2DatabaseType()));
-        ru.saidgadjiev.orm.next.core.dao.Session<TestClass, Integer> session = sessionManager.forClass(TestClass.class);
+        ru.saidgadjiev.orm.next.core.dao.Session session = sessionManager.forClass(TestClass.class);
         session.createTable(false);
         sessionManager.setObjectCache(new LRUObjectCache(16), TestClass.class);
 

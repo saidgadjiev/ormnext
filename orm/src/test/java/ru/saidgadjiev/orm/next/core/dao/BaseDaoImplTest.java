@@ -40,7 +40,7 @@ public class BaseDaoImplTest {
 
     @Test
     public void createNoColumn() throws Exception {
-        Session<TestNoColumn, Integer> dao = createDao(TestNoColumn.class, true);
+        Session dao = createDao(TestNoColumn.class, true);
         TestNoColumn testNoColumn = new TestNoColumn();
 
         Assert.assertEquals(1, dao.create(testNoColumn));
@@ -51,8 +51,8 @@ public class BaseDaoImplTest {
 
     @Test
     public void createAndQueryForIdForeignCollection() throws Exception {
-        Session<TestForeignCollectionClass, Integer> daoTestForeignClass = createDao(TestForeignCollectionClass.class, true);
-        Session<TestForeignClass, Integer> daoTestForeign = createDao(TestForeignClass.class, true);
+        Session daoTestForeignClass = createDao(TestForeignCollectionClass.class, true);
+        Session daoTestForeign = createDao(TestForeignClass.class, true);
         TestForeignCollectionClass employee = new TestForeignCollectionClass();
 
         Assert.assertEquals(1, daoTestForeignClass.create(employee));
@@ -68,7 +68,7 @@ public class BaseDaoImplTest {
 
     @Test
     public void createAndQueryForId() throws Exception {
-        Session<TestClazz, Integer> dao = createDao(TestClazz.class, true);
+        Session dao = createDao(TestClazz.class, true);
         TestClazz employee = new TestClazz();
 
         employee.name = "Said";
@@ -81,7 +81,7 @@ public class BaseDaoImplTest {
 
     @Test
     public void queryForAll() throws Exception {
-        Session<TestClazz, Integer> dao = createDao(TestClazz.class, true);
+        Session dao = createDao(TestClazz.class, true);
         TestClazz employee = new TestClazz();
 
         employee.name = "Said";
@@ -95,7 +95,7 @@ public class BaseDaoImplTest {
 
     @Test
     public void update() throws Exception {
-        Session<TestClazz, Integer> dao = createDao(TestClazz.class, true);
+        Session dao = createDao(TestClazz.class, true);
         TestClazz employee = new TestClazz();
 
         employee.name = "Said";
@@ -110,7 +110,7 @@ public class BaseDaoImplTest {
 
     @Test
     public void delete() throws Exception {
-        Session<TestClazz, Integer> dao = createDao(TestClazz.class, true);
+        Session dao = createDao(TestClazz.class, true);
         TestClazz employee = new TestClazz();
 
         employee.name = "Said";
@@ -124,7 +124,7 @@ public class BaseDaoImplTest {
 
     @Test
     public void deleteById() throws Exception {
-        Session<TestClazz, Integer> dao = createDao(TestClazz.class, true);
+        Session dao = createDao(TestClazz.class, true);
         TestClazz employee = new TestClazz();
 
         employee.name = "Said";
@@ -138,7 +138,7 @@ public class BaseDaoImplTest {
 
     @Test
     public void countOff() throws Exception {
-        Session<TestClazz, Integer> dao = createDao(TestClazz.class, true);
+        Session dao = createDao(TestClazz.class, true);
         TestClazz employee = new TestClazz();
 
         Assert.assertEquals(1, dao.create(employee));
@@ -147,7 +147,7 @@ public class BaseDaoImplTest {
 
     @Test
     public void createTable() throws Exception {
-        Session<TestCreateTable, Integer> dao = createDao(TestCreateTable.class, false);
+        Session dao = createDao(TestCreateTable.class, false);
 
         Assert.assertTrue(dao.createTable(true));
     }
@@ -220,8 +220,8 @@ public class BaseDaoImplTest {
         private int id;
     }
 
-    protected <T, ID> Session<T, ID> createDao(Class<T> clazz, boolean createTable) throws Exception {
-        Session<T, ID> dao = new BaseSessionManagerImpl(connectionSource).forClass(clazz);
+    protected <T> Session createDao(Class<T> clazz, boolean createTable) throws Exception {
+        Session dao = new BaseSessionManagerImpl(connectionSource).forClass(clazz);
 
         if (createTable) {
             dao.createTable(true);

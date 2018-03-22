@@ -17,8 +17,8 @@ public class ForeignMain {
 
         dataSource.setURL("jdbc:h2:mem:h2testdb;DB_CLOSE_DELAY=-1");
         SessionManager sessionManager = new BaseSessionManagerImpl(new PolledConnectionSource(dataSource, new H2DatabaseType()));
-        Session<Account, Integer> accountDao = sessionManager.forClass(Account.class);
-        Session<Order, Integer> orderDao = sessionManager.forClass(Order.class);
+        Session accountDao = sessionManager.forClass(Account.class);
+        Session orderDao = sessionManager.forClass(Order.class);
 
         accountDao.createTable(true);
         orderDao.createTable(true);

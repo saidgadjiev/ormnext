@@ -7,8 +7,6 @@ import java.sql.SQLException;
 
 /**
  * Класс для DAO
- * @param <T> тип объекта
- * @param <ID> тип id
  */
 public interface SessionManager {
 
@@ -18,5 +16,5 @@ public interface SessionManager {
 
     ConnectionSource getDataSource();
 
-    <T, ID> Session<T, ID> forClass(Class<T> clazz) throws SQLException;
+    <T> Session forClass(Class<T> clazz) throws SQLException;
 }

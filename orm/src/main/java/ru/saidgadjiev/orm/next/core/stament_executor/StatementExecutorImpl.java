@@ -33,32 +33,30 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Класс для выполнения sql запросов
  *
- * @param <T>  тип объекта
- * @param <ID> id объекта
  */
 @SuppressWarnings("PMD")
-public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
+public class StatementExecutorImpl implements IStatementExecutor {
 
-    private TableInfo<T> tableInfo;
+    private TableInfo<?> tableInfo;
 
     private DatabaseType databaseType;
 
-    private ResultsMapper<T> resultsMapper;
+    private ResultsMapper<?> resultsMapper;
 
-    private ForeignCreator<T> foreignCreator;
+    private ForeignCreator<Object> foreignCreator;
 
-    public StatementExecutorImpl(TableInfo<T> tableInfo,
+    public StatementExecutorImpl(TableInfo<?> tableInfo,
                                  DatabaseType databaseType,
-                                 ResultsMapper<T> resultsMapper,
-                                 ForeignCreator<T> foreignCreator) {
+                                 ResultsMapper<?> resultsMapper,
+                                 ForeignCreator<?> foreignCreator) {
         this.tableInfo = tableInfo;
         this.databaseType = databaseType;
         this.resultsMapper = resultsMapper;
-        this.foreignCreator = foreignCreator;
+        this.foreignCreator = (ForeignCreator<Object>) foreignCreator;
     }
 
     @Override
-    public int create(Connection connection, Collection<T> objects) throws SQLException {
+    public<T> int create(Connection connection, Collection<T> objects) throws SQLException {
         try {
             CreateQuery createQuery = new CreateQuery(tableInfo.getTableName());
 
@@ -83,7 +81,7 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
                 for (T object : objects) {
                     foreignCreator.execute(object);
 
-                    for (Map.Entry<Integer, Object> entry : ArgumentUtils.eject(object, tableInfo).entrySet()) {
+                    for (Map.Entry<Integer, Object> entry : ArgumentUtils.eject(object, (TableInfo<T>) tableInfo).entrySet()) {
                         statement.setObject(entry.getKey(), entry.getValue());
                     }
                     statement.addBatch();
@@ -108,7 +106,7 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
      */
     @Override
     @SuppressWarnings("unchecked")
-    public int create(Connection connection, T object) throws SQLException {
+    public<T> int create(Connection connection, T object) throws SQLException {
         try {
             CreateQuery createQuery = new CreateQuery(tableInfo.getTableName());
 
@@ -132,7 +130,7 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
             String query = getQuery(createQuery);
 
             try (IPreparedStatement statement = new PreparedQueryImpl(connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS), query)) {
-                for (Map.Entry<Integer, Object> entry : ArgumentUtils.eject(object, tableInfo).entrySet()) {
+                for (Map.Entry<Integer, Object> entry : ArgumentUtils.eject(object, (TableInfo<T>) tableInfo).entrySet()) {
                     statement.setObject(entry.getKey(), entry.getValue());
                 }
                 Integer result = statement.executeUpdate();
@@ -193,7 +191,7 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
      * Выполняет запрос вида UPDATE ... SET colname1 = colvalue1 SET colname2 = colvalue2 WHERE = object_builder.id
      */
     @Override
-    public int update(Connection connection, T object) throws SQLException {
+    public<T> int update(Connection connection, T object) throws SQLException {
         IDBFieldType idFieldType = tableInfo.getPrimaryKey().get();
         UpdateQuery updateQuery = UpdateQuery.buildQuery(
                 tableInfo.getTableName(),
@@ -223,7 +221,7 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
      * Выполняет запрос вида DELETE FROM ... WHERE = object_builder.id
      */
     @Override
-    public int delete(Connection connection, T object) throws SQLException {
+    public<T> int delete(Connection connection, T object) throws SQLException {
         try {
             IDBFieldType dbFieldType = tableInfo.getPrimaryKey().get();
             Object id = dbFieldType.access(object);
@@ -245,7 +243,7 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
      * Выполняет запрос вида DELETE FROM ... WHERE = object_builder.id
      */
     @Override
-    public int deleteById(Connection connection, ID id) throws SQLException {
+    public<ID> int deleteById(Connection connection, ID id) throws SQLException {
         IDBFieldType dbFieldType = tableInfo.getPrimaryKey().get();
         DeleteQuery deleteQuery = DeleteQuery.buildQuery(tableInfo.getTableName(), dbFieldType.getColumnName());
         String query = getQuery(deleteQuery);
@@ -264,7 +262,7 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
      * Выполняет запрос вида SELECT * FROM ... WHERE = id
      */
     @Override
-    public T queryForId(Connection connection, ID id) throws SQLException {
+    public<T, ID> T queryForId(Connection connection, ID id) throws SQLException {
         IDBFieldType dbFieldType = tableInfo.getPrimaryKey().get();
         Select selectQuery = Select.buildQueryById(tableInfo.getTableName(), dbFieldType, id);
         String query = getQuery(selectQuery);
@@ -272,7 +270,7 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
         try (IPreparedStatement preparedQuery = new PreparedQueryImpl(connection.prepareStatement(query), query)) {
             try (DatabaseResults databaseResults = preparedQuery.executeQuery()) {
                 if (databaseResults.next()) {
-                    return resultsMapper.mapResults(databaseResults);
+                    return (T) resultsMapper.mapResults(databaseResults);
                 }
             }
         } catch (Exception ex) {
@@ -287,7 +285,7 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
      * Выполняет запрос вида SELECT * FROM ...
      */
     @Override
-    public List<T> queryForAll(Connection connection) throws SQLException {
+    public<T> List<T> queryForAll(Connection connection) throws SQLException {
         Select select = Select.buildQueryForAll(tableInfo.getTableName());
         List<T> resultObjectList = new ArrayList<>();
         String query = getQuery(select);
@@ -295,7 +293,7 @@ public class StatementExecutorImpl<T, ID> implements IStatementExecutor<T, ID> {
         try (IStatement statement = new StatementImpl(connection.createStatement())) {
             try (DatabaseResults databaseResults = statement.executeQuery(query)) {
                 while (databaseResults.next()) {
-                    resultObjectList.add(resultsMapper.mapResults(databaseResults));
+                    resultObjectList.add((T) resultsMapper.mapResults(databaseResults));
                 }
             }
         } catch (Exception ex) {

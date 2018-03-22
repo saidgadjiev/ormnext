@@ -9,26 +9,26 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-public interface IStatementExecutor<T, ID> {
+public interface IStatementExecutor {
 
-    int create(Connection connection, Collection<T> objects) throws SQLException;
+    <T> int create(Connection connection, Collection<T> objects) throws SQLException;
 
     @SuppressWarnings("unchecked")
-    int create(Connection connection, T object) throws SQLException;
+    <T> int create(Connection connection, T object) throws SQLException;
 
     boolean createTable(Connection connection, boolean ifNotExists) throws SQLException;
 
     boolean dropTable(Connection connection, boolean ifExists) throws SQLException;
 
-    int update(Connection connection, T object) throws SQLException;
+    <T> int update(Connection connection, T object) throws SQLException;
 
-    int delete(Connection connection, T object) throws SQLException;
+    <T> int delete(Connection connection, T object) throws SQLException;
 
-    int deleteById(Connection connection, ID id) throws SQLException;
+    <ID> int deleteById(Connection connection, ID id) throws SQLException;
 
-    T queryForId(Connection connection, ID id) throws SQLException;
+    <T, ID> T queryForId(Connection connection, ID id) throws SQLException;
 
-    List<T> queryForAll(Connection connection) throws SQLException;
+    <T> List<T> queryForAll(Connection connection) throws SQLException;
 
     void createIndexes(Connection connection) throws SQLException;
 

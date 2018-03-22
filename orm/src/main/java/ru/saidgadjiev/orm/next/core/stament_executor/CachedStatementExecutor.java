@@ -19,24 +19,24 @@ import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings("CPD-START")
-public class CachedStatementExecutor<T, ID> implements IStatementExecutor<T, ID> {
+public class CachedStatementExecutor implements IStatementExecutor {
 
-    private TableInfo<T> tableInfo;
+    private TableInfo<?> tableInfo;
 
-    private IStatementExecutor<T, ID> delegate;
+    private IStatementExecutor delegate;
 
     private CacheContext cacheContext;
 
-    public CachedStatementExecutor(TableInfo<T> tableInfo,
+    public CachedStatementExecutor(TableInfo<?> tableInfo,
                                    CacheContext cacheContext,
-                                   IStatementExecutor<T, ID> delegate) {
+                                   IStatementExecutor delegate) {
         this.tableInfo = tableInfo;
         this.cacheContext = cacheContext;
         this.delegate = delegate;
     }
 
     @Override
-    public int create(Connection connection, Collection<T> objects) throws SQLException {
+    public<T> int create(Connection connection, Collection<T> objects) throws SQLException {
         delegate.create(connection, objects);
 
         if (cacheContext.isCaching(tableInfo.getTableClass()) && cacheContext.getObjectCache().isPresent()) {
@@ -47,7 +47,7 @@ public class CachedStatementExecutor<T, ID> implements IStatementExecutor<T, ID>
                     IDBFieldType idbFieldType = tableInfo.getPrimaryKey().get();
 
                     try {
-                        objectCache.put(tableInfo.getTableClass(), idbFieldType.access(object), object);
+                        objectCache.put((Class<T>) tableInfo.getTableClass(), idbFieldType.access(object), object);
                     } catch (Exception ex) {
                         throw new SQLException(ex);
                     }
@@ -59,7 +59,7 @@ public class CachedStatementExecutor<T, ID> implements IStatementExecutor<T, ID>
     }
 
     @Override
-    public int create(Connection connection, T object) throws SQLException {
+    public<T> int create(Connection connection, T object) throws SQLException {
         Integer count = delegate.create(connection, object);
 
         if (count > 0 && cacheContext.isCaching(tableInfo.getTableClass()) && cacheContext.getObjectCache().isPresent()) {
@@ -69,7 +69,7 @@ public class CachedStatementExecutor<T, ID> implements IStatementExecutor<T, ID>
                 IDBFieldType idbFieldType = tableInfo.getPrimaryKey().get();
 
                 try {
-                    objectCache.put(tableInfo.getTableClass(), idbFieldType.access(object), object);
+                    objectCache.put((Class<T>) tableInfo.getTableClass(), idbFieldType.access(object), object);
                 } catch (Exception ex) {
                     throw new SQLException(ex);
                 }
@@ -112,7 +112,7 @@ public class CachedStatementExecutor<T, ID> implements IStatementExecutor<T, ID>
     }
 
     @Override
-    public int update(Connection connection, T object) throws SQLException {
+    public<T> int update(Connection connection, T object) throws SQLException {
         Integer count = delegate.update(connection, object);
 
         if (count > 0) {
@@ -121,7 +121,7 @@ public class CachedStatementExecutor<T, ID> implements IStatementExecutor<T, ID>
             try {
                 if (cacheContext.isCaching(tableInfo.getTableClass()) && cacheContext.getObjectCache().isPresent()) {
                     ObjectCache objectCache = cacheContext.getObjectCache().get();
-                    T cachedData = objectCache.get(tableInfo.getTableClass(), idFieldType.access(object));
+                    T cachedData = objectCache.get((Class<T>) tableInfo.getTableClass(), idFieldType.access(object));
 
                     if (cachedData != null) {
                         copy(object, cachedData);
@@ -136,7 +136,7 @@ public class CachedStatementExecutor<T, ID> implements IStatementExecutor<T, ID>
     }
 
     @Override
-    public int delete(Connection connection, T object) throws SQLException {
+    public<T> int delete(Connection connection, T object) throws SQLException {
         IDBFieldType dbFieldType = tableInfo.getPrimaryKey().get();
         Integer result = delegate.delete(connection, object);
 
@@ -154,7 +154,7 @@ public class CachedStatementExecutor<T, ID> implements IStatementExecutor<T, ID>
     }
 
     @Override
-    public int deleteById(Connection connection, ID id) throws SQLException {
+    public<ID> int deleteById(Connection connection, ID id) throws SQLException {
         Integer result = delegate.deleteById(connection, id);
 
         if (cacheContext.isCaching(tableInfo.getTableClass())) {
@@ -165,26 +165,26 @@ public class CachedStatementExecutor<T, ID> implements IStatementExecutor<T, ID>
     }
 
     @Override
-    public T queryForId(Connection connection, ID id) throws SQLException {
+    public<T, ID> T queryForId(Connection connection, ID id) throws SQLException {
         if (cacheContext.isCaching(tableInfo.getTableClass()) && cacheContext.getObjectCache().isPresent()) {
             ObjectCache objectCache = cacheContext.getObjectCache().get();
 
             if (objectCache.contains(tableInfo.getTableClass(), id)) {
-                return objectCache.get(tableInfo.getTableClass(), id);
+                return objectCache.get((Class<T>) tableInfo.getTableClass(), id);
             }
         }
 
         T object = delegate.queryForId(connection, id);
 
         if (object != null && cacheContext.isCaching(tableInfo.getTableClass())) {
-            cacheContext.getObjectCache().ifPresent(objectCache -> objectCache.put(tableInfo.getTableClass(), id, object));
+            cacheContext.getObjectCache().ifPresent(objectCache -> objectCache.put((Class<T>) tableInfo.getTableClass(), id, object));
         }
 
         return object;
     }
 
     @Override
-    public List<T> queryForAll(Connection connection) throws SQLException {
+    public<T> List<T> queryForAll(Connection connection) throws SQLException {
 
         List<T> result = delegate.queryForAll(connection);
         try {
@@ -193,7 +193,7 @@ public class CachedStatementExecutor<T, ID> implements IStatementExecutor<T, ID>
                 ObjectCache objectCache = cacheContext.getObjectCache().get();
 
                 for (T object : result) {
-                    objectCache.put(tableInfo.getTableClass(), idbFieldType.access(object), object);
+                    objectCache.put((Class<T>) tableInfo.getTableClass(), idbFieldType.access(object), object);
                 }
             }
         } catch (Exception ex) {
@@ -233,7 +233,7 @@ public class CachedStatementExecutor<T, ID> implements IStatementExecutor<T, ID>
         return delegate.query(connectionSource, statement);
     }
 
-    private void copy(T srcObject, T destObject) throws Exception {
+    private<T> void copy(T srcObject, T destObject) throws Exception {
         for (DBFieldType fieldType : tableInfo.toDBFieldTypes()) {
             fieldType.assign(destObject, fieldType.access(srcObject));
         }

@@ -27,12 +27,12 @@ public class CachedStatementExecutorTest {
     public void create() throws Exception {
         CacheContext cacheContext = createCache();
         ObjectCache objectCache = cacheContext.getObjectCache().get();
-        IStatementExecutor<TestClazz, Integer> statementExecutor = Mockito.mock(IStatementExecutor.class);
+        IStatementExecutor statementExecutor = Mockito.mock(IStatementExecutor.class);
         TestClazz clazz = new TestClazz();
 
         clazz.id = 1;
         Mockito.when(statementExecutor.create(null, clazz)).thenReturn(1);
-        CachedStatementExecutor<TestClazz, Integer> cachedStatementExecutor = new CachedStatementExecutor<>(tableInfo, cacheContext, statementExecutor);
+        CachedStatementExecutor cachedStatementExecutor = new CachedStatementExecutor(tableInfo, cacheContext, statementExecutor);
 
         cachedStatementExecutor.create(null, clazz);
         Assert.assertEquals(1, objectCache.size(TestClazz.class));
@@ -44,8 +44,8 @@ public class CachedStatementExecutorTest {
     public void update() throws Exception {
         CacheContext cacheContext = createCache();
         ObjectCache objectCache = cacheContext.getObjectCache().get();
-        IStatementExecutor<TestClazz, Integer> statementExecutor = Mockito.mock(IStatementExecutor.class);
-        CachedStatementExecutor<TestClazz, Integer> cachedStatementExecutor = new CachedStatementExecutor<>(tableInfo, cacheContext, statementExecutor);
+        IStatementExecutor statementExecutor = Mockito.mock(IStatementExecutor.class);
+        CachedStatementExecutor cachedStatementExecutor = new CachedStatementExecutor(tableInfo, cacheContext, statementExecutor);
         TestClazz clazz = createTestClazz(1, "Said");
         TestClazz updatedClazz = createTestClazz(1, "SaidTest");
 
@@ -64,8 +64,8 @@ public class CachedStatementExecutorTest {
     public void delete() throws Exception {
         CacheContext cacheContext = createCache();
         ObjectCache objectCache = cacheContext.getObjectCache().get();
-        IStatementExecutor<TestClazz, Integer> statementExecutor = Mockito.mock(IStatementExecutor.class);
-        CachedStatementExecutor<TestClazz, Integer> cachedStatementExecutor = new CachedStatementExecutor<>(tableInfo, cacheContext, statementExecutor);
+        IStatementExecutor statementExecutor = Mockito.mock(IStatementExecutor.class);
+        CachedStatementExecutor cachedStatementExecutor = new CachedStatementExecutor(tableInfo, cacheContext, statementExecutor);
         TestClazz clazz = createTestClazz(1, "Said");
         TestClazz updatedClazz = createTestClazz(1, "SaidTest");
 
@@ -87,8 +87,8 @@ public class CachedStatementExecutorTest {
     public void queryForId() throws Exception {
         CacheContext cacheContext = createCache();
         ObjectCache objectCache = cacheContext.getObjectCache().get();
-        IStatementExecutor<TestClazz, Integer> statementExecutor = Mockito.mock(IStatementExecutor.class);
-        CachedStatementExecutor<TestClazz, Integer> cachedStatementExecutor = new CachedStatementExecutor<>(tableInfo, cacheContext, statementExecutor);
+        IStatementExecutor statementExecutor = Mockito.mock(IStatementExecutor.class);
+        CachedStatementExecutor cachedStatementExecutor = new CachedStatementExecutor(tableInfo, cacheContext, statementExecutor);
         TestClazz clazz = createTestClazz(1, "Said");
 
         Mockito.when(statementExecutor.queryForId(null, 1)).thenReturn(clazz);
@@ -112,8 +112,8 @@ public class CachedStatementExecutorTest {
     public void queryForAll() throws Exception {
         CacheContext cacheContext = createCache();
         ObjectCache objectCache = cacheContext.getObjectCache().get();
-        IStatementExecutor<TestClazz, Integer> statementExecutor = Mockito.mock(IStatementExecutor.class);
-        CachedStatementExecutor<TestClazz, Integer> cachedStatementExecutor = new CachedStatementExecutor<>(tableInfo, cacheContext, statementExecutor);
+        IStatementExecutor statementExecutor = Mockito.mock(IStatementExecutor.class);
+        CachedStatementExecutor cachedStatementExecutor = new CachedStatementExecutor(tableInfo, cacheContext, statementExecutor);
         TestClazz clazz = createTestClazz(1, "Said");
         TestClazz clazz1 = createTestClazz(2, "SaidTest");
 

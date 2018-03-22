@@ -84,7 +84,7 @@ public class ResultsMapperImpl<T> implements ResultsMapper<T> {
             DefaultVisitor visitor = new DefaultVisitor(dataSource.getDatabaseType());
 
             selectStatement.accept(visitor);
-            Object foreignObject = foreignDao.query(visitor.getQuery(), selectStatement.getArgs()).getFirstResult(new ResultsMapperImpl<>(dataSource, foreignTableInfo, foreignTableInfo.getFieldTypes(), parents));
+            Object foreignObject = foreignDao.query(visitor.getQuery(), selectStatement.getArgs()).getFirstResult(new ResultsMapperImpl(dataSource, foreignTableInfo, foreignTableInfo.getFieldTypes(), parents));
 
             foreignFieldType.assign(object, foreignObject);
         }
@@ -93,7 +93,7 @@ public class ResultsMapperImpl<T> implements ResultsMapper<T> {
     private void buildForeignCollection(T object, IDBFieldType fieldType, Set<Class<?>> parents) throws Exception {
         ForeignCollectionFieldType foreignCollectionFieldType = (ForeignCollectionFieldType) fieldType;
         TableInfo<Object> foreignTableInfo = TableInfo.build((Class<Object>) foreignCollectionFieldType.getForeignFieldClass());
-        Session<Object, Object> foreignDao = new BaseSessionManagerImpl(dataSource).forClass(foreignTableInfo.getTableClass());
+        Session foreignDao = new BaseSessionManagerImpl(dataSource).forClass(foreignTableInfo.getTableClass());
 
         if (tableInfo.getPrimaryKey().isPresent() && foreignTableInfo.getPrimaryKey().isPresent()) {
             IDBFieldType idField = tableInfo.getPrimaryKey().get();
