@@ -141,4 +141,20 @@ public interface QueryVisitor {
     void visit(Limit limit);
 
     void visit(Offset offset);
+
+    void visit(NotNull notNull);
+
+    void visit(IsNull isNull);
+
+    void visit(NotEquals notEquals);
+
+    void visit(Like like);
+
+    void visit(Between between);
+
+    void visit(Not not);
+
+    void visit(NotInValues notInValues);
+
+    void visit(InValues inValues);
 }

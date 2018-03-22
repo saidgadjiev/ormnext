@@ -11,6 +11,7 @@ import ru.saidgadjiev.orm.next.core.query.core.clause.from.FromTable;
 import ru.saidgadjiev.orm.next.core.query.core.clause.select.SelectAll;
 import ru.saidgadjiev.orm.next.core.query.core.clause.select.SelectColumnsStrategy;
 import ru.saidgadjiev.orm.next.core.query.core.common.TableRef;
+import ru.saidgadjiev.orm.next.core.query.core.join.JoinExpression;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryElement;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryVisitor;
 import ru.saidgadjiev.orm.next.core.table.TableInfo;

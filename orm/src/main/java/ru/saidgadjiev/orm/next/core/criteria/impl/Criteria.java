@@ -27,13 +27,6 @@ public class Criteria {
         return this;
     }
 
-    public Criteria in(Criterion criterion) {
-        andCondition.add(criterion.getCondition());
-        addToArg(criterion.getArgs());
-
-        return this;
-    }
-
     public Criteria or() {
         this.andCondition = new AndCondition();
         expression.add(andCondition);

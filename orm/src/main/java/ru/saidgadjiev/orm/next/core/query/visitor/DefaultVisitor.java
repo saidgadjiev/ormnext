@@ -372,6 +372,7 @@ public class DefaultVisitor extends NoActionVisitor {
         sql.append(" LEFT JOIN ");
         leftJoin.getJoinedTableRef().accept(this);
         sql.append(" ON ");
+        leftJoin.getExpression().accept(this);
     }
 
     @Override
