@@ -53,7 +53,7 @@ public class BaseSessionManagerImpl implements SessionManager {
     }
 
     @Override
-    public<T> Session forClass(Class<T> clazz) {
+    public Session forClass(Class<?> clazz) {
         return new SessionImpl(dataSource, cacheContext, TableInfoManager.buildOrGet(clazz));
     }
 }

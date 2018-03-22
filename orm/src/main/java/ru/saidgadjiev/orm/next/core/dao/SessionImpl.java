@@ -25,7 +25,7 @@ public class SessionImpl implements Session {
 
     private IStatementExecutor statementExecutor;
 
-    <T> SessionImpl(ConnectionSource dataSource, CacheContext cacheContext, TableInfo<T> tableInfo) {
+    SessionImpl(ConnectionSource dataSource, CacheContext cacheContext, TableInfo<?> tableInfo) {
         this.dataSource = dataSource;
         this.statementExecutor = new StatementValidator(
                 tableInfo,
