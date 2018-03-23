@@ -17,6 +17,7 @@ import ru.saidgadjiev.orm.next.core.stament_executor.object.collection.LazyList;
 import ru.saidgadjiev.orm.next.core.stament_executor.object.collection.LazySet;
 import ru.saidgadjiev.orm.next.core.support.ConnectionSource;
 import ru.saidgadjiev.orm.next.core.table.TableInfo;
+import ru.saidgadjiev.orm.next.core.table.TableInfoManager;
 
 import java.lang.reflect.Constructor;
 import java.util.Collection;
@@ -76,15 +77,15 @@ public class ResultsMapperImpl<T> implements ResultsMapper<T> {
         ForeignFieldType foreignFieldType = (ForeignFieldType) fieldType;
 
         if (!parents.contains(foreignFieldType.getForeignFieldClass())) {
-            TableInfo<?> foreignTableInfo = TableInfo.build(foreignFieldType.getForeignFieldClass());
-            Session foreignDao = new BaseSessionManagerImpl(dataSource).forClass(foreignTableInfo.getTableClass());
+            TableInfo<?> foreignTableInfo = TableInfoManager.buildOrGet(foreignFieldType.getForeignFieldClass());
+            Session foreignDao = new BaseSessionManagerImpl(dataSource).getSession();
             SelectStatement<?> selectStatement = new SelectStatement<>(foreignFieldType.getForeignFieldClass());
 
             selectStatement.where(new Criteria().add(Restrictions.eq(foreignTableInfo.getPrimaryKey().get().getColumnName(), data.getObject(foreignFieldType.getColumnName()))));
             DefaultVisitor visitor = new DefaultVisitor(dataSource.getDatabaseType());
 
             selectStatement.accept(visitor);
-            Object foreignObject = foreignDao.query(visitor.getQuery(), selectStatement.getArgs()).getFirstResult(new ResultsMapperImpl(dataSource, foreignTableInfo, foreignTableInfo.getFieldTypes(), parents));
+            Object foreignObject = foreignDao.query(foreignTableInfo.getTableClass(), selectStatement.getArgs(), visitor.getQuery()).getFirstResult(new ResultsMapperImpl(dataSource, foreignTableInfo, foreignTableInfo.getFieldTypes(), parents));
 
             foreignFieldType.assign(object, foreignObject);
         }
@@ -92,8 +93,8 @@ public class ResultsMapperImpl<T> implements ResultsMapper<T> {
 
     private void buildForeignCollection(T object, IDBFieldType fieldType, Set<Class<?>> parents) throws Exception {
         ForeignCollectionFieldType foreignCollectionFieldType = (ForeignCollectionFieldType) fieldType;
-        TableInfo<Object> foreignTableInfo = TableInfo.build((Class<Object>) foreignCollectionFieldType.getForeignFieldClass());
-        Session foreignDao = new BaseSessionManagerImpl(dataSource).forClass(foreignTableInfo.getTableClass());
+        TableInfo<Object> foreignTableInfo = TableInfoManager.buildOrGet((Class<Object>) foreignCollectionFieldType.getForeignFieldClass());
+        Session foreignDao = new BaseSessionManagerImpl(dataSource).getSession();
 
         if (tableInfo.getPrimaryKey().isPresent() && foreignTableInfo.getPrimaryKey().isPresent()) {
             IDBFieldType idField = tableInfo.getPrimaryKey().get();
@@ -105,9 +106,9 @@ public class ResultsMapperImpl<T> implements ResultsMapper<T> {
 
             selectStatement.accept(visitor);
             if (foreignCollectionFieldType.getFetchType().equals(FetchType.EAGER)) {
-                try (GenericResults<Object> genericResults = foreignDao.query(visitor.getQuery(), new HashMap<Integer, Object>() {{
+                try (GenericResults<Object> genericResults = foreignDao.query(foreignTableInfo.getTableClass(), new HashMap<Integer, Object>() {{
                     put(1, idField.access(object));
-                }})) {
+                }}, visitor.getQuery())) {
                     List<Object> objects = genericResults.getResults(new ResultsMapperImpl<>(dataSource, foreignTableInfo, foreignTableInfo.getFieldTypes(), parents));
 
                     for (Object foreignObject : objects) {
@@ -120,9 +121,9 @@ public class ResultsMapperImpl<T> implements ResultsMapper<T> {
                 Collection<?> collection = (Collection<?>) foreignCollectionFieldType.access(object);
                 Supplier<List<Object>> fetcher = () -> {
                     try {
-                        try (GenericResults<Object> genericResults = foreignDao.query(visitor.getQuery(), new HashMap<Integer, Object>() {{
+                        try (GenericResults<Object> genericResults = foreignDao.query(foreignTableInfo.getTableClass(), new HashMap<Integer, Object>() {{
                             put(1, idField.access(object));
-                        }})) {
+                        }}, visitor.getQuery())) {
                             List<Object> results = genericResults.getResults(new ResultsMapperImpl<>(dataSource, foreignTableInfo, foreignTableInfo.getFieldTypes(), parents));
 
                             for (Object foreignObject : results) {

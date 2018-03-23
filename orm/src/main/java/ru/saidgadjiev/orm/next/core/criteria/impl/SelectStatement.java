@@ -50,6 +50,10 @@ public class SelectStatement<T> implements QueryElement {
         this.tableInfo = TableInfoManager.buildOrGet(tClass);
     }
 
+    public TableInfo<?> getTableInfo() {
+        return tableInfo;
+    }
+
     public SelectStatement<T> where(Criteria where) {
         this.where = where;
 

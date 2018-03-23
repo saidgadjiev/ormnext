@@ -3,7 +3,6 @@ package ru.saidgadjiev.orm.next.core.dao;
 import ru.saidgadjiev.orm.next.core.cache.CacheContext;
 import ru.saidgadjiev.orm.next.core.cache.ObjectCache;
 import ru.saidgadjiev.orm.next.core.support.ConnectionSource;
-import ru.saidgadjiev.orm.next.core.table.TableInfoManager;
 
 import java.util.Optional;
 
@@ -53,7 +52,7 @@ public class BaseSessionManagerImpl implements SessionManager {
     }
 
     @Override
-    public Session forClass(Class<?> clazz) {
-        return new SessionImpl(dataSource, cacheContext, TableInfoManager.buildOrGet(clazz));
+    public Session getSession() {
+        return new SessionImpl(dataSource, cacheContext);
     }
 }

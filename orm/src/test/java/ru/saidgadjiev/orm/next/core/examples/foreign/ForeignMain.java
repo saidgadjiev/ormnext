@@ -1,6 +1,7 @@
 package ru.saidgadjiev.orm.next.core.examples.foreign;
 
 import org.h2.jdbcx.JdbcDataSource;
+import org.mockito.internal.matchers.Or;
 import ru.saidgadjiev.orm.next.core.dao.BaseSessionManagerImpl;
 import ru.saidgadjiev.orm.next.core.dao.Session;
 import ru.saidgadjiev.orm.next.core.dao.SessionManager;
@@ -17,18 +18,17 @@ public class ForeignMain {
 
         dataSource.setURL("jdbc:h2:mem:h2testdb;DB_CLOSE_DELAY=-1");
         SessionManager sessionManager = new BaseSessionManagerImpl(new PolledConnectionSource(dataSource, new H2DatabaseType()));
-        Session accountDao = sessionManager.forClass(Account.class);
-        Session orderDao = sessionManager.forClass(Order.class);
+        Session session = sessionManager.getSession();
 
-        accountDao.createTable(true);
-        orderDao.createTable(true);
+        session.createTable(Account.class, true);
+        session.createTable(Order.class, true);
         Account account = new Account("Said");
 
-        accountDao.create(account);
+        session.create(account);
         Order order = new Order("Тестовый заказ", account);
 
-        orderDao.create(order);
-        Order persistedOrder = orderDao.queryForId(1);
+        session.create(order);
+        Order persistedOrder = session.queryForId(Order.class, 1);
 
         System.out.println(persistedOrder.toString());
     }

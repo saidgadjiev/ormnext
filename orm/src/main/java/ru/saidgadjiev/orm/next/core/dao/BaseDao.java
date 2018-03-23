@@ -20,22 +20,25 @@ public interface BaseDao {
      */
     <T> int create(T object) throws SQLException;
 
-    boolean createTable(boolean ifNotExists) throws SQLException;
+    <T> boolean createTable(Class<T> tClass, boolean ifNotExists) throws SQLException;
 
     /**
      * Метод получает объект по id
+     *
+     * @param tClass
      * @param id целевой id объекта
      * @return возвращает объект с заданной id или null
      * @throws SQLException если произошла ошибка при выполнении запроса
      */
-    <T, ID> T queryForId(ID id) throws SQLException;
+    <T, ID> T queryForId(Class<T> tClass, ID id) throws SQLException;
 
     /**
      * Метод получает все объекты из таблицы T
      * @return все записи из таблицы типа T
      * @throws SQLException если произошла ошибка при выполнении запроса
+     * @param tClass
      */
-    <T> List<T> queryForAll() throws SQLException;
+    <T> List<T> queryForAll(Class<T> tClass) throws SQLException;
 
     /**
      * Метод обновляет объект в базе
@@ -53,21 +56,25 @@ public interface BaseDao {
      */
     <T> int delete(T object) throws SQLException;
 
-    <ID> int deleteById(ID id) throws SQLException;
+    <T, ID> int deleteById(Class<T> tClass, ID id) throws SQLException;
 
-    boolean dropTable(boolean ifExists) throws SQLException;
+    <T> boolean dropTable(Class<T> tClass, boolean ifExists) throws SQLException;
 
-    void createIndexes() throws SQLException;
+    <T> void createIndexes(Class<T> tClass) throws SQLException;
 
-    void dropIndexes() throws SQLException;
+    <T> void dropIndexes(Class<T> tClass) throws SQLException;
 
-    long countOff() throws SQLException;
+    <T> long countOff(Class<T> tClass) throws SQLException;
 
     long queryForLong(String query) throws SQLException;
 
     <R> GenericResults<R> query(String query) throws SQLException;
 
+    <R> GenericResults<R> query(Class<R> resultClass, String query) throws SQLException;
+
     <R> GenericResults<R> query(String query, Map<Integer, Object> args) throws SQLException;
+
+    <R> GenericResults<R> query(Class<R> resultClass, Map<Integer, Object> args, String query) throws SQLException;
 
     <R> GenericResults<R> query(SelectStatement<R> statement) throws SQLException;
 }

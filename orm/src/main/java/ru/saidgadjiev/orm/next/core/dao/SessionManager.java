@@ -3,8 +3,6 @@ package ru.saidgadjiev.orm.next.core.dao;
 import ru.saidgadjiev.orm.next.core.cache.ObjectCache;
 import ru.saidgadjiev.orm.next.core.support.ConnectionSource;
 
-import java.sql.SQLException;
-
 /**
  * Класс для DAO
  */
@@ -16,5 +14,5 @@ public interface SessionManager {
 
     ConnectionSource getDataSource();
 
-    Session forClass(Class<?> clazz) throws SQLException;
+    Session getSession();
 }

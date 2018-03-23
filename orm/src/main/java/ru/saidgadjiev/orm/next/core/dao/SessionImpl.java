@@ -5,6 +5,7 @@ import ru.saidgadjiev.orm.next.core.criteria.impl.SelectStatement;
 import ru.saidgadjiev.orm.next.core.stament_executor.*;
 import ru.saidgadjiev.orm.next.core.stament_executor.object.operation.ForeignCreator;
 import ru.saidgadjiev.orm.next.core.stament_executor.result_mapper.CachedResultsMapperDecorator;
+import ru.saidgadjiev.orm.next.core.stament_executor.result_mapper.ResultsMapper;
 import ru.saidgadjiev.orm.next.core.stament_executor.result_mapper.ResultsMapperImpl;
 import ru.saidgadjiev.orm.next.core.support.ConnectionSource;
 import ru.saidgadjiev.orm.next.core.table.TableInfo;
@@ -15,6 +16,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * Created by said on 19.02.2018.
@@ -25,22 +27,21 @@ public class SessionImpl implements Session {
 
     private IStatementExecutor statementExecutor;
 
-    SessionImpl(ConnectionSource dataSource, CacheContext cacheContext, TableInfo<?> tableInfo) {
+    SessionImpl(ConnectionSource dataSource, CacheContext cacheContext) {
         this.dataSource = dataSource;
-        this.statementExecutor = new StatementValidator(
+        Function<TableInfo<?>, ResultsMapper<?>> resultsMapperFactory = tableInfo -> new CachedResultsMapperDecorator<>(
                 tableInfo,
+                cacheContext,
+                new ResultsMapperImpl<>(dataSource, tableInfo, tableInfo.getFieldTypes(), new HashSet<>())
+        );
+
+        this.statementExecutor = new StatementValidator(
                 new CachedStatementExecutor(
-                        tableInfo,
                         cacheContext,
                         new StatementExecutorImpl(
-                                tableInfo,
                                 dataSource.getDatabaseType(),
-                                new CachedResultsMapperDecorator<>(
-                                        tableInfo,
-                                        cacheContext,
-                                        new ResultsMapperImpl<>(dataSource, tableInfo, tableInfo.getFieldTypes(), new HashSet<>())
-                                ),
-                                new ForeignCreator<>(tableInfo, dataSource)
+                                resultsMapperFactory,
+                                new ForeignCreator<>(dataSource)
                         )
                 )
         );
@@ -69,33 +70,33 @@ public class SessionImpl implements Session {
     }
 
     @Override
-    public boolean createTable(boolean ifNotExist) throws SQLException {
+    public<T> boolean createTable(Class<T> tClass, boolean ifNotExist) throws SQLException {
         Connection connection = dataSource.getConnection();
 
         try {
-            return statementExecutor.createTable(connection, ifNotExist);
+            return statementExecutor.createTable(connection, tClass, ifNotExist);
         } finally {
             dataSource.releaseConnection(connection);
         }
     }
 
     @Override
-    public<T, ID> T queryForId(ID id) throws SQLException {
+    public<T, ID> T queryForId(Class<T> tClass, ID id) throws SQLException {
         Connection connection = dataSource.getConnection();
 
         try {
-            return statementExecutor.queryForId(connection, id);
+            return statementExecutor.queryForId(connection, tClass, id);
         } finally {
             dataSource.releaseConnection(connection);
         }
     }
 
     @Override
-    public<T> List<T> queryForAll() throws SQLException {
+    public<T> List<T> queryForAll(Class<T> tClass) throws SQLException {
         Connection connection = dataSource.getConnection();
 
         try {
-            return statementExecutor.queryForAll(connection);
+            return statementExecutor.queryForAll(connection, tClass);
         } finally {
             dataSource.releaseConnection(connection);
         }
@@ -123,56 +124,55 @@ public class SessionImpl implements Session {
         }
     }
 
-    @Override
-    public<ID> int deleteById(ID id) throws SQLException {
+    public<T, ID> int deleteById(Class<T> tClass, ID id) throws SQLException {
         Connection connection = dataSource.getConnection();
 
         try {
-            return statementExecutor.deleteById(connection, id);
+            return statementExecutor.deleteById(connection, tClass, id);
         } finally {
             dataSource.releaseConnection(connection);
         }
     }
 
     @Override
-    public boolean dropTable(boolean ifExists) throws SQLException {
+    public<T> boolean dropTable(Class<T> tClass, boolean ifExists) throws SQLException {
         Connection connection = dataSource.getConnection();
 
         try {
-            return statementExecutor.dropTable(connection, ifExists);
+            return statementExecutor.dropTable(connection, tClass, ifExists);
         } finally {
             dataSource.releaseConnection(connection);
         }
     }
 
     @Override
-    public void createIndexes() throws SQLException {
+    public<T> void createIndexes(Class<T> tClass) throws SQLException {
         Connection connection = dataSource.getConnection();
 
         try {
-            statementExecutor.createIndexes(connection);
+            statementExecutor.createIndexes(connection, tClass);
         } finally {
             dataSource.releaseConnection(connection);
         }
     }
 
     @Override
-    public void dropIndexes() throws SQLException {
+    public<T> void dropIndexes(Class<T> tClass) throws SQLException {
         Connection connection = dataSource.getConnection();
 
         try {
-            statementExecutor.dropIndexes(connection);
+            statementExecutor.dropIndexes(connection, tClass);
         } finally {
             dataSource.releaseConnection(connection);
         }
     }
 
     @Override
-    public long countOff() throws SQLException {
+    public<T> long countOff(Class<T> tClass) throws SQLException {
         Connection connection = dataSource.getConnection();
 
         try {
-            return statementExecutor.countOff(connection);
+            return statementExecutor.countOff(connection, tClass);
         } finally {
             dataSource.releaseConnection(connection);
         }
@@ -191,13 +191,23 @@ public class SessionImpl implements Session {
 
     @Override
     public <R> GenericResults<R> query(String query) throws SQLException {
-        return statementExecutor.query(dataSource, query, null);
+        return statementExecutor.query(dataSource, null, null, query);
+    }
+
+    @Override
+    public <R> GenericResults<R> query(Class<R> resultClass, String query) throws SQLException {
+        return statementExecutor.query(dataSource, resultClass, null, query);
 
     }
 
     @Override
     public <R> GenericResults<R> query(String query, Map<Integer, Object> args) throws SQLException {
-        return statementExecutor.query(dataSource, query, args);
+        return statementExecutor.query(dataSource, null, args, query);
+    }
+
+    @Override
+    public <R> GenericResults<R> query(Class<R> resultClass, Map<Integer, Object> args, String query) throws SQLException {
+        return statementExecutor.query(dataSource, resultClass, args, query);
     }
 
     @Override

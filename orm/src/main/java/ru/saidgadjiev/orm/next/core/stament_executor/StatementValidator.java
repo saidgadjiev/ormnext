@@ -3,6 +3,7 @@ package ru.saidgadjiev.orm.next.core.stament_executor;
 import ru.saidgadjiev.orm.next.core.criteria.impl.SelectStatement;
 import ru.saidgadjiev.orm.next.core.support.ConnectionSource;
 import ru.saidgadjiev.orm.next.core.table.TableInfo;
+import ru.saidgadjiev.orm.next.core.table.TableInfoManager;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -14,10 +15,7 @@ public class StatementValidator implements IStatementExecutor {
 
     private IStatementExecutor delegate;
 
-    private TableInfo<?> tableInfo;
-
-    public StatementValidator(TableInfo<?> tableInfo, IStatementExecutor delegate) {
-        this.tableInfo = tableInfo;
+    public StatementValidator(IStatementExecutor delegate) {
         this.delegate = delegate;
     }
 
@@ -32,17 +30,19 @@ public class StatementValidator implements IStatementExecutor {
     }
 
     @Override
-    public boolean createTable(Connection connection, boolean ifNotExists) throws SQLException {
-        return delegate.createTable(connection, ifNotExists);
+    public<T> boolean createTable(Connection connection, Class<T> tClass, boolean ifNotExists) throws SQLException {
+        return delegate.createTable(connection, tClass, ifNotExists);
     }
 
     @Override
-    public boolean dropTable(Connection connection, boolean ifExists) throws SQLException {
-        return delegate.dropTable(connection, ifExists);
+    public<T> boolean dropTable(Connection connection, Class<T> tClass, boolean ifExists) throws SQLException {
+        return delegate.dropTable(connection, tClass, ifExists);
     }
 
     @Override
     public<T> int update(Connection connection, T object) throws SQLException {
+        TableInfo<T> tableInfo = TableInfoManager.buildOrGet((Class<T>) object.getClass());
+
         if (!tableInfo.getPrimaryKey().isPresent()) {
             throw new SQLException("Id is not defined");
         }
@@ -52,6 +52,8 @@ public class StatementValidator implements IStatementExecutor {
 
     @Override
     public<T> int delete(Connection connection, T object) throws SQLException {
+        TableInfo<T> tableInfo = TableInfoManager.buildOrGet((Class<T>) object.getClass());
+
         if (!tableInfo.getPrimaryKey().isPresent()) {
             throw new SQLException("Id is not defined");
         }
@@ -60,41 +62,45 @@ public class StatementValidator implements IStatementExecutor {
     }
 
     @Override
-    public<ID> int deleteById(Connection connection, ID id) throws SQLException {
+    public <T, ID> int deleteById(Connection connection, Class<T> tClass, ID id) throws SQLException {
+        TableInfo<T> tableInfo = TableInfoManager.buildOrGet(tClass);
+
         if (!tableInfo.getPrimaryKey().isPresent()) {
             throw new SQLException("Id is not defined");
         }
 
-        return delegate.deleteById(connection, id);
+        return delegate.deleteById(connection, tClass, id);
     }
 
     @Override
-    public<T, ID> T queryForId(Connection connection, ID id) throws SQLException {
+    public<T, ID> T queryForId(Connection connection, Class<T> tClass, ID id) throws SQLException {
+        TableInfo<T> tableInfo = TableInfoManager.buildOrGet(tClass);
+
         if (!tableInfo.getPrimaryKey().isPresent()) {
             throw new SQLException("Id is not defined");
         }
 
-        return delegate.queryForId(connection, id);
+        return delegate.queryForId(connection, tClass, id);
     }
 
     @Override
-    public<T> List<T> queryForAll(Connection connection) throws SQLException {
-        return delegate.queryForAll(connection);
+    public<T> List<T> queryForAll(Connection connection, Class<T> tClass) throws SQLException {
+        return delegate.queryForAll(connection, tClass);
     }
 
     @Override
-    public void createIndexes(Connection connection) throws SQLException {
-        delegate.createIndexes(connection);
+    public<T> void createIndexes(Connection connection, Class<T> tClass) throws SQLException {
+        delegate.createIndexes(connection, tClass);
     }
 
     @Override
-    public void dropIndexes(Connection connection) throws SQLException {
-        delegate.dropIndexes(connection);
+    public<T> void dropIndexes(Connection connection, Class<T> tClass) throws SQLException {
+        delegate.dropIndexes(connection, tClass);
     }
 
     @Override
-    public <R> GenericResults<R> query(ConnectionSource connectionSource, String query, Map<Integer, Object> args) throws SQLException {
-        return delegate.query(connectionSource, query, args);
+    public <R> GenericResults<R> query(ConnectionSource connectionSource, Class<R> resultClass, Map<Integer, Object> args, String query) throws SQLException {
+        return delegate.query(connectionSource, resultClass, args, query);
     }
 
     @Override
@@ -103,8 +109,8 @@ public class StatementValidator implements IStatementExecutor {
     }
 
     @Override
-    public long countOff(Connection connection) throws SQLException {
-        return delegate.countOff(connection);
+    public<T> long countOff(Connection connection, Class<T> tClass) throws SQLException {
+        return delegate.countOff(connection, tClass);
     }
 
     @Override

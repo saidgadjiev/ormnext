@@ -5,13 +5,11 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import ru.saidgadjiev.orm.next.core.criteria.impl.SelectStatement;
 import ru.saidgadjiev.orm.next.core.db.H2DatabaseType;
 import ru.saidgadjiev.orm.next.core.field.DBField;
 import ru.saidgadjiev.orm.next.core.field.DataType;
 import ru.saidgadjiev.orm.next.core.field.ForeignCollectionField;
 import ru.saidgadjiev.orm.next.core.support.DataSourceConnectionSource;
-import ru.saidgadjiev.orm.next.core.utils.TableUtils;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -44,7 +42,7 @@ public class BaseDaoImplTest {
         TestNoColumn testNoColumn = new TestNoColumn();
 
         Assert.assertEquals(1, dao.create(testNoColumn));
-        TestNoColumn result = dao.queryForId(testNoColumn.id);
+        TestNoColumn result = dao.queryForId(TestNoColumn.class, testNoColumn.id);
 
         Assert.assertEquals(1, result.id);
     }
@@ -60,7 +58,7 @@ public class BaseDaoImplTest {
 
         testForeignClass1.foreign = employee;
         Assert.assertEquals(1, daoTestForeign.create(testForeignClass1));
-        TestForeignCollectionClass result = daoTestForeignClass.queryForId(employee.id);
+        TestForeignCollectionClass result = daoTestForeignClass.queryForId(TestForeignCollectionClass.class, employee.id);
 
         Assert.assertEquals(1, result.id);
         Assert.assertEquals(1, result.foreignClasses.size());
@@ -73,7 +71,7 @@ public class BaseDaoImplTest {
 
         employee.name = "Said";
         Assert.assertEquals(1, dao.create(employee));
-        TestClazz result = dao.queryForId(employee.id);
+        TestClazz result = dao.queryForId(TestClazz.class, employee.id);
 
         Assert.assertEquals(1, result.id);
         Assert.assertEquals(result.name, "Said");
@@ -86,7 +84,7 @@ public class BaseDaoImplTest {
 
         employee.name = "Said";
         Assert.assertEquals(1, dao.create(employee));
-        List<TestClazz> result = dao.queryForAll();
+        List<TestClazz> result = dao.queryForAll(TestClazz.class);
 
         Assert.assertEquals(1, result.size());
         Assert.assertEquals(result.get(0).name, "Said");
@@ -102,7 +100,7 @@ public class BaseDaoImplTest {
         Assert.assertEquals(1, dao.create(employee));
         employee.name = "TestChanged";
         int count = dao.update(employee);
-        TestClazz resultEmployee = dao.queryForId(employee.id);
+        TestClazz resultEmployee = dao.queryForId(TestClazz.class, employee.id);
 
         Assert.assertEquals(1, count);
         Assert.assertEquals("TestChanged", resultEmployee.name);
@@ -116,7 +114,7 @@ public class BaseDaoImplTest {
         employee.name = "Said";
         Assert.assertEquals(1, dao.create(employee));
         int count = dao.delete(employee);
-        TestClazz checkEmployee = dao.queryForId(employee.id);
+        TestClazz checkEmployee = dao.queryForId(TestClazz.class, employee.id);
 
         Assert.assertEquals(1, count);
         Assert.assertNull(checkEmployee);
@@ -129,8 +127,8 @@ public class BaseDaoImplTest {
 
         employee.name = "Said";
         Assert.assertEquals(1, dao.create(employee));
-        int count = dao.deleteById(employee.id);
-        TestClazz checkEmployee = dao.queryForId(employee.id);
+        int count = dao.deleteById(TestClazz.class, employee.id);
+        TestClazz checkEmployee = dao.queryForId(TestClazz.class, employee.id);
 
         Assert.assertEquals(1, count);
         Assert.assertNull(checkEmployee);
@@ -142,14 +140,14 @@ public class BaseDaoImplTest {
         TestClazz employee = new TestClazz();
 
         Assert.assertEquals(1, dao.create(employee));
-        Assert.assertEquals(1, dao.countOff());
+        Assert.assertEquals(1, dao.countOff(TestClazz.class));
     }
 
     @Test
     public void createTable() throws Exception {
         Session dao = createDao(TestCreateTable.class, false);
 
-        Assert.assertTrue(dao.createTable(true));
+        Assert.assertTrue(dao.createTable(TestCreateTable.class, true));
     }
 
     private static class TestForeignCollectionClass {
@@ -221,10 +219,10 @@ public class BaseDaoImplTest {
     }
 
     protected <T> Session createDao(Class<T> clazz, boolean createTable) throws Exception {
-        Session dao = new BaseSessionManagerImpl(connectionSource).forClass(clazz);
+        Session dao = new BaseSessionManagerImpl(connectionSource).getSession();
 
         if (createTable) {
-            dao.createTable(true);
+            dao.createTable(clazz, true);
         }
 
         return dao;

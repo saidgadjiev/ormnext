@@ -32,7 +32,7 @@ public class CachedStatementExecutorTest {
 
         clazz.id = 1;
         Mockito.when(statementExecutor.create(null, clazz)).thenReturn(1);
-        CachedStatementExecutor cachedStatementExecutor = new CachedStatementExecutor(tableInfo, cacheContext, statementExecutor);
+        CachedStatementExecutor cachedStatementExecutor = new CachedStatementExecutor(cacheContext, statementExecutor);
 
         cachedStatementExecutor.create(null, clazz);
         Assert.assertEquals(1, objectCache.size(TestClazz.class));
@@ -45,7 +45,7 @@ public class CachedStatementExecutorTest {
         CacheContext cacheContext = createCache();
         ObjectCache objectCache = cacheContext.getObjectCache().get();
         IStatementExecutor statementExecutor = Mockito.mock(IStatementExecutor.class);
-        CachedStatementExecutor cachedStatementExecutor = new CachedStatementExecutor(tableInfo, cacheContext, statementExecutor);
+        CachedStatementExecutor cachedStatementExecutor = new CachedStatementExecutor(cacheContext, statementExecutor);
         TestClazz clazz = createTestClazz(1, "Said");
         TestClazz updatedClazz = createTestClazz(1, "SaidTest");
 
@@ -65,7 +65,7 @@ public class CachedStatementExecutorTest {
         CacheContext cacheContext = createCache();
         ObjectCache objectCache = cacheContext.getObjectCache().get();
         IStatementExecutor statementExecutor = Mockito.mock(IStatementExecutor.class);
-        CachedStatementExecutor cachedStatementExecutor = new CachedStatementExecutor(tableInfo, cacheContext, statementExecutor);
+        CachedStatementExecutor cachedStatementExecutor = new CachedStatementExecutor(cacheContext, statementExecutor);
         TestClazz clazz = createTestClazz(1, "Said");
         TestClazz updatedClazz = createTestClazz(1, "SaidTest");
 
@@ -88,24 +88,24 @@ public class CachedStatementExecutorTest {
         CacheContext cacheContext = createCache();
         ObjectCache objectCache = cacheContext.getObjectCache().get();
         IStatementExecutor statementExecutor = Mockito.mock(IStatementExecutor.class);
-        CachedStatementExecutor cachedStatementExecutor = new CachedStatementExecutor(tableInfo, cacheContext, statementExecutor);
+        CachedStatementExecutor cachedStatementExecutor = new CachedStatementExecutor(cacheContext, statementExecutor);
         TestClazz clazz = createTestClazz(1, "Said");
 
-        Mockito.when(statementExecutor.queryForId(null, 1)).thenReturn(clazz);
+        Mockito.when(statementExecutor.queryForId(null, TestClazz.class, 1)).thenReturn(clazz);
 
-        TestClazz queryForIdClazz1 = cachedStatementExecutor.queryForId(null, 1);
+        TestClazz queryForIdClazz1 = cachedStatementExecutor.queryForId(null, TestClazz.class, 1);
 
         Assert.assertEquals(1, queryForIdClazz1.id);
         Assert.assertEquals("Said", queryForIdClazz1.name);
         Assert.assertEquals(1, objectCache.size(TestClazz.class));
         Assert.assertEquals(1, objectCache.sizeAll());
 
-        TestClazz queryForIdClazz2 = cachedStatementExecutor.queryForId(null, 1);
+        TestClazz queryForIdClazz2 = cachedStatementExecutor.queryForId(null, TestClazz.class, 1);
 
         Assert.assertEquals(1, queryForIdClazz2.id);
         Assert.assertEquals("Said", queryForIdClazz2.name);
 
-        Mockito.verify(statementExecutor, Mockito.times(1)).queryForId(null, 1);
+        Mockito.verify(statementExecutor, Mockito.times(1)).queryForId(null, TestClazz.class, 1);
     }
 
     @Test
@@ -113,13 +113,13 @@ public class CachedStatementExecutorTest {
         CacheContext cacheContext = createCache();
         ObjectCache objectCache = cacheContext.getObjectCache().get();
         IStatementExecutor statementExecutor = Mockito.mock(IStatementExecutor.class);
-        CachedStatementExecutor cachedStatementExecutor = new CachedStatementExecutor(tableInfo, cacheContext, statementExecutor);
+        CachedStatementExecutor cachedStatementExecutor = new CachedStatementExecutor(cacheContext, statementExecutor);
         TestClazz clazz = createTestClazz(1, "Said");
         TestClazz clazz1 = createTestClazz(2, "SaidTest");
 
-        Mockito.when(statementExecutor.queryForAll(null)).thenReturn(Arrays.asList(clazz, clazz1));
+        Mockito.when(statementExecutor.queryForAll(null, TestClazz.class)).thenReturn(Arrays.asList(clazz, clazz1));
 
-        List<TestClazz> results = cachedStatementExecutor.queryForAll(null);
+        List<TestClazz> results = cachedStatementExecutor.queryForAll(null, TestClazz.class);
 
         Assert.assertEquals(2, objectCache.size(TestClazz.class));
         Assert.assertEquals(2, objectCache.sizeAll());

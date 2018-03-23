@@ -6,12 +6,9 @@ import org.h2.jdbcx.JdbcDataSource;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
-import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.service.ServiceRegistry;
-import org.junit.Test;
 import ru.saidgadjiev.orm.next.core.StressUtils;
 import ru.saidgadjiev.orm.next.core.cache.LRUObjectCache;
 import ru.saidgadjiev.orm.next.core.dao.BaseSessionManagerImpl;
@@ -64,8 +61,8 @@ public class StressTest {
 
         dataSource.setURL("jdbc:h2:mem:h2testdb;DB_CLOSE_DELAY=-1");
         BaseSessionManagerImpl sessionManager = new BaseSessionManagerImpl(new PolledConnectionSource(dataSource, new H2DatabaseType()));
-        ru.saidgadjiev.orm.next.core.dao.Session session = sessionManager.forClass(TestClass.class);
-        session.createTable(false);
+        ru.saidgadjiev.orm.next.core.dao.Session session = sessionManager.getSession();
+        session.createTable(TestClass.class, false);
         List<TestClass> sourceClasses = new ArrayList<>();
 
         for (int i = 0; i < 10000; ++i) {
@@ -89,8 +86,8 @@ public class StressTest {
 
         dataSource.setURL("jdbc:h2:mem:h2testdb;DB_CLOSE_DELAY=-1");
         BaseSessionManagerImpl sessionManager = new BaseSessionManagerImpl(new PolledConnectionSource(dataSource, new H2DatabaseType()));
-        ru.saidgadjiev.orm.next.core.dao.Session session = sessionManager.forClass(TestClass.class);
-        session.createTable(false);
+        ru.saidgadjiev.orm.next.core.dao.Session session = sessionManager.getSession();
+        session.createTable(TestClass.class, false);
         sessionManager.setObjectCache(new LRUObjectCache(16), TestClass.class);
 
         TestClass testClass = createTestClazz(TestClass.class,0, "Said");
@@ -98,7 +95,7 @@ public class StressTest {
         session.create(testClass);
 
         System.out.println(StressUtils.stress(() -> {
-            session.queryForId(testClass.id);
+            session.queryForId(TestClass.class, testClass.id);
 
             return null;
         }, 10000));

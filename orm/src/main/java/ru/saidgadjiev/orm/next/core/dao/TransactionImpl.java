@@ -22,7 +22,7 @@ public class TransactionImpl implements Transaction {
 
     private State state;
 
-    public TransactionImpl(IStatementExecutor statementExecutor, ConnectionSource connectionSource) throws SQLException {
+    TransactionImpl(IStatementExecutor statementExecutor, ConnectionSource connectionSource) throws SQLException {
         this.statementExecutor = statementExecutor;
         this.connection = connectionSource.getConnection();
         this.connectionSource = connectionSource;
@@ -41,21 +41,21 @@ public class TransactionImpl implements Transaction {
     }
 
     @Override
-    public boolean createTable(boolean ifNotExists) throws SQLException {
+    public<T> boolean createTable(Class<T> tClass, boolean ifNotExists) throws SQLException {
         check();
-        return statementExecutor.createTable(connection, ifNotExists);
+        return statementExecutor.createTable(connection, tClass, ifNotExists);
     }
 
     @Override
-    public<T, ID> T queryForId(ID id) throws SQLException {
+    public<T, ID> T queryForId(Class<T> tClass, ID id) throws SQLException {
         check();
-        return statementExecutor.queryForId(connection, id);
+        return statementExecutor.queryForId(connection, tClass, id);
     }
 
     @Override
-    public<T> List<T> queryForAll() throws SQLException {
+    public<T> List<T> queryForAll(Class<T> tClass) throws SQLException {
         check();
-        return statementExecutor.queryForAll(connection);
+        return statementExecutor.queryForAll(connection, tClass);
     }
 
     @Override
@@ -71,31 +71,31 @@ public class TransactionImpl implements Transaction {
     }
 
     @Override
-    public<ID> int deleteById(ID id) throws SQLException {
+    public<T, ID> int deleteById(Class<T> tClass, ID id) throws SQLException {
         check();
-        return statementExecutor.deleteById(connection, id);
+        return statementExecutor.deleteById(connection, tClass, id);
     }
 
     @Override
-    public boolean dropTable(boolean ifExists) throws SQLException {
+    public<T> boolean dropTable(Class<T> tClass, boolean ifExists) throws SQLException {
         check();
-        return statementExecutor.dropTable(connection, ifExists);
+        return statementExecutor.dropTable(connection, tClass, ifExists);
     }
 
     @Override
-    public void createIndexes() {
+    public<T> void createIndexes(Class<T> tClass) {
         throw new UnsupportedOperationException("");
     }
 
     @Override
-    public void dropIndexes() {
+    public<T> void dropIndexes(Class<T> tClass) {
         throw new UnsupportedOperationException("");
     }
 
     @Override
-    public long countOff() throws SQLException {
+    public<T> long countOff(Class<T> tClass) throws SQLException {
         check();
-        return statementExecutor.countOff(connection);
+        return statementExecutor.countOff(connection, tClass);
     }
 
     @Override
@@ -116,7 +116,22 @@ public class TransactionImpl implements Transaction {
             @Override
             public void releaseConnection(Connection connection) throws SQLException {
             }
-        }, query, null);
+        }, null, null, query);
+    }
+
+    @Override
+    public <R> GenericResults<R> query(Class<R> resultClass, String query) throws SQLException {
+        check();
+        return statementExecutor.query(new WrappedConnectionSource(connectionSource) {
+            @Override
+            public Connection getConnection() throws SQLException {
+                return connection;
+            }
+
+            @Override
+            public void releaseConnection(Connection connection) throws SQLException {
+            }
+        }, resultClass, null, query);
     }
 
     @Override
@@ -131,7 +146,22 @@ public class TransactionImpl implements Transaction {
             @Override
             public void releaseConnection(Connection connection) throws SQLException {
             }
-        }, query, args);
+        }, null, args, query);
+    }
+
+    @Override
+    public <R> GenericResults<R> query(Class<R> resultClass, Map<Integer, Object> args, String query) throws SQLException {
+        check();
+        return statementExecutor.query(new WrappedConnectionSource(connectionSource) {
+            @Override
+            public Connection getConnection() throws SQLException {
+                return connection;
+            }
+
+            @Override
+            public void releaseConnection(Connection connection) throws SQLException {
+            }
+        }, resultClass, args, query);
     }
 
     @Override

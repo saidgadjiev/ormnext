@@ -21,22 +21,24 @@ import java.util.Map;
 @SuppressWarnings("CPD-START")
 public class CachedStatementExecutor implements IStatementExecutor {
 
-    private TableInfo<?> tableInfo;
-
     private IStatementExecutor delegate;
 
     private CacheContext cacheContext;
 
-    public CachedStatementExecutor(TableInfo<?> tableInfo,
-                                   CacheContext cacheContext,
+    public CachedStatementExecutor(CacheContext cacheContext,
                                    IStatementExecutor delegate) {
-        this.tableInfo = tableInfo;
         this.cacheContext = cacheContext;
         this.delegate = delegate;
     }
 
     @Override
     public<T> int create(Connection connection, Collection<T> objects) throws SQLException {
+        if (objects.isEmpty()) {
+            return 0;
+        }
+        Class<T> tClass = (Class<T>) objects.iterator().next().getClass();
+        TableInfo<T> tableInfo = TableInfoManager.buildOrGet(tClass);
+
         delegate.create(connection, objects);
 
         if (cacheContext.isCaching(tableInfo.getTableClass()) && cacheContext.getObjectCache().isPresent()) {
@@ -60,6 +62,7 @@ public class CachedStatementExecutor implements IStatementExecutor {
 
     @Override
     public<T> int create(Connection connection, T object) throws SQLException {
+        TableInfo<T> tableInfo = TableInfoManager.buildOrGet((Class<T>) object.getClass());
         Integer count = delegate.create(connection, object);
 
         if (count > 0 && cacheContext.isCaching(tableInfo.getTableClass()) && cacheContext.getObjectCache().isPresent()) {
@@ -102,17 +105,18 @@ public class CachedStatementExecutor implements IStatementExecutor {
     }
 
     @Override
-    public boolean createTable(Connection connection, boolean ifNotExists) throws SQLException {
-        return delegate.createTable(connection, ifNotExists);
+    public<T> boolean createTable(Connection connection, Class<T> tClass, boolean ifNotExists) throws SQLException {
+        return delegate.createTable(connection, tClass, ifNotExists);
     }
 
     @Override
-    public boolean dropTable(Connection connection, boolean ifExists) throws SQLException {
-        return delegate.dropTable(connection, ifExists);
+    public<T> boolean dropTable(Connection connection, Class<T> tClass, boolean ifExists) throws SQLException {
+        return delegate.dropTable(connection, tClass, ifExists);
     }
 
     @Override
     public<T> int update(Connection connection, T object) throws SQLException {
+        TableInfo<T> tableInfo = TableInfoManager.buildOrGet((Class<T>) object.getClass());
         Integer count = delegate.update(connection, object);
 
         if (count > 0) {
@@ -121,10 +125,10 @@ public class CachedStatementExecutor implements IStatementExecutor {
             try {
                 if (cacheContext.isCaching(tableInfo.getTableClass()) && cacheContext.getObjectCache().isPresent()) {
                     ObjectCache objectCache = cacheContext.getObjectCache().get();
-                    T cachedData = objectCache.get((Class<T>) tableInfo.getTableClass(), idFieldType.access(object));
+                    T cachedData = objectCache.get(tableInfo.getTableClass(), idFieldType.access(object));
 
                     if (cachedData != null) {
-                        copy(object, cachedData);
+                        copy(tableInfo, object, cachedData);
                     }
                 }
             } catch (Exception ex) {
@@ -137,6 +141,7 @@ public class CachedStatementExecutor implements IStatementExecutor {
 
     @Override
     public<T> int delete(Connection connection, T object) throws SQLException {
+        TableInfo<T> tableInfo = TableInfoManager.buildOrGet((Class<T>) object.getClass());
         IDBFieldType dbFieldType = tableInfo.getPrimaryKey().get();
         Integer result = delegate.delete(connection, object);
 
@@ -154,8 +159,9 @@ public class CachedStatementExecutor implements IStatementExecutor {
     }
 
     @Override
-    public<ID> int deleteById(Connection connection, ID id) throws SQLException {
-        Integer result = delegate.deleteById(connection, id);
+    public<T, ID> int deleteById(Connection connection, Class<T> tClass, ID id) throws SQLException {
+        TableInfo<T> tableInfo = TableInfoManager.buildOrGet(tClass);
+        Integer result = delegate.deleteById(connection, tClass, id);
 
         if (cacheContext.isCaching(tableInfo.getTableClass())) {
             cacheContext.getObjectCache().ifPresent(objectCache -> objectCache.invalidate(tableInfo.getTableClass(), id));
@@ -165,7 +171,9 @@ public class CachedStatementExecutor implements IStatementExecutor {
     }
 
     @Override
-    public<T, ID> T queryForId(Connection connection, ID id) throws SQLException {
+    public<T, ID> T queryForId(Connection connection, Class<T> tClass, ID id) throws SQLException {
+        TableInfo<T> tableInfo = TableInfoManager.buildOrGet(tClass);
+
         if (cacheContext.isCaching(tableInfo.getTableClass()) && cacheContext.getObjectCache().isPresent()) {
             ObjectCache objectCache = cacheContext.getObjectCache().get();
 
@@ -174,7 +182,7 @@ public class CachedStatementExecutor implements IStatementExecutor {
             }
         }
 
-        T object = delegate.queryForId(connection, id);
+        T object = delegate.queryForId(connection, tClass, id);
 
         if (object != null && cacheContext.isCaching(tableInfo.getTableClass())) {
             cacheContext.getObjectCache().ifPresent(objectCache -> objectCache.put((Class<T>) tableInfo.getTableClass(), id, object));
@@ -184,9 +192,10 @@ public class CachedStatementExecutor implements IStatementExecutor {
     }
 
     @Override
-    public<T> List<T> queryForAll(Connection connection) throws SQLException {
+    public<T> List<T> queryForAll(Connection connection, Class<T> tClass) throws SQLException {
+        TableInfo<T> tableInfo = TableInfoManager.buildOrGet(tClass);
+        List<T> result = delegate.queryForAll(connection, tClass);
 
-        List<T> result = delegate.queryForAll(connection);
         try {
             if (tableInfo.getPrimaryKey().isPresent() && cacheContext.isCaching(tableInfo.getTableClass()) && cacheContext.getObjectCache().isPresent()) {
                 IDBFieldType idbFieldType = tableInfo.getPrimaryKey().get();
@@ -204,18 +213,18 @@ public class CachedStatementExecutor implements IStatementExecutor {
     }
 
     @Override
-    public void createIndexes(Connection connection) throws SQLException {
-        delegate.createIndexes(connection);
+    public<T> void createIndexes(Connection connection, Class<T> tClass) throws SQLException {
+        delegate.createIndexes(connection, tClass);
     }
 
     @Override
-    public void dropIndexes(Connection connection) throws SQLException {
-        delegate.dropIndexes(connection);
+    public<T> void dropIndexes(Connection connection, Class<T> tClass) throws SQLException {
+        delegate.dropIndexes(connection, tClass);
     }
 
     @Override
-    public <R> GenericResults<R> query(ConnectionSource connectionSource, String query, Map<Integer, Object> args) throws SQLException {
-        return delegate.query(connectionSource, query, args);
+    public <R> GenericResults<R> query(ConnectionSource connectionSource, Class<R> resultClass, Map<Integer, Object> args, String query) throws SQLException {
+        return delegate.query(connectionSource, resultClass, args, query);
     }
 
     @Override
@@ -224,8 +233,8 @@ public class CachedStatementExecutor implements IStatementExecutor {
     }
 
     @Override
-    public long countOff(Connection connection) throws SQLException {
-        return delegate.countOff(connection);
+    public<T> long countOff(Connection connection, Class<T> tClass) throws SQLException {
+        return delegate.countOff(connection, tClass);
     }
 
     @Override
@@ -233,7 +242,7 @@ public class CachedStatementExecutor implements IStatementExecutor {
         return delegate.query(connectionSource, statement);
     }
 
-    private<T> void copy(T srcObject, T destObject) throws Exception {
+    private<T> void copy(TableInfo<T> tableInfo, T srcObject, T destObject) throws Exception {
         for (DBFieldType fieldType : tableInfo.toDBFieldTypes()) {
             fieldType.assign(destObject, fieldType.access(srcObject));
         }
