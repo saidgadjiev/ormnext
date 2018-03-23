@@ -120,7 +120,7 @@ public class TransactionImpl implements Transaction {
     }
 
     @Override
-    public <R> GenericResults<R> query(Class<R> resultClass, String query) throws SQLException {
+    public <R> GenericResults<R> query(Class<R> fromTable, String query) throws SQLException {
         check();
         return statementExecutor.query(new WrappedConnectionSource(connectionSource) {
             @Override
@@ -131,7 +131,7 @@ public class TransactionImpl implements Transaction {
             @Override
             public void releaseConnection(Connection connection) throws SQLException {
             }
-        }, resultClass, null, query);
+        }, fromTable, null, query);
     }
 
     @Override
@@ -150,7 +150,7 @@ public class TransactionImpl implements Transaction {
     }
 
     @Override
-    public <R> GenericResults<R> query(Class<R> resultClass, Map<Integer, Object> args, String query) throws SQLException {
+    public <R> GenericResults<R> query(Class<R> resultClass, String query, Map<Integer, Object> args) throws SQLException {
         check();
         return statementExecutor.query(new WrappedConnectionSource(connectionSource) {
             @Override

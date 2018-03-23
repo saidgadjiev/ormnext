@@ -195,8 +195,8 @@ public class SessionImpl implements Session {
     }
 
     @Override
-    public <R> GenericResults<R> query(Class<R> resultClass, String query) throws SQLException {
-        return statementExecutor.query(dataSource, resultClass, null, query);
+    public <R> GenericResults<R> query(Class<R> fromTable, String query) throws SQLException {
+        return statementExecutor.query(dataSource, fromTable, null, query);
 
     }
 
@@ -206,7 +206,7 @@ public class SessionImpl implements Session {
     }
 
     @Override
-    public <R> GenericResults<R> query(Class<R> resultClass, Map<Integer, Object> args, String query) throws SQLException {
+    public <R> GenericResults<R> query(Class<R> resultClass, String query, Map<Integer, Object> args) throws SQLException {
         return statementExecutor.query(dataSource, resultClass, args, query);
     }
 
