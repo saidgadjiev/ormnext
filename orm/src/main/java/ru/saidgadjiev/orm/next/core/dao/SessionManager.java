@@ -14,5 +14,5 @@ public interface SessionManager {
 
     ConnectionSource getDataSource();
 
-    Session getSession();
+    Session getCurrentSession();
 }

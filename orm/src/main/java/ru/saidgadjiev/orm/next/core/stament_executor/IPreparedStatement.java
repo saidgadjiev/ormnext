@@ -5,7 +5,7 @@ import java.sql.SQLException;
 /**
  * Created by said on 04.02.2018.
  */
-public interface IPreparedStatement extends AutoCloseable, IStatement {
+public interface IPreparedStatement extends IStatement {
 
     void setObject(int index, Object value) throws SQLException;
 
@@ -14,5 +14,4 @@ public interface IPreparedStatement extends AutoCloseable, IStatement {
     int executeUpdate() throws SQLException;
 
     void addBatch() throws SQLException;
-
 }

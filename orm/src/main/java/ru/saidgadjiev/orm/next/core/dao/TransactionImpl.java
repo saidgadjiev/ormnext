@@ -205,10 +205,11 @@ public class TransactionImpl implements Transaction {
         if (connection == null || connection.isClosed()) {
             throw new SQLException("Connection is invalid");
         }
+        checkTransactionState();
     }
 
     private void checkTransactionState() throws SQLException {
-        if (!state.equals(State.BEGIN)) {
+        if (state == null || !state.equals(State.BEGIN)) {
             throw new SQLException("Transaction not begined");
         }
     }

@@ -19,6 +19,7 @@ import ru.saidgadjiev.orm.next.core.query.core.constraints.attribute.Default;
 import ru.saidgadjiev.orm.next.core.query.core.constraints.attribute.NotNullConstraint;
 import ru.saidgadjiev.orm.next.core.query.core.constraints.attribute.PrimaryKeyConstraint;
 import ru.saidgadjiev.orm.next.core.query.core.constraints.attribute.ReferencesConstraint;
+import ru.saidgadjiev.orm.next.core.query.core.constraints.table.ForeignKeyConstraint;
 import ru.saidgadjiev.orm.next.core.query.core.constraints.table.UniqueConstraint;
 import ru.saidgadjiev.orm.next.core.query.core.function.*;
 import ru.saidgadjiev.orm.next.core.query.core.join.JoinInfo;
@@ -346,6 +347,11 @@ public class NoActionVisitor implements QueryVisitor {
 
     @Override
     public void visit(InValues inValues) {
+
+    }
+
+    @Override
+    public void visit(ForeignKeyConstraint foreignKeyConstraint) {
 
     }
 }

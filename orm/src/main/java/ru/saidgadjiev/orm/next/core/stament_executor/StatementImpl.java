@@ -45,7 +45,7 @@ public class StatementImpl implements IStatement {
     }
 
     @Override
-    public void close() throws Exception {
-
+    public void close() throws SQLException {
+        statement.close();
     }
 }

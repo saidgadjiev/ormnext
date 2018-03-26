@@ -1,12 +1,12 @@
 package ru.saidgadjiev.orm.next.core.query.core;
 
 import ru.saidgadjiev.orm.next.core.field.DataPersisterManager;
-import ru.saidgadjiev.orm.next.core.field.field_type.DBFieldType;
 import ru.saidgadjiev.orm.next.core.field.field_type.ForeignFieldType;
+import ru.saidgadjiev.orm.next.core.field.field_type.IDBFieldType;
 import ru.saidgadjiev.orm.next.core.query.core.constraints.attribute.Default;
 import ru.saidgadjiev.orm.next.core.query.core.constraints.attribute.NotNullConstraint;
 import ru.saidgadjiev.orm.next.core.query.core.constraints.attribute.PrimaryKeyConstraint;
-import ru.saidgadjiev.orm.next.core.query.core.constraints.attribute.ReferencesConstraint;
+import ru.saidgadjiev.orm.next.core.query.core.constraints.table.ForeignKeyConstraint;
 import ru.saidgadjiev.orm.next.core.query.core.constraints.table.TableConstraint;
 import ru.saidgadjiev.orm.next.core.query.core.constraints.table.UniqueConstraint;
 import ru.saidgadjiev.orm.next.core.query.core.literals.Literal;
@@ -55,7 +55,10 @@ public class CreateTableQuery implements QueryElement {
     public static CreateTableQuery buildQuery(TableInfo<?> tableInfo, boolean ifNotExists) {
         List<AttributeDefinition> attributeDefinitions = new ArrayList<>();
 
-        for (DBFieldType dbFieldType: tableInfo.toDBFieldTypes()) {
+        for (IDBFieldType dbFieldType : tableInfo.getFieldTypes()) {
+            if (dbFieldType.isForeignCollectionFieldType()) {
+                continue;
+            }
             AttributeDefinition attributeDefinition = new AttributeDefinition(dbFieldType.getColumnName(), dbFieldType.getDataType(), dbFieldType.getLength());
 
             if (dbFieldType.isId()) {
@@ -72,22 +75,21 @@ public class CreateTableQuery implements QueryElement {
             }
             attributeDefinitions.add(attributeDefinition);
         }
-        for (ForeignFieldType foreignFieldType: tableInfo.toForeignFieldTypes()) {
-            AttributeDefinition attributeDefinition = new AttributeDefinition(foreignFieldType.getColumnName(), foreignFieldType.getDataType(), foreignFieldType.getLength());
-
-            attributeDefinition.getAttributeConstraints()
-                    .add(new ReferencesConstraint(
-                            foreignFieldType.getForeignTableName(),
-                            foreignFieldType.getForeignColumnName())
-                    );
-            attributeDefinitions.add(attributeDefinition);
-        }
-
         CreateTableQuery createTableQuery = new CreateTableQuery(
                 tableInfo.getTableName(),
                 ifNotExists,
                 attributeDefinitions
         );
+
+        for (ForeignFieldType foreignFieldType : tableInfo.toForeignFieldTypes()) {
+            createTableQuery
+                    .getTableConstraints()
+                    .add(new ForeignKeyConstraint(
+                            foreignFieldType.getForeignTableName(),
+                            foreignFieldType.getForeignColumnName(),
+                            foreignFieldType.getColumnName())
+                    );
+        }
 
         createTableQuery.getTableConstraints().addAll(tableInfo.getUniqueFieldTypes()
                 .stream()

@@ -1,6 +1,5 @@
 package ru.saidgadjiev.orm.next.core.stament_executor;
 
-import ru.saidgadjiev.orm.next.core.stament_executor.result_mapper.ResultsMapper;
 import ru.saidgadjiev.orm.next.core.support.ConnectionSource;
 
 import java.sql.Connection;
@@ -23,20 +22,5 @@ public class UserGenericResultsImpl<T> extends GenericResultsImpl<T> {
     @Override
     public T getFirstResult() throws SQLException {
         throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public List<T> getResults(ResultsMapper<T> resultsMapper) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public T getFirstResult(ResultsMapper<T> resultsMapper) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public void close() throws Exception {
-
     }
 }

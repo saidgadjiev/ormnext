@@ -73,7 +73,7 @@ public class GenericResultsImpl<T> implements GenericResults<T> {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() throws SQLException {
         databaseResults.close();
         statement.close();
         connectionSource.releaseConnection(connection);

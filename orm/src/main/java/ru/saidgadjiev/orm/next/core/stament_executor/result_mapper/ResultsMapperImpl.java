@@ -78,7 +78,7 @@ public class ResultsMapperImpl<T> implements ResultsMapper<T> {
 
         if (!parents.contains(foreignFieldType.getForeignFieldClass())) {
             TableInfo<?> foreignTableInfo = TableInfoManager.buildOrGet(foreignFieldType.getForeignFieldClass());
-            Session foreignDao = new BaseSessionManagerImpl(dataSource).getSession();
+            Session foreignDao = new BaseSessionManagerImpl(dataSource).getCurrentSession();
             SelectStatement<?> selectStatement = new SelectStatement<>(foreignFieldType.getForeignFieldClass());
 
             selectStatement.where(new Criteria().add(Restrictions.eq(foreignTableInfo.getPrimaryKey().get().getColumnName(), data.getObject(foreignFieldType.getColumnName()))));
@@ -94,7 +94,7 @@ public class ResultsMapperImpl<T> implements ResultsMapper<T> {
     private void buildForeignCollection(T object, IDBFieldType fieldType, Set<Class<?>> parents) throws Exception {
         ForeignCollectionFieldType foreignCollectionFieldType = (ForeignCollectionFieldType) fieldType;
         TableInfo<Object> foreignTableInfo = TableInfoManager.buildOrGet((Class<Object>) foreignCollectionFieldType.getForeignFieldClass());
-        Session foreignDao = new BaseSessionManagerImpl(dataSource).getSession();
+        Session foreignDao = new BaseSessionManagerImpl(dataSource).getCurrentSession();
 
         if (tableInfo.getPrimaryKey().isPresent() && foreignTableInfo.getPrimaryKey().isPresent()) {
             IDBFieldType idField = tableInfo.getPrimaryKey().get();

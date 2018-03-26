@@ -3,7 +3,6 @@ package ru.saidgadjiev.orm.next.core.stress;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.TableUtils;
 import org.h2.jdbcx.JdbcDataSource;
-import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
@@ -61,7 +60,7 @@ public class StressTest {
 
         dataSource.setURL("jdbc:h2:mem:h2testdb;DB_CLOSE_DELAY=-1");
         BaseSessionManagerImpl sessionManager = new BaseSessionManagerImpl(new PolledConnectionSource(dataSource, new H2DatabaseType()));
-        ru.saidgadjiev.orm.next.core.dao.Session session = sessionManager.getSession();
+        ru.saidgadjiev.orm.next.core.dao.Session session = sessionManager.getCurrentSession();
         session.createTable(TestClass.class, false);
         List<TestClass> sourceClasses = new ArrayList<>();
 
@@ -86,7 +85,7 @@ public class StressTest {
 
         dataSource.setURL("jdbc:h2:mem:h2testdb;DB_CLOSE_DELAY=-1");
         BaseSessionManagerImpl sessionManager = new BaseSessionManagerImpl(new PolledConnectionSource(dataSource, new H2DatabaseType()));
-        ru.saidgadjiev.orm.next.core.dao.Session session = sessionManager.getSession();
+        ru.saidgadjiev.orm.next.core.dao.Session session = sessionManager.getCurrentSession();
         session.createTable(TestClass.class, false);
         sessionManager.setObjectCache(new LRUObjectCache(16), TestClass.class);
 
@@ -116,11 +115,15 @@ public class StressTest {
         configuration.setProperty("hibernate.hbmdl.auto", "update");
 
         SessionFactory sessionFactory = createSessionFactory(configuration);
-        Criteria criteria;
         Session session = sessionFactory.openSession();
-        TestOneToMany testOneToMany1 = session.load(TestOneToMany.class, 1);
+        TestOneToMany testOneToMany1 = session.get(TestOneToMany.class, 1);
+        TestForeign testForeign = new TestForeign();
 
-        testOneToMany1.getName();
+        testForeign.name = "test_test_test";
+        testOneToMany1.getTestForeign().add(testForeign);
+        session.save(testOneToMany1);
+
+        session.close();
     }
 
     private static<T> T createTestClazz(Class<T> tClass, Object ... args) throws Exception {

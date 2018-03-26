@@ -15,4 +15,5 @@ public interface GenericResults<T> extends AutoCloseable {
 
     T getFirstResult(ResultsMapper<T> resultsMapper) throws SQLException;
 
+    void close() throws SQLException;
 }

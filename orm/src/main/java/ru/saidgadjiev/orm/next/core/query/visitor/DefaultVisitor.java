@@ -16,6 +16,8 @@ import ru.saidgadjiev.orm.next.core.query.core.common.TableRef;
 import ru.saidgadjiev.orm.next.core.query.core.common.UpdateValue;
 import ru.saidgadjiev.orm.next.core.query.core.condition.*;
 import ru.saidgadjiev.orm.next.core.query.core.constraints.attribute.*;
+import ru.saidgadjiev.orm.next.core.query.core.constraints.table.ForeignKeyConstraint;
+import ru.saidgadjiev.orm.next.core.query.core.constraints.table.TableConstraint;
 import ru.saidgadjiev.orm.next.core.query.core.constraints.table.UniqueConstraint;
 import ru.saidgadjiev.orm.next.core.query.core.function.AVG;
 import ru.saidgadjiev.orm.next.core.query.core.function.CountAll;
@@ -190,6 +192,17 @@ public class DefaultVisitor extends NoActionVisitor {
                 sql.append(", ");
             }
         }
+        if (!tCreateTableQuery.getTableConstraints().isEmpty()) {
+            sql.append(", ");
+            for (Iterator<TableConstraint> iterator = tCreateTableQuery.getTableConstraints().iterator(); iterator.hasNext(); ) {
+                TableConstraint tableConstraint = iterator.next();
+
+                tableConstraint.accept(this);
+                if (iterator.hasNext()) {
+                    sql.append(", ");
+                }
+            }
+        }
         sql.append(")");
     }
 
@@ -270,7 +283,7 @@ public class DefaultVisitor extends NoActionVisitor {
 
     @Override
     public void visit(UniqueConstraint uniqueConstraint) {
-        sql.append(", UNIQUE (`");
+        sql.append("UNIQUE (`");
         for (Iterator<String> iterator = uniqueConstraint.getUniqueColemns().iterator(); iterator.hasNext(); ) {
             sql.append(iterator.next());
             if (iterator.hasNext()) {
@@ -507,5 +520,18 @@ public class DefaultVisitor extends NoActionVisitor {
             sql.append(" AS ");
             displayedOperand.getAlias().accept(this);
         }
+    }
+
+    @Override
+    public void visit(ForeignKeyConstraint foreignKeyConstraint) {
+        sql
+                .append("FOREIGN KEY (")
+                .append(foreignKeyConstraint.getColumnName())
+                .append(")")
+                .append(" REFERENCES `")
+                .append(foreignKeyConstraint.getTypeName())
+                .append("`(`")
+                .append(foreignKeyConstraint.getForeignColumnName())
+                .append("`)");
     }
 }

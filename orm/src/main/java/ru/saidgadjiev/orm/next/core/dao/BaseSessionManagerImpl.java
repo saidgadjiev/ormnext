@@ -15,6 +15,8 @@ public class BaseSessionManagerImpl implements SessionManager {
 
     private CacheContext cacheContext = new CacheContext();
 
+    private Session session = null;
+
     public BaseSessionManagerImpl(ConnectionSource dataSource) {
         this.dataSource = dataSource;
     }
@@ -52,7 +54,11 @@ public class BaseSessionManagerImpl implements SessionManager {
     }
 
     @Override
-    public Session getSession() {
-        return new SessionImpl(dataSource, cacheContext);
+    public Session getCurrentSession() {
+        if (session == null) {
+            session = new SessionImpl(dataSource, cacheContext);
+        }
+
+        return session;
     }
 }

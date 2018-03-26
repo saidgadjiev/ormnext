@@ -50,7 +50,7 @@ public class TransactionImplTest {
     }
 
     protected <T> Session createDao(Class<T> clazz, boolean createTable) throws Exception {
-        Session dao = new BaseSessionManagerImpl(connectionSource).getSession();
+        Session dao = new BaseSessionManagerImpl(connectionSource).getCurrentSession();
 
         if (createTable) {
             dao.createTable(TestClazz.class, true);
