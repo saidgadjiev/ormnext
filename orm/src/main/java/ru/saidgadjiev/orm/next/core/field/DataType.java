@@ -1,24 +1,24 @@
 package ru.saidgadjiev.orm.next.core.field;
 
-import ru.saidgadjiev.orm.next.core.field.persisters.*;
+public final class DataType {
 
-public enum DataType {
-    STRING(new StringDataPersister()),
-    INTEGER(new IntegerDataPersister()),
-    BOOLEAN(new BooleanPersister()),
-    DATE(new DateStringDataPersister()),
-    LONG(new IntegerDataPersister()),
-    FLOAT(new FloatDataPersister()),
-    DOUBLE(new DoubleDataPersister()),
-    UNKNOWN(null);
+    public static final int STRING = 0;
 
-    private DataPersister<?> dataPersister;
+    public static final int INTEGER = 1;
 
-    DataType(DataPersister dataPersister) {
-        this.dataPersister = dataPersister;
-    }
+    public static final int BOOLEAN = 2;
 
-    public DataPersister<?> getDataPersister() {
-        return dataPersister;
+    public static final int DATE = 3;
+
+    public static final int LONG = 4;
+
+    public static final int FLOAT = 5;
+
+    public static final int DOUBLE = 6;
+
+    public static final int UNKNOWN = 7;
+
+    public static int[] types() {
+        return new int[] {STRING, INTEGER, BOOLEAN, DATE, LONG, FLOAT, DOUBLE, UNKNOWN};
     }
 }

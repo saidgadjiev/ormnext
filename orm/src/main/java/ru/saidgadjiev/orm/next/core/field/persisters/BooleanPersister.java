@@ -22,7 +22,7 @@ public class BooleanPersister extends BaseDataPersister {
     }
 
     @Override
-    public DataType getDataType() {
+    public int getDataType() {
         return DataType.BOOLEAN;
     }
 

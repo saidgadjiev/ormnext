@@ -22,7 +22,7 @@ public class StringDataPersister extends BaseDataPersister {
     }
 
     @Override
-    public DataType getDataType() {
+    public int getDataType() {
         return DataType.STRING;
     }
 

@@ -1,5 +1,6 @@
 package ru.saidgadjiev.orm.next.core.field.field_type;
 
+import org.omg.CORBA.UNKNOWN;
 import ru.saidgadjiev.orm.next.core.field.DBField;
 import ru.saidgadjiev.orm.next.core.field.DataPersisterManager;
 import ru.saidgadjiev.orm.next.core.field.DataType;
@@ -35,14 +36,13 @@ public class DBFieldTypeFactory implements FieldTypeFactory {
 
         fieldType.setFormat(format);
         if (!dbField.foreign()) {
-            DataType dataType = dbField.dataType();
-            DataPersister<?> dataPersister = dataType.equals(DataType.UNKNOWN) ? DataPersisterManager.lookup(field.getType()) : dataType.getDataPersister();
-
+            Integer dataType = dbField.dataType();
+            DataPersister<?> dataPersister = dataType.equals(DataType.UNKNOWN) ? DataPersisterManager.lookup(field.getType()) : DataPersisterManager.lookup(dataType);
 
             new DataTypeValidator(field).validate(dataPersister);
             new GeneratedTypeValidator(dbField.generated()).validate(dataPersister);
             fieldType.setDataPersister(dataPersister);
-            fieldType.setDataType(dataPersister.getDataType());
+            fieldType.setDataType(dataType.equals(DataType.UNKNOWN) ? dataPersister.getDataType() : dataType);
             String defaultValue = dbField.defaultValue();
 
             if (!defaultValue.equals(DBField.DEFAULT_STR)) {

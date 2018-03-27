@@ -1,6 +1,5 @@
 package ru.saidgadjiev.orm.next.core.field.field_type;
 
-import ru.saidgadjiev.orm.next.core.field.DataType;
 import ru.saidgadjiev.orm.next.core.field.persisters.DataPersister;
 
 import java.lang.reflect.Field;
@@ -23,7 +22,7 @@ public interface IDBFieldType {
 
     String getColumnName();
 
-    DataType getDataType();
+    int getDataType();
 
     Object access(Object object) throws InvocationTargetException, IllegalAccessException;
 

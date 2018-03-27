@@ -1,5 +1,6 @@
 package ru.saidgadjiev.orm.next.core.validator.data_persister;
 
+import ru.saidgadjiev.orm.next.core.field.DataPersisterManager;
 import ru.saidgadjiev.orm.next.core.field.DataType;
 import ru.saidgadjiev.orm.next.core.field.persisters.DataPersister;
 import ru.saidgadjiev.orm.next.core.utils.ExceptionUtils;
@@ -22,11 +23,11 @@ public class GeneratedTypeValidator implements IValidator {
         if (generated && !dataPersister.isValidForGenerated()) {
             StringBuilder builder = new StringBuilder();
 
-            for (DataType dataType: DataType.values()) {
-                DataPersister<?> persister = dataType.getDataPersister();
+            for (int dataType: DataType.types()) {
+                DataPersister<?> persister = DataPersisterManager.lookup(dataType);
 
                 if (persister != null && persister.isValidForGenerated()) {
-                    builder.append(Arrays.toString(dataType.getDataPersister().getAssociatedClasses()));
+                    builder.append(Arrays.toString(persister.getAssociatedClasses()));
                 }
             }
 

@@ -1,7 +1,6 @@
 package ru.saidgadjiev.orm.next.core.field.field_type;
 
 import ru.saidgadjiev.orm.next.core.field.CollectionType;
-import ru.saidgadjiev.orm.next.core.field.DataType;
 import ru.saidgadjiev.orm.next.core.field.FetchType;
 import ru.saidgadjiev.orm.next.core.field.FieldAccessor;
 import ru.saidgadjiev.orm.next.core.field.persisters.DataPersister;
@@ -45,7 +44,7 @@ public class ForeignCollectionFieldType implements IDBFieldType {
     }
 
     @Override
-    public DataType getDataType() {
+    public int getDataType() {
         throw new UnsupportedOperationException("");
     }
 

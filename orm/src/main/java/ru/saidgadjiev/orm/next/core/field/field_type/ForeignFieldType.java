@@ -1,6 +1,5 @@
 package ru.saidgadjiev.orm.next.core.field.field_type;
 
-import ru.saidgadjiev.orm.next.core.field.DataType;
 import ru.saidgadjiev.orm.next.core.field.persisters.DataPersister;
 
 import java.lang.reflect.Field;
@@ -25,7 +24,7 @@ public class ForeignFieldType implements IDBFieldType {
 
     private String foreignTableName;
 
-    private DataType dataType;
+    private int dataType;
 
     public ForeignFieldType(IDBFieldType dbFieldType) {
         this.dbFieldType = dbFieldType;
@@ -75,7 +74,7 @@ public class ForeignFieldType implements IDBFieldType {
     }
 
     @Override
-    public DataType getDataType() {
+    public int getDataType() {
         return dataType;
     }
 
@@ -131,7 +130,7 @@ public class ForeignFieldType implements IDBFieldType {
         this.foreignTableName = foreignTableName;
     }
 
-    public void setDataType(DataType dataType) {
+    public void setDataType(int dataType) {
         this.dataType = dataType;
     }
 }

@@ -18,7 +18,7 @@ public class DateStringDataPersister extends BaseDateDataPersister {
     }
 
     @Override
-    public DataType getDataType() {
+    public int getDataType() {
         return DataType.STRING;
     }
 

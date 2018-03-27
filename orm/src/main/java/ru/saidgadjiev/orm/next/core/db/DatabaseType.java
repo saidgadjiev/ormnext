@@ -1,5 +1,7 @@
 package ru.saidgadjiev.orm.next.core.db;
 
+import ru.saidgadjiev.orm.next.core.query.core.AttributeDefinition;
+
 import java.sql.SQLException;
 
 public interface DatabaseType {
@@ -24,6 +26,10 @@ public interface DatabaseType {
     String getDriverClassName();
 
     String appendNoColumn();
+
+    default String typeToSql(int type, AttributeDefinition attributeDefinition) {
+        return null;
+    }
 
     default String getEntityNameEscape() {
         return "`";

@@ -1,6 +1,5 @@
 package ru.saidgadjiev.orm.next.core.field.field_type;
 
-import ru.saidgadjiev.orm.next.core.field.DataType;
 import ru.saidgadjiev.orm.next.core.field.FieldAccessor;
 import ru.saidgadjiev.orm.next.core.field.persisters.DataPersister;
 
@@ -11,7 +10,7 @@ public class DBFieldType implements IDBFieldType {
 
     private String columnName;
 
-    private DataType dataType;
+    private int dataType;
 
     private Field field;
 
@@ -58,7 +57,7 @@ public class DBFieldType implements IDBFieldType {
     }
 
     @Override
-    public DataType getDataType() {
+    public int getDataType() {
         return dataType;
     }
 
@@ -102,7 +101,7 @@ public class DBFieldType implements IDBFieldType {
         this.columnName = columnName;
     }
 
-    public void setDataType(DataType dataType) {
+    public void setDataType(int dataType) {
         this.dataType = dataType;
     }
 

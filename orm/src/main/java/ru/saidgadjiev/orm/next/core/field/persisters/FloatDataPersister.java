@@ -30,7 +30,7 @@ public class FloatDataPersister extends BaseDataPersister {
     }
 
     @Override
-    public DataType getDataType() {
+    public int getDataType() {
         return DataType.FLOAT;
     }
 }

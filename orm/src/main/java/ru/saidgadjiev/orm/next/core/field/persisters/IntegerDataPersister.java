@@ -22,7 +22,7 @@ public class IntegerDataPersister extends BaseDataPersister {
     }
 
     @Override
-    public DataType getDataType() {
+    public int getDataType() {
         return DataType.INTEGER;
     }
 

@@ -1,7 +1,6 @@
 package ru.saidgadjiev.orm.next.core.query.visitor;
 
 import ru.saidgadjiev.orm.next.core.db.DatabaseType;
-import ru.saidgadjiev.orm.next.core.field.DataType;
 import ru.saidgadjiev.orm.next.core.query.core.*;
 import ru.saidgadjiev.orm.next.core.query.core.clause.*;
 import ru.saidgadjiev.orm.next.core.query.core.clause.from.FromJoinedTables;
@@ -29,6 +28,8 @@ import ru.saidgadjiev.orm.next.core.query.core.join.LeftJoin;
 import ru.saidgadjiev.orm.next.core.query.core.literals.*;
 
 import java.util.Iterator;
+
+import static ru.saidgadjiev.orm.next.core.field.DataType.*;
 
 /**
  * Visitor по умолчанию
@@ -172,11 +173,11 @@ public class DefaultVisitor extends NoActionVisitor {
         if (tCreateTableQuery.isIfNotExists()) {
             sql.append("IF NOT EXISTS ");
         }
-        sql.append(escapeEntity).append(tCreateTableQuery.getTypeName()).append("` (");
+        sql.append(escapeEntity).append(tCreateTableQuery.getTypeName()).append(escapeEntity).append(" (");
         for (Iterator<AttributeDefinition> iterator = tCreateTableQuery.getAttributeDefinitions().iterator(); iterator.hasNext(); ) {
             AttributeDefinition attributeDefinition = iterator.next();
 
-            sql.append(escapeEntity).append(attributeDefinition.getName()).append("` ");
+            sql.append(escapeEntity).append(attributeDefinition.getName()).append(escapeEntity).append(" ");
             appendAttributeDataType(attributeDefinition);
             sql.append(" ");
             for (Iterator<AttributeConstraint> constraintIterator = attributeDefinition.getAttributeConstraints().iterator(); constraintIterator.hasNext(); ) {
@@ -207,7 +208,7 @@ public class DefaultVisitor extends NoActionVisitor {
     }
 
     private void appendAttributeDataType(AttributeDefinition def) {
-        DataType dataType = def.getDataType();
+        int dataType = def.getDataType();
 
         switch (dataType) {
             case STRING:
@@ -229,9 +230,9 @@ public class DefaultVisitor extends NoActionVisitor {
                 break;
             case UNKNOWN:
                 break;
+            default:
+                sql.append(databaseType.typeToSql(dataType, def));
         }
-
-
     }
 
     @Override
@@ -283,14 +284,14 @@ public class DefaultVisitor extends NoActionVisitor {
 
     @Override
     public void visit(UniqueConstraint uniqueConstraint) {
-        sql.append("UNIQUE (`");
+        sql.append("UNIQUE (").append(escapeEntity);
         for (Iterator<String> iterator = uniqueConstraint.getUniqueColemns().iterator(); iterator.hasNext(); ) {
             sql.append(iterator.next());
             if (iterator.hasNext()) {
-                sql.append("`,`");
+                sql.append(escapeEntity).append(",").append(escapeEntity);
             }
         }
-        sql.append("`)");
+        sql.append(escapeEntity).append(")");
     }
 
     @Override
@@ -300,35 +301,43 @@ public class DefaultVisitor extends NoActionVisitor {
 
     @Override
     public void visit(ReferencesConstraint referencesConstraint) {
-        sql.append(" REFERENCES `")
+        sql.append(" REFERENCES ").append(escapeEntity)
                 .append(referencesConstraint.getTypeName())
-                .append("`(`")
+                .append(escapeEntity)
+                .append("(")
+                .append(escapeEntity)
                 .append(referencesConstraint.getColumnName())
-                .append("`)");
+                .append(escapeEntity)
+                .append(")");
     }
 
     @Override
     public void visit(CreateIndexQuery createIndexQuery) {
         sql.append("CREATE ")
                 .append(createIndexQuery.isUnique() ? "UNIQUE" : "INDEX")
-                .append(" `")
+                .append(" ")
+                .append(escapeEntity)
                 .append(createIndexQuery.getIndexName())
-                .append("` ON `")
+                .append(escapeEntity)
+                .append(" ON ")
+                .append(escapeEntity)
                 .append(createIndexQuery.getTableName())
-                .append("`(`");
+                .append(escapeEntity)
+                .append("(")
+                .append(escapeEntity);
         for (Iterator<String> iterator = createIndexQuery.getColumns().iterator(); iterator.hasNext(); ) {
             sql.append(iterator.next());
 
             if (iterator.hasNext()) {
-                sql.append("`,`");
+                sql.append(escapeEntity).append(",").append(escapeEntity);
             }
         }
-        sql.append("`)");
+        sql.append(escapeEntity).append(")");
     }
 
     @Override
     public void visit(DropIndexQuery dropIndexQuery) {
-        sql.append("DROP INDEX `").append(dropIndexQuery.getName()).append(escapeEntity);
+        sql.append(escapeEntity).append("DROP INDEX ").append(dropIndexQuery.getName()).append(escapeEntity);
     }
 
     @Override
@@ -528,10 +537,14 @@ public class DefaultVisitor extends NoActionVisitor {
                 .append("FOREIGN KEY (")
                 .append(foreignKeyConstraint.getColumnName())
                 .append(")")
-                .append(" REFERENCES `")
+                .append(" REFERENCES ")
+                .append(escapeEntity)
                 .append(foreignKeyConstraint.getTypeName())
-                .append("`(`")
+                .append(escapeEntity)
+                .append("(")
+                .append(escapeEntity)
                 .append(foreignKeyConstraint.getForeignColumnName())
-                .append("`)");
+                .append(escapeEntity)
+                .append(")");
     }
 }

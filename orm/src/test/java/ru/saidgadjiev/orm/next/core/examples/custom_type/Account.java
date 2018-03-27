@@ -1,9 +1,9 @@
-package ru.saidgadjiev.orm.next.core.examples.foreign_collection;
+package ru.saidgadjiev.orm.next.core.examples.custom_type;
 
-import ru.saidgadjiev.orm.next.core.field.*;
-
-import java.util.ArrayList;
-import java.util.List;
+import ru.saidgadjiev.orm.next.core.field.DBField;
+import ru.saidgadjiev.orm.next.core.field.DataType;
+import ru.saidgadjiev.orm.next.core.field.Getter;
+import ru.saidgadjiev.orm.next.core.field.Setter;
 
 /**
  * Created by said on 27.02.2018.
@@ -12,16 +12,13 @@ public class Account {
 
     @Getter(name = "getId")
     @Setter(name = "setId")
-    @DBField(id = true, generated = true, dataType = DataType.INTEGER)
+    @DBField(id = true, generated = true, dataType = 8)
     private int id;
 
     @Getter(name = "getName")
     @Setter(name = "setName")
     @DBField
     private String name;
-
-    @ForeignCollectionField(fetchType = FetchType.LAZY)
-    private List<Order> orders = new ArrayList<>();
 
     //For OrmNext
     public Account() {
@@ -47,11 +44,4 @@ public class Account {
         this.name = name;
     }
 
-    public List<Order> getOrders() {
-        return orders;
-    }
-
-    public void setOrders(List<Order> orders) {
-        this.orders = orders;
-    }
 }

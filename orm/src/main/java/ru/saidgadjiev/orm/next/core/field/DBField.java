@@ -13,7 +13,7 @@ public @interface DBField {
 
     String columnName() default "";
 
-    DataType dataType() default DataType.UNKNOWN;
+    int dataType() default DataType.UNKNOWN;
 
     int length() default 255;
 
