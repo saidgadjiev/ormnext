@@ -303,8 +303,10 @@ public class StatementExecutorImpl implements IStatementExecutor {
 
         try (IStatement statement = new StatementImpl(connection.createStatement())) {
             try (DatabaseResults databaseResults = statement.executeQuery(query)) {
+                ResultsMapper<?> resultsMapper = resultsMapperFactory.apply(tableInfo);
+
                 while (databaseResults.next()) {
-                    resultObjectList.add((T) resultsMapperFactory.apply(tableInfo).mapResults(databaseResults));
+                    resultObjectList.add((T) resultsMapper.mapResults(databaseResults));
                 }
             }
         } catch (Exception ex) {

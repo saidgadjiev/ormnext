@@ -20,10 +20,7 @@ import ru.saidgadjiev.orm.next.core.table.TableInfo;
 import ru.saidgadjiev.orm.next.core.table.TableInfoManager;
 
 import java.lang.reflect.Constructor;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Supplier;
 
 public class ResultsMapperImpl<T> implements ResultsMapper<T> {
@@ -85,7 +82,7 @@ public class ResultsMapperImpl<T> implements ResultsMapper<T> {
             DefaultVisitor visitor = new DefaultVisitor(dataSource.getDatabaseType());
 
             selectStatement.accept(visitor);
-            Object foreignObject = foreignDao.query(foreignTableInfo.getTableClass(), visitor.getQuery(), selectStatement.getArgs()).getFirstResult(new ResultsMapperImpl(dataSource, foreignTableInfo, foreignTableInfo.getFieldTypes(), parents));
+            Object foreignObject = foreignDao.query(foreignTableInfo.getTableClass(), visitor.getQuery(), selectStatement.getArgs()).getFirstResult(new ResultsMapperImpl(dataSource, foreignTableInfo, foreignTableInfo.getFieldTypes(), new HashSet<>(parents)));
 
             foreignFieldType.assign(object, foreignObject);
         }
@@ -109,7 +106,7 @@ public class ResultsMapperImpl<T> implements ResultsMapper<T> {
                 try (GenericResults<Object> genericResults = foreignDao.query(foreignTableInfo.getTableClass(), visitor.getQuery(), new HashMap<Integer, Object>() {{
                     put(1, idField.access(object));
                 }})) {
-                    List<Object> objects = genericResults.getResults(new ResultsMapperImpl<>(dataSource, foreignTableInfo, foreignTableInfo.getFieldTypes(), parents));
+                    List<Object> objects = genericResults.getResults(new ResultsMapperImpl<>(dataSource, foreignTableInfo, foreignTableInfo.getFieldTypes(), new HashSet<>(parents)));
 
                     for (Object foreignObject : objects) {
                         foreignField.assign(foreignObject, object);
@@ -124,7 +121,7 @@ public class ResultsMapperImpl<T> implements ResultsMapper<T> {
                         try (GenericResults<Object> genericResults = foreignDao.query(foreignTableInfo.getTableClass(), visitor.getQuery(), new HashMap<Integer, Object>() {{
                             put(1, idField.access(object));
                         }})) {
-                            List<Object> results = genericResults.getResults(new ResultsMapperImpl<>(dataSource, foreignTableInfo, foreignTableInfo.getFieldTypes(), parents));
+                            List<Object> results = genericResults.getResults(new ResultsMapperImpl<>(dataSource, foreignTableInfo, foreignTableInfo.getFieldTypes(), new HashSet<>(parents)));
 
                             for (Object foreignObject : results) {
                                 foreignField.assign(foreignObject, object);
