@@ -1,6 +1,5 @@
 package ru.saidgadjiev.orm.next.core.field.field_type;
 
-import org.omg.CORBA.UNKNOWN;
 import ru.saidgadjiev.orm.next.core.field.DBField;
 import ru.saidgadjiev.orm.next.core.field.DataPersisterManager;
 import ru.saidgadjiev.orm.next.core.field.DataType;
