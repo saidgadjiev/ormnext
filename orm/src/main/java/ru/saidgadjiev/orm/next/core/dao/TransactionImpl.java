@@ -188,8 +188,13 @@ public class TransactionImpl implements Transaction {
     @Override
     public void commit() throws SQLException {
         checkTransactionState();
-        connection.commit();
-        state = State.COMMIT;
+        try {
+            connection.commit();
+            state = State.COMMIT;
+        } finally {
+            connection.setAutoCommit(true);
+        }
+
         connectionSource.releaseConnection(connection);
     }
 

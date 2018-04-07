@@ -146,7 +146,7 @@ public final class TableInfo<T> {
             Unique[] uniques = tClass.getAnnotation(DBTable.class).uniqueConstraints();
 
             for (Unique unique : uniques) {
-                uniqueFieldTypes.add(new UniqueFieldType(validateUnique(fieldTypes, unique)));
+                uniqueFieldTypes.add(new UniqueFieldType(validateUnique(fieldTypes, unique, tClass)));
             }
         }
 
@@ -160,14 +160,14 @@ public final class TableInfo<T> {
             Index[] indexes = tClass.getAnnotation(DBTable.class).indexes();
 
             for (Index index : indexes) {
-                uniqueFieldTypes.add(new IndexFieldType(index.name(), index.unique(), tableName, validateIndex(fieldTypes, index)));
+                uniqueFieldTypes.add(new IndexFieldType(index.name(), index.unique(), tableName, validateIndex(fieldTypes, index, tClass)));
             }
         }
 
         return uniqueFieldTypes;
     }
 
-    private static List<String> validateIndex(List<IDBFieldType> fieldTypes, Index index) {
+    private static List<String> validateIndex(List<IDBFieldType> fieldTypes, Index index, Class<?> clazz) {
         List<String> columns = new ArrayList<>();
 
         for (String columnName : index.columns()) {
@@ -180,14 +180,14 @@ public final class TableInfo<T> {
                         return idbFieldType.getField().getName().equals(columnName);
                     })
                     .findAny()
-                    .orElseThrow(() -> new IllegalArgumentException("Indexed column [" + columnName + "] not annotated with DBField!"))
+                    .orElseThrow(() -> new IllegalArgumentException("Indexed column [" + columnName + "] not found in " + clazz))
                     .getColumnName());
         }
 
         return columns;
     }
 
-    private static List<String> validateUnique(List<IDBFieldType> fieldTypes, Unique unique) {
+    private static List<String> validateUnique(List<IDBFieldType> fieldTypes, Unique unique, Class<?> clazz) {
         List<String> columns = new ArrayList<>();
 
         for (String columnName : unique.columns()) {
@@ -201,7 +201,7 @@ public final class TableInfo<T> {
                         return idbFieldType.getField().getName().equals(columnName);
                     })
                     .findAny()
-                    .orElseThrow(() -> new IllegalArgumentException("Unique column [" + columnName + "] not annotated with DBField!"))
+                    .orElseThrow(() -> new IllegalArgumentException("Unique column [" + columnName + "] not found in " + clazz))
                     .getColumnName());
         }
 

@@ -94,6 +94,12 @@ public class ForeignFieldType implements IDBFieldType {
 
     @Override
     public String getColumnName() {
+        String columnName = dbFieldType.getColumnName();
+
+        if (columnName.endsWith(ID_SUFFIX)) {
+            return columnName;
+        }
+
         return dbFieldType.getColumnName() + ID_SUFFIX;
     }
 
