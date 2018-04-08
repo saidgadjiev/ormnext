@@ -178,7 +178,7 @@ public class CachedStatementExecutor implements IStatementExecutor {
             ObjectCache objectCache = cacheContext.getObjectCache().get();
 
             if (objectCache.contains(tableInfo.getTableClass(), id)) {
-                return objectCache.get((Class<T>) tableInfo.getTableClass(), id);
+                return objectCache.get(tableInfo.getTableClass(), id);
             }
         }
 

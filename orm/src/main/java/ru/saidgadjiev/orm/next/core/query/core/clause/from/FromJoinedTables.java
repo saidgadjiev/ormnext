@@ -21,8 +21,8 @@ public class FromJoinedTables implements FromExpression {
         return tableRef;
     }
 
-    public List<JoinExpression> getJoinExpression() {
-        return joinExpressions;
+    public void addJoinExpression(JoinExpression joinExpression) {
+        joinExpressions.add(joinExpression);
     }
 
     @Override
@@ -31,4 +31,7 @@ public class FromJoinedTables implements FromExpression {
 
     }
 
+    public List<JoinExpression> getJoinExpression() {
+        return joinExpressions;
+    }
 }

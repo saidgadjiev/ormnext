@@ -17,7 +17,7 @@ public class TestOneToMany {
     @Column(name = "name")
     public String name;
 
-    @OneToMany(mappedBy = "testOneToMany", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "testOneToMany", fetch = FetchType.EAGER)
     public List<TestForeign> testForeign;
 
     public TestOneToMany() {

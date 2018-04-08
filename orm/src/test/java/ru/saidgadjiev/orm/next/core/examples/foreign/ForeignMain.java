@@ -5,6 +5,7 @@ import ru.saidgadjiev.orm.next.core.dao.BaseSessionManagerImpl;
 import ru.saidgadjiev.orm.next.core.dao.Session;
 import ru.saidgadjiev.orm.next.core.dao.SessionManager;
 import ru.saidgadjiev.orm.next.core.db.H2DatabaseType;
+import ru.saidgadjiev.orm.next.core.logger.LoggerFactory;
 import ru.saidgadjiev.orm.next.core.support.PolledConnectionSource;
 
 /**
@@ -14,7 +15,7 @@ public class ForeignMain {
 
     public static void main(String[] args) throws Exception {
         JdbcDataSource dataSource = new JdbcDataSource();
-
+        System.getProperties().setProperty(LoggerFactory.LOG_ENABLED_PROPERTY, "true");
         dataSource.setURL("jdbc:h2:mem:h2testdb;DB_CLOSE_DELAY=-1");
         SessionManager sessionManager = new BaseSessionManagerImpl(new PolledConnectionSource(dataSource, new H2DatabaseType()));
         Session session = sessionManager.getCurrentSession();

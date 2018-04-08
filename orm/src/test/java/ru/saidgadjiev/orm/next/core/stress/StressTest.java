@@ -11,6 +11,7 @@ import org.hibernate.service.ServiceRegistry;
 import ru.saidgadjiev.orm.next.core.StressUtils;
 import ru.saidgadjiev.orm.next.core.cache.LRUObjectCache;
 import ru.saidgadjiev.orm.next.core.dao.BaseSessionManagerImpl;
+import ru.saidgadjiev.orm.next.core.dao.Transaction;
 import ru.saidgadjiev.orm.next.core.db.H2DatabaseType;
 import ru.saidgadjiev.orm.next.core.field.DBField;
 import ru.saidgadjiev.orm.next.core.field.DataType;
@@ -116,13 +117,7 @@ public class StressTest {
 
         SessionFactory sessionFactory = createSessionFactory(configuration);
         Session session = sessionFactory.openSession();
-        TestOneToMany testOneToMany1 = session.get(TestOneToMany.class, 1);
-        TestForeign testForeign = new TestForeign();
-
-        testForeign.name = "test_test_test";
-        testOneToMany1.getTestForeign().add(testForeign);
-        session.save(testOneToMany1);
-
+        session.get(TestForeign.class, 8);
         session.close();
     }
 

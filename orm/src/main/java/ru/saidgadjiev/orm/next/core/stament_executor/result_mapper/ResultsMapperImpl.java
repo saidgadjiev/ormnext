@@ -75,14 +75,13 @@ public class ResultsMapperImpl<T> implements ResultsMapper<T> {
 
         if (!parents.contains(foreignFieldType.getForeignFieldClass())) {
             TableInfo<?> foreignTableInfo = TableInfoManager.buildOrGet(foreignFieldType.getForeignFieldClass());
-            Session foreignDao = new BaseSessionManagerImpl(dataSource).getCurrentSession();
             SelectStatement<?> selectStatement = new SelectStatement<>(foreignFieldType.getForeignFieldClass());
 
             selectStatement.where(new Criteria().add(Restrictions.eq(foreignTableInfo.getPrimaryKey().get().getColumnName(), data.getObject(foreignFieldType.getColumnName()))));
             DefaultVisitor visitor = new DefaultVisitor(dataSource.getDatabaseType());
 
             selectStatement.accept(visitor);
-            Object foreignObject = foreignDao.query(foreignTableInfo.getTableClass(), visitor.getQuery(), selectStatement.getArgs()).getFirstResult(new ResultsMapperImpl(dataSource, foreignTableInfo, foreignTableInfo.getFieldTypes(), new HashSet<>(parents)));
+            Object foreignObject = new ResultsMapperImpl(dataSource, foreignTableInfo, foreignTableInfo.getFieldTypes(), new HashSet<>(parents)).mapResults(data);
 
             foreignFieldType.assign(object, foreignObject);
         }
