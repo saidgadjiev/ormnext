@@ -4,19 +4,13 @@ import ru.saidgadjiev.orm.next.core.cache.CacheContext;
 import ru.saidgadjiev.orm.next.core.criteria.impl.SelectStatement;
 import ru.saidgadjiev.orm.next.core.stament_executor.*;
 import ru.saidgadjiev.orm.next.core.stament_executor.object.operation.ForeignCreator;
-import ru.saidgadjiev.orm.next.core.stament_executor.result_mapper.CachedResultsMapperDecorator;
-import ru.saidgadjiev.orm.next.core.stament_executor.result_mapper.ResultsMapper;
-import ru.saidgadjiev.orm.next.core.stament_executor.result_mapper.ResultsMapperImpl;
+import ru.saidgadjiev.orm.next.core.stament_executor.result_mapper.ResultsMapperFactory;
 import ru.saidgadjiev.orm.next.core.support.ConnectionSource;
-import ru.saidgadjiev.orm.next.core.table.TableInfo;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
 
 /**
  * Created by said on 19.02.2018.
@@ -29,18 +23,13 @@ public class SessionImpl implements Session {
 
     SessionImpl(ConnectionSource dataSource, CacheContext cacheContext) {
         this.dataSource = dataSource;
-        Function<TableInfo<?>, ResultsMapper<?>> resultsMapperFactory = tableInfo -> new CachedResultsMapperDecorator<>(
-                tableInfo,
-                cacheContext,
-                new ResultsMapperImpl<>(dataSource, tableInfo, tableInfo.getFieldTypes(), new HashSet<>())
-        );
 
         this.statementExecutor = new StatementValidator(
                 new CachedStatementExecutor(
                         cacheContext,
                         new StatementExecutorImpl(
                                 dataSource.getDatabaseType(),
-                                resultsMapperFactory,
+                                new ResultsMapperFactory(dataSource, cacheContext),
                                 new ForeignCreator<>(dataSource)
                         )
                 )
@@ -176,38 +165,6 @@ public class SessionImpl implements Session {
         } finally {
             dataSource.releaseConnection(connection);
         }
-    }
-
-    @Override
-    public long queryForLong(String query) throws SQLException {
-        Connection connection = dataSource.getConnection();
-
-        try {
-            return statementExecutor.queryForLong(connection, query);
-        } finally {
-            dataSource.releaseConnection(connection);
-        }
-    }
-
-    @Override
-    public <R> GenericResults<R> query(String query) throws SQLException {
-        return statementExecutor.query(dataSource, null, null, query);
-    }
-
-    @Override
-    public <R> GenericResults<R> query(Class<R> fromTable, String query) throws SQLException {
-        return statementExecutor.query(dataSource, fromTable, null, query);
-
-    }
-
-    @Override
-    public <R> GenericResults<R> query(String query, Map<Integer, Object> args) throws SQLException {
-        return statementExecutor.query(dataSource, null, args, query);
-    }
-
-    @Override
-    public <R> GenericResults<R> query(Class<R> resultClass, String query, Map<Integer, Object> args) throws SQLException {
-        return statementExecutor.query(dataSource, resultClass, args, query);
     }
 
     @Override

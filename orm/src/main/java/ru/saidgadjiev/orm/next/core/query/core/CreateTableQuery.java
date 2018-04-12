@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 
 public class CreateTableQuery implements QueryElement {
 
-    private List<AttributeDefinition> attributeDefinitions = new ArrayList<>();
+    private List<AttributeDefinition> attributeDefinitions;
 
     private List<TableConstraint> tableConstraints = new ArrayList<>();
 
@@ -101,6 +101,9 @@ public class CreateTableQuery implements QueryElement {
 
     @Override
     public void accept(QueryVisitor visitor) {
-        visitor.visit(this);
+        if (visitor.visit(this)) {
+            attributeDefinitions.forEach(attributeDefinition -> attributeDefinition.accept(visitor));
+            tableConstraints.forEach(tableConstraint -> tableConstraint.accept(visitor));
+        }
     }
 }

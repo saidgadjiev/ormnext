@@ -21,12 +21,12 @@ public class GenericResultsImpl<T> implements GenericResults<T> {
 
     private DatabaseResults databaseResults;
 
-    private ResultsMapper<T> defaultMapper;
+    private ResultsMapper defaultMapper;
 
     public GenericResultsImpl(ConnectionSource connectionSource,
                               Connection connection,
                               IPreparedStatement statement,
-                              ResultsMapper<T> defaultMapper) throws SQLException {
+                              ResultsMapper defaultMapper) throws SQLException {
         this.connectionSource = connectionSource;
         this.connection = connection;
         this.statement = statement;
@@ -41,7 +41,7 @@ public class GenericResultsImpl<T> implements GenericResults<T> {
 
     @Override
     public T getFirstResult() throws SQLException {
-        return getFirstResult(defaultMapper);
+        return (T) getFirstResult(defaultMapper);
     }
 
     @Override

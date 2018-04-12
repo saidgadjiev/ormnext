@@ -23,7 +23,9 @@ public class LessThan implements Condition {
 
     @Override
     public void accept(QueryVisitor visitor) {
-        visitor.visit(this);
-
+        if (visitor.visit(this)) {
+            first.accept(visitor);
+            second.accept(visitor);
+        }
     }
 }

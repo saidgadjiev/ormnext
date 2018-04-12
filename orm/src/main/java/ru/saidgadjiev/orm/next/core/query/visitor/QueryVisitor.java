@@ -1,11 +1,9 @@
 package ru.saidgadjiev.orm.next.core.query.visitor;
 
 import ru.saidgadjiev.orm.next.core.query.core.*;
-import ru.saidgadjiev.orm.next.core.query.core.clause.GroupBy;
-import ru.saidgadjiev.orm.next.core.query.core.clause.Having;
-import ru.saidgadjiev.orm.next.core.query.core.clause.OrderBy;
-import ru.saidgadjiev.orm.next.core.query.core.clause.OrderByItem;
+import ru.saidgadjiev.orm.next.core.query.core.clause.*;
 import ru.saidgadjiev.orm.next.core.query.core.clause.from.FromJoinedTables;
+import ru.saidgadjiev.orm.next.core.query.core.clause.from.FromSubQuery;
 import ru.saidgadjiev.orm.next.core.query.core.clause.from.FromTable;
 import ru.saidgadjiev.orm.next.core.query.core.clause.select.SelectAll;
 import ru.saidgadjiev.orm.next.core.query.core.clause.select.SelectColumnsList;
@@ -31,33 +29,33 @@ import ru.saidgadjiev.orm.next.core.query.core.literals.*;
  */
 public interface QueryVisitor {
 
-    void visit(CreateQuery tCreateQuery);
+    boolean visit(CreateQuery tCreateQuery);
 
-    void visit(UpdateValue updateValue);
+    boolean visit(UpdateValue updateValue);
 
     void visit(StringLiteral stringLiteral);
 
-    void visit(Select tSelectQuery);
+    boolean visit(Select tSelectQuery);
 
-    void visit(Expression expression);
+    boolean visit(Expression expression);
 
-    void visit(AndCondition andCondition);
+    boolean visit(AndCondition andCondition);
 
-    void visit(Equals equals);
+    boolean visit(Equals equals);
 
-    void visit(ColumnSpec columnSpec);
+    boolean visit(ColumnSpec columnSpec);
 
-    void visit(TableRef tableRef);
+    boolean visit(TableRef tableRef);
 
-    void visit(AttributeDefinition attributeDefinition);
+    boolean visit(AttributeDefinition attributeDefinition);
 
-    void visit(CreateTableQuery tCreateTableQuery);
+    boolean visit(CreateTableQuery tCreateTableQuery);
 
-    void visit(DeleteQuery deleteQuery);
+    boolean visit(DeleteQuery deleteQuery);
 
     void visit(IntLiteral intLiteral);
 
-    void visit(UpdateQuery updateQuery);
+    boolean visit(UpdateQuery updateQuery);
 
     void visit(DropTableQuery dropTableQuery);
 
@@ -77,87 +75,93 @@ public interface QueryVisitor {
 
     void visit(SelectAll selectAll);
 
-    void visit(SelectColumnsList selectColumnsList);
+    boolean visit(SelectColumnsList selectColumnsList);
 
-    void visit(Having having);
+    boolean visit(Having having);
 
-    void visit(GroupBy groupBy);
+    boolean visit(GroupBy groupBy);
 
-    void visit(FromTable fromTable);
+    boolean visit(FromTable fromTable);
 
-    void visit(LeftJoin leftJoin);
+    boolean visit(LeftJoin leftJoin);
 
     void visit(BooleanLiteral booleanLiteral);
 
-    void visit(JoinInfo joinInfo);
+    boolean visit(JoinInfo joinInfo);
 
     void visit(CountAll countAll);
 
-    void visit(FromJoinedTables fromJoinedTables);
+    boolean visit(FromJoinedTables fromJoinedTables);
 
-    void visit(DisplayedColumn displayedColumn);
+    boolean visit(DisplayedColumn displayedColumn);
 
-    void visit(AVG avg);
+    boolean visit(AVG avg);
 
-    void visit(CountExpression countExpression);
+    boolean visit(CountExpression countExpression);
 
-    void visit(MAX max);
+    boolean visit(MAX max);
 
-    void visit(MIN min);
+    boolean visit(MIN min);
 
-    void visit(Exists exists);
+    boolean visit(Exists exists);
 
-    void visit(InSelect inSelect);
+    boolean visit(InSelect inSelect);
 
-    void visit(NotInSelect notInSelect);
+    boolean visit(NotInSelect notInSelect);
 
-    void visit(GreaterThan greaterThan);
+    boolean visit(GreaterThan greaterThan);
 
-    void visit(GreaterThanOrEquals greaterThanOrEquals);
+    boolean visit(GreaterThanOrEquals greaterThanOrEquals);
 
-    void visit(LessThan lessThan);
+    boolean visit(LessThan lessThan);
 
-    void visit(LessThanOrEquals lessThanOrEquals);
+    boolean visit(LessThanOrEquals lessThanOrEquals);
 
-    void visit(SUM sum);
+    boolean visit(SUM sum);
 
-    void visit(OperandCondition operandCondition);
+    boolean visit(OperandCondition operandCondition);
 
     void visit(Alias alias);
 
     void visit(DateLiteral dateLiteral);
 
-    void visit(Default aDefault);
+    boolean visit(Default aDefault);
 
-    void visit(DisplayedOperand displayedOperand);
+    boolean visit(DisplayedOperand displayedOperand);
 
     void visit(FloatLiteral floatLiteral);
 
     void visit(DoubleLiteral doubleLiteral);
 
-    void visit(OrderBy orderBy);
+    boolean visit(OrderBy orderBy);
 
-    void visit(OrderByItem orderByItem, QueryVisitor visitor);
+    boolean visit(OrderByItem orderByItem, QueryVisitor visitor);
 
     void visit(Limit limit);
 
     void visit(Offset offset);
 
-    void visit(NotNull notNull);
+    boolean visit(NotNull notNull);
 
-    void visit(IsNull isNull);
+    boolean visit(IsNull isNull);
 
-    void visit(NotEquals notEquals);
+    boolean visit(NotEquals notEquals);
 
-    void visit(Like like);
+    boolean visit(Like like);
 
-    void visit(Between between);
+    boolean visit(Between between);
 
-    void visit(Not not);
+    boolean visit(Not not);
 
-    void visit(NotInValues notInValues);
+    boolean visit(NotInValues notInValues);
 
-    void visit(InValues inValues);
+    boolean visit(InValues inValues);
 
-    void visit(ForeignKeyConstraint foreignKeyConstraint);
+    boolean visit(ForeignKeyConstraint foreignKeyConstraint);
+
+    boolean visit(FromSubQuery fromSubQuery);
+
+    boolean visit(GroupByItem groupByItem);
+
+    boolean visit(OrderByItem orderByItem);
 }

@@ -15,6 +15,8 @@ public class Not implements Condition {
     }
 
     public void accept(QueryVisitor visitor) {
-        visitor.visit(this);
+        if (visitor.visit(this)) {
+            condition.accept(visitor);
+        }
     }
 }

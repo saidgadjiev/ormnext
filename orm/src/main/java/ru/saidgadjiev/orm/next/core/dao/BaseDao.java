@@ -66,15 +66,5 @@ public interface BaseDao {
 
     <T> long countOff(Class<T> tClass) throws SQLException;
 
-    long queryForLong(String query) throws SQLException;
-
-    <R> GenericResults<R> query(String query) throws SQLException;
-
-    <R> GenericResults<R> query(Class<R> fromTable, String query) throws SQLException;
-
-    <R> GenericResults<R> query(String query, Map<Integer, Object> args) throws SQLException;
-
-    <R> GenericResults<R> query(Class<R> resultClass, String query, Map<Integer, Object> args) throws SQLException;
-
     <R> GenericResults<R> query(SelectStatement<R> statement) throws SQLException;
 }

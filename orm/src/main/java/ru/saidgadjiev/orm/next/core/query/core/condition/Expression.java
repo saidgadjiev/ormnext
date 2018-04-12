@@ -11,7 +11,7 @@ import java.util.List;
  */
 public class Expression implements Condition {
 
-    protected final List<AndCondition> conditions = new ArrayList<>();
+    private final List<AndCondition> conditions = new ArrayList<>();
 
     public void add(AndCondition condition) {
         conditions.add(condition);
@@ -23,7 +23,10 @@ public class Expression implements Condition {
 
     @Override
     public void accept(QueryVisitor visitor) {
-        visitor.visit(this);
+        if (visitor.visit(this)) {
+            for (AndCondition condition: conditions) {
+                condition.accept(visitor);
+            }
+        }
     }
-
 }

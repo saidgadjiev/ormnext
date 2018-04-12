@@ -7,6 +7,5 @@ public class CountAll implements Function {
     @Override
     public void accept(QueryVisitor visitor) {
         visitor.visit(this);
-
     }
 }

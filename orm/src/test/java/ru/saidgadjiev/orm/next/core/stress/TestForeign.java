@@ -15,8 +15,13 @@ public class TestForeign {
     @Column(name = "name")
     public String name;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "test_id")
     public TestOneToMany testOneToMany;
+
+    @OneToOne
+    @JoinColumn(name = "test_one_to_one_id")
+    public TestOneToOne testOneToOne;
+
 
 }

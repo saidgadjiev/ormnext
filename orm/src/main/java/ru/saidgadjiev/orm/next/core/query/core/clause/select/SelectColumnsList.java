@@ -28,6 +28,8 @@ public class SelectColumnsList implements SelectColumnsStrategy {
 
     @Override
     public void accept(QueryVisitor visitor) {
-        visitor.visit(this);
+        if (visitor.visit(this)) {
+            columns.forEach(displayedColumnSpec -> displayedColumnSpec.accept(visitor));
+        }
     }
 }

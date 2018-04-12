@@ -34,10 +34,6 @@ public interface IStatementExecutor {
 
     <T> void dropIndexes(Connection connection, Class<T> tClass) throws SQLException;
 
-    <R> GenericResults<R> query(ConnectionSource connectionSource, Class<R> resultClass, Map<Integer, Object> args, String query) throws SQLException;
-
-    long queryForLong(Connection connection, String query) throws SQLException;
-
     <T> long countOff(Connection connection, Class<T> tClass) throws SQLException;
 
     <R> GenericResults<R> query(ConnectionSource connectionSource, SelectStatement<R> statement) throws SQLException;

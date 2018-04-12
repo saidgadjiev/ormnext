@@ -20,6 +20,10 @@ public class TestOneToMany {
     @OneToMany(mappedBy = "testOneToMany", fetch = FetchType.EAGER)
     public List<TestForeign> testForeign;
 
+    @OneToOne
+    @JoinColumn(name = "test_one_to_one_id")
+    public TestOneToOne testOneToOne;
+
     public TestOneToMany() {
     }
 

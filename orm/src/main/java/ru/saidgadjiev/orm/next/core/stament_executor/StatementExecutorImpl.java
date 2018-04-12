@@ -14,8 +14,10 @@ import ru.saidgadjiev.orm.next.core.query.core.function.CountAll;
 import ru.saidgadjiev.orm.next.core.query.core.literals.Param;
 import ru.saidgadjiev.orm.next.core.query.visitor.DefaultVisitor;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryElement;
+import ru.saidgadjiev.orm.next.core.query.visitor.SelectColumnAliasesVisitor;
 import ru.saidgadjiev.orm.next.core.stament_executor.object.operation.ForeignCreator;
 import ru.saidgadjiev.orm.next.core.stament_executor.result_mapper.ResultsMapper;
+import ru.saidgadjiev.orm.next.core.stament_executor.result_mapper.ResultsMapperFactory;
 import ru.saidgadjiev.orm.next.core.support.ConnectionSource;
 import ru.saidgadjiev.orm.next.core.table.TableInfo;
 import ru.saidgadjiev.orm.next.core.table.TableInfoManager;
@@ -30,7 +32,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
 
 /**
  * Класс для выполнения sql запросов
@@ -40,16 +41,16 @@ public class StatementExecutorImpl implements IStatementExecutor {
 
     private DatabaseType databaseType;
 
-    private Function<TableInfo<?>, ResultsMapper<?>> resultsMapperFactory;
+    private ResultsMapperFactory resultsMapperFactory;
 
-    private ForeignCreator<Object> foreignCreator;
+    private ForeignCreator foreignCreator;
 
     public StatementExecutorImpl(DatabaseType databaseType,
-                                 Function<TableInfo<?>, ResultsMapper<?>> resultsMapperFactory,
-                                 ForeignCreator<?> foreignCreator) {
+                                 ResultsMapperFactory resultsMapperFactory,
+                                 ForeignCreator foreignCreator) {
         this.databaseType = databaseType;
         this.resultsMapperFactory = resultsMapperFactory;
-        this.foreignCreator = (ForeignCreator<Object>) foreignCreator;
+        this.foreignCreator = foreignCreator;
     }
 
     @Override
@@ -274,7 +275,7 @@ public class StatementExecutorImpl implements IStatementExecutor {
         TableInfo<T> tableInfo = TableInfoManager.buildOrGet(tClass);
         Select selectQuery = Select.buildQueryById(tableInfo, id);
         String query = getQuery(selectQuery);
-        ResultsMapper<?> resultsMapper = resultsMapperFactory.apply(tableInfo);
+        ResultsMapper<?> resultsMapper = resultsMapperFactory.createResultsMapper(tableInfo, getAliases(selectQuery));
 
         try (IPreparedStatement preparedQuery = new PreparedQueryImpl(connection.prepareStatement(query), query)) {
             try (DatabaseResults databaseResults = preparedQuery.executeQuery()) {
@@ -299,7 +300,7 @@ public class StatementExecutorImpl implements IStatementExecutor {
         Select select = Select.buildQueryForAll(tableInfo.getTableName());
         List<T> resultObjectList = new ArrayList<>();
         String query = getQuery(select);
-        ResultsMapper<?> resultsMapper = resultsMapperFactory.apply(tableInfo);
+        ResultsMapper<?> resultsMapper = resultsMapperFactory.createResultsMapper(tableInfo, getAliases(select));
 
         try (IStatement statement = new StatementImpl(connection.createStatement())) {
             try (DatabaseResults databaseResults = statement.executeQuery(query)) {
@@ -347,27 +348,7 @@ public class StatementExecutorImpl implements IStatementExecutor {
         }
     }
 
-    @Override
-    public <R> GenericResults<R> query(ConnectionSource connectionSource, Class<R> resultClass, Map<Integer, Object> args, String query) throws SQLException {
-        Connection connection = connectionSource.getConnection();
-        IPreparedStatement statement = new PreparedQueryImpl(connection.prepareStatement(query), query);
-
-        if (args != null) {
-            for (Map.Entry<Integer, Object> entry : args.entrySet()) {
-                statement.setObject(entry.getKey(), entry.getValue());
-            }
-        }
-
-        if (resultClass == null) {
-            return new UserGenericResultsImpl<>(connectionSource, connection, statement);
-        }
-        TableInfo<R> tableInfo = TableInfoManager.buildOrGet(resultClass);
-
-        return new GenericResultsImpl<>(connectionSource, connection, statement, (ResultsMapper<R>) resultsMapperFactory.apply(tableInfo));
-    }
-
-    @Override
-    public long queryForLong(Connection connection, String query) throws SQLException {
+    private long queryForLong(Connection connection, String query) throws SQLException {
         try (IStatement statement = new StatementImpl(connection.createStatement())) {
             try (DatabaseResults databaseResults = statement.executeQuery(query)) {
                 if (databaseResults.next()) {
@@ -402,7 +383,11 @@ public class StatementExecutorImpl implements IStatementExecutor {
             preparedStatement.setObject(entry.getKey(), entry.getValue());
         }
 
-        return new GenericResultsImpl<>(connectionSource, connection, preparedStatement, (ResultsMapper<R>) resultsMapperFactory.apply(statement.getTableInfo()));
+        return new GenericResultsImpl<>(
+                connectionSource,
+                connection,
+                preparedStatement,
+                resultsMapperFactory.createResultsMapper(statement.getTableInfo(), getAliases(statement)));
     }
 
     private String getQuery(QueryElement queryElement) {
@@ -411,5 +396,13 @@ public class StatementExecutorImpl implements IStatementExecutor {
         queryElement.accept(defaultVisitor);
 
         return defaultVisitor.getQuery();
+    }
+
+    private Map<String, String> getAliases(QueryElement queryElement) {
+        SelectColumnAliasesVisitor visitor = new SelectColumnAliasesVisitor();
+
+        queryElement.accept(visitor);
+
+        return visitor.getColumnAliasMap();
     }
 }

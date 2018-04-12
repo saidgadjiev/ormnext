@@ -17,6 +17,8 @@ public class Exists implements Condition {
 
     @Override
     public void accept(QueryVisitor visitor) {
-        visitor.visit(this);
+        if (visitor.visit(this)) {
+            select.accept(visitor);
+        }
     }
 }

@@ -16,6 +16,8 @@ public class DisplayedColumn extends DisplayedColumnSpec {
 
     @Override
     public void accept(QueryVisitor visitor) {
-        visitor.visit(this);
+        if (visitor.visit(this)) {
+            columnSpec.accept(visitor);
+        }
     }
 }

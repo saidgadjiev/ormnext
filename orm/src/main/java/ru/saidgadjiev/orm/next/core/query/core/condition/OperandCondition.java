@@ -11,13 +11,14 @@ public class OperandCondition implements Condition {
         this.operand = operand;
     }
 
-    @Override
-    public void accept(QueryVisitor visitor) {
-        visitor.visit(this);
-
-    }
-
     public Operand getOperand() {
         return operand;
+    }
+
+    @Override
+    public void accept(QueryVisitor visitor) {
+        if (visitor.visit(this)) {
+            operand.accept(visitor);
+        }
     }
 }

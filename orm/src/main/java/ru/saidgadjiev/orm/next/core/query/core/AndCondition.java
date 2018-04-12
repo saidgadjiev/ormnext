@@ -22,7 +22,11 @@ public class AndCondition implements LogicalCondition, QueryElement {
 
     @Override
     public void accept(QueryVisitor visitor) {
-        visitor.visit(this);
+        if (visitor.visit(this)) {
+            for (Condition condition: conditions) {
+                condition.accept(visitor);
+            }
+        }
     }
 
 }

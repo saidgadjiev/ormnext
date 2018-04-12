@@ -1,7 +1,7 @@
 package ru.saidgadjiev.orm.next.core.query.visitor;
 
+import ru.saidgadjiev.orm.next.core.query.core.column_spec.ColumnSpec;
 import ru.saidgadjiev.orm.next.core.query.core.column_spec.DisplayedColumn;
-import ru.saidgadjiev.orm.next.core.query.core.column_spec.DisplayedOperand;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,18 +11,18 @@ import java.util.Map;
  */
 public class SelectColumnAliasesVisitor extends NoActionVisitor {
 
-    private Map<String, > columnAliasMap = new HashMap<>();
-
-    public SelectColumnAliasesVisitor() {
-    }
+    private Map<String, String> columnAliasMap = new HashMap<>();
 
     @Override
-    public void visit(DisplayedColumn displayedColumn) {
-        super.visit(displayedColumn);
+    public boolean visit(DisplayedColumn displayedColumn) {
+        ColumnSpec columnSpec = displayedColumn.getColumnSpec();
+
+        columnAliasMap.put(columnSpec.getAlias().getAlias() + "." + columnSpec.getName(), displayedColumn.getAlias().getAlias());
+
+        return false;
     }
 
-    @Override
-    public void visit(DisplayedOperand displayedOperand) {
-        super.visit(displayedOperand);
+    public Map<String, String> getColumnAliasMap() {
+        return columnAliasMap;
     }
 }

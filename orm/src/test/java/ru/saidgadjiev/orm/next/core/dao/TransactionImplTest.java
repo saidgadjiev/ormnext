@@ -35,7 +35,7 @@ public class TransactionImplTest {
         TransactionImpl transaction = dao.transaction();
         TestClazz testClazz = new TestClazz();
 
-        testClazz.name = "Test";
+        testClazz.name = "TestHibernate";
         transaction.begin();
         transaction.create(testClazz);
         transaction.rollback();

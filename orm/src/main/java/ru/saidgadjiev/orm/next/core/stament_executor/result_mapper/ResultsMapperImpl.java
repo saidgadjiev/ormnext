@@ -27,7 +27,7 @@ public class ResultsMapperImpl<T> implements ResultsMapper<T> {
 
     private ConnectionSource dataSource;
 
-    private List<IDBFieldType> resultFields;
+    private Map<String, String> columnAliasMap;
 
     private TableInfo<T> tableInfo;
 
@@ -35,10 +35,10 @@ public class ResultsMapperImpl<T> implements ResultsMapper<T> {
 
     public ResultsMapperImpl(ConnectionSource dataSource,
                              TableInfo<T> tableInfo,
-                             List<IDBFieldType> resultFields,
+                             Map<String, String> columnAliasMap,
                              Set<Class<?>> parents) {
         this.dataSource = dataSource;
-        this.resultFields = resultFields;
+        this.columnAliasMap = columnAliasMap;
         this.tableInfo = tableInfo;
         this.parents = parents;
     }
@@ -49,7 +49,7 @@ public class ResultsMapperImpl<T> implements ResultsMapper<T> {
 
         parents.add(tableInfo.getTableClass());
 
-        for (IDBFieldType fieldType : resultFields) {
+        for (IDBFieldType fieldType : tableInfo.getFieldTypes()) {
             if (fieldType.isDbFieldType()) {
                 buildBase(object, results, fieldType);
             } else if (fieldType.isForeignFieldType()) {
@@ -64,9 +64,13 @@ public class ResultsMapperImpl<T> implements ResultsMapper<T> {
 
     private void buildBase(T object, DatabaseResults data, IDBFieldType fieldType) throws Exception {
         if (fieldType.isDbFieldType()) {
-            Object value = fieldType.getDataPersister().parseSqlToJava(fieldType, data.getObject(fieldType.getColumnName()));
+            String columnName = tableInfo.getTableName() + "." + fieldType.getColumnName();
 
-            fieldType.assign(object, value);
+            if (columnAliasMap.containsKey(columnName)) {
+                Object value = fieldType.getDataPersister().parseSqlToJava(fieldType, data.getObject(columnAliasMap.get(columnName)));
+
+                fieldType.assign(object, value);
+            }
         }
     }
 
@@ -75,13 +79,7 @@ public class ResultsMapperImpl<T> implements ResultsMapper<T> {
 
         if (!parents.contains(foreignFieldType.getForeignFieldClass())) {
             TableInfo<?> foreignTableInfo = TableInfoManager.buildOrGet(foreignFieldType.getForeignFieldClass());
-            SelectStatement<?> selectStatement = new SelectStatement<>(foreignFieldType.getForeignFieldClass());
-
-            selectStatement.where(new Criteria().add(Restrictions.eq(foreignTableInfo.getPrimaryKey().get().getColumnName(), data.getObject(foreignFieldType.getColumnName()))));
-            DefaultVisitor visitor = new DefaultVisitor(dataSource.getDatabaseType());
-
-            selectStatement.accept(visitor);
-            Object foreignObject = new ResultsMapperImpl(dataSource, foreignTableInfo, foreignTableInfo.getFieldTypes(), new HashSet<>(parents)).mapResults(data);
+            Object foreignObject = new ResultsMapperImpl<>(dataSource, foreignTableInfo, columnAliasMap, new HashSet<>(parents)).mapResults(data);
 
             foreignFieldType.assign(object, foreignObject);
         }
@@ -102,10 +100,9 @@ public class ResultsMapperImpl<T> implements ResultsMapper<T> {
 
             selectStatement.accept(visitor);
             if (foreignCollectionFieldType.getFetchType().equals(FetchType.EAGER)) {
-                try (GenericResults<Object> genericResults = foreignDao.query(foreignTableInfo.getTableClass(), visitor.getQuery(), new HashMap<Integer, Object>() {{
-                    put(1, idField.access(object));
-                }})) {
-                    List<Object> objects = genericResults.getResults(new ResultsMapperImpl<>(dataSource, foreignTableInfo, foreignTableInfo.getFieldTypes(), new HashSet<>(parents)));
+                try (GenericResults genericResults = foreignDao.query(selectStatement)) {
+                    ResultsMapper resultsMapper = new ResultsMapperImpl<>(dataSource, foreignTableInfo, columnAliasMap, new HashSet<>(parents));
+                    List objects = genericResults.getResults(resultsMapper);
 
                     for (Object foreignObject : objects) {
                         foreignField.assign(foreignObject, object);
@@ -115,12 +112,11 @@ public class ResultsMapperImpl<T> implements ResultsMapper<T> {
                 }
             } else {
                 Collection<?> collection = (Collection<?>) foreignCollectionFieldType.access(object);
-                Supplier<List<Object>> fetcher = () -> {
+                Supplier<List> fetcher = () -> {
                     try {
-                        try (GenericResults<Object> genericResults = foreignDao.query(foreignTableInfo.getTableClass(), visitor.getQuery(), new HashMap<Integer, Object>() {{
-                            put(1, idField.access(object));
-                        }})) {
-                            List<Object> results = genericResults.getResults(new ResultsMapperImpl<>(dataSource, foreignTableInfo, foreignTableInfo.getFieldTypes(), new HashSet<>(parents)));
+                        try (GenericResults genericResults = foreignDao.query(selectStatement)) {
+                            ResultsMapper resultsMapper = new ResultsMapperImpl<>(dataSource, foreignTableInfo, columnAliasMap, new HashSet<>(parents));
+                            List results = genericResults.getResults(resultsMapper);
 
                             for (Object foreignObject : results) {
                                 foreignField.assign(foreignObject, object);
@@ -135,10 +131,10 @@ public class ResultsMapperImpl<T> implements ResultsMapper<T> {
 
                 switch (foreignCollectionFieldType.getCollectionType()) {
                     case LIST:
-                        foreignCollectionFieldType.assign(object, new LazyList<Object>(fetcher, (List) collection));
+                        foreignCollectionFieldType.assign(object, new LazyList(fetcher, (List) collection));
                         break;
                     case SET:
-                        foreignCollectionFieldType.assign(object, new LazySet<Object>(fetcher, (Set) collection));
+                        foreignCollectionFieldType.assign(object, new LazySet(fetcher, (Set) collection));
                         break;
                     case UNDEFINED:
                         throw new IllegalArgumentException("Collection with type " + foreignCollectionFieldType.getField().getType() + " not supported lazy loading! Use [List, Set].");

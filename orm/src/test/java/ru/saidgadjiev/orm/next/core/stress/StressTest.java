@@ -105,13 +105,12 @@ public class StressTest {
     private static void ormHibernate() throws Exception {
         Configuration configuration = new Configuration();
 
+        configuration.addAnnotatedClass(TestOneToOne.class);
         configuration.addAnnotatedClass(TestForeign.class);
         configuration.addAnnotatedClass(TestOneToMany.class);
-        configuration.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
-        configuration.setProperty("hibernate.connection.driver_class", "com.mysql.jdbc.Driver");
-        configuration.setProperty("hibernate.connection.url", "jdbc:mysql://localhost:3306/SpaceHockey");
-        configuration.setProperty("hibernate.connection.username", "root");
-        configuration.setProperty("hibernate.connection.password", "said1995");
+        configuration.setProperty("hibernate.dialect", "org.hibernate.dialect.H2Dialect");
+        configuration.setProperty("hibernate.connection.driver_class", "org.h2.Driver");
+        configuration.setProperty("hibernate.connection.url", "jdbc:h2:mem:test");
         configuration.setProperty("hibernate.show_sql", "true");
         configuration.setProperty("hibernate.hbmdl.auto", "update");
 

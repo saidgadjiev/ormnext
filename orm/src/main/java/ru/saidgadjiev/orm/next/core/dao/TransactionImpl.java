@@ -10,7 +10,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 public class TransactionImpl implements Transaction {
 
@@ -96,72 +95,6 @@ public class TransactionImpl implements Transaction {
     public<T> long countOff(Class<T> tClass) throws SQLException {
         check();
         return statementExecutor.countOff(connection, tClass);
-    }
-
-    @Override
-    public long queryForLong(String query) throws SQLException {
-        check();
-        return statementExecutor.queryForLong(connection, query);
-    }
-
-    @Override
-    public <R> GenericResults<R> query(String query) throws SQLException {
-        check();
-        return statementExecutor.query(new WrappedConnectionSource(connectionSource) {
-            @Override
-            public Connection getConnection() throws SQLException {
-                return connection;
-            }
-
-            @Override
-            public void releaseConnection(Connection connection) throws SQLException {
-            }
-        }, null, null, query);
-    }
-
-    @Override
-    public <R> GenericResults<R> query(Class<R> fromTable, String query) throws SQLException {
-        check();
-        return statementExecutor.query(new WrappedConnectionSource(connectionSource) {
-            @Override
-            public Connection getConnection() throws SQLException {
-                return connection;
-            }
-
-            @Override
-            public void releaseConnection(Connection connection) throws SQLException {
-            }
-        }, fromTable, null, query);
-    }
-
-    @Override
-    public <R> GenericResults<R> query(String query, Map<Integer, Object> args) throws SQLException {
-        check();
-        return statementExecutor.query(new WrappedConnectionSource(connectionSource) {
-            @Override
-            public Connection getConnection() throws SQLException {
-                return connection;
-            }
-
-            @Override
-            public void releaseConnection(Connection connection) throws SQLException {
-            }
-        }, null, args, query);
-    }
-
-    @Override
-    public <R> GenericResults<R> query(Class<R> resultClass, String query, Map<Integer, Object> args) throws SQLException {
-        check();
-        return statementExecutor.query(new WrappedConnectionSource(connectionSource) {
-            @Override
-            public Connection getConnection() throws SQLException {
-                return connection;
-            }
-
-            @Override
-            public void releaseConnection(Connection connection) throws SQLException {
-            }
-        }, resultClass, args, query);
     }
 
     @Override

@@ -38,7 +38,8 @@ public class AttributeDefinition implements QueryElement {
 
     @Override
     public void accept(QueryVisitor visitor) {
-        visitor.visit(this);
-
+        if (visitor.visit(this)) {
+            attributeConstraints.forEach(attributeConstraint -> attributeConstraint.accept(visitor));
+        }
     }
 }

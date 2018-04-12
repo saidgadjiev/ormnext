@@ -34,6 +34,5 @@ public class CreateIndexQuery implements QueryElement {
     @Override
     public void accept(QueryVisitor visitor) {
         visitor.visit(this);
-
     }
 }

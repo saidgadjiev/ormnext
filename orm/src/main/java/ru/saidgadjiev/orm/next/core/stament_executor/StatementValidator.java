@@ -9,7 +9,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 public class StatementValidator implements IStatementExecutor {
 
@@ -96,16 +95,6 @@ public class StatementValidator implements IStatementExecutor {
     @Override
     public<T> void dropIndexes(Connection connection, Class<T> tClass) throws SQLException {
         delegate.dropIndexes(connection, tClass);
-    }
-
-    @Override
-    public <R> GenericResults<R> query(ConnectionSource connectionSource, Class<R> resultClass, Map<Integer, Object> args, String query) throws SQLException {
-        return delegate.query(connectionSource, resultClass, args, query);
-    }
-
-    @Override
-    public long queryForLong(Connection connection, String query) throws SQLException {
-        return delegate.queryForLong(connection, query);
     }
 
     @Override

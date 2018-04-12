@@ -21,6 +21,8 @@ public class GroupByItem implements QueryElement {
 
     @Override
     public void accept(QueryVisitor visitor) {
-        columnSpec.accept(visitor);
+        if (visitor.visit(this)) {
+            columnSpec.accept(visitor);
+        }
     }
 }

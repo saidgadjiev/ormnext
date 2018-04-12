@@ -14,7 +14,4 @@ public class TestOneToOne {
 
     @Column(name = "name")
     public String name;
-
-    @OneToOne(mappedBy = "testOneToOne")
-    public TestForeign testForeign;
 }

@@ -12,6 +12,8 @@ import ru.saidgadjiev.orm.next.core.query.core.clause.select.SelectAll;
 import ru.saidgadjiev.orm.next.core.query.core.clause.select.SelectColumnsList;
 import ru.saidgadjiev.orm.next.core.query.core.clause.select.SelectColumnsStrategy;
 import ru.saidgadjiev.orm.next.core.query.core.column_spec.ColumnSpec;
+import ru.saidgadjiev.orm.next.core.query.core.column_spec.DisplayedColumn;
+import ru.saidgadjiev.orm.next.core.query.core.column_spec.DisplayedColumnSpec;
 import ru.saidgadjiev.orm.next.core.query.core.common.TableRef;
 import ru.saidgadjiev.orm.next.core.query.core.condition.Equals;
 import ru.saidgadjiev.orm.next.core.query.core.condition.Expression;
@@ -112,7 +114,7 @@ public class Select implements QueryElement {
     public static <ID> Select buildQueryById(TableInfo<?> tableInfo, ID id) {
         Select selectQuery = new Select();
 
-        selectQuery.setSelectColumnsStrategy(new SelectAll());
+        selectQuery.setSelectColumnsStrategy(selectColumnsStrategy(tableInfo, new SelectColumnsList()));
         selectQuery.setFrom(from(tableInfo));
         AndCondition andCondition = new AndCondition();
         IDBFieldType idField = tableInfo.getPrimaryKey().get();
@@ -150,14 +152,26 @@ public class Select implements QueryElement {
 
             JoinExpression joinExpression = new LeftJoin(new TableRef(foreignFieldType.getForeignTableName()).alias(new Alias(foreignFieldType.getForeignTableName())), onExpression);
 
-            from.addJoinExpression(joinExpression);
+            from.add(joinExpression);
         }
     }
 
-    private SelectColumnsStrategy selectColumnsStrategy(TableInfo<?> tableInfo) {
-        SelectColumnsList selectColumnsList = new SelectColumnsList();
+    private static SelectColumnsStrategy selectColumnsStrategy(TableInfo<?> tableInfo, SelectColumnsList selectColumnsList) {
+        for (IDBFieldType idbFieldType: tableInfo.getFieldTypes()) {
+            if (idbFieldType.isForeignCollectionFieldType()) {
+                continue;
+            }
+            ColumnSpec columnSpec = new ColumnSpec(idbFieldType.getColumnName()).alias(new Alias(tableInfo.getTableName()));
+            DisplayedColumnSpec displayedColumnSpec = new DisplayedColumn(columnSpec);
 
+            displayedColumnSpec.setAlias(new Alias(tableInfo.getTableName() + "_" + idbFieldType.getColumnName()));
+            selectColumnsList.addColumn(displayedColumnSpec);
+        }
+        for (ForeignFieldType foreignFieldType: tableInfo.toForeignFieldTypes()) {
+            selectColumnsStrategy(TableInfoManager.buildOrGet(foreignFieldType.getForeignFieldClass()), selectColumnsList);
+        }
 
+        return selectColumnsList;
     }
 
     public static Select buildQueryForAll(String typeName) {
@@ -171,25 +185,36 @@ public class Select implements QueryElement {
 
     @Override
     public void accept(QueryVisitor visitor) {
-        visitor.visit(this);
-        if (where != null) {
-            where.accept(visitor);
+        if (visitor.visit(this)) {
+            selectColumnsStrategy.accept(visitor);
+            from.accept(visitor);
+            if (where != null) {
+                where.accept(visitor);
+            }
+            if (groupBy != null) {
+                groupBy.accept(visitor);
+            }
+            if (orderBy != null) {
+                orderBy.accept(visitor);
+            }
+            if (having != null) {
+                having.accept(visitor);
+            }
+            if (limit != null) {
+                limit.accept(visitor);
+            }
+            if (offset != null) {
+                offset.accept(visitor);
+            }
         }
-        if (groupBy != null) {
-            groupBy.accept(visitor);
-        }
-        if (orderBy != null) {
-            orderBy.accept(visitor);
-        }
-        if (having != null) {
-            having.accept(visitor);
-        }
-        if (limit != null) {
-            limit.accept(visitor);
-        }
-        if (offset != null) {
-            offset.accept(visitor);
-        }
+    }
+
+    public Limit getLimit() {
+        return limit;
+    }
+
+    public Offset getOffset() {
+        return offset;
     }
 
     enum SelectionMode {

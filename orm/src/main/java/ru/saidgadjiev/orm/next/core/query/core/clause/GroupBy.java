@@ -27,7 +27,8 @@ public class GroupBy implements QueryElement {
 
     @Override
     public void accept(QueryVisitor visitor) {
-        visitor.visit(this);
-
+        if (visitor.visit(this)) {
+            groupByItems.forEach(groupByItem -> groupByItem.accept(visitor));
+        }
     }
 }

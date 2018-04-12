@@ -30,6 +30,9 @@ public class InValues implements Condition {
     }
 
     public void accept(QueryVisitor visitor) {
-       visitor.visit(this);
+        if (visitor.visit(this)) {
+            operand.accept(visitor);
+            values.forEach(value -> value.accept(visitor));
+        }
     }
 }
