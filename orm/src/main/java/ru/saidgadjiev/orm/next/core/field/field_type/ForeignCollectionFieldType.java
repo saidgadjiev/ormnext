@@ -3,13 +3,13 @@ package ru.saidgadjiev.orm.next.core.field.field_type;
 import ru.saidgadjiev.orm.next.core.field.CollectionType;
 import ru.saidgadjiev.orm.next.core.field.FetchType;
 import ru.saidgadjiev.orm.next.core.field.FieldAccessor;
-import ru.saidgadjiev.orm.next.core.field.persisters.DataPersister;
+import ru.saidgadjiev.orm.next.core.field.persister.DataPersister;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 
-public class ForeignCollectionFieldType implements IDBFieldType {
+public class ForeignCollectionFieldType implements IDatabaseColumnType {
 
     private Field field;
 
@@ -22,31 +22,6 @@ public class ForeignCollectionFieldType implements IDBFieldType {
     private CollectionType collectionType;
 
     private FieldAccessor fieldAccessor;
-
-    @Override
-    public boolean isId() {
-        return false;
-    }
-
-    @Override
-    public boolean isNotNull() {
-        return false;
-    }
-
-    @Override
-    public boolean isGenerated() {
-        return false;
-    }
-
-    @Override
-    public String getColumnName() {
-        throw new UnsupportedOperationException("");
-    }
-
-    @Override
-    public int getDataType() {
-        throw new UnsupportedOperationException("");
-    }
 
     @Override
     public Object access(Object object) throws InvocationTargetException, IllegalAccessException {
@@ -65,16 +40,6 @@ public class ForeignCollectionFieldType implements IDBFieldType {
 
     public Field getField() {
         return field;
-    }
-
-    @Override
-    public String getFormat() {
-        return null;
-    }
-
-    @Override
-    public int getLength() {
-        throw new UnsupportedOperationException("");
     }
 
     @Override

@@ -4,7 +4,6 @@ import ru.saidgadjiev.orm.next.core.cache.CacheContext;
 import ru.saidgadjiev.orm.next.core.criteria.impl.SelectStatement;
 import ru.saidgadjiev.orm.next.core.stament_executor.*;
 import ru.saidgadjiev.orm.next.core.stament_executor.object.operation.ForeignCreator;
-import ru.saidgadjiev.orm.next.core.stament_executor.result_mapper.ResultsMapperFactory;
 import ru.saidgadjiev.orm.next.core.support.ConnectionSource;
 
 import java.sql.Connection;
@@ -29,7 +28,6 @@ public class SessionImpl implements Session {
                         cacheContext,
                         new StatementExecutorImpl(
                                 dataSource.getDatabaseType(),
-                                new ResultsMapperFactory(dataSource, cacheContext),
                                 new ForeignCreator<>(dataSource)
                         )
                 )

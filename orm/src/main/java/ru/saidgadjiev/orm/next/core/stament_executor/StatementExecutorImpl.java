@@ -2,9 +2,9 @@ package ru.saidgadjiev.orm.next.core.stament_executor;
 
 import ru.saidgadjiev.orm.next.core.criteria.impl.SelectStatement;
 import ru.saidgadjiev.orm.next.core.db.DatabaseType;
-import ru.saidgadjiev.orm.next.core.field.field_type.DBFieldType;
-import ru.saidgadjiev.orm.next.core.field.field_type.ForeignFieldType;
-import ru.saidgadjiev.orm.next.core.field.field_type.IDBFieldType;
+import ru.saidgadjiev.orm.next.core.field.field_type.DatabaseColumnType;
+import ru.saidgadjiev.orm.next.core.field.field_type.ForeignColumnype;
+import ru.saidgadjiev.orm.next.core.field.field_type.IDatabaseColumnType;
 import ru.saidgadjiev.orm.next.core.field.field_type.IndexFieldType;
 import ru.saidgadjiev.orm.next.core.query.core.*;
 import ru.saidgadjiev.orm.next.core.query.core.clause.select.SelectColumnsList;
@@ -17,9 +17,8 @@ import ru.saidgadjiev.orm.next.core.query.visitor.QueryElement;
 import ru.saidgadjiev.orm.next.core.query.visitor.SelectColumnAliasesVisitor;
 import ru.saidgadjiev.orm.next.core.stament_executor.object.operation.ForeignCreator;
 import ru.saidgadjiev.orm.next.core.stament_executor.result_mapper.ResultsMapper;
-import ru.saidgadjiev.orm.next.core.stament_executor.result_mapper.ResultsMapperFactory;
 import ru.saidgadjiev.orm.next.core.support.ConnectionSource;
-import ru.saidgadjiev.orm.next.core.table.TableInfo;
+import ru.saidgadjiev.orm.next.core.table.DatabaseEntityMetadata;
 import ru.saidgadjiev.orm.next.core.table.TableInfoManager;
 import ru.saidgadjiev.orm.next.core.utils.ArgumentUtils;
 
@@ -41,15 +40,11 @@ public class StatementExecutorImpl implements IStatementExecutor {
 
     private DatabaseType databaseType;
 
-    private ResultsMapperFactory resultsMapperFactory;
-
     private ForeignCreator foreignCreator;
 
     public StatementExecutorImpl(DatabaseType databaseType,
-                                 ResultsMapperFactory resultsMapperFactory,
                                  ForeignCreator foreignCreator) {
         this.databaseType = databaseType;
-        this.resultsMapperFactory = resultsMapperFactory;
         this.foreignCreator = foreignCreator;
     }
 
@@ -60,10 +55,10 @@ public class StatementExecutorImpl implements IStatementExecutor {
                 return 0;
             }
             Class<T> tClass = (Class<T>) objects.iterator().next().getClass();
-            TableInfo<T> tableInfo = TableInfoManager.buildOrGet(tClass);
-            CreateQuery createQuery = new CreateQuery(tableInfo.getTableName());
+            DatabaseEntityMetadata<T> databaseEntityMetadata = TableInfoManager.buildOrGet(tClass);
+            CreateQuery createQuery = new CreateQuery(databaseEntityMetadata.getTableName());
 
-            for (DBFieldType fieldType : tableInfo.toDBFieldTypes()) {
+            for (DatabaseColumnType fieldType : databaseEntityMetadata.toDBFieldTypes()) {
                 if (fieldType.isId() && fieldType.isGenerated()) {
                     continue;
                 }
@@ -72,7 +67,7 @@ public class StatementExecutorImpl implements IStatementExecutor {
                         new Param())
                 );
             }
-            for (ForeignFieldType fieldType : tableInfo.toForeignFieldTypes()) {
+            for (ForeignColumnype fieldType : databaseEntityMetadata.toForeignFieldTypes()) {
                 createQuery.add(new UpdateValue(
                         fieldType.getColumnName(),
                         new Param())
@@ -84,7 +79,7 @@ public class StatementExecutorImpl implements IStatementExecutor {
                 for (T object : objects) {
                     foreignCreator.execute(object);
 
-                    for (Map.Entry<Integer, Object> entry : ArgumentUtils.eject(object, (TableInfo<T>) tableInfo).entrySet()) {
+                    for (Map.Entry<Integer, Object> entry : ArgumentUtils.eject(object, (DatabaseEntityMetadata<T>) databaseEntityMetadata).entrySet()) {
                         statement.setObject(entry.getKey(), entry.getValue());
                     }
                     statement.addBatch();
@@ -111,10 +106,10 @@ public class StatementExecutorImpl implements IStatementExecutor {
     @SuppressWarnings("unchecked")
     public <T> int create(Connection connection, T object) throws SQLException {
         try {
-            TableInfo<T> tableInfo = TableInfoManager.buildOrGet((Class<T>) object.getClass());
-            CreateQuery createQuery = new CreateQuery(tableInfo.getTableName());
+            DatabaseEntityMetadata<T> databaseEntityMetadata = TableInfoManager.buildOrGet((Class<T>) object.getClass());
+            CreateQuery createQuery = new CreateQuery(databaseEntityMetadata.getTableName());
 
-            for (DBFieldType fieldType : tableInfo.toDBFieldTypes()) {
+            for (DatabaseColumnType fieldType : databaseEntityMetadata.toDBFieldTypes()) {
                 if (fieldType.isId() && fieldType.isGenerated()) {
                     continue;
                 }
@@ -123,7 +118,7 @@ public class StatementExecutorImpl implements IStatementExecutor {
                         new Param())
                 );
             }
-            for (ForeignFieldType fieldType : tableInfo.toForeignFieldTypes()) {
+            for (ForeignColumnype fieldType : databaseEntityMetadata.toForeignFieldTypes()) {
                 createQuery.add(new UpdateValue(
                         fieldType.getColumnName(),
                         new Param())
@@ -134,13 +129,13 @@ public class StatementExecutorImpl implements IStatementExecutor {
             String query = getQuery(createQuery);
 
             try (IPreparedStatement statement = new PreparedQueryImpl(connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS), query)) {
-                for (Map.Entry<Integer, Object> entry : ArgumentUtils.eject(object, (TableInfo<T>) tableInfo).entrySet()) {
+                for (Map.Entry<Integer, Object> entry : ArgumentUtils.eject(object, (DatabaseEntityMetadata<T>) databaseEntityMetadata).entrySet()) {
                     statement.setObject(entry.getKey(), entry.getValue());
                 }
                 Integer result = statement.executeUpdate();
 
-                if (tableInfo.getPrimaryKey().isPresent()) {
-                    IDBFieldType idField = tableInfo.getPrimaryKey().get();
+                if (databaseEntityMetadata.getPrimaryKey().isPresent()) {
+                    IDatabaseColumnType idField = databaseEntityMetadata.getPrimaryKey().get();
 
                     ResultSet resultSet = statement.getGeneratedKeys();
                     try (GeneratedKeys generatedKeys = new GeneratedKeys(resultSet, resultSet.getMetaData())) {
@@ -163,9 +158,9 @@ public class StatementExecutorImpl implements IStatementExecutor {
 
     @Override
     public <T> boolean createTable(Connection connection, Class<T> tClass, boolean ifNotExists) throws SQLException {
-        TableInfo<T> tableInfo = TableInfoManager.buildOrGet(tClass);
+        DatabaseEntityMetadata<T> databaseEntityMetadata = TableInfoManager.buildOrGet(tClass);
         CreateTableQuery createTableQuery = CreateTableQuery.buildQuery(
-                tableInfo,
+                databaseEntityMetadata,
                 ifNotExists
         );
 
@@ -180,8 +175,8 @@ public class StatementExecutorImpl implements IStatementExecutor {
 
     @Override
     public <T> boolean dropTable(Connection connection, Class<T> tClass, boolean ifExists) throws SQLException {
-        TableInfo<T> tableInfo = TableInfoManager.buildOrGet(tClass);
-        DropTableQuery dropTableQuery = DropTableQuery.buildQuery(tableInfo.getTableName(), ifExists);
+        DatabaseEntityMetadata<T> databaseEntityMetadata = TableInfoManager.buildOrGet(tClass);
+        DropTableQuery dropTableQuery = DropTableQuery.buildQuery(databaseEntityMetadata.getTableName(), ifExists);
 
         try (IStatement statement = new StatementImpl(connection.createStatement())) {
             statement.executeUpdate(getQuery(dropTableQuery));
@@ -198,11 +193,11 @@ public class StatementExecutorImpl implements IStatementExecutor {
      */
     @Override
     public <T> int update(Connection connection, T object) throws SQLException {
-        TableInfo<T> tableInfo = TableInfoManager.buildOrGet((Class<T>) object.getClass());
-        IDBFieldType idFieldType = tableInfo.getPrimaryKey().get();
+        DatabaseEntityMetadata<T> databaseEntityMetadata = TableInfoManager.buildOrGet((Class<T>) object.getClass());
+        IDatabaseColumnType idFieldType = databaseEntityMetadata.getPrimaryKey().get();
         UpdateQuery updateQuery = UpdateQuery.buildQuery(
-                tableInfo.getTableName(),
-                tableInfo.toDBFieldTypes(),
+                databaseEntityMetadata.getTableName(),
+                databaseEntityMetadata.toDBFieldTypes(),
                 idFieldType.getColumnName(),
                 object
         );
@@ -210,8 +205,8 @@ public class StatementExecutorImpl implements IStatementExecutor {
         AtomicInteger index = new AtomicInteger();
 
         try (IPreparedStatement preparedQuery = new PreparedQueryImpl(connection.prepareStatement(query), query)) {
-            for (IDBFieldType idbFieldType : tableInfo.toDBFieldTypes()) {
-                Object value = idbFieldType.access(object);
+            for (IDatabaseColumnType IDatabaseColumnType : databaseEntityMetadata.toDBFieldTypes()) {
+                Object value = IDatabaseColumnType.access(object);
 
                 preparedQuery.setObject(index.incrementAndGet(), value);
             }
@@ -230,10 +225,10 @@ public class StatementExecutorImpl implements IStatementExecutor {
     @Override
     public <T> int delete(Connection connection, T object) throws SQLException {
         try {
-            TableInfo<T> tableInfo = TableInfoManager.buildOrGet((Class<T>) object.getClass());
-            IDBFieldType dbFieldType = tableInfo.getPrimaryKey().get();
+            DatabaseEntityMetadata<T> databaseEntityMetadata = TableInfoManager.buildOrGet((Class<T>) object.getClass());
+            IDatabaseColumnType dbFieldType = databaseEntityMetadata.getPrimaryKey().get();
             Object id = dbFieldType.access(object);
-            DeleteQuery deleteQuery = DeleteQuery.buildQuery(tableInfo.getTableName(), dbFieldType.getColumnName());
+            DeleteQuery deleteQuery = DeleteQuery.buildQuery(databaseEntityMetadata.getTableName(), dbFieldType.getColumnName());
             String query = getQuery(deleteQuery);
 
             try (IPreparedStatement preparedQuery = new PreparedQueryImpl(connection.prepareStatement(query), query)) {
@@ -252,9 +247,9 @@ public class StatementExecutorImpl implements IStatementExecutor {
      */
     @Override
     public <T, ID> int deleteById(Connection connection, Class<T> tClass, ID id) throws SQLException {
-        TableInfo<T> tableInfo = TableInfoManager.buildOrGet(tClass);
-        IDBFieldType dbFieldType = tableInfo.getPrimaryKey().get();
-        DeleteQuery deleteQuery = DeleteQuery.buildQuery(tableInfo.getTableName(), dbFieldType.getColumnName());
+        DatabaseEntityMetadata<T> databaseEntityMetadata = TableInfoManager.buildOrGet(tClass);
+        IDatabaseColumnType dbFieldType = databaseEntityMetadata.getPrimaryKey().get();
+        DeleteQuery deleteQuery = DeleteQuery.buildQuery(databaseEntityMetadata.getTableName(), dbFieldType.getColumnName());
         String query = getQuery(deleteQuery);
 
         try (IPreparedStatement preparedQuery = new PreparedQueryImpl(connection.prepareStatement(query), query)) {
@@ -272,10 +267,10 @@ public class StatementExecutorImpl implements IStatementExecutor {
      */
     @Override
     public <T, ID> T queryForId(Connection connection, Class<T> tClass, ID id) throws SQLException {
-        TableInfo<T> tableInfo = TableInfoManager.buildOrGet(tClass);
-        Select selectQuery = Select.buildQueryById(tableInfo, id);
+        DatabaseEntityMetadata<T> databaseEntityMetadata = TableInfoManager.buildOrGet(tClass);
+        Select selectQuery = Select.buildQueryById(databaseEntityMetadata, id);
         String query = getQuery(selectQuery);
-        ResultsMapper<?> resultsMapper = resultsMapperFactory.createResultsMapper(tableInfo, getAliases(selectQuery));
+        ResultsMapper<?> resultsMapper = null;
 
         try (IPreparedStatement preparedQuery = new PreparedQueryImpl(connection.prepareStatement(query), query)) {
             try (DatabaseResults databaseResults = preparedQuery.executeQuery()) {
@@ -296,11 +291,11 @@ public class StatementExecutorImpl implements IStatementExecutor {
      */
     @Override
     public <T> List<T> queryForAll(Connection connection, Class<T> tClass) throws SQLException {
-        TableInfo<T> tableInfo = TableInfoManager.buildOrGet(tClass);
-        Select select = Select.buildQueryForAll(tableInfo.getTableName());
+        DatabaseEntityMetadata<T> databaseEntityMetadata = TableInfoManager.buildOrGet(tClass);
+        Select select = Select.buildQueryForAll(databaseEntityMetadata.getTableName());
         List<T> resultObjectList = new ArrayList<>();
         String query = getQuery(select);
-        ResultsMapper<?> resultsMapper = resultsMapperFactory.createResultsMapper(tableInfo, getAliases(select));
+        ResultsMapper<?> resultsMapper = null;
 
         try (IStatement statement = new StatementImpl(connection.createStatement())) {
             try (DatabaseResults databaseResults = statement.executeQuery(query)) {
@@ -318,8 +313,8 @@ public class StatementExecutorImpl implements IStatementExecutor {
 
     @Override
     public <T> void createIndexes(Connection connection, Class<T> tClass) throws SQLException {
-        TableInfo<T> tableInfo = TableInfoManager.buildOrGet(tClass);
-        List<IndexFieldType> indexFieldTypes = tableInfo.getIndexFieldTypes();
+        DatabaseEntityMetadata<T> databaseEntityMetadata = TableInfoManager.buildOrGet(tClass);
+        List<IndexFieldType> indexFieldTypes = databaseEntityMetadata.getIndexFieldTypes();
 
         for (IndexFieldType indexFieldType : indexFieldTypes) {
             CreateIndexQuery createIndexQuery = new CreateIndexQuery(indexFieldType);
@@ -334,8 +329,8 @@ public class StatementExecutorImpl implements IStatementExecutor {
 
     @Override
     public <T> void dropIndexes(Connection connection, Class<T> tClass) throws SQLException {
-        TableInfo<T> tableInfo = TableInfoManager.buildOrGet(tClass);
-        List<IndexFieldType> indexFieldTypes = tableInfo.getIndexFieldTypes();
+        DatabaseEntityMetadata<T> databaseEntityMetadata = TableInfoManager.buildOrGet(tClass);
+        List<IndexFieldType> indexFieldTypes = databaseEntityMetadata.getIndexFieldTypes();
 
         for (IndexFieldType indexFieldType : indexFieldTypes) {
             DropIndexQuery dropIndexQuery = DropIndexQuery.build(indexFieldType.getName());
@@ -364,8 +359,8 @@ public class StatementExecutorImpl implements IStatementExecutor {
 
     @Override
     public <T> long countOff(Connection connection, Class<T> tClass) throws SQLException {
-        TableInfo<T> tableInfo = TableInfoManager.buildOrGet(tClass);
-        Select select = Select.buildQueryForAll(tableInfo.getTableName());
+        DatabaseEntityMetadata<T> databaseEntityMetadata = TableInfoManager.buildOrGet(tClass);
+        Select select = Select.buildQueryForAll(databaseEntityMetadata.getTableName());
         SelectColumnsList selectColumnsList = new SelectColumnsList();
 
         selectColumnsList.addColumn(new DisplayedOperand(new CountAll()));
@@ -387,7 +382,7 @@ public class StatementExecutorImpl implements IStatementExecutor {
                 connectionSource,
                 connection,
                 preparedStatement,
-                resultsMapperFactory.createResultsMapper(statement.getTableInfo(), getAliases(statement)));
+                null);
     }
 
     private String getQuery(QueryElement queryElement) {

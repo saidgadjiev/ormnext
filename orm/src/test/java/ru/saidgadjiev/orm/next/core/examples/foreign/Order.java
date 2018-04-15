@@ -1,9 +1,6 @@
 package ru.saidgadjiev.orm.next.core.examples.foreign;
 
-import ru.saidgadjiev.orm.next.core.field.DBField;
-import ru.saidgadjiev.orm.next.core.field.DataType;
-import ru.saidgadjiev.orm.next.core.field.Getter;
-import ru.saidgadjiev.orm.next.core.field.Setter;
+import ru.saidgadjiev.orm.next.core.field.*;
 
 /**
  * Created by said on 27.02.2018.
@@ -12,17 +9,17 @@ public class Order {
 
     @Getter(name = "getId")
     @Setter(name = "setId")
-    @DBField(id = true, generated = true, dataType = DataType.LONG)
+    @DatabaseColumn(id = true, generated = true, dataType = DataType.LONG)
     private int id;
 
     @Getter(name = "getDescription")
     @Setter(name = "setDescription")
-    @DBField(dataType = DataType.STRING)
+    @DatabaseColumn(dataType = DataType.STRING)
     private String description;
 
     @Getter(name = "getAccount")
     @Setter(name = "setAccount")
-    @DBField(foreign = true)
+    @ForeignColumn
     private Account account;
 
     //For OrmNext

@@ -2,7 +2,7 @@ package ru.saidgadjiev.orm.next.core.stament_executor;
 
 import ru.saidgadjiev.orm.next.core.criteria.impl.SelectStatement;
 import ru.saidgadjiev.orm.next.core.support.ConnectionSource;
-import ru.saidgadjiev.orm.next.core.table.TableInfo;
+import ru.saidgadjiev.orm.next.core.table.DatabaseEntityMetadata;
 import ru.saidgadjiev.orm.next.core.table.TableInfoManager;
 
 import java.sql.Connection;
@@ -40,9 +40,9 @@ public class StatementValidator implements IStatementExecutor {
 
     @Override
     public<T> int update(Connection connection, T object) throws SQLException {
-        TableInfo<T> tableInfo = TableInfoManager.buildOrGet((Class<T>) object.getClass());
+        DatabaseEntityMetadata<T> databaseEntityMetadata = TableInfoManager.buildOrGet((Class<T>) object.getClass());
 
-        if (!tableInfo.getPrimaryKey().isPresent()) {
+        if (!databaseEntityMetadata.getPrimaryKey().isPresent()) {
             throw new SQLException("Id is not defined");
         }
 
@@ -51,9 +51,9 @@ public class StatementValidator implements IStatementExecutor {
 
     @Override
     public<T> int delete(Connection connection, T object) throws SQLException {
-        TableInfo<T> tableInfo = TableInfoManager.buildOrGet((Class<T>) object.getClass());
+        DatabaseEntityMetadata<T> databaseEntityMetadata = TableInfoManager.buildOrGet((Class<T>) object.getClass());
 
-        if (!tableInfo.getPrimaryKey().isPresent()) {
+        if (!databaseEntityMetadata.getPrimaryKey().isPresent()) {
             throw new SQLException("Id is not defined");
         }
 
@@ -62,9 +62,9 @@ public class StatementValidator implements IStatementExecutor {
 
     @Override
     public <T, ID> int deleteById(Connection connection, Class<T> tClass, ID id) throws SQLException {
-        TableInfo<T> tableInfo = TableInfoManager.buildOrGet(tClass);
+        DatabaseEntityMetadata<T> databaseEntityMetadata = TableInfoManager.buildOrGet(tClass);
 
-        if (!tableInfo.getPrimaryKey().isPresent()) {
+        if (!databaseEntityMetadata.getPrimaryKey().isPresent()) {
             throw new SQLException("Id is not defined");
         }
 
@@ -73,9 +73,9 @@ public class StatementValidator implements IStatementExecutor {
 
     @Override
     public<T, ID> T queryForId(Connection connection, Class<T> tClass, ID id) throws SQLException {
-        TableInfo<T> tableInfo = TableInfoManager.buildOrGet(tClass);
+        DatabaseEntityMetadata<T> databaseEntityMetadata = TableInfoManager.buildOrGet(tClass);
 
-        if (!tableInfo.getPrimaryKey().isPresent()) {
+        if (!databaseEntityMetadata.getPrimaryKey().isPresent()) {
             throw new SQLException("Id is not defined");
         }
 

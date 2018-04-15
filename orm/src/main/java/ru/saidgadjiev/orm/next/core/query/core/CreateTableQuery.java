@@ -1,8 +1,8 @@
 package ru.saidgadjiev.orm.next.core.query.core;
 
 import ru.saidgadjiev.orm.next.core.field.DataPersisterManager;
-import ru.saidgadjiev.orm.next.core.field.field_type.ForeignFieldType;
-import ru.saidgadjiev.orm.next.core.field.field_type.IDBFieldType;
+import ru.saidgadjiev.orm.next.core.field.field_type.ForeignColumnype;
+import ru.saidgadjiev.orm.next.core.field.field_type.IDatabaseColumnType;
 import ru.saidgadjiev.orm.next.core.query.core.constraints.attribute.Default;
 import ru.saidgadjiev.orm.next.core.query.core.constraints.attribute.NotNullConstraint;
 import ru.saidgadjiev.orm.next.core.query.core.constraints.attribute.PrimaryKeyConstraint;
@@ -12,7 +12,7 @@ import ru.saidgadjiev.orm.next.core.query.core.constraints.table.UniqueConstrain
 import ru.saidgadjiev.orm.next.core.query.core.literals.Literal;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryElement;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryVisitor;
-import ru.saidgadjiev.orm.next.core.table.TableInfo;
+import ru.saidgadjiev.orm.next.core.table.DatabaseEntityMetadata;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,10 +52,10 @@ public class CreateTableQuery implements QueryElement {
         return tableConstraints;
     }
 
-    public static CreateTableQuery buildQuery(TableInfo<?> tableInfo, boolean ifNotExists) {
+    public static CreateTableQuery buildQuery(DatabaseEntityMetadata<?> databaseEntityMetadata, boolean ifNotExists) {
         List<AttributeDefinition> attributeDefinitions = new ArrayList<>();
 
-        for (IDBFieldType dbFieldType : tableInfo.getFieldTypes()) {
+        for (IDatabaseColumnType dbFieldType : databaseEntityMetadata.getFieldTypes()) {
             if (dbFieldType.isForeignCollectionFieldType()) {
                 continue;
             }
@@ -76,22 +76,22 @@ public class CreateTableQuery implements QueryElement {
             attributeDefinitions.add(attributeDefinition);
         }
         CreateTableQuery createTableQuery = new CreateTableQuery(
-                tableInfo.getTableName(),
+                databaseEntityMetadata.getTableName(),
                 ifNotExists,
                 attributeDefinitions
         );
 
-        for (ForeignFieldType foreignFieldType : tableInfo.toForeignFieldTypes()) {
+        for (ForeignColumnype foreignColumnype : databaseEntityMetadata.toForeignFieldTypes()) {
             createTableQuery
                     .getTableConstraints()
                     .add(new ForeignKeyConstraint(
-                            foreignFieldType.getForeignTableName(),
-                            foreignFieldType.getForeignColumnName(),
-                            foreignFieldType.getColumnName())
+                            foreignColumnype.getForeignTableName(),
+                            foreignColumnype.getForeignColumnName(),
+                            foreignColumnype.getColumnName())
                     );
         }
 
-        createTableQuery.getTableConstraints().addAll(tableInfo.getUniqueFieldTypes()
+        createTableQuery.getTableConstraints().addAll(databaseEntityMetadata.getUniqueFieldTypes()
                 .stream()
                 .map(UniqueConstraint::new)
                 .collect(Collectors.toList()));

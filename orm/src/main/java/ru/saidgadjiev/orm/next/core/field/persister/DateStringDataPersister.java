@@ -1,7 +1,7 @@
-package ru.saidgadjiev.orm.next.core.field.persisters;
+package ru.saidgadjiev.orm.next.core.field.persister;
 
 import ru.saidgadjiev.orm.next.core.field.DataType;
-import ru.saidgadjiev.orm.next.core.field.field_type.IDBFieldType;
+import ru.saidgadjiev.orm.next.core.field.field_type.IDatabaseColumnType;
 import ru.saidgadjiev.orm.next.core.query.core.literals.Literal;
 import ru.saidgadjiev.orm.next.core.query.core.literals.StringLiteral;
 
@@ -13,7 +13,7 @@ public class DateStringDataPersister extends BaseDateDataPersister {
     private static final String DEFAULT_FORMAT = "dd.MM.yyyy HH:mm:ss";
 
     @Override
-    public Literal<String> getLiteral(IDBFieldType fieldType, Object object) {
+    public Literal<String> getLiteral(IDatabaseColumnType fieldType, Object object) {
         return new StringLiteral(object == null ? null : getFormatter(fieldType).format(object));
     }
 
@@ -23,7 +23,7 @@ public class DateStringDataPersister extends BaseDateDataPersister {
     }
 
     @Override
-    public Object parseDefaultTo(IDBFieldType fieldType, String value) throws IllegalArgumentException {
+    public Object parseDefaultTo(IDatabaseColumnType fieldType, String value) throws IllegalArgumentException {
         try {
             return getFormatter(fieldType).parse(value);
         } catch (ParseException e) {
@@ -32,7 +32,7 @@ public class DateStringDataPersister extends BaseDateDataPersister {
     }
 
     @Override
-    public Object parseSqlToJava(IDBFieldType fieldType, Object object) throws Exception {
+    public Object parseSqlToJava(IDatabaseColumnType fieldType, Object object) throws Exception {
         if (object == null) {
             return null;
         }
@@ -41,7 +41,7 @@ public class DateStringDataPersister extends BaseDateDataPersister {
     }
 
     @Override
-    public Object parseJavaToSql(IDBFieldType fieldType, Object object) {
+    public Object parseJavaToSql(IDatabaseColumnType fieldType, Object object) {
         if (object == null) {
             return null;
         }
@@ -49,7 +49,7 @@ public class DateStringDataPersister extends BaseDateDataPersister {
         return getFormatter(fieldType).format(object);
     }
 
-    private SimpleDateFormat getFormatter(IDBFieldType fieldType) {
+    private SimpleDateFormat getFormatter(IDatabaseColumnType fieldType) {
         String format = fieldType.getFormat();
 
         if (format != null && !format.isEmpty()) {

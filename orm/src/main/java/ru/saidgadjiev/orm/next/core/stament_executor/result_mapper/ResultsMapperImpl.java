@@ -7,16 +7,16 @@ import ru.saidgadjiev.orm.next.core.dao.BaseSessionManagerImpl;
 import ru.saidgadjiev.orm.next.core.dao.Session;
 import ru.saidgadjiev.orm.next.core.field.FetchType;
 import ru.saidgadjiev.orm.next.core.field.field_type.ForeignCollectionFieldType;
-import ru.saidgadjiev.orm.next.core.field.field_type.ForeignFieldType;
-import ru.saidgadjiev.orm.next.core.field.field_type.ForeignFieldTypeFactory;
-import ru.saidgadjiev.orm.next.core.field.field_type.IDBFieldType;
+import ru.saidgadjiev.orm.next.core.field.field_type.ForeignColumnype;
+import ru.saidgadjiev.orm.next.core.field.field_type.ForeignColumnTypeFactory;
+import ru.saidgadjiev.orm.next.core.field.field_type.IDatabaseColumnType;
 import ru.saidgadjiev.orm.next.core.query.visitor.DefaultVisitor;
 import ru.saidgadjiev.orm.next.core.stament_executor.DatabaseResults;
 import ru.saidgadjiev.orm.next.core.stament_executor.GenericResults;
 import ru.saidgadjiev.orm.next.core.stament_executor.object.collection.LazyList;
 import ru.saidgadjiev.orm.next.core.stament_executor.object.collection.LazySet;
 import ru.saidgadjiev.orm.next.core.support.ConnectionSource;
-import ru.saidgadjiev.orm.next.core.table.TableInfo;
+import ru.saidgadjiev.orm.next.core.table.DatabaseEntityMetadata;
 import ru.saidgadjiev.orm.next.core.table.TableInfoManager;
 
 import java.lang.reflect.Constructor;
@@ -29,27 +29,27 @@ public class ResultsMapperImpl<T> implements ResultsMapper<T> {
 
     private Map<String, String> columnAliasMap;
 
-    private TableInfo<T> tableInfo;
+    private DatabaseEntityMetadata<T> databaseEntityMetadata;
 
     private Set<Class<?>> parents;
 
     public ResultsMapperImpl(ConnectionSource dataSource,
-                             TableInfo<T> tableInfo,
+                             DatabaseEntityMetadata<T> databaseEntityMetadata,
                              Map<String, String> columnAliasMap,
                              Set<Class<?>> parents) {
         this.dataSource = dataSource;
         this.columnAliasMap = columnAliasMap;
-        this.tableInfo = tableInfo;
+        this.databaseEntityMetadata = databaseEntityMetadata;
         this.parents = parents;
     }
 
     @Override
     public T mapResults(DatabaseResults results) throws Exception {
-        T object = (T) newObject(tableInfo.getConstructor());
+        T object = (T) newObject(databaseEntityMetadata.getConstructor());
 
-        parents.add(tableInfo.getTableClass());
+        parents.add(databaseEntityMetadata.getTableClass());
 
-        for (IDBFieldType fieldType : tableInfo.getFieldTypes()) {
+        for (IDatabaseColumnType fieldType : databaseEntityMetadata.getFieldTypes()) {
             if (fieldType.isDbFieldType()) {
                 buildBase(object, results, fieldType);
             } else if (fieldType.isForeignFieldType()) {
@@ -62,9 +62,9 @@ public class ResultsMapperImpl<T> implements ResultsMapper<T> {
         return object;
     }
 
-    private void buildBase(T object, DatabaseResults data, IDBFieldType fieldType) throws Exception {
+    private void buildBase(T object, DatabaseResults data, IDatabaseColumnType fieldType) throws Exception {
         if (fieldType.isDbFieldType()) {
-            String columnName = tableInfo.getTableName() + "." + fieldType.getColumnName();
+            String columnName = databaseEntityMetadata.getTableName() + "." + fieldType.getColumnName();
 
             if (columnAliasMap.containsKey(columnName)) {
                 Object value = fieldType.getDataPersister().parseSqlToJava(fieldType, data.getObject(columnAliasMap.get(columnName)));
@@ -74,26 +74,26 @@ public class ResultsMapperImpl<T> implements ResultsMapper<T> {
         }
     }
 
-    private void buildForeign(T object, DatabaseResults data, IDBFieldType fieldType, Set<Class<?>> parents) throws Exception {
-        ForeignFieldType foreignFieldType = (ForeignFieldType) fieldType;
+    private void buildForeign(T object, DatabaseResults data, IDatabaseColumnType fieldType, Set<Class<?>> parents) throws Exception {
+        ForeignColumnype foreignColumnype = (ForeignColumnype) fieldType;
 
-        if (!parents.contains(foreignFieldType.getForeignFieldClass())) {
-            TableInfo<?> foreignTableInfo = TableInfoManager.buildOrGet(foreignFieldType.getForeignFieldClass());
-            Object foreignObject = new ResultsMapperImpl<>(dataSource, foreignTableInfo, columnAliasMap, new HashSet<>(parents)).mapResults(data);
+        if (!parents.contains(foreignColumnype.getForeignFieldClass())) {
+            DatabaseEntityMetadata<?> foreignDatabaseEntityMetadata = TableInfoManager.buildOrGet(foreignColumnype.getForeignFieldClass());
+            Object foreignObject = new ResultsMapperImpl<>(dataSource, foreignDatabaseEntityMetadata, columnAliasMap, new HashSet<>(parents)).mapResults(data);
 
-            foreignFieldType.assign(object, foreignObject);
+            foreignColumnype.assign(object, foreignObject);
         }
     }
 
-    private void buildForeignCollection(T object, IDBFieldType fieldType, Set<Class<?>> parents) throws Exception {
+    private void buildForeignCollection(T object, IDatabaseColumnType fieldType, Set<Class<?>> parents) throws Exception {
         ForeignCollectionFieldType foreignCollectionFieldType = (ForeignCollectionFieldType) fieldType;
-        TableInfo<Object> foreignTableInfo = TableInfoManager.buildOrGet((Class<Object>) foreignCollectionFieldType.getForeignFieldClass());
+        DatabaseEntityMetadata<Object> foreignDatabaseEntityMetadata = TableInfoManager.buildOrGet((Class<Object>) foreignCollectionFieldType.getForeignFieldClass());
         Session foreignDao = new BaseSessionManagerImpl(dataSource).getCurrentSession();
 
-        if (tableInfo.getPrimaryKey().isPresent() && foreignTableInfo.getPrimaryKey().isPresent()) {
-            IDBFieldType idField = tableInfo.getPrimaryKey().get();
-            ForeignFieldType foreignField = (ForeignFieldType) new ForeignFieldTypeFactory().createFieldType(foreignCollectionFieldType.getForeignField());
-            SelectStatement<?> selectStatement = new SelectStatement<>(foreignTableInfo.getTableClass());
+        if (databaseEntityMetadata.getPrimaryKey().isPresent() && foreignDatabaseEntityMetadata.getPrimaryKey().isPresent()) {
+            IDatabaseColumnType idField = databaseEntityMetadata.getPrimaryKey().get();
+            ForeignColumnype foreignField = (ForeignColumnype) new ForeignColumnTypeFactory().createFieldType(foreignCollectionFieldType.getForeignField());
+            SelectStatement<?> selectStatement = new SelectStatement<>(foreignDatabaseEntityMetadata.getTableClass());
 
             selectStatement.where(new Criteria().add(Restrictions.eq(foreignField.getFieldName(), idField.access(object))));
             DefaultVisitor visitor = new DefaultVisitor(dataSource.getDatabaseType());
@@ -101,7 +101,7 @@ public class ResultsMapperImpl<T> implements ResultsMapper<T> {
             selectStatement.accept(visitor);
             if (foreignCollectionFieldType.getFetchType().equals(FetchType.EAGER)) {
                 try (GenericResults genericResults = foreignDao.query(selectStatement)) {
-                    ResultsMapper resultsMapper = new ResultsMapperImpl<>(dataSource, foreignTableInfo, columnAliasMap, new HashSet<>(parents));
+                    ResultsMapper resultsMapper = new ResultsMapperImpl<>(dataSource, foreignDatabaseEntityMetadata, columnAliasMap, new HashSet<>(parents));
                     List objects = genericResults.getResults(resultsMapper);
 
                     for (Object foreignObject : objects) {
@@ -115,7 +115,7 @@ public class ResultsMapperImpl<T> implements ResultsMapper<T> {
                 Supplier<List> fetcher = () -> {
                     try {
                         try (GenericResults genericResults = foreignDao.query(selectStatement)) {
-                            ResultsMapper resultsMapper = new ResultsMapperImpl<>(dataSource, foreignTableInfo, columnAliasMap, new HashSet<>(parents));
+                            ResultsMapper resultsMapper = new ResultsMapperImpl<>(dataSource, foreignDatabaseEntityMetadata, columnAliasMap, new HashSet<>(parents));
                             List results = genericResults.getResults(resultsMapper);
 
                             for (Object foreignObject : results) {

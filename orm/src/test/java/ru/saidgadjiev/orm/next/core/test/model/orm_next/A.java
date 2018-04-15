@@ -1,19 +1,20 @@
 package ru.saidgadjiev.orm.next.core.test.model.orm_next;
 
-import ru.saidgadjiev.orm.next.core.field.DBField;
+import ru.saidgadjiev.orm.next.core.field.DatabaseColumn;
+import ru.saidgadjiev.orm.next.core.field.ForeignColumn;
 
 import javax.persistence.*;
 
 @Entity(name = "a")
 public class A {
 
-    @DBField(id = true, generated = true, dataType = 8)
+    @DatabaseColumn(id = true, generated = true, dataType = 8)
     private int id;
 
-    @DBField(notNull = true)
+    @DatabaseColumn(notNull = true)
     private String name;
 
-    @DBField(foreign = true)
+    @ForeignColumn
     private C c;
 
     public int getId() {

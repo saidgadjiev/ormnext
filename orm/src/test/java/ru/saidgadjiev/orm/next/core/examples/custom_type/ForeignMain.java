@@ -5,9 +5,6 @@ import ru.saidgadjiev.orm.next.core.dao.BaseSessionManagerImpl;
 import ru.saidgadjiev.orm.next.core.dao.Session;
 import ru.saidgadjiev.orm.next.core.dao.SessionManager;
 import ru.saidgadjiev.orm.next.core.db.H2DatabaseType;
-import ru.saidgadjiev.orm.next.core.field.DataPersisterManager;
-import ru.saidgadjiev.orm.next.core.field.persisters.DataPersister;
-import ru.saidgadjiev.orm.next.core.field.persisters.IntegerDataPersister;
 import ru.saidgadjiev.orm.next.core.support.PolledConnectionSource;
 
 /**

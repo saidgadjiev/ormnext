@@ -1,7 +1,8 @@
 package ru.saidgadjiev.orm.next.core.field.field_type;
 
-import ru.saidgadjiev.orm.next.core.field.DBField;
+import ru.saidgadjiev.orm.next.core.field.DatabaseColumn;
 import ru.saidgadjiev.orm.next.core.field.ForeignCollectionField;
+import ru.saidgadjiev.orm.next.core.field.ForeignColumn;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -18,17 +19,13 @@ public class FieldTypeUtils {
 
     }
 
-    public static Optional<IDBFieldType> create(Field field) {
-        if (field.isAnnotationPresent(DBField.class)) {
-            DBField dbField = field.getAnnotation(DBField.class);
-
-            if (dbField.foreign()) {
-                return Optional.of(new ForeignFieldTypeFactory().createFieldType(field));
-            } else {
-                return Optional.of(new DBFieldTypeFactory().createFieldType(field));
-            }
+    public static Optional<IDatabaseColumnType> create(Field field) {
+        if (field.isAnnotationPresent(DatabaseColumn.class)) {
+            return Optional.of(new DatabaseColumnTypeFactory().createFieldType(field));
         } else if (field.isAnnotationPresent(ForeignCollectionField.class)) {
-            return Optional.of(new ForeignCollectionFieldTypeFactory().createFieldType(field));
+            return Optional.of(new ForeignCollectionColumnTypeFactory().createFieldType(field));
+        } else if (field.isAnnotationPresent(ForeignColumn.class)) {
+            return Optional.of(new ForeignColumnTypeFactory().createFieldType(field));
         }
 
         return Optional.empty();
@@ -51,7 +48,7 @@ public class FieldTypeUtils {
 
     public static Optional<Field> findFieldByType(Class<?> type, Class<?> clazz) {
         return Arrays.stream(clazz.getDeclaredFields())
-                .filter(field -> field.isAnnotationPresent(DBField.class) && field.getType() == type)
+                .filter(field -> field.isAnnotationPresent(DatabaseColumn.class) && field.getType() == type)
                 .findFirst();
     }
 }

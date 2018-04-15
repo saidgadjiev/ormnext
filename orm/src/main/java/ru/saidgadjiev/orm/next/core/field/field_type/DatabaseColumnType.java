@@ -1,12 +1,12 @@
 package ru.saidgadjiev.orm.next.core.field.field_type;
 
 import ru.saidgadjiev.orm.next.core.field.FieldAccessor;
-import ru.saidgadjiev.orm.next.core.field.persisters.DataPersister;
+import ru.saidgadjiev.orm.next.core.field.persister.DataPersister;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 
-public class DBFieldType implements IDBFieldType {
+public class DatabaseColumnType implements IDatabaseColumnType {
 
     private String columnName;
 

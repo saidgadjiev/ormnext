@@ -1,6 +1,6 @@
 package ru.saidgadjiev.orm.next.core.query.core;
 
-import ru.saidgadjiev.orm.next.core.field.field_type.DBFieldType;
+import ru.saidgadjiev.orm.next.core.field.field_type.DatabaseColumnType;
 import ru.saidgadjiev.orm.next.core.query.core.column_spec.ColumnSpec;
 import ru.saidgadjiev.orm.next.core.query.core.common.UpdateValue;
 import ru.saidgadjiev.orm.next.core.query.core.condition.Equals;
@@ -79,10 +79,10 @@ public class UpdateQuery implements QueryElement {
         this.where = where;
     }
 
-    public static <T> UpdateQuery buildQuery(String typeName, List<DBFieldType> fieldTypes, String idColumnName, T object) throws SQLException {
+    public static <T> UpdateQuery buildQuery(String typeName, List<DatabaseColumnType> fieldTypes, String idColumnName, T object) throws SQLException {
         UpdateQuery updateQuery = new UpdateQuery(typeName);
 
-        for (DBFieldType fieldType : fieldTypes) {
+        for (DatabaseColumnType fieldType : fieldTypes) {
             updateQuery.updateValues.add(
                     new UpdateValue(
                             fieldType.getColumnName(),

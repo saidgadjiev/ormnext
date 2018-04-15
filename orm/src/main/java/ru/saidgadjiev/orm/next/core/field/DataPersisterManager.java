@@ -1,6 +1,6 @@
 package ru.saidgadjiev.orm.next.core.field;
 
-import ru.saidgadjiev.orm.next.core.field.persisters.*;
+import ru.saidgadjiev.orm.next.core.field.persister.*;
 
 import java.util.HashMap;
 import java.util.Map;

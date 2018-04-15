@@ -1,7 +1,7 @@
-package ru.saidgadjiev.orm.next.core.field.persisters;
+package ru.saidgadjiev.orm.next.core.field.persister;
 
 import ru.saidgadjiev.orm.next.core.field.DataType;
-import ru.saidgadjiev.orm.next.core.field.field_type.IDBFieldType;
+import ru.saidgadjiev.orm.next.core.field.field_type.IDatabaseColumnType;
 import ru.saidgadjiev.orm.next.core.query.core.literals.IntLiteral;
 import ru.saidgadjiev.orm.next.core.query.core.literals.Literal;
 
@@ -17,7 +17,7 @@ public class IntegerDataPersister extends BaseDataPersister {
     }
 
     @Override
-    public Literal<Integer> getLiteral(IDBFieldType fieldType, Object object) {
+    public Literal<Integer> getLiteral(IDatabaseColumnType fieldType, Object object) {
         return new IntLiteral((Integer) object);
     }
 
@@ -27,7 +27,7 @@ public class IntegerDataPersister extends BaseDataPersister {
     }
 
     @Override
-    public Object parseDefaultTo(IDBFieldType fieldType, String value) throws IllegalArgumentException {
+    public Object parseDefaultTo(IDatabaseColumnType fieldType, String value) throws IllegalArgumentException {
         return Integer.valueOf(value);
     }
 

@@ -6,7 +6,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import ru.saidgadjiev.orm.next.core.db.H2DatabaseType;
-import ru.saidgadjiev.orm.next.core.field.DBField;
+import ru.saidgadjiev.orm.next.core.field.DatabaseColumn;
 import ru.saidgadjiev.orm.next.core.support.DataSourceConnectionSource;
 
 public class TransactionImplTest {
@@ -60,10 +60,10 @@ public class TransactionImplTest {
     }
 
     private static class TestClazz {
-        @DBField(id = true, generated = true)
+        @DatabaseColumn(id = true, generated = true)
         private int id;
 
-        @DBField
+        @DatabaseColumn
         private String name;
     }
 }

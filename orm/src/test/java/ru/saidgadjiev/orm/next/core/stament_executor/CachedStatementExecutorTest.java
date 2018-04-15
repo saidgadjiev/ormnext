@@ -7,8 +7,8 @@ import org.mockito.Mockito;
 import ru.saidgadjiev.orm.next.core.cache.CacheContext;
 import ru.saidgadjiev.orm.next.core.cache.LRUObjectCache;
 import ru.saidgadjiev.orm.next.core.cache.ObjectCache;
-import ru.saidgadjiev.orm.next.core.field.DBField;
-import ru.saidgadjiev.orm.next.core.table.TableInfo;
+import ru.saidgadjiev.orm.next.core.field.DatabaseColumn;
+import ru.saidgadjiev.orm.next.core.table.DatabaseEntityMetadata;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
@@ -16,11 +16,11 @@ import java.util.List;
 
 public class CachedStatementExecutorTest {
 
-    private static TableInfo<TestClazz> tableInfo;
+    private static DatabaseEntityMetadata<TestClazz> databaseEntityMetadata;
 
     @Before
     public void setUp() throws Exception {
-        tableInfo = TableInfo.build(TestClazz.class);
+        databaseEntityMetadata = DatabaseEntityMetadata.build(TestClazz.class);
     }
 
     @Test
@@ -153,10 +153,10 @@ public class CachedStatementExecutorTest {
     }
 
     private static class TestClazz {
-        @DBField(id = true)
+        @DatabaseColumn(id = true)
         private int id;
 
-        @DBField
+        @DatabaseColumn
         private String name;
     }
 }

@@ -13,10 +13,10 @@ import static ru.saidgadjiev.orm.next.core.field.field_type.FieldTypeUtils.*;
 /**
  * Created by said on 28.01.2018.
  */
-public class ForeignCollectionFieldTypeFactory implements FieldTypeFactory {
+public class ForeignCollectionColumnTypeFactory implements ColumnTypeFactory {
 
     @Override
-    public IDBFieldType createFieldType(Field field) {
+    public IDatabaseColumnType createFieldType(Field field) {
         if (!field.isAnnotationPresent(ForeignCollectionField.class)) {
             return null;
         }

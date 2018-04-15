@@ -1,6 +1,6 @@
-package ru.saidgadjiev.orm.next.core.field.persisters;
+package ru.saidgadjiev.orm.next.core.field.persister;
 
-import ru.saidgadjiev.orm.next.core.field.field_type.IDBFieldType;
+import ru.saidgadjiev.orm.next.core.field.field_type.IDatabaseColumnType;
 import ru.saidgadjiev.orm.next.core.query.core.literals.Literal;
 
 import java.lang.reflect.Field;
@@ -15,7 +15,7 @@ public interface DataPersister<T> extends FieldConverter<T> {
 
     Class<?>[] getAssociatedClasses();
 
-    Literal<T> getLiteral(IDBFieldType fieldType, Object object);
+    Literal<T> getLiteral(IDatabaseColumnType fieldType, Object object);
 
     int getDataType();
 

@@ -1,8 +1,8 @@
 package ru.saidgadjiev.orm.next.core.utils;
 
-import ru.saidgadjiev.orm.next.core.field.field_type.ForeignFieldType;
-import ru.saidgadjiev.orm.next.core.field.field_type.IDBFieldType;
-import ru.saidgadjiev.orm.next.core.table.TableInfo;
+import ru.saidgadjiev.orm.next.core.field.field_type.ForeignColumnype;
+import ru.saidgadjiev.orm.next.core.field.field_type.IDatabaseColumnType;
+import ru.saidgadjiev.orm.next.core.table.DatabaseEntityMetadata;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,11 +13,11 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class ArgumentUtils {
 
-    public static <T> Map<Integer, Object> eject(T object, TableInfo<T> tableInfo) throws Exception {
+    public static <T> Map<Integer, Object> eject(T object, DatabaseEntityMetadata<T> databaseEntityMetadata) throws Exception {
         AtomicInteger index = new AtomicInteger();
         Map<Integer, Object> args = new HashMap<>();
 
-        for (IDBFieldType fieldType : tableInfo.toDBFieldTypes()) {
+        for (IDatabaseColumnType fieldType : databaseEntityMetadata.toDBFieldTypes()) {
             if (!fieldType.isForeignCollectionFieldType() && !fieldType.isGenerated()) {
                 Object value = fieldType.access(object);
 
@@ -29,10 +29,10 @@ public class ArgumentUtils {
             }
         }
 
-        for (ForeignFieldType foreignFieldType : tableInfo.toForeignFieldTypes()) {
-            Object value = foreignFieldType.access(object);
+        for (ForeignColumnype foreignColumnype : databaseEntityMetadata.toForeignFieldTypes()) {
+            Object value = foreignColumnype.access(object);
 
-            args.put(index.incrementAndGet(), foreignFieldType.getForeignPrimaryKey().access(value));
+            args.put(index.incrementAndGet(), foreignColumnype.getForeignPrimaryKey().access(value));
         }
 
         return args;

@@ -1,6 +1,6 @@
 package ru.saidgadjiev.orm.next.core.validator.table;
 
-import ru.saidgadjiev.orm.next.core.field.DBField;
+import ru.saidgadjiev.orm.next.core.field.DatabaseColumn;
 import ru.saidgadjiev.orm.next.core.utils.ExceptionUtils;
 
 import java.lang.reflect.Field;
@@ -11,10 +11,10 @@ public class PrimaryKeyValidator implements IValidator {
         int idCount = 0;
 
         for (Field field : tClass.getDeclaredFields()) {
-            if (field.isAnnotationPresent(DBField.class)) {
-                DBField dbField = field.getAnnotation(DBField.class);
+            if (field.isAnnotationPresent(DatabaseColumn.class)) {
+                DatabaseColumn databaseColumn = field.getAnnotation(DatabaseColumn.class);
 
-                if (dbField.id()) {
+                if (databaseColumn.id()) {
                     ++idCount;
                 }
             }

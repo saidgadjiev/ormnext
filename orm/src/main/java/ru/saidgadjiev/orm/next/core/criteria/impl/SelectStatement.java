@@ -13,7 +13,7 @@ import ru.saidgadjiev.orm.next.core.query.core.clause.select.SelectColumnsStrate
 import ru.saidgadjiev.orm.next.core.query.core.common.TableRef;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryElement;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryVisitor;
-import ru.saidgadjiev.orm.next.core.table.TableInfo;
+import ru.saidgadjiev.orm.next.core.table.DatabaseEntityMetadata;
 import ru.saidgadjiev.orm.next.core.table.TableInfoManager;
 
 import java.util.HashMap;
@@ -36,7 +36,7 @@ public class SelectStatement<T> implements QueryElement {
 
     private Alias alias;
 
-    private TableInfo<?> tableInfo;
+    private DatabaseEntityMetadata<?> databaseEntityMetadata;
 
     private boolean argsCollected = false;
 
@@ -47,11 +47,11 @@ public class SelectStatement<T> implements QueryElement {
     private SelectColumnsStrategy selectColumnsStrategy;
 
     public SelectStatement(Class<?> tClass) {
-        this.tableInfo = TableInfoManager.buildOrGet(tClass);
+        this.databaseEntityMetadata = TableInfoManager.buildOrGet(tClass);
     }
 
-    public TableInfo<?> getTableInfo() {
-        return tableInfo;
+    public DatabaseEntityMetadata<?> getDatabaseEntityMetadata() {
+        return databaseEntityMetadata;
     }
 
     public SelectStatement<T> where(Criteria where) {
@@ -141,7 +141,7 @@ public class SelectStatement<T> implements QueryElement {
         Select select = new Select();
 
         select.setSelectColumnsStrategy(new SelectAll());
-        select.setFrom(new FromTable(new TableRef(tableInfo.getTableName())));
+        select.setFrom(new FromTable(new TableRef(databaseEntityMetadata.getTableName())));
         if (where != null) {
             select.setWhere(where.getExpression());
         }
@@ -161,7 +161,7 @@ public class SelectStatement<T> implements QueryElement {
             select.setSelectColumnsStrategy(selectColumnsStrategy);
         }
 
-        select.accept(new CriteriaQueryVisitor(tableInfo, alias));
+        select.accept(new CriteriaQueryVisitor(databaseEntityMetadata, alias));
 
         return select;
     }

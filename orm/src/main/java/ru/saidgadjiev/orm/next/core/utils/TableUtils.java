@@ -6,7 +6,7 @@ import ru.saidgadjiev.orm.next.core.query.visitor.DefaultVisitor;
 import ru.saidgadjiev.orm.next.core.stament_executor.IStatement;
 import ru.saidgadjiev.orm.next.core.stament_executor.StatementImpl;
 import ru.saidgadjiev.orm.next.core.support.ConnectionSource;
-import ru.saidgadjiev.orm.next.core.table.TableInfo;
+import ru.saidgadjiev.orm.next.core.table.DatabaseEntityMetadata;
 import ru.saidgadjiev.orm.next.core.table.TableInfoManager;
 
 import java.sql.Connection;
@@ -23,9 +23,9 @@ public class TableUtils {
 
     public static <T> boolean createTable(ConnectionSource connectionSource, Class<T> tClass, boolean ifNotExists) throws SQLException {
         try {
-            TableInfo<T> tableInfo = TableInfoManager.buildOrGet(tClass);
+            DatabaseEntityMetadata<T> databaseEntityMetadata = TableInfoManager.buildOrGet(tClass);
             CreateTableQuery createTableQuery = CreateTableQuery.buildQuery(
-                    tableInfo,
+                    databaseEntityMetadata,
                     ifNotExists
             );
             DefaultVisitor visitor = new DefaultVisitor(connectionSource.getDatabaseType());
@@ -49,9 +49,9 @@ public class TableUtils {
 
     public static <T> boolean dropTable(ConnectionSource connectionSource, Class<T> tClass, boolean ifExists) throws SQLException {
         try {
-            TableInfo<T> tableInfo = TableInfoManager.buildOrGet(tClass);
+            DatabaseEntityMetadata<T> databaseEntityMetadata = TableInfoManager.buildOrGet(tClass);
 
-            DropTableQuery dropTableQuery = DropTableQuery.buildQuery(tableInfo.getTableName(), ifExists);
+            DropTableQuery dropTableQuery = DropTableQuery.buildQuery(databaseEntityMetadata.getTableName(), ifExists);
             DefaultVisitor visitor = new DefaultVisitor(connectionSource.getDatabaseType());
 
             dropTableQuery.accept(visitor);

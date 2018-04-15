@@ -1,4 +1,4 @@
-package ru.saidgadjiev.orm.next.core.field.persisters;
+package ru.saidgadjiev.orm.next.core.field.persister;
 
 import java.util.Date;
 

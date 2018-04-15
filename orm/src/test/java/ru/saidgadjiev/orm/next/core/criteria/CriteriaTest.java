@@ -6,7 +6,7 @@ import ru.saidgadjiev.orm.next.core.criteria.impl.Projections;
 import ru.saidgadjiev.orm.next.core.criteria.impl.Restrictions;
 import ru.saidgadjiev.orm.next.core.criteria.impl.SelectStatement;
 import ru.saidgadjiev.orm.next.core.db.H2DatabaseType;
-import ru.saidgadjiev.orm.next.core.field.DBField;
+import ru.saidgadjiev.orm.next.core.field.DatabaseColumn;
 import ru.saidgadjiev.orm.next.core.field.DataType;
 import ru.saidgadjiev.orm.next.core.query.visitor.DefaultVisitor;
 
@@ -41,10 +41,10 @@ public class CriteriaTest {
     }
 
     public static class TestClazz {
-        @DBField(id = true, generated = true)
+        @DatabaseColumn(id = true, generated = true)
         private int id;
 
-        @DBField(dataType = DataType.STRING, columnName = "test_name")
+        @DatabaseColumn(dataType = DataType.STRING, columnName = "test_name")
         private String name;
     }
 }

@@ -1,7 +1,7 @@
-package ru.saidgadjiev.orm.next.core.field.persisters;
+package ru.saidgadjiev.orm.next.core.field.persister;
 
 import ru.saidgadjiev.orm.next.core.field.DataType;
-import ru.saidgadjiev.orm.next.core.field.field_type.IDBFieldType;
+import ru.saidgadjiev.orm.next.core.field.field_type.IDatabaseColumnType;
 import ru.saidgadjiev.orm.next.core.query.core.literals.BooleanLiteral;
 import ru.saidgadjiev.orm.next.core.query.core.literals.Literal;
 
@@ -17,7 +17,7 @@ public class BooleanPersister extends BaseDataPersister {
     }
 
     @Override
-    public Literal<Boolean> getLiteral(IDBFieldType fieldType, Object object) {
+    public Literal<Boolean> getLiteral(IDatabaseColumnType fieldType, Object object) {
         return new BooleanLiteral((Boolean) object);
     }
 
@@ -27,7 +27,7 @@ public class BooleanPersister extends BaseDataPersister {
     }
 
     @Override
-    public Boolean parseDefaultTo(IDBFieldType fieldType, String value) {
+    public Boolean parseDefaultTo(IDatabaseColumnType fieldType, String value) {
         return Boolean.valueOf(value);
     }
 }

@@ -1,6 +1,6 @@
 package ru.saidgadjiev.orm.next.core.validator.data_persister;
 
-import ru.saidgadjiev.orm.next.core.field.persisters.DataPersister;
+import ru.saidgadjiev.orm.next.core.field.persister.DataPersister;
 import ru.saidgadjiev.orm.next.core.utils.ExceptionUtils;
 
 import java.lang.reflect.Field;

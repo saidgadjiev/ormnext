@@ -1,9 +1,9 @@
 package ru.saidgadjiev.orm.next.core.utils;
 
-import ru.saidgadjiev.orm.next.core.field.DBField;
-import ru.saidgadjiev.orm.next.core.field.field_type.DBFieldTypeFactory;
-import ru.saidgadjiev.orm.next.core.field.field_type.IDBFieldType;
-import ru.saidgadjiev.orm.next.core.table.DBTable;
+import ru.saidgadjiev.orm.next.core.field.DatabaseColumn;
+import ru.saidgadjiev.orm.next.core.field.field_type.DatabaseColumnTypeFactory;
+import ru.saidgadjiev.orm.next.core.field.field_type.IDatabaseColumnType;
+import ru.saidgadjiev.orm.next.core.table.DatabaseEntity;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -13,10 +13,10 @@ public class TableInfoUtils {
 
     private TableInfoUtils() {}
 
-    public static Optional<IDBFieldType> resolvePrimaryKey(Class<?> foreignFieldClass) {
+    public static Optional<IDatabaseColumnType> resolvePrimaryKey(Class<?> foreignFieldClass) {
         for (Field field : foreignFieldClass.getDeclaredFields()) {
-            if (field.isAnnotationPresent(DBField.class) && field.getAnnotation(DBField.class).id()) {
-                return Optional.of(new DBFieldTypeFactory().createFieldType(field));
+            if (field.isAnnotationPresent(DatabaseColumn.class) && field.getAnnotation(DatabaseColumn.class).id()) {
+                return Optional.of(new DatabaseColumnTypeFactory().createFieldType(field));
             }
         }
 
@@ -36,10 +36,10 @@ public class TableInfoUtils {
     public static String resolveTableName(Class<?> clazz) {
         String tableName = "";
 
-        if (clazz.isAnnotationPresent(DBTable.class)) {
-            DBTable dbTable = clazz.getAnnotation(DBTable.class);
+        if (clazz.isAnnotationPresent(DatabaseEntity.class)) {
+            DatabaseEntity databaseEntity = clazz.getAnnotation(DatabaseEntity.class);
 
-            tableName = dbTable.name();
+            tableName = databaseEntity.name();
         }
 
         return tableName.isEmpty() ? clazz.getSimpleName().toLowerCase() : tableName;

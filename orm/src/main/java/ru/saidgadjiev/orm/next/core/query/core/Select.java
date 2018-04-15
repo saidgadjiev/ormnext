@@ -1,7 +1,7 @@
 package ru.saidgadjiev.orm.next.core.query.core;
 
-import ru.saidgadjiev.orm.next.core.field.field_type.ForeignFieldType;
-import ru.saidgadjiev.orm.next.core.field.field_type.IDBFieldType;
+import ru.saidgadjiev.orm.next.core.field.field_type.ForeignColumnype;
+import ru.saidgadjiev.orm.next.core.field.field_type.IDatabaseColumnType;
 import ru.saidgadjiev.orm.next.core.query.core.clause.GroupBy;
 import ru.saidgadjiev.orm.next.core.query.core.clause.Having;
 import ru.saidgadjiev.orm.next.core.query.core.clause.OrderBy;
@@ -21,7 +21,7 @@ import ru.saidgadjiev.orm.next.core.query.core.join.JoinExpression;
 import ru.saidgadjiev.orm.next.core.query.core.join.LeftJoin;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryElement;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryVisitor;
-import ru.saidgadjiev.orm.next.core.table.TableInfo;
+import ru.saidgadjiev.orm.next.core.table.DatabaseEntityMetadata;
 import ru.saidgadjiev.orm.next.core.table.TableInfoManager;
 
 /**
@@ -111,64 +111,64 @@ public class Select implements QueryElement {
         this.offset = offset;
     }
 
-    public static <ID> Select buildQueryById(TableInfo<?> tableInfo, ID id) {
+    public static <ID> Select buildQueryById(DatabaseEntityMetadata<?> databaseEntityMetadata, ID id) {
         Select selectQuery = new Select();
 
-        selectQuery.setSelectColumnsStrategy(selectColumnsStrategy(tableInfo, new SelectColumnsList()));
-        selectQuery.setFrom(from(tableInfo));
+        selectQuery.setSelectColumnsStrategy(selectColumnsStrategy(databaseEntityMetadata, new SelectColumnsList()));
+        selectQuery.setFrom(from(databaseEntityMetadata));
         AndCondition andCondition = new AndCondition();
-        IDBFieldType idField = tableInfo.getPrimaryKey().get();
+        IDatabaseColumnType idField = databaseEntityMetadata.getPrimaryKey().get();
 
-        andCondition.add(new Equals(new ColumnSpec(idField.getColumnName()).alias(new Alias(tableInfo.getTableName())), idField.getDataPersister().getLiteral(idField, id)));
+        andCondition.add(new Equals(new ColumnSpec(idField.getColumnName()).alias(new Alias(databaseEntityMetadata.getTableName())), idField.getDataPersister().getLiteral(idField, id)));
         selectQuery.getWhere().getConditions().add(andCondition);
 
         return selectQuery;
     }
 
-    private static FromExpression from(TableInfo<?> tableInfo) {
-        if (tableInfo.toForeignFieldTypes().isEmpty()) {
-            return new FromTable(new TableRef(tableInfo.getTableName()).alias(new Alias(tableInfo.getTableName())));
+    private static FromExpression from(DatabaseEntityMetadata<?> databaseEntityMetadata) {
+        if (databaseEntityMetadata.toForeignFieldTypes().isEmpty()) {
+            return new FromTable(new TableRef(databaseEntityMetadata.getTableName()).alias(new Alias(databaseEntityMetadata.getTableName())));
         }
-        FromJoinedTables fromJoinedTables = new FromJoinedTables(new TableRef(tableInfo.getTableName()).alias(new Alias(tableInfo.getTableName())));
+        FromJoinedTables fromJoinedTables = new FromJoinedTables(new TableRef(databaseEntityMetadata.getTableName()).alias(new Alias(databaseEntityMetadata.getTableName())));
 
-        appendJoinExpression(fromJoinedTables, tableInfo);
+        appendJoinExpression(fromJoinedTables, databaseEntityMetadata);
 
         return fromJoinedTables;
     }
 
-    private static void appendJoinExpression(FromJoinedTables from, TableInfo<?> tableInfo) {
-        for (ForeignFieldType foreignFieldType: tableInfo.toForeignFieldTypes()) {
-            appendJoinExpression(from, TableInfoManager.buildOrGet(foreignFieldType.getForeignFieldClass()));
+    private static void appendJoinExpression(FromJoinedTables from, DatabaseEntityMetadata<?> databaseEntityMetadata) {
+        for (ForeignColumnype foreignColumnype : databaseEntityMetadata.toForeignFieldTypes()) {
+            appendJoinExpression(from, TableInfoManager.buildOrGet(foreignColumnype.getForeignFieldClass()));
             Expression onExpression = new Expression();
             AndCondition andCondition = new AndCondition();
 
             andCondition.add(
                     new Equals(
-                            new ColumnSpec(foreignFieldType.getColumnName()).alias(new Alias(tableInfo.getTableName())),
-                            new ColumnSpec(foreignFieldType.getForeignPrimaryKey().getColumnName()).alias(new Alias(foreignFieldType.getForeignTableName()))
+                            new ColumnSpec(foreignColumnype.getColumnName()).alias(new Alias(databaseEntityMetadata.getTableName())),
+                            new ColumnSpec(foreignColumnype.getForeignPrimaryKey().getColumnName()).alias(new Alias(foreignColumnype.getForeignTableName()))
                     )
             );
             onExpression.add(andCondition);
 
-            JoinExpression joinExpression = new LeftJoin(new TableRef(foreignFieldType.getForeignTableName()).alias(new Alias(foreignFieldType.getForeignTableName())), onExpression);
+            JoinExpression joinExpression = new LeftJoin(new TableRef(foreignColumnype.getForeignTableName()).alias(new Alias(foreignColumnype.getForeignTableName())), onExpression);
 
             from.add(joinExpression);
         }
     }
 
-    private static SelectColumnsStrategy selectColumnsStrategy(TableInfo<?> tableInfo, SelectColumnsList selectColumnsList) {
-        for (IDBFieldType idbFieldType: tableInfo.getFieldTypes()) {
-            if (idbFieldType.isForeignCollectionFieldType()) {
+    private static SelectColumnsStrategy selectColumnsStrategy(DatabaseEntityMetadata<?> databaseEntityMetadata, SelectColumnsList selectColumnsList) {
+        for (IDatabaseColumnType IDatabaseColumnType : databaseEntityMetadata.getFieldTypes()) {
+            if (IDatabaseColumnType.isForeignCollectionFieldType()) {
                 continue;
             }
-            ColumnSpec columnSpec = new ColumnSpec(idbFieldType.getColumnName()).alias(new Alias(tableInfo.getTableName()));
+            ColumnSpec columnSpec = new ColumnSpec(IDatabaseColumnType.getColumnName()).alias(new Alias(databaseEntityMetadata.getTableName()));
             DisplayedColumnSpec displayedColumnSpec = new DisplayedColumn(columnSpec);
 
-            displayedColumnSpec.setAlias(new Alias(tableInfo.getTableName() + "_" + idbFieldType.getColumnName()));
+            displayedColumnSpec.setAlias(new Alias(databaseEntityMetadata.getTableName() + "_" + IDatabaseColumnType.getColumnName()));
             selectColumnsList.addColumn(displayedColumnSpec);
         }
-        for (ForeignFieldType foreignFieldType: tableInfo.toForeignFieldTypes()) {
-            selectColumnsStrategy(TableInfoManager.buildOrGet(foreignFieldType.getForeignFieldClass()), selectColumnsList);
+        for (ForeignColumnype foreignColumnype : databaseEntityMetadata.toForeignFieldTypes()) {
+            selectColumnsStrategy(TableInfoManager.buildOrGet(foreignColumnype.getForeignFieldClass()), selectColumnsList);
         }
 
         return selectColumnsList;

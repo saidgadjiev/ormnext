@@ -3,15 +3,10 @@ package ru.saidgadjiev.orm.next.core.utils;
 import org.h2.jdbcx.JdbcDataSource;
 import org.junit.Assert;
 import org.junit.Test;
-import ru.saidgadjiev.orm.next.core.dao.WrappedConnectionSource;
 import ru.saidgadjiev.orm.next.core.db.H2DatabaseType;
-import ru.saidgadjiev.orm.next.core.field.DBField;
+import ru.saidgadjiev.orm.next.core.field.DatabaseColumn;
 import ru.saidgadjiev.orm.next.core.support.ConnectionSource;
 import ru.saidgadjiev.orm.next.core.support.DataSourceConnectionSource;
-
-import java.sql.SQLException;
-
-import static org.junit.Assert.*;
 
 /**
  * Created by said on 24.02.2018.
@@ -39,7 +34,7 @@ public class TableUtilsTest {
     }
 
     public static class TestClazz {
-        @DBField(id = true, generated = true)
+        @DatabaseColumn(id = true, generated = true)
         private int id;
     }
 }

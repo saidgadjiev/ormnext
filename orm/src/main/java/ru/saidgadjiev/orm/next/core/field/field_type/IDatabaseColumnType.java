@@ -1,6 +1,6 @@
 package ru.saidgadjiev.orm.next.core.field.field_type;
 
-import ru.saidgadjiev.orm.next.core.field.persisters.DataPersister;
+import ru.saidgadjiev.orm.next.core.field.persister.DataPersister;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -8,28 +8,38 @@ import java.lang.reflect.InvocationTargetException;
 /**
  * Created by said on 14.01.2018.
  */
-public interface IDBFieldType {
+public interface IDatabaseColumnType {
 
     default Object getDefaultValue() {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
-    boolean isId();
+    default boolean isId() {
+        throw new UnsupportedOperationException();
+    }
 
-    boolean isNotNull();
+    default boolean isNotNull() {
+        throw new UnsupportedOperationException();
+    }
 
-    boolean isGenerated();
+    default boolean isGenerated() {
+        throw new UnsupportedOperationException();
+    }
 
-    String getColumnName();
+    default String getColumnName() {
+        throw new UnsupportedOperationException();
+    }
 
-    int getDataType();
+    default int getDataType() {
+        throw new UnsupportedOperationException();
+    }
 
     Object access(Object object) throws InvocationTargetException, IllegalAccessException;
 
     DataPersister getDataPersister();
 
     default void assignId(Object object, Number value) throws IllegalAccessException, InvocationTargetException {
-
+        throw new UnsupportedOperationException();
     }
 
     void assign(Object object, Object value) throws IllegalAccessException, InvocationTargetException;
@@ -41,10 +51,12 @@ public interface IDBFieldType {
     }
 
     default String getFormat() {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
-    int getLength();
+    default int getLength() {
+        throw new UnsupportedOperationException();
+    }
 
     default boolean isDbFieldType() {
         return false;

@@ -1,8 +1,41 @@
 package ru.saidgadjiev.orm.next.core.stament_executor.result_mapper;
 
 import ru.saidgadjiev.orm.next.core.stament_executor.DatabaseResults;
+import ru.saidgadjiev.orm.next.core.table.DatabaseEntityMetadata;
 
-public interface EntityResultsMapper<T> {
+import java.lang.reflect.Constructor;
 
-    T mapResults(DatabaseResults results, Class<T> resultClass) throws Exception;
+public class EntityResultsMapper implements ResultsMapper {
+
+    private DatabaseEntityMetadata entityMetadata;
+
+    public EntityResultsMapper(DatabaseEntityMetadata entityMetadata) {
+        this.entityMetadata = entityMetadata;
+    }
+
+    @Override
+    public Object mapResults(DatabaseResults results) throws Exception {
+        Object instance = newObject(entityMetadata.getConstructor());
+
+
+        return null;
+    }
+
+    private void readRow(Object instance) {
+
+    }
+
+    private Object newObject(Constructor<?> constructor) throws Exception {
+        Object object;
+
+        if (!constructor.isAccessible()) {
+            constructor.setAccessible(true);
+            object = constructor.newInstance();
+            constructor.setAccessible(false);
+        } else {
+            object = constructor.newInstance();
+        }
+
+        return object;
+    }
 }

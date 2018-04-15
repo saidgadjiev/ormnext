@@ -1,7 +1,6 @@
 package ru.saidgadjiev.orm.next.core.examples.custom_type;
 
-import ru.saidgadjiev.orm.next.core.field.DBField;
-import ru.saidgadjiev.orm.next.core.field.DataType;
+import ru.saidgadjiev.orm.next.core.field.DatabaseColumn;
 import ru.saidgadjiev.orm.next.core.field.Getter;
 import ru.saidgadjiev.orm.next.core.field.Setter;
 
@@ -12,12 +11,12 @@ public class Account {
 
     @Getter(name = "getId")
     @Setter(name = "setId")
-    @DBField(id = true, generated = true, dataType = 8)
+    @DatabaseColumn(id = true, generated = true, dataType = 8)
     private int id;
 
     @Getter(name = "getName")
     @Setter(name = "setName")
-    @DBField
+    @DatabaseColumn
     private String name;
 
     //For OrmNext

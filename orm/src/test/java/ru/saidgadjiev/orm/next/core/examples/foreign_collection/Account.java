@@ -12,12 +12,12 @@ public class Account {
 
     @Getter(name = "getId")
     @Setter(name = "setId")
-    @DBField(id = true, generated = true, dataType = DataType.INTEGER)
+    @DatabaseColumn(id = true, generated = true, dataType = DataType.INTEGER)
     private int id;
 
     @Getter(name = "getName")
     @Setter(name = "setName")
-    @DBField
+    @DatabaseColumn
     private String name;
 
     @ForeignCollectionField(fetchType = FetchType.LAZY)

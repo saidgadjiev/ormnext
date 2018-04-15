@@ -1,6 +1,7 @@
 package ru.saidgadjiev.orm.next.core.field.field_type;
 
-import ru.saidgadjiev.orm.next.core.field.persisters.DataPersister;
+import ru.saidgadjiev.orm.next.core.field.FieldAccessor;
+import ru.saidgadjiev.orm.next.core.field.persister.DataPersister;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -8,13 +9,11 @@ import java.lang.reflect.InvocationTargetException;
 /**
  * Created by said on 30.10.17.
  */
-public class ForeignFieldType implements IDBFieldType {
+public class ForeignColumnype implements IDatabaseColumnType {
 
     private static final String ID_SUFFIX = "_id";
 
-    private IDBFieldType dbFieldType;
-
-    private IDBFieldType foreignPrimaryKey;
+    private IDatabaseColumnType foreignPrimaryKey;
 
     private boolean foreignAutoCreate;
 
@@ -24,40 +23,17 @@ public class ForeignFieldType implements IDBFieldType {
 
     private String foreignTableName;
 
+    private Field field;
+
+    private FieldAccessor fieldAccessor;
+
+    private String columnName;
+
     private int dataType;
-
-    public ForeignFieldType(IDBFieldType dbFieldType) {
-        this.dbFieldType = dbFieldType;
-    }
-
-    @Override
-    public boolean isId() {
-        return dbFieldType.isId();
-    }
-
-    @Override
-    public boolean isNotNull() {
-        return dbFieldType.isNotNull();
-    }
-
-    @Override
-    public boolean isGenerated() {
-        return dbFieldType.isGenerated();
-    }
 
     @Override
     public Field getField() {
-        return dbFieldType.getField();
-    }
-
-    @Override
-    public String getFormat() {
-        return dbFieldType.getFormat();
-    }
-
-    @Override
-    public int getLength() {
-        return dbFieldType.getLength();
+        return field;
     }
 
     public boolean isForeignAutoCreate() {
@@ -78,29 +54,39 @@ public class ForeignFieldType implements IDBFieldType {
         return dataType;
     }
 
-    public IDBFieldType getForeignPrimaryKey() {
+    public IDatabaseColumnType getForeignPrimaryKey() {
         return foreignPrimaryKey;
     }
 
     @Override
     public Object access(Object object) throws InvocationTargetException, IllegalAccessException {
-        return dbFieldType.access(object);
+        return fieldAccessor.access(object);
     }
 
     @Override
     public void assign(Object object, Object value) throws IllegalAccessException, InvocationTargetException {
-        dbFieldType.assign(object, value);
+        fieldAccessor.assign(object, value);
+    }
+
+    public void setField(Field field) {
+        this.field = field;
+    }
+
+    public void setFieldAccessor(FieldAccessor fieldAccessor) {
+        this.fieldAccessor = fieldAccessor;
+    }
+
+    public void setColumnName(String columnName) {
+        this.columnName = columnName;
     }
 
     @Override
     public String getColumnName() {
-        String columnName = dbFieldType.getColumnName();
-
         if (columnName.endsWith(ID_SUFFIX)) {
             return columnName;
         }
 
-        return dbFieldType.getColumnName() + ID_SUFFIX;
+        return columnName + ID_SUFFIX;
     }
 
     public String getForeignTableName() {
@@ -116,7 +102,7 @@ public class ForeignFieldType implements IDBFieldType {
         return true;
     }
 
-    public void setForeignPrimaryKey(IDBFieldType foreignPrimaryKey) {
+    public void setForeignPrimaryKey(IDatabaseColumnType foreignPrimaryKey) {
         this.foreignPrimaryKey = foreignPrimaryKey;
     }
 

@@ -8,21 +8,21 @@ import ru.saidgadjiev.up.cache.core.CacheBuilder;
  */
 public class TableInfoManager {
 
-    private static final Cache<Class<?>, TableInfo<?>> CACHE = CacheBuilder.newRefenceCacheBuilder().build();
+    private static final Cache<Class<?>, DatabaseEntityMetadata<?>> CACHE = CacheBuilder.newRefenceCacheBuilder().build();
 
     private TableInfoManager() {
 
     }
 
-    public static<T> TableInfo<T> buildOrGet(Class<T> tClass) {
+    public static<T> DatabaseEntityMetadata<T> buildOrGet(Class<T> tClass) {
         if (CACHE.contains(tClass)) {
-            return (TableInfo<T>) CACHE.get(tClass);
+            return (DatabaseEntityMetadata<T>) CACHE.get(tClass);
         }
 
-        TableInfo<?> tableInfo = TableInfo.build(tClass);
+        DatabaseEntityMetadata<?> databaseEntityMetadata = DatabaseEntityMetadata.build(tClass);
 
-        CACHE.put(tClass, tableInfo);
+        CACHE.put(tClass, databaseEntityMetadata);
 
-        return (TableInfo<T>) tableInfo;
+        return (DatabaseEntityMetadata<T>) databaseEntityMetadata;
     }
 }

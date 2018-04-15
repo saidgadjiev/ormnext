@@ -3,3 +3,9 @@
 select a0_.id as id1_0_0_, a0_.c_id as c_id3_0_0_, a0_.name as name2_0_0_, c1_.id as id1_2_1_, c1_.name as name2_2_1_ from a a0_ left outer join c c1_ on a0_.c_id=c1_.id where a0_.id=?
 Выполнившиеся запросы hibernate для B:
 select b0_.id as id1_1_0_, b0_.a_id as a_id3_1_0_, b0_.c_id as c_id4_1_0_, b0_.name as name2_1_0_, a1_.id as id1_0_1_, a1_.c_id as c_id3_0_1_, a1_.name as name2_0_1_, c2_.id as id1_2_2_, c2_.name as name2_2_2_, c3_.id as id1_2_3_, c3_.name as name2_2_3_ from b b0_ left outer join a a1_ on b0_.a_id=a1_.id left outer join c c2_ on a1_.c_id=c2_.id left outer join c c3_ on b0_.c_id=c3_.id where b0_.id=?
+Итоги анализа кода:
+Запрос для каждой таблицы формируется заранее. Нет метода для вытаскивания всех записей кроме как через Criteria.
+Все завязано на EntityPersister. При старте инициализируется EntityPersister для каждой таблицы потом идет работы с существующими персистерами.
+
+Как буду делать я:
+1)

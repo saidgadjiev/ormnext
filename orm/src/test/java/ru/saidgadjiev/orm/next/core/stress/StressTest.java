@@ -11,9 +11,8 @@ import org.hibernate.service.ServiceRegistry;
 import ru.saidgadjiev.orm.next.core.StressUtils;
 import ru.saidgadjiev.orm.next.core.cache.LRUObjectCache;
 import ru.saidgadjiev.orm.next.core.dao.BaseSessionManagerImpl;
-import ru.saidgadjiev.orm.next.core.dao.Transaction;
 import ru.saidgadjiev.orm.next.core.db.H2DatabaseType;
-import ru.saidgadjiev.orm.next.core.field.DBField;
+import ru.saidgadjiev.orm.next.core.field.DatabaseColumn;
 import ru.saidgadjiev.orm.next.core.field.DataType;
 import ru.saidgadjiev.orm.next.core.field.Getter;
 import ru.saidgadjiev.orm.next.core.field.Setter;
@@ -167,12 +166,12 @@ public class StressTest {
     public static class TestClass {
         @Getter(name = "getId")
         @Setter(name = "setId")
-        @DBField(id = true, dataType = DataType.INTEGER, generated = true)
+        @DatabaseColumn(id = true, dataType = DataType.INTEGER, generated = true)
         private int id;
 
         @Getter(name = "getName")
         @Setter(name = "setName")
-        @DBField(dataType = DataType.STRING)
+        @DatabaseColumn(dataType = DataType.STRING)
         private String name;
 
         public TestClass() {

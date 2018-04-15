@@ -17,13 +17,13 @@ import java.util.stream.Collectors;
 
 import static ru.saidgadjiev.orm.next.core.utils.TableInfoUtils.lookupDefaultConstructor;
 
-public final class TableInfo<T> {
+public final class DatabaseEntityMetadata<T> {
 
     private Class<T> tableClass;
 
-    private List<DBFieldType> dbFieldTypes;
+    private List<DatabaseColumnType> databaseColumnTypes;
 
-    private List<ForeignFieldType> foreignFieldTypes;
+    private List<ForeignColumnype> foreignColumnypes;
 
     private List<ForeignCollectionFieldType> foreignCollectionFieldTypes;
 
@@ -31,9 +31,9 @@ public final class TableInfo<T> {
 
     private List<IndexFieldType> indexFieldTypes;
 
-    private List<IDBFieldType> fieldTypes;
+    private List<IDatabaseColumnType> fieldTypes;
 
-    private IDBFieldType primaryKeyFieldType;
+    private IDatabaseColumnType primaryKeyFieldType;
 
     private String tableName;
 
@@ -45,35 +45,35 @@ public final class TableInfo<T> {
         add(new PrimaryKeyValidator());
     }};
 
-    private TableInfo(Class<T> tableClass,
-                      Constructor<T> constructor,
-                      List<UniqueFieldType> uniqueFieldTypes,
-                      List<IndexFieldType> indexFieldTypes,
-                      String tableName,
-                      List<IDBFieldType> fieldTypes) {
+    private DatabaseEntityMetadata(Class<T> tableClass,
+                                   Constructor<T> constructor,
+                                   List<UniqueFieldType> uniqueFieldTypes,
+                                   List<IndexFieldType> indexFieldTypes,
+                                   String tableName,
+                                   List<IDatabaseColumnType> fieldTypes) {
         this.tableClass = tableClass;
         this.tableName = tableName;
         this.constructor = constructor;
         this.indexFieldTypes = indexFieldTypes;
         this.primaryKeyFieldType = fieldTypes
                 .stream()
-                .filter(IDBFieldType::isId)
+                .filter(IDatabaseColumnType::isId)
                 .findAny()
                 .orElse(null);
         this.uniqueFieldTypes = uniqueFieldTypes;
-        this.dbFieldTypes = fieldTypes
+        this.databaseColumnTypes = fieldTypes
                 .stream()
-                .filter(IDBFieldType::isDbFieldType)
-                .map(idbFieldType -> (DBFieldType) idbFieldType)
+                .filter(IDatabaseColumnType::isDbFieldType)
+                .map(idbFieldType -> (DatabaseColumnType) idbFieldType)
                 .collect(Collectors.toList());
-        this.foreignFieldTypes = fieldTypes
+        this.foreignColumnypes = fieldTypes
                 .stream()
-                .filter(IDBFieldType::isForeignFieldType)
-                .map(idbFieldType -> (ForeignFieldType) idbFieldType)
+                .filter(IDatabaseColumnType::isForeignFieldType)
+                .map(idbFieldType -> (ForeignColumnype) idbFieldType)
                 .collect(Collectors.toList());
         this.foreignCollectionFieldTypes = fieldTypes
                 .stream()
-                .filter(IDBFieldType::isForeignCollectionFieldType)
+                .filter(IDatabaseColumnType::isForeignCollectionFieldType)
                 .map(idbFieldType -> (ForeignCollectionFieldType) idbFieldType)
                 .collect(Collectors.toList());
         this.fieldTypes = fieldTypes;
@@ -87,7 +87,7 @@ public final class TableInfo<T> {
         return tableName;
     }
 
-    public Optional<IDBFieldType> getPrimaryKey() {
+    public Optional<IDatabaseColumnType> getPrimaryKey() {
         return Optional.ofNullable(primaryKeyFieldType);
     }
 
@@ -99,19 +99,19 @@ public final class TableInfo<T> {
         return constructor;
     }
 
-    public List<DBFieldType> toDBFieldTypes() {
-        return Collections.unmodifiableList(dbFieldTypes);
+    public List<DatabaseColumnType> toDBFieldTypes() {
+        return Collections.unmodifiableList(databaseColumnTypes);
     }
 
-    public List<ForeignFieldType> toForeignFieldTypes() {
-        return Collections.unmodifiableList(foreignFieldTypes);
+    public List<ForeignColumnype> toForeignFieldTypes() {
+        return Collections.unmodifiableList(foreignColumnypes);
     }
 
     public List<ForeignCollectionFieldType> toForeignCollectionFieldTypes() {
         return Collections.unmodifiableList(foreignCollectionFieldTypes);
     }
 
-    public List<IDBFieldType> getFieldTypes() {
+    public List<IDatabaseColumnType> getFieldTypes() {
         return Collections.unmodifiableList(fieldTypes);
     }
 
@@ -119,17 +119,17 @@ public final class TableInfo<T> {
         return indexFieldTypes;
     }
 
-    public static <T> TableInfo<T> build(Class<T> clazz) {
+    public static <T> DatabaseEntityMetadata<T> build(Class<T> clazz) {
         for (IValidator validator : validators) {
             validator.validate(clazz);
         }
-        List<IDBFieldType> fieldTypes = new ArrayList<>();
+        List<IDatabaseColumnType> fieldTypes = new ArrayList<>();
         for (Field field : clazz.getDeclaredFields()) {
             FieldTypeUtils.create(field).ifPresent(fieldTypes::add);
         }
         String tableName = TableInfoUtils.resolveTableName(clazz);
 
-        return new TableInfo<>(
+        return new DatabaseEntityMetadata<>(
                 clazz,
                 (Constructor<T>) lookupDefaultConstructor(clazz)
                         .orElseThrow(() -> new IllegalArgumentException("Class " + clazz + " doesn't have default constructor")),
@@ -140,10 +140,10 @@ public final class TableInfo<T> {
         );
     }
 
-    private static <T> List<UniqueFieldType> resolveUniques(List<IDBFieldType> fieldTypes, Class<T> tClass) {
+    private static <T> List<UniqueFieldType> resolveUniques(List<IDatabaseColumnType> fieldTypes, Class<T> tClass) {
         List<UniqueFieldType> uniqueFieldTypes = new ArrayList<>();
-        if (tClass.isAnnotationPresent(DBTable.class)) {
-            Unique[] uniques = tClass.getAnnotation(DBTable.class).uniqueConstraints();
+        if (tClass.isAnnotationPresent(DatabaseEntity.class)) {
+            Unique[] uniques = tClass.getAnnotation(DatabaseEntity.class).uniqueConstraints();
 
             for (Unique unique : uniques) {
                 uniqueFieldTypes.add(new UniqueFieldType(validateUnique(fieldTypes, unique, tClass)));
@@ -153,11 +153,11 @@ public final class TableInfo<T> {
         return uniqueFieldTypes;
     }
 
-    private static <T> List<IndexFieldType> resolveIndexes(List<IDBFieldType> fieldTypes, String tableName, Class<T> tClass) {
+    private static <T> List<IndexFieldType> resolveIndexes(List<IDatabaseColumnType> fieldTypes, String tableName, Class<T> tClass) {
         List<IndexFieldType> uniqueFieldTypes = new ArrayList<>();
 
-        if (tClass.isAnnotationPresent(DBTable.class)) {
-            Index[] indexes = tClass.getAnnotation(DBTable.class).indexes();
+        if (tClass.isAnnotationPresent(DatabaseEntity.class)) {
+            Index[] indexes = tClass.getAnnotation(DatabaseEntity.class).indexes();
 
             for (Index index : indexes) {
                 uniqueFieldTypes.add(new IndexFieldType(index.name(), index.unique(), tableName, validateIndex(fieldTypes, index, tClass)));
@@ -167,7 +167,7 @@ public final class TableInfo<T> {
         return uniqueFieldTypes;
     }
 
-    private static List<String> validateIndex(List<IDBFieldType> fieldTypes, Index index, Class<?> clazz) {
+    private static List<String> validateIndex(List<IDatabaseColumnType> fieldTypes, Index index, Class<?> clazz) {
         List<String> columns = new ArrayList<>();
 
         for (String columnName : index.columns()) {
@@ -187,7 +187,7 @@ public final class TableInfo<T> {
         return columns;
     }
 
-    private static List<String> validateUnique(List<IDBFieldType> fieldTypes, Unique unique, Class<?> clazz) {
+    private static List<String> validateUnique(List<IDatabaseColumnType> fieldTypes, Unique unique, Class<?> clazz) {
         List<String> columns = new ArrayList<>();
 
         for (String columnName : unique.columns()) {
@@ -209,7 +209,7 @@ public final class TableInfo<T> {
     }
 
     public String getPersistenceName(String fieldName) {
-        for (IDBFieldType fieldType: fieldTypes) {
+        for (IDatabaseColumnType fieldType: fieldTypes) {
             if (fieldType.isForeignCollectionFieldType()) {
                 continue;
             }

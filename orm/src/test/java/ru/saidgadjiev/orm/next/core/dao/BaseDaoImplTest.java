@@ -6,9 +6,10 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import ru.saidgadjiev.orm.next.core.db.H2DatabaseType;
-import ru.saidgadjiev.orm.next.core.field.DBField;
+import ru.saidgadjiev.orm.next.core.field.DatabaseColumn;
 import ru.saidgadjiev.orm.next.core.field.DataType;
 import ru.saidgadjiev.orm.next.core.field.ForeignCollectionField;
+import ru.saidgadjiev.orm.next.core.field.ForeignColumn;
 import ru.saidgadjiev.orm.next.core.support.DataSourceConnectionSource;
 
 import java.util.ArrayList;
@@ -151,7 +152,7 @@ public class BaseDaoImplTest {
     }
 
     private static class TestForeignCollectionClass {
-        @DBField(id = true, generated = true)
+        @DatabaseColumn(id = true, generated = true)
         private int id;
 
         @ForeignCollectionField(foreignFieldName = "foreign")
@@ -160,29 +161,29 @@ public class BaseDaoImplTest {
     }
 
     private static class TestForeignClass {
-        @DBField(id = true, generated = true)
+        @DatabaseColumn(id = true, generated = true)
         private int id;
 
-        @DBField(foreign = true)
+        @ForeignColumn
         private TestForeignCollectionClass foreign;
     }
 
     private static class TestClazz {
-        @DBField(id = true, generated = true)
+        @DatabaseColumn(id = true, generated = true)
         private int id;
 
-        @DBField
+        @DatabaseColumn
         private String name;
 
-        @DBField
+        @DatabaseColumn
         private Date date;
     }
 
     private static class TestForeign {
-        @DBField(id = true, generated = true)
+        @DatabaseColumn(id = true, generated = true)
         private int id;
 
-        @DBField
+        @DatabaseColumn
         private String name;
 
         @ForeignCollectionField
@@ -190,31 +191,31 @@ public class BaseDaoImplTest {
     }
 
     private static class TestCreateTable {
-        @DBField(id = true, dataType = DataType.INTEGER, generated = true)
+        @DatabaseColumn(id = true, dataType = DataType.INTEGER, generated = true)
         private int id;
 
-        @DBField(dataType = DataType.STRING)
+        @DatabaseColumn(dataType = DataType.STRING)
         private String name;
 
 
-        @DBField(dataType = DataType.DATE, notNull = true, defaultValue = "03:02:2018", format = "dd:MM:yyyy")
+        @DatabaseColumn(dataType = DataType.DATE, notNull = true, defaultValue = "03:02:2018", format = "dd:MM:yyyy")
         private Date date;
 
-        @DBField(dataType = DataType.BOOLEAN, defaultValue = "true")
+        @DatabaseColumn(dataType = DataType.BOOLEAN, defaultValue = "true")
         private Boolean bool;
 
-        @DBField(defaultValue = "1.023", dataType = DataType.DOUBLE)
+        @DatabaseColumn(defaultValue = "1.023", dataType = DataType.DOUBLE)
         private Double doub;
 
-        @DBField(dataType = DataType.FLOAT)
+        @DatabaseColumn(dataType = DataType.FLOAT)
         private Float aFloat;
 
-        @DBField(dataType = DataType.LONG)
+        @DatabaseColumn(dataType = DataType.LONG)
         private Long lon;
     }
 
     public static class TestNoColumn {
-        @DBField(id = true, generated = true)
+        @DatabaseColumn(id = true, generated = true)
         private int id;
     }
 
