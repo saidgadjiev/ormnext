@@ -23,16 +23,6 @@ public class TableInfoUtils {
         return Optional.empty();
     }
 
-    public static Optional<Constructor<?>> lookupDefaultConstructor(Class<?> clazz) {
-        for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
-            if (constructor.getParameterCount() == 0) {
-                return Optional.of(constructor);
-            }
-        }
-
-        return Optional.empty();
-    }
-
     public static String resolveTableName(Class<?> clazz) {
         String tableName = "";
 

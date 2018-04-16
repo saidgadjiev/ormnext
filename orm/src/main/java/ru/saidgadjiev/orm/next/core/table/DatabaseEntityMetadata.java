@@ -15,7 +15,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static ru.saidgadjiev.orm.next.core.utils.TableInfoUtils.lookupDefaultConstructor;
+import static ru.saidgadjiev.orm.next.core.utils.ReflectUtils.lookupDefaultConstructor;
+
 
 public final class DatabaseEntityMetadata<T> {
 
