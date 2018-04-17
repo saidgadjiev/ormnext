@@ -611,4 +611,8 @@ public class DefaultVisitor extends NoActionVisitor {
 
         return false;
     }
+
+    public void reset() {
+        sql = new StringBuilder();
+    }
 }

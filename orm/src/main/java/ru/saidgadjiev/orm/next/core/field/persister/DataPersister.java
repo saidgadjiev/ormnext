@@ -1,6 +1,6 @@
 package ru.saidgadjiev.orm.next.core.field.persister;
 
-import ru.saidgadjiev.orm.next.core.field.field_type.IDatabaseColumnType;
+import ru.saidgadjiev.orm.next.core.field.fieldtype.IDatabaseColumnType;
 import ru.saidgadjiev.orm.next.core.query.core.literals.Literal;
 
 import java.lang.reflect.Field;

@@ -220,7 +220,7 @@ public class BaseDaoImplTest {
     }
 
     protected <T> Session createDao(Class<T> clazz, boolean createTable) throws Exception {
-        Session dao = new BaseSessionManagerImpl(connectionSource).getCurrentSession();
+        Session dao = new SessionManagerImpl(connectionSource, null).getCurrentSession();
 
         if (createTable) {
             dao.createTable(clazz, true);

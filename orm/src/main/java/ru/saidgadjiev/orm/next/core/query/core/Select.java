@@ -1,7 +1,7 @@
 package ru.saidgadjiev.orm.next.core.query.core;
 
-import ru.saidgadjiev.orm.next.core.field.field_type.ForeignColumnype;
-import ru.saidgadjiev.orm.next.core.field.field_type.IDatabaseColumnType;
+import ru.saidgadjiev.orm.next.core.field.fieldtype.ForeignColumnType;
+import ru.saidgadjiev.orm.next.core.field.fieldtype.IDatabaseColumnType;
 import ru.saidgadjiev.orm.next.core.query.core.clause.GroupBy;
 import ru.saidgadjiev.orm.next.core.query.core.clause.Having;
 import ru.saidgadjiev.orm.next.core.query.core.clause.OrderBy;
@@ -137,20 +137,20 @@ public class Select implements QueryElement {
     }
 
     private static void appendJoinExpression(FromJoinedTables from, DatabaseEntityMetadata<?> databaseEntityMetadata) {
-        for (ForeignColumnype foreignColumnype : databaseEntityMetadata.toForeignFieldTypes()) {
-            appendJoinExpression(from, TableInfoManager.buildOrGet(foreignColumnype.getForeignFieldClass()));
+        for (ForeignColumnType foreignColumnType : databaseEntityMetadata.toForeignFieldTypes()) {
+            appendJoinExpression(from, TableInfoManager.buildOrGet(foreignColumnType.getForeignFieldClass()));
             Expression onExpression = new Expression();
             AndCondition andCondition = new AndCondition();
 
             andCondition.add(
                     new Equals(
-                            new ColumnSpec(foreignColumnype.getColumnName()).alias(new Alias(databaseEntityMetadata.getTableName())),
-                            new ColumnSpec(foreignColumnype.getForeignPrimaryKey().getColumnName()).alias(new Alias(foreignColumnype.getForeignTableName()))
+                            new ColumnSpec(foreignColumnType.getColumnName()).alias(new Alias(databaseEntityMetadata.getTableName())),
+                            new ColumnSpec(foreignColumnType.getForeignPrimaryKey().getColumnName()).alias(new Alias(foreignColumnType.getForeignTableName()))
                     )
             );
             onExpression.add(andCondition);
 
-            JoinExpression joinExpression = new LeftJoin(new TableRef(foreignColumnype.getForeignTableName()).alias(new Alias(foreignColumnype.getForeignTableName())), onExpression);
+            JoinExpression joinExpression = new LeftJoin(new TableRef(foreignColumnType.getForeignTableName()).alias(new Alias(foreignColumnType.getForeignTableName())), onExpression);
 
             from.add(joinExpression);
         }
@@ -167,8 +167,8 @@ public class Select implements QueryElement {
             displayedColumnSpec.setAlias(new Alias(databaseEntityMetadata.getTableName() + "_" + IDatabaseColumnType.getColumnName()));
             selectColumnsList.addColumn(displayedColumnSpec);
         }
-        for (ForeignColumnype foreignColumnype : databaseEntityMetadata.toForeignFieldTypes()) {
-            selectColumnsStrategy(TableInfoManager.buildOrGet(foreignColumnype.getForeignFieldClass()), selectColumnsList);
+        for (ForeignColumnType foreignColumnType : databaseEntityMetadata.toForeignFieldTypes()) {
+            selectColumnsStrategy(TableInfoManager.buildOrGet(foreignColumnType.getForeignFieldClass()), selectColumnsList);
         }
 
         return selectColumnsList;

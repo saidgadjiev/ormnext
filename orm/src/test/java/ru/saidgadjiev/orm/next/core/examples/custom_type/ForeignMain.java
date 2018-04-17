@@ -1,7 +1,7 @@
 package ru.saidgadjiev.orm.next.core.examples.custom_type;
 
 import org.h2.jdbcx.JdbcDataSource;
-import ru.saidgadjiev.orm.next.core.dao.BaseSessionManagerImpl;
+import ru.saidgadjiev.orm.next.core.dao.SessionManagerImpl;
 import ru.saidgadjiev.orm.next.core.dao.Session;
 import ru.saidgadjiev.orm.next.core.dao.SessionManager;
 import ru.saidgadjiev.orm.next.core.db.H2DatabaseType;
@@ -16,7 +16,7 @@ public class ForeignMain {
         JdbcDataSource dataSource = new JdbcDataSource();
 
         dataSource.setURL("jdbc:h2:mem:h2testdb;DB_CLOSE_DELAY=-1");
-        SessionManager sessionManager = new BaseSessionManagerImpl(new PolledConnectionSource(dataSource, new H2DatabaseType()));
+        SessionManager sessionManager = new SessionManagerImpl(new PolledConnectionSource(dataSource, new H2DatabaseType()), null);
         Session session = sessionManager.getCurrentSession();
 
         session.createTable(Account.class, true);

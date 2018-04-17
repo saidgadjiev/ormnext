@@ -3,11 +3,11 @@ package ru.saidgadjiev.orm.next.core.examples.foreign_collection;
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 import ru.saidgadjiev.orm.next.core.criteria.impl.Projections;
 import ru.saidgadjiev.orm.next.core.criteria.impl.SelectStatement;
-import ru.saidgadjiev.orm.next.core.dao.BaseSessionManagerImpl;
+import ru.saidgadjiev.orm.next.core.dao.SessionManagerImpl;
 import ru.saidgadjiev.orm.next.core.dao.Session;
 import ru.saidgadjiev.orm.next.core.dao.SessionManager;
 import ru.saidgadjiev.orm.next.core.db.MySQLDatabaseType;
-import ru.saidgadjiev.orm.next.core.stament_executor.GenericResults;
+import ru.saidgadjiev.orm.next.core.stamentexecutor.GenericResults;
 import ru.saidgadjiev.orm.next.core.support.PolledConnectionSource;
 
 /**
@@ -21,7 +21,7 @@ public class ForeignCollectionMain {
         dataSource.setUser("root");
         dataSource.setPassword("said1995");
         dataSource.setURL("jdbc:mysql://localhost:3306/overtalk");
-        SessionManager sessionManager = new BaseSessionManagerImpl(new PolledConnectionSource(dataSource, new MySQLDatabaseType()));
+        SessionManager sessionManager = new SessionManagerImpl(new PolledConnectionSource(dataSource, new MySQLDatabaseType()), null);
         Session session = sessionManager.getCurrentSession();
 
         session.createTable(Account.class, true);

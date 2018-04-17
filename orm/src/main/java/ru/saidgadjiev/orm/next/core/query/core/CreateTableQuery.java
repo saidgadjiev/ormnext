@@ -1,8 +1,8 @@
 package ru.saidgadjiev.orm.next.core.query.core;
 
 import ru.saidgadjiev.orm.next.core.field.DataPersisterManager;
-import ru.saidgadjiev.orm.next.core.field.field_type.ForeignColumnype;
-import ru.saidgadjiev.orm.next.core.field.field_type.IDatabaseColumnType;
+import ru.saidgadjiev.orm.next.core.field.fieldtype.ForeignColumnType;
+import ru.saidgadjiev.orm.next.core.field.fieldtype.IDatabaseColumnType;
 import ru.saidgadjiev.orm.next.core.query.core.constraints.attribute.Default;
 import ru.saidgadjiev.orm.next.core.query.core.constraints.attribute.NotNullConstraint;
 import ru.saidgadjiev.orm.next.core.query.core.constraints.attribute.PrimaryKeyConstraint;
@@ -81,13 +81,13 @@ public class CreateTableQuery implements QueryElement {
                 attributeDefinitions
         );
 
-        for (ForeignColumnype foreignColumnype : databaseEntityMetadata.toForeignFieldTypes()) {
+        for (ForeignColumnType foreignColumnType : databaseEntityMetadata.toForeignFieldTypes()) {
             createTableQuery
                     .getTableConstraints()
                     .add(new ForeignKeyConstraint(
-                            foreignColumnype.getForeignTableName(),
-                            foreignColumnype.getForeignColumnName(),
-                            foreignColumnype.getColumnName())
+                            foreignColumnType.getForeignTableName(),
+                            foreignColumnType.getForeignColumnName(),
+                            foreignColumnType.getColumnName())
                     );
         }
 

@@ -1,8 +1,8 @@
 package ru.saidgadjiev.orm.next.core.dao;
 
 import ru.saidgadjiev.orm.next.core.criteria.impl.SelectStatement;
-import ru.saidgadjiev.orm.next.core.stament_executor.GenericResults;
-import ru.saidgadjiev.orm.next.core.stament_executor.IStatementExecutor;
+import ru.saidgadjiev.orm.next.core.stamentexecutor.GenericResults;
+import ru.saidgadjiev.orm.next.core.stamentexecutor.IStatementExecutor;
 import ru.saidgadjiev.orm.next.core.support.ConnectionSource;
 import ru.saidgadjiev.orm.next.core.support.WrappedConnectionSource;
 

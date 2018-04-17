@@ -1,11 +1,10 @@
 package ru.saidgadjiev.orm.next.core.utils;
 
 import ru.saidgadjiev.orm.next.core.field.DatabaseColumn;
-import ru.saidgadjiev.orm.next.core.field.field_type.DatabaseColumnTypeFactory;
-import ru.saidgadjiev.orm.next.core.field.field_type.IDatabaseColumnType;
+import ru.saidgadjiev.orm.next.core.field.fieldtype.DatabaseColumnTypeFactory;
+import ru.saidgadjiev.orm.next.core.field.fieldtype.IDatabaseColumnType;
 import ru.saidgadjiev.orm.next.core.table.DatabaseEntity;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.Optional;
 

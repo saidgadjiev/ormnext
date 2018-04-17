@@ -1,12 +1,11 @@
 package ru.saidgadjiev.orm.next.core.dao;
 
 import ru.saidgadjiev.orm.next.core.criteria.impl.SelectStatement;
-import ru.saidgadjiev.orm.next.core.stament_executor.GenericResults;
+import ru.saidgadjiev.orm.next.core.stamentexecutor.GenericResults;
 
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 public interface BaseDao {
 

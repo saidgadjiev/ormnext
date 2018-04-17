@@ -1,15 +1,20 @@
 package ru.saidgadjiev.orm.next.core.dao;
 
 import ru.saidgadjiev.orm.next.core.cache.CacheContext;
+import ru.saidgadjiev.orm.next.core.cache.ObjectCache;
 import ru.saidgadjiev.orm.next.core.criteria.impl.SelectStatement;
-import ru.saidgadjiev.orm.next.core.stament_executor.*;
-import ru.saidgadjiev.orm.next.core.stament_executor.object.operation.ForeignCreator;
+import ru.saidgadjiev.orm.next.core.stamentexecutor.*;
+import ru.saidgadjiev.orm.next.core.stamentexecutor.object.operation.ForeignCreator;
 import ru.saidgadjiev.orm.next.core.support.ConnectionSource;
+import ru.saidgadjiev.up.cache.core.Cache;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 
 /**
  * Created by said on 19.02.2018.
@@ -19,6 +24,8 @@ public class SessionImpl implements Session {
     private final ConnectionSource dataSource;
 
     private IStatementExecutor statementExecutor;
+
+    private ObjectCache sessionCache;
 
     SessionImpl(ConnectionSource dataSource, CacheContext cacheContext) {
         this.dataSource = dataSource;
@@ -179,5 +186,90 @@ public class SessionImpl implements Session {
     @Override
     public TransactionImpl transaction() throws SQLException {
         return new TransactionImpl(statementExecutor, dataSource);
+    }
+
+    private static final class SessionObjectCache implements ObjectCache {
+
+        private Map<Class<?>, Map<Object, Object>> cache = new HashMap<>();
+
+        @Override
+        public <T> void registerClass(Class<T> tClass) {
+            cache.computeIfAbsent(tClass, aClass -> new HashMap<>());
+        }
+
+        @Override
+        public <T, ID> void put(Class<T> tClass, ID id, T data) {
+            Map<Object, Object> objectCache = cache.get(tClass);
+
+            if (objectCache != null) {
+                objectCache.put(id, data);
+            }
+        }
+
+        @Override
+        public <T, ID> T get(Class<T> tClass, ID id) {
+            Map<Object, Object> objectCache = cache.get(tClass);
+
+            if (objectCache == null) {
+                return null;
+            }
+            Object data = objectCache.get(id);
+
+            return (T) data;
+        }
+
+        @Override
+        public<T, ID> boolean contains(Class<T> tClass, ID id) {
+            Map<Object, Object> objectCache = cache.get(tClass);
+
+            return objectCache != null && objectCache.containsKey(id);
+        }
+
+        @Override
+        public <T, ID> void invalidate(Class<T> tClass, ID id) {
+            Map<Object, Object> objectCache = cache.get(tClass);
+
+            if (objectCache == null) {
+                return;
+            }
+            objectCache.remove(id);
+        }
+
+        @Override
+        public<T> void invalidateAll(Class<T> tClass) {
+            Map<Object, Object> objectCache = cache.get(tClass);
+
+            if (objectCache == null) {
+                return;
+            }
+            objectCache.clear();
+        }
+
+        @Override
+        public void invalidateAll() {
+            cache.forEach((key, value) -> value.clear());
+        }
+
+        @Override
+        public <T> long size(Class<T> tClass) {
+            Map<Object, Object> objectCache = cache.get(tClass);
+
+            if (objectCache == null) {
+                return 0;
+            }
+
+            return objectCache.size();
+        }
+
+        @Override
+        public long sizeAll() {
+            long count = 0;
+
+            for (Map<Object, Object> cache: cache.values()) {
+                count += cache.size();
+            }
+
+            return count;
+        }
     }
 }

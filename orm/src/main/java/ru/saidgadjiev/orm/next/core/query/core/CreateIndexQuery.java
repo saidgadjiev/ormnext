@@ -1,6 +1,6 @@
 package ru.saidgadjiev.orm.next.core.query.core;
 
-import ru.saidgadjiev.orm.next.core.field.field_type.IndexFieldType;
+import ru.saidgadjiev.orm.next.core.field.fieldtype.IndexFieldType;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryElement;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryVisitor;
 

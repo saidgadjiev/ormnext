@@ -1,7 +1,7 @@
 package ru.saidgadjiev.orm.next.core.utils;
 
-import ru.saidgadjiev.orm.next.core.field.field_type.ForeignColumnype;
-import ru.saidgadjiev.orm.next.core.field.field_type.IDatabaseColumnType;
+import ru.saidgadjiev.orm.next.core.field.fieldtype.ForeignColumnType;
+import ru.saidgadjiev.orm.next.core.field.fieldtype.IDatabaseColumnType;
 import ru.saidgadjiev.orm.next.core.table.DatabaseEntityMetadata;
 
 import java.util.HashMap;
@@ -17,7 +17,7 @@ public class ArgumentUtils {
         AtomicInteger index = new AtomicInteger();
         Map<Integer, Object> args = new HashMap<>();
 
-        for (IDatabaseColumnType fieldType : databaseEntityMetadata.toDBFieldTypes()) {
+        for (IDatabaseColumnType fieldType : databaseEntityMetadata.getFieldTypes()) {
             if (!fieldType.isForeignCollectionFieldType() && !fieldType.isGenerated()) {
                 Object value = fieldType.access(object);
 
@@ -29,10 +29,10 @@ public class ArgumentUtils {
             }
         }
 
-        for (ForeignColumnype foreignColumnype : databaseEntityMetadata.toForeignFieldTypes()) {
-            Object value = foreignColumnype.access(object);
+        for (ForeignColumnType foreignColumnType : databaseEntityMetadata.toForeignFieldTypes()) {
+            Object value = foreignColumnType.access(object);
 
-            args.put(index.incrementAndGet(), foreignColumnype.getForeignPrimaryKey().access(value));
+            args.put(index.incrementAndGet(), foreignColumnType.getForeignPrimaryKey().access(value));
         }
 
         return args;

@@ -1,28 +1,50 @@
 package ru.saidgadjiev.orm.next.core.table.persister;
 
-import ru.saidgadjiev.orm.next.core.stament_executor.result_mapper.ResultsMapper;
+import ru.saidgadjiev.orm.next.core.dao.visitor.DefaultEntityMetadataVisitor;
+import ru.saidgadjiev.orm.next.core.stamentexecutor.DatabaseResults;
+import ru.saidgadjiev.orm.next.core.stamentexecutor.alias.EntityAliasResolverContext;
+import ru.saidgadjiev.orm.next.core.stamentexecutor.rowreader.EntityInitializer;
 import ru.saidgadjiev.orm.next.core.table.DatabaseEntityMetadata;
-import ru.saidgadjiev.orm.next.core.table.persister.instatiator.Instantiator;
 
-import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
 
 public class DatabaseEntityPersisterImpl implements DatabaseEntityPersister {
 
-    private QueryDetails queryDetails;
+    private EntityAliasResolverContext aliasResolverContext;
 
-    private DatabaseEntityMetadata entityMetadata;
+    private Collection<EntityInitializer> entityInitializers = new ArrayList<>();
 
-    private Instantiator instantiator;
+    private DatabaseEntityMetadata<?> databaseEntityMetadata;
 
-    public DatabaseEntityPersisterImpl(QueryDetails queryDetails) {
-        this.queryDetails = queryDetails;
+    public DatabaseEntityPersisterImpl(DatabaseEntityMetadata<?> databaseEntityMetadata) {
+        this.databaseEntityMetadata = databaseEntityMetadata;
     }
 
-    public Object readRow() {
+    public Object readRow(DatabaseResults databaseResults) {
+        for (EntityInitializer entityInitializer: entityInitializers) {
+            entityInitializer.startRead(databaseResults);
+        }
+
         return null;
     }
 
-    public Object instantiate() {
-        return instantiator.instantiate();
+    @Override
+    public void initialize() {
+        DefaultEntityMetadataVisitor visitor = new DefaultEntityMetadataVisitor(databaseEntityMetadata, null);
+
+        databaseEntityMetadata.accept(visitor);
+        aliasResolverContext = visitor.getEntityAliasResolverContext();
+        Map<Class<?>, String> uidMap = visitor.getMetaDataUidMap();
+
+        for (Map.Entry<Class<?>, String> entry: uidMap.entrySet()) {
+            entityInitializers.add(new EntityInitializer(aliasResolverContext.getAliases(entry.getValue()), entry.getKey()));
+        }
+    }
+
+    @Override
+    public DatabaseEntityMetadata<?> getMetadata() {
+        return databaseEntityMetadata;
     }
 }

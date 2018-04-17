@@ -20,7 +20,6 @@ public class LRUObjectCache implements ObjectCache {
     @Override
     public <T> void registerClass(Class<T> tClass) {
         cache.computeIfAbsent(tClass, k -> CacheBuilder.newLRUCacheBuilder().maxSize(maxSize).build());
-
     }
 
     @Override

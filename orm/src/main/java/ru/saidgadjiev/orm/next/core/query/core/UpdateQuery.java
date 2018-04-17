@@ -1,6 +1,6 @@
 package ru.saidgadjiev.orm.next.core.query.core;
 
-import ru.saidgadjiev.orm.next.core.field.field_type.DatabaseColumnType;
+import ru.saidgadjiev.orm.next.core.field.fieldtype.DatabaseColumnType;
 import ru.saidgadjiev.orm.next.core.query.core.column_spec.ColumnSpec;
 import ru.saidgadjiev.orm.next.core.query.core.common.UpdateValue;
 import ru.saidgadjiev.orm.next.core.query.core.condition.Equals;

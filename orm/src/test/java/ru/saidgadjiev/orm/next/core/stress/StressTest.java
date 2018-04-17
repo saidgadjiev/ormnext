@@ -10,7 +10,7 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
 import ru.saidgadjiev.orm.next.core.StressUtils;
 import ru.saidgadjiev.orm.next.core.cache.LRUObjectCache;
-import ru.saidgadjiev.orm.next.core.dao.BaseSessionManagerImpl;
+import ru.saidgadjiev.orm.next.core.dao.SessionManagerImpl;
 import ru.saidgadjiev.orm.next.core.db.H2DatabaseType;
 import ru.saidgadjiev.orm.next.core.field.DatabaseColumn;
 import ru.saidgadjiev.orm.next.core.field.DataType;
@@ -59,7 +59,7 @@ public class StressTest {
         JdbcDataSource dataSource = new JdbcDataSource();
 
         dataSource.setURL("jdbc:h2:mem:h2testdb;DB_CLOSE_DELAY=-1");
-        BaseSessionManagerImpl sessionManager = new BaseSessionManagerImpl(new PolledConnectionSource(dataSource, new H2DatabaseType()));
+        SessionManagerImpl sessionManager = new SessionManagerImpl(new PolledConnectionSource(dataSource, new H2DatabaseType()), null);
         ru.saidgadjiev.orm.next.core.dao.Session session = sessionManager.getCurrentSession();
         session.createTable(TestClass.class, false);
         List<TestClass> sourceClasses = new ArrayList<>();
@@ -84,7 +84,7 @@ public class StressTest {
         JdbcDataSource dataSource = new JdbcDataSource();
 
         dataSource.setURL("jdbc:h2:mem:h2testdb;DB_CLOSE_DELAY=-1");
-        BaseSessionManagerImpl sessionManager = new BaseSessionManagerImpl(new PolledConnectionSource(dataSource, new H2DatabaseType()));
+        SessionManagerImpl sessionManager = new SessionManagerImpl(new PolledConnectionSource(dataSource, new H2DatabaseType()), null);
         ru.saidgadjiev.orm.next.core.dao.Session session = sessionManager.getCurrentSession();
         session.createTable(TestClass.class, false);
         sessionManager.setObjectCache(new LRUObjectCache(16), TestClass.class);

@@ -1,6 +1,8 @@
 package ru.saidgadjiev.orm.next.core.table;
 
-import ru.saidgadjiev.orm.next.core.field.field_type.*;
+import ru.saidgadjiev.orm.next.core.dao.visitor.EntityElement;
+import ru.saidgadjiev.orm.next.core.dao.visitor.EntityMetadataVisitor;
+import ru.saidgadjiev.orm.next.core.field.fieldtype.*;
 import ru.saidgadjiev.orm.next.core.utils.TableInfoUtils;
 import ru.saidgadjiev.orm.next.core.validator.table.ForeignKeyValidator;
 import ru.saidgadjiev.orm.next.core.validator.table.HasConstructorValidator;
@@ -18,13 +20,13 @@ import java.util.stream.Collectors;
 import static ru.saidgadjiev.orm.next.core.utils.ReflectUtils.lookupDefaultConstructor;
 
 
-public final class DatabaseEntityMetadata<T> {
+public final class DatabaseEntityMetadata<T> implements EntityElement {
 
     private Class<T> tableClass;
 
     private List<DatabaseColumnType> databaseColumnTypes;
 
-    private List<ForeignColumnype> foreignColumnypes;
+    private List<ForeignColumnType> foreignColumnypes;
 
     private List<ForeignCollectionFieldType> foreignCollectionFieldTypes;
 
@@ -62,21 +64,6 @@ public final class DatabaseEntityMetadata<T> {
                 .findAny()
                 .orElse(null);
         this.uniqueFieldTypes = uniqueFieldTypes;
-        this.databaseColumnTypes = fieldTypes
-                .stream()
-                .filter(IDatabaseColumnType::isDbFieldType)
-                .map(idbFieldType -> (DatabaseColumnType) idbFieldType)
-                .collect(Collectors.toList());
-        this.foreignColumnypes = fieldTypes
-                .stream()
-                .filter(IDatabaseColumnType::isForeignFieldType)
-                .map(idbFieldType -> (ForeignColumnype) idbFieldType)
-                .collect(Collectors.toList());
-        this.foreignCollectionFieldTypes = fieldTypes
-                .stream()
-                .filter(IDatabaseColumnType::isForeignCollectionFieldType)
-                .map(idbFieldType -> (ForeignCollectionFieldType) idbFieldType)
-                .collect(Collectors.toList());
         this.fieldTypes = fieldTypes;
     }
 
@@ -104,7 +91,7 @@ public final class DatabaseEntityMetadata<T> {
         return Collections.unmodifiableList(databaseColumnTypes);
     }
 
-    public List<ForeignColumnype> toForeignFieldTypes() {
+    public List<ForeignColumnType> toForeignFieldTypes() {
         return Collections.unmodifiableList(foreignColumnypes);
     }
 
@@ -221,6 +208,15 @@ public final class DatabaseEntityMetadata<T> {
         }
 
         throw new IllegalArgumentException("Field " + fieldName + " not exists in " + tableClass);
+    }
+
+    @Override
+    public void accept(EntityMetadataVisitor visitor) {
+        if (visitor.visit(this)) {
+            for (IDatabaseColumnType columnType: fieldTypes) {
+                columnType.accept(visitor);
+            }
+        }
     }
 }
 
