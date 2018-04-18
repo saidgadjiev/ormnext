@@ -32,4 +32,13 @@ public class A {
     public void setName(String name) {
         this.name = name;
     }
+
+    @Override
+    public String toString() {
+        return "A{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", c=" + c +
+                '}';
+    }
 }

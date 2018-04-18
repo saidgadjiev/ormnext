@@ -18,12 +18,12 @@ public class LRUObjectCache implements ObjectCache {
     }
 
     @Override
-    public <T> void registerClass(Class<T> tClass) {
+    public void registerClass(Class<?> tClass) {
         cache.computeIfAbsent(tClass, k -> CacheBuilder.newLRUCacheBuilder().maxSize(maxSize).build());
     }
 
     @Override
-    public <T, ID> void put(Class<T> tClass, ID id, T data) {
+    public void put(Class<?> tClass, Object id, Object data) {
         Cache<Object, Object> objectCache = cache.get(tClass);
 
         if (objectCache != null) {
@@ -33,19 +33,18 @@ public class LRUObjectCache implements ObjectCache {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T, ID> T get(Class<T> tClass, ID id) {
+    public Object get(Class<?> tClass, Object id) {
         Cache<Object, Object> objectCache = cache.get(tClass);
 
         if (objectCache == null) {
             return null;
         }
-        Object data = objectCache.get(id);
 
-        return (T) data;
+        return objectCache.get(id);
     }
 
     @Override
-    public<T, ID> boolean contains(Class<T> tClass, ID id) {
+    public boolean contains(Class<?> tClass, Object id) {
         Cache<Object, Object> objectCache = cache.get(tClass);
 
         if (objectCache == null) {
@@ -55,7 +54,7 @@ public class LRUObjectCache implements ObjectCache {
     }
 
     @Override
-    public <T, ID> void invalidate(Class<T> tClass, ID id) {
+    public void invalidate(Class<?> tClass, Object id) {
         Cache<Object, Object> objectCache = cache.get(tClass);
 
         if (objectCache == null) {
@@ -65,7 +64,7 @@ public class LRUObjectCache implements ObjectCache {
     }
 
     @Override
-    public<T> void invalidateAll(Class<T> tClass) {
+    public void invalidateAll(Class<?> tClass) {
         Cache<Object, Object> objectCache = cache.get(tClass);
 
         if (objectCache == null) {
@@ -80,7 +79,7 @@ public class LRUObjectCache implements ObjectCache {
     }
 
     @Override
-    public <T> long size(Class<T> tClass) {
+    public long size(Class<?> tClass) {
         Cache<Object, Object> objectCache = cache.get(tClass);
 
         if (objectCache == null) {

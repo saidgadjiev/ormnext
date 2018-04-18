@@ -1,5 +1,6 @@
 package ru.saidgadjiev.orm.next.core.cache;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -17,8 +18,8 @@ public class CacheContext {
     public CacheContext() {
     }
 
-    public Optional<ObjectCache> getObjectCache() {
-        return Optional.ofNullable(objectCache);
+    public ObjectCache getObjectCache() {
+        return objectCache;
     }
 
     public CacheContext objectCache(ObjectCache objectCache) {
@@ -37,6 +38,12 @@ public class CacheContext {
 
     public CacheContext caching(Class<?> clazz, boolean caching) {
         this.caching.put(clazz, caching);
+
+        return this;
+    }
+
+    public CacheContext caching(Collection<Class<?>> classes, boolean caching) {
+        classes.forEach(aClass -> CacheContext.this.caching.put(aClass, caching));
 
         return this;
     }

@@ -8,4 +8,6 @@ public interface EntityAliases {
     String getTableAlias();
 
     List<String> getColumnAliases();
+
+    String getKeyAlias();
 }

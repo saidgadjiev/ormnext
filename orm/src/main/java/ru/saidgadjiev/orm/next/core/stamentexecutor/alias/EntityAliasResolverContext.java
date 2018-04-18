@@ -25,9 +25,13 @@ public class EntityAliasResolverContext {
             if (columnType.isForeignCollectionFieldType()) {
                 continue;
             }
+            if (columnType.isId()) {
+                continue;
+            }
             columnAliases.add(aliasResolver.createAlias(columnType.getColumnName()));
         }
-        EntityAliases entityAliases = new EntityAliasesImpl(tableAlias, columnAliases);
+        IDatabaseColumnType primaryKey = entityMetadata.getPrimaryKey().get();
+        EntityAliases entityAliases = new EntityAliasesImpl(tableAlias, columnAliases, aliasResolver.createAlias(primaryKey.getColumnName()));
 
         resolvedAliases.putIfAbsent(uid, entityAliases);
 

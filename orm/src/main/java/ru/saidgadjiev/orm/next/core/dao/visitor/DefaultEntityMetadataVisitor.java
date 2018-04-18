@@ -28,30 +28,38 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
 
     private MetaModel metaModel;
 
-    private EntityAliasResolverContext entityAliasResolverContext = new EntityAliasResolverContext();
+    private EntityAliasResolverContext entityAliasResolverContext;
+
+    private UIDGenerator uidGenerator;
 
     private SelectColumnsList selectColumnsList = new SelectColumnsList();
 
     private Map<Class<?>, String> metaDataUidMap = new LinkedHashMap<>();
 
-    private UIDGenerator uidGenerator = new UIDGenerator();
+    private List<EntityInitializer> entityInitializers = new ArrayList<>();
 
-    public DefaultEntityMetadataVisitor(DatabaseEntityMetadata mainEntityMetadata, MetaModel metaModel) {
-        String nextUID = uidGenerator.nextUID();
 
-        EntityAliases entityAliases = entityAliasResolverContext.resolveAliases(nextUID, mainEntityMetadata);
-        metaDataUidMap.put(mainEntityMetadata.getTableClass(), nextUID);
-        this.fromJoinedTables = new FromJoinedTables(new TableRef(mainEntityMetadata.getTableName()).alias(new Alias(entityAliases.getTableAlias())));
+    public DefaultEntityMetadataVisitor(DatabaseEntityMetadata mainEntityMetadata,
+                                        MetaModel metaModel,
+                                        EntityAliasResolverContext entityAliasResolverContext,
+                                        UIDGenerator uidGenerator,
+                                        EntityInitializer rootEntityInitializer) {
+        this.entityAliasResolverContext = entityAliasResolverContext;
+        this.uidGenerator = uidGenerator;
+
+        metaDataUidMap.put(mainEntityMetadata.getTableClass(), rootEntityInitializer.getUid());
+        this.fromJoinedTables = new FromJoinedTables(new TableRef(mainEntityMetadata.getTableName()).alias(new Alias(rootEntityInitializer.getEntityAliases().getTableAlias())));
         this.metaModel = metaModel;
 
-        appendSelectColumns(entityAliases, mainEntityMetadata);
+        entityInitializers.add(rootEntityInitializer);
+        appendSelectColumns(rootEntityInitializer.getEntityAliases(), mainEntityMetadata);
     }
 
     public void visit(ForeignColumnType foreignColumnType) {
-        DatabaseEntityMetadata<?> ownerMetadata = metaModel.getMetaData(foreignColumnType.getOwnerClass()).getMetadata();
+        DatabaseEntityMetadata<?> ownerMetadata = metaModel.getPersister(foreignColumnType.getOwnerClass()).getMetadata();
         EntityAliases ownerAliases = entityAliasResolverContext.getAliases(metaDataUidMap.get(ownerMetadata.getTableClass()));
 
-        DatabaseEntityMetadata<?> foreignMetaData = metaModel.getMetaData(foreignColumnType.getForeignFieldClass()).getMetadata();
+        DatabaseEntityMetadata<?> foreignMetaData = metaModel.getPersister(foreignColumnType.getForeignFieldClass()).getMetadata();
         String nextUID = uidGenerator.nextUID();
 
         metaDataUidMap.put(foreignMetaData.getTableClass(), nextUID);
@@ -60,6 +68,7 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
         appendJoin(foreignColumnType, ownerAliases, foreignEntityAliases);
         appendSelectColumns(foreignEntityAliases, foreignMetaData);
 
+        entityInitializers.add(new EntityInitializer(nextUID, foreignEntityAliases, metaModel.getPersister(foreignMetaData.getTableClass())));
         foreignMetaData.accept(this);
     }
 
@@ -80,18 +89,26 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
     private void appendSelectColumns(EntityAliases aliases, DatabaseEntityMetadata<?> databaseEntityMetadata) {
         List<IDatabaseColumnType> columnTypes = databaseEntityMetadata.getFieldTypes();
 
-        for (int i = 0; i < columnTypes.size(); ++i) {
+        for (int i = 0, a = 0; i < columnTypes.size(); ++i) {
             IDatabaseColumnType columnType = columnTypes.get(i);
 
+            if (columnTypes.get(i).isId()) {
+                appendDisplayedColumn(columnType.getColumnName(), aliases.getTableAlias(), aliases.getKeyAlias());
+                continue;
+            }
             if (columnTypes.get(i).isForeignCollectionFieldType()) {
                 continue;
             }
-            ColumnSpec columnSpec = new ColumnSpec(columnType.getColumnName()).alias(new Alias(aliases.getTableAlias()));
-            DisplayedColumnSpec displayedColumnSpec = new DisplayedColumn(columnSpec);
-
-            displayedColumnSpec.setAlias(new Alias(aliases.getColumnAliases().get(i)));
-            selectColumnsList.addColumn(displayedColumnSpec);
+            appendDisplayedColumn(columnType.getColumnName(), aliases.getTableAlias(), aliases.getColumnAliases().get(a++));
         }
+    }
+
+    private void appendDisplayedColumn(String columnName, String tableAlias, String columnAlias) {
+        ColumnSpec columnSpec = new ColumnSpec(columnName).alias(new Alias(tableAlias));
+        DisplayedColumnSpec displayedColumnSpec = new DisplayedColumn(columnSpec);
+
+        displayedColumnSpec.setAlias(new Alias(columnAlias));
+        selectColumnsList.addColumn(displayedColumnSpec);
     }
 
     public FromJoinedTables getFromJoinedTables() {
@@ -111,7 +128,7 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
         return selectColumnsList;
     }
 
-    public Map<Class<?>, String> getMetaDataUidMap() {
-        return metaDataUidMap;
+    public List<EntityInitializer> getEntityInitializers() {
+        return entityInitializers;
     }
 }

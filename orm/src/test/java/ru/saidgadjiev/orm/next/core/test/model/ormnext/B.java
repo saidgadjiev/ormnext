@@ -35,4 +35,14 @@ public class B {
     public void setName(String name) {
         this.name = name;
     }
+
+    @Override
+    public String toString() {
+        return "B{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", c=" + c +
+                ", a=" + a +
+                '}';
+    }
 }

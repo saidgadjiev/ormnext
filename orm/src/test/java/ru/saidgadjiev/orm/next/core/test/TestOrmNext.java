@@ -1,8 +1,10 @@
 package ru.saidgadjiev.orm.next.core.test;
 
 import org.postgresql.ds.PGPoolingDataSource;
+import ru.saidgadjiev.orm.next.core.dao.Session;
 import ru.saidgadjiev.orm.next.core.dao.SessionManagerImpl;
 import ru.saidgadjiev.orm.next.core.dao.SessionManager;
+import ru.saidgadjiev.orm.next.core.dao.SessionMangerBuilder;
 import ru.saidgadjiev.orm.next.core.db.PGDatabaseType;
 import ru.saidgadjiev.orm.next.core.db.SerialTypeDataPersister;
 import ru.saidgadjiev.orm.next.core.field.DataPersisterManager;
@@ -20,11 +22,19 @@ public class TestOrmNext {
 
     public static void main(String[] args) throws SQLException {
         System.setProperty(LoggerFactory.LOG_ENABLED_PROPERTY, "true");
-        SessionManager sessionManager = new SessionManagerImpl(postgreConnectionSource(), null);
+        SessionManager sessionManager = new SessionMangerBuilder()
+                .addEntityClasses(B.class, A.class, C.class)
+                .connectionSource(postgreConnectionSource())
+                .build();
 
         TableUtils.createTable(sessionManager.getDataSource(), C.class, true);
         TableUtils.createTable(sessionManager.getDataSource(), A.class, true);
         TableUtils.createTable(sessionManager.getDataSource(), B.class, true);
+        Session session = sessionManager.getCurrentSession();
+
+        C b = session.queryForId(C.class, 0);
+
+        System.out.println(b);
     }
 
     private static ConnectionSource postgreConnectionSource() {

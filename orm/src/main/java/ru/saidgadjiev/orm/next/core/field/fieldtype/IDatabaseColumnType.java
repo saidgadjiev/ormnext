@@ -1,6 +1,7 @@
 package ru.saidgadjiev.orm.next.core.field.fieldtype;
 
 import ru.saidgadjiev.orm.next.core.dao.visitor.EntityElement;
+import ru.saidgadjiev.orm.next.core.field.DatabaseColumn;
 import ru.saidgadjiev.orm.next.core.field.persister.DataPersister;
 
 import java.lang.reflect.Field;
@@ -12,19 +13,19 @@ import java.lang.reflect.InvocationTargetException;
 public interface IDatabaseColumnType extends EntityElement {
 
     default Object getDefaultValue() {
-        throw new UnsupportedOperationException();
+        return null;
     }
 
     default boolean isId() {
-        throw new UnsupportedOperationException();
+        return false;
     }
 
     default boolean isNotNull() {
-        throw new UnsupportedOperationException();
+        return false;
     }
 
     default boolean isGenerated() {
-        throw new UnsupportedOperationException();
+        return false;
     }
 
     default String getColumnName() {
@@ -43,7 +44,7 @@ public interface IDatabaseColumnType extends EntityElement {
         throw new UnsupportedOperationException();
     }
 
-    void assign(Object object, Object value) throws IllegalAccessException, InvocationTargetException;
+    void assign(Object object, Object value);
 
     Field getField();
 
@@ -56,7 +57,7 @@ public interface IDatabaseColumnType extends EntityElement {
     }
 
     default int getLength() {
-        throw new UnsupportedOperationException();
+        return 0;
     }
 
     default boolean isDbFieldType() {

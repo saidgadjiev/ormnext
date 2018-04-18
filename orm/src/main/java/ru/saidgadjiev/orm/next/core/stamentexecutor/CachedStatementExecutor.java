@@ -3,6 +3,7 @@ package ru.saidgadjiev.orm.next.core.stamentexecutor;
 import ru.saidgadjiev.orm.next.core.cache.CacheContext;
 import ru.saidgadjiev.orm.next.core.cache.ObjectCache;
 import ru.saidgadjiev.orm.next.core.criteria.impl.SelectStatement;
+import ru.saidgadjiev.orm.next.core.dao.metamodel.MetaModel;
 import ru.saidgadjiev.orm.next.core.field.fieldtype.DatabaseColumnType;
 import ru.saidgadjiev.orm.next.core.field.fieldtype.ForeignCollectionFieldType;
 import ru.saidgadjiev.orm.next.core.field.fieldtype.ForeignColumnType;
@@ -20,13 +21,21 @@ import java.util.List;
 @SuppressWarnings("CPD-START")
 public class CachedStatementExecutor implements IStatementExecutor {
 
+    private CacheContext sessionCacheContext;
+
     private IStatementExecutor delegate;
+
+    private MetaModel metaModel;
 
     private CacheContext cacheContext;
 
-    public CachedStatementExecutor(CacheContext cacheContext,
+    public CachedStatementExecutor(MetaModel metaModel,
+                                   CacheContext cacheContext,
+                                   CacheContext sessionCacheContext,
                                    IStatementExecutor delegate) {
+        this.metaModel = metaModel;
         this.cacheContext = cacheContext;
+        this.sessionCacheContext = sessionCacheContext;
         this.delegate = delegate;
     }
 
@@ -40,15 +49,15 @@ public class CachedStatementExecutor implements IStatementExecutor {
 
         delegate.create(connection, objects);
 
-        if (cacheContext.isCaching(databaseEntityMetadata.getTableClass()) && cacheContext.getObjectCache().isPresent()) {
-            ObjectCache objectCache = cacheContext.getObjectCache().get();
+        if (cacheContext.isCaching(databaseEntityMetadata.getTableClass())) {
+            ObjectCache objectCache = cacheContext.getObjectCache();
 
             if (databaseEntityMetadata.getPrimaryKey().isPresent()) {
                 for (T object : objects) {
-                    IDatabaseColumnType IDatabaseColumnType = databaseEntityMetadata.getPrimaryKey().get();
+                    IDatabaseColumnType primaryKeyColumnType = databaseEntityMetadata.getPrimaryKey().get();
 
                     try {
-                        objectCache.put((Class<T>) databaseEntityMetadata.getTableClass(), IDatabaseColumnType.access(object), object);
+                        objectCache.put(databaseEntityMetadata.getTableClass(), primaryKeyColumnType.access(object), object);
                     } catch (Exception ex) {
                         throw new SQLException(ex);
                     }
@@ -64,8 +73,8 @@ public class CachedStatementExecutor implements IStatementExecutor {
         DatabaseEntityMetadata<T> databaseEntityMetadata = TableInfoManager.buildOrGet((Class<T>) object.getClass());
         Integer count = delegate.create(connection, object);
 
-        if (count > 0 && cacheContext.isCaching(databaseEntityMetadata.getTableClass()) && cacheContext.getObjectCache().isPresent()) {
-            ObjectCache objectCache = cacheContext.getObjectCache().get();
+        if (count > 0 && cacheContext.isCaching(databaseEntityMetadata.getTableClass())) {
+            ObjectCache objectCache = cacheContext.getObjectCache();
 
             if (databaseEntityMetadata.getPrimaryKey().isPresent()) {
                 IDatabaseColumnType IDatabaseColumnType = databaseEntityMetadata.getPrimaryKey().get();
@@ -122,9 +131,9 @@ public class CachedStatementExecutor implements IStatementExecutor {
             IDatabaseColumnType idFieldType = databaseEntityMetadata.getPrimaryKey().get();
 
             try {
-                if (cacheContext.isCaching(databaseEntityMetadata.getTableClass()) && cacheContext.getObjectCache().isPresent()) {
-                    ObjectCache objectCache = cacheContext.getObjectCache().get();
-                    T cachedData = objectCache.get(databaseEntityMetadata.getTableClass(), idFieldType.access(object));
+                if (cacheContext.isCaching(databaseEntityMetadata.getTableClass())) {
+                    ObjectCache objectCache = cacheContext.getObjectCache();
+                    T cachedData = (T) objectCache.get(databaseEntityMetadata.getTableClass(), idFieldType.access(object));
 
                     if (cachedData != null) {
                         copy(databaseEntityMetadata, object, cachedData);
@@ -148,7 +157,7 @@ public class CachedStatementExecutor implements IStatementExecutor {
             Object id = dbFieldType.access(object);
 
             if (cacheContext.isCaching(databaseEntityMetadata.getTableClass())) {
-                cacheContext.getObjectCache().ifPresent(objectCache -> objectCache.invalidate(databaseEntityMetadata.getTableClass(), id));
+                cacheContext.getObjectCache().invalidate(databaseEntityMetadata.getTableClass(), id);
             }
         } catch (IllegalAccessException | InvocationTargetException ex) {
             throw new RuntimeException(ex);
@@ -163,7 +172,7 @@ public class CachedStatementExecutor implements IStatementExecutor {
         Integer result = delegate.deleteById(connection, tClass, id);
 
         if (cacheContext.isCaching(databaseEntityMetadata.getTableClass())) {
-            cacheContext.getObjectCache().ifPresent(objectCache -> objectCache.invalidate(databaseEntityMetadata.getTableClass(), id));
+            cacheContext.getObjectCache().invalidate(databaseEntityMetadata.getTableClass(), id);
         }
 
         return result;
@@ -171,20 +180,25 @@ public class CachedStatementExecutor implements IStatementExecutor {
 
     @Override
     public<T, ID> T queryForId(Connection connection, Class<T> tClass, ID id) throws SQLException {
-        DatabaseEntityMetadata<T> databaseEntityMetadata = TableInfoManager.buildOrGet(tClass);
+        DatabaseEntityMetadata<?> databaseEntityMetadata = metaModel.getPersister(tClass).getMetadata();
 
-        if (cacheContext.isCaching(databaseEntityMetadata.getTableClass()) && cacheContext.getObjectCache().isPresent()) {
-            ObjectCache objectCache = cacheContext.getObjectCache().get();
+        Object instance = sessionCacheContext.getObjectCache().get(tClass, id);
+
+        if (instance != null) {
+            return (T) instance;
+        }
+        if (cacheContext.isCaching(databaseEntityMetadata.getTableClass())) {
+            ObjectCache objectCache = cacheContext.getObjectCache();
 
             if (objectCache.contains(databaseEntityMetadata.getTableClass(), id)) {
-                return objectCache.get(databaseEntityMetadata.getTableClass(), id);
+                return (T) objectCache.get(databaseEntityMetadata.getTableClass(), id);
             }
         }
 
         T object = delegate.queryForId(connection, tClass, id);
 
         if (object != null && cacheContext.isCaching(databaseEntityMetadata.getTableClass())) {
-            cacheContext.getObjectCache().ifPresent(objectCache -> objectCache.put((Class<T>) databaseEntityMetadata.getTableClass(), id, object));
+            cacheContext.getObjectCache().put(databaseEntityMetadata.getTableClass(), id, object);
         }
 
         return object;
@@ -196,12 +210,12 @@ public class CachedStatementExecutor implements IStatementExecutor {
         List<T> result = delegate.queryForAll(connection, tClass);
 
         try {
-            if (databaseEntityMetadata.getPrimaryKey().isPresent() && cacheContext.isCaching(databaseEntityMetadata.getTableClass()) && cacheContext.getObjectCache().isPresent()) {
+            if (databaseEntityMetadata.getPrimaryKey().isPresent() && cacheContext.isCaching(databaseEntityMetadata.getTableClass())) {
                 IDatabaseColumnType IDatabaseColumnType = databaseEntityMetadata.getPrimaryKey().get();
-                ObjectCache objectCache = cacheContext.getObjectCache().get();
+                ObjectCache objectCache = cacheContext.getObjectCache();
 
                 for (T object : result) {
-                    objectCache.put((Class<T>) databaseEntityMetadata.getTableClass(), IDatabaseColumnType.access(object), object);
+                    objectCache.put(databaseEntityMetadata.getTableClass(), IDatabaseColumnType.access(object), object);
                 }
             }
         } catch (Exception ex) {

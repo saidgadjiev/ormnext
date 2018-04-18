@@ -29,4 +29,11 @@ public class C {
         this.name = name;
     }
 
+    @Override
+    public String toString() {
+        return "C{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                '}';
+    }
 }

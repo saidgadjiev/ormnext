@@ -1,6 +1,5 @@
 package ru.saidgadjiev.orm.next.core.dao;
 
-import ru.saidgadjiev.orm.next.core.dao.metamodel.MetaModel;
 import ru.saidgadjiev.orm.next.core.support.ConnectionSource;
 
 import java.util.ArrayList;
@@ -26,11 +25,7 @@ public class SessionMangerBuilder {
     }
 
     public SessionManager build() {
-        MetaModel metaModel = new MetaModel();
-
-        metaModel.initialize(entityClasses);
-
-        return new SessionManagerImpl(connectionSource, metaModel);
+        return new SessionManagerImpl(connectionSource, entityClasses);
     }
 
 

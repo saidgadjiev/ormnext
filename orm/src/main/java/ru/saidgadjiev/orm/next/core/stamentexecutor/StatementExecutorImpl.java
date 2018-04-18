@@ -1,6 +1,8 @@
 package ru.saidgadjiev.orm.next.core.stamentexecutor;
 
 import ru.saidgadjiev.orm.next.core.criteria.impl.SelectStatement;
+import ru.saidgadjiev.orm.next.core.dao.Session;
+import ru.saidgadjiev.orm.next.core.dao.metamodel.MetaModel;
 import ru.saidgadjiev.orm.next.core.db.DatabaseType;
 import ru.saidgadjiev.orm.next.core.field.fieldtype.DatabaseColumnType;
 import ru.saidgadjiev.orm.next.core.field.fieldtype.ForeignColumnType;
@@ -10,6 +12,7 @@ import ru.saidgadjiev.orm.next.core.query.core.*;
 import ru.saidgadjiev.orm.next.core.query.core.clause.select.SelectColumnsList;
 import ru.saidgadjiev.orm.next.core.query.core.column_spec.DisplayedOperand;
 import ru.saidgadjiev.orm.next.core.query.core.common.UpdateValue;
+import ru.saidgadjiev.orm.next.core.query.core.condition.Expression;
 import ru.saidgadjiev.orm.next.core.query.core.function.CountAll;
 import ru.saidgadjiev.orm.next.core.query.core.literals.Param;
 import ru.saidgadjiev.orm.next.core.query.visitor.DefaultVisitor;
@@ -20,6 +23,7 @@ import ru.saidgadjiev.orm.next.core.stamentexecutor.resultmapper.ResultsMapper;
 import ru.saidgadjiev.orm.next.core.support.ConnectionSource;
 import ru.saidgadjiev.orm.next.core.table.DatabaseEntityMetadata;
 import ru.saidgadjiev.orm.next.core.table.TableInfoManager;
+import ru.saidgadjiev.orm.next.core.table.persister.DatabaseEntityPersister;
 import ru.saidgadjiev.orm.next.core.utils.ArgumentUtils;
 
 import java.sql.Connection;
@@ -38,12 +42,20 @@ import java.util.concurrent.atomic.AtomicInteger;
 @SuppressWarnings("PMD")
 public class StatementExecutorImpl implements IStatementExecutor {
 
+    private Session session;
+
+    private MetaModel metaModel;
+
     private DatabaseType databaseType;
 
     private ForeignCreator foreignCreator;
 
-    public StatementExecutorImpl(DatabaseType databaseType,
+    public StatementExecutorImpl(Session session,
+                                 MetaModel metaModel,
+                                 DatabaseType databaseType,
                                  ForeignCreator foreignCreator) {
+        this.session = session;
+        this.metaModel = metaModel;
         this.databaseType = databaseType;
         this.foreignCreator = foreignCreator;
     }
@@ -79,7 +91,7 @@ public class StatementExecutorImpl implements IStatementExecutor {
                 for (T object : objects) {
                     foreignCreator.execute(object);
 
-                    for (Map.Entry<Integer, Object> entry : ArgumentUtils.eject(object, (DatabaseEntityMetadata<T>) databaseEntityMetadata).entrySet()) {
+                    for (Map.Entry<Integer, Object> entry : ArgumentUtils.eject(object, databaseEntityMetadata).entrySet()) {
                         statement.setObject(entry.getKey(), entry.getValue());
                     }
                     statement.addBatch();
@@ -267,22 +279,27 @@ public class StatementExecutorImpl implements IStatementExecutor {
      */
     @Override
     public <T, ID> T queryForId(Connection connection, Class<T> tClass, ID id) throws SQLException {
-        DatabaseEntityMetadata<T> databaseEntityMetadata = TableInfoManager.buildOrGet(tClass);
-        Select selectQuery = Select.buildQueryById(databaseEntityMetadata, id);
+        DatabaseEntityPersister entityPersister = metaModel.getPersister(tClass);
+        Select selectQuery = new Select();
+
+        selectQuery.setFrom(entityPersister.getFromExpression());
+        selectQuery.setSelectColumnsStrategy(entityPersister.getSelectColumnsList());
+        selectQuery.appendByIdClause(entityPersister.getMetadata(), entityPersister.getAliases().getTableAlias(), id);
         String query = getQuery(selectQuery);
-        ResultsMapper<?> resultsMapper = null;
 
         try (IPreparedStatement preparedQuery = new PreparedQueryImpl(connection.prepareStatement(query), query)) {
             try (DatabaseResults databaseResults = preparedQuery.executeQuery()) {
-                if (databaseResults.next()) {
-                    return (T) resultsMapper.mapResults(databaseResults);
+                List<Object> results = entityPersister.load(session, databaseResults);
+
+                if (results.isEmpty()) {
+                    return null;
                 }
+
+                return (T) results.iterator().next();
             }
         } catch (Exception ex) {
             throw new SQLException(ex);
         }
-
-        return null;
     }
 
     /**

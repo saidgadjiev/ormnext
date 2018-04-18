@@ -63,6 +63,21 @@ public final class DatabaseEntityMetadata<T> implements EntityElement {
                 .filter(IDatabaseColumnType::isId)
                 .findAny()
                 .orElse(null);
+        this.databaseColumnTypes = fieldTypes
+                .stream()
+                .filter(IDatabaseColumnType::isDbFieldType)
+                .map(idbFieldType -> (DatabaseColumnType) idbFieldType)
+                .collect(Collectors.toList());
+        this.foreignColumnypes = fieldTypes
+                .stream()
+                .filter(IDatabaseColumnType::isForeignFieldType)
+                .map(idbFieldType -> (ForeignColumnType) idbFieldType)
+                .collect(Collectors.toList());
+        this.foreignCollectionFieldTypes = fieldTypes
+                .stream()
+                .filter(IDatabaseColumnType::isForeignCollectionFieldType)
+                .map(idbFieldType -> (ForeignCollectionFieldType) idbFieldType)
+                .collect(Collectors.toList());
         this.uniqueFieldTypes = uniqueFieldTypes;
         this.fieldTypes = fieldTypes;
     }

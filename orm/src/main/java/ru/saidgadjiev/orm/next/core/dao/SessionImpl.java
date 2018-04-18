@@ -6,7 +6,6 @@ import ru.saidgadjiev.orm.next.core.criteria.impl.SelectStatement;
 import ru.saidgadjiev.orm.next.core.stamentexecutor.*;
 import ru.saidgadjiev.orm.next.core.stamentexecutor.object.operation.ForeignCreator;
 import ru.saidgadjiev.orm.next.core.support.ConnectionSource;
-import ru.saidgadjiev.up.cache.core.Cache;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -14,7 +13,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
 /**
  * Created by said on 19.02.2018.
@@ -27,15 +25,23 @@ public class SessionImpl implements Session {
 
     private ObjectCache sessionCache;
 
-    SessionImpl(ConnectionSource dataSource, CacheContext cacheContext) {
-        this.dataSource = dataSource;
+    SessionImpl(SessionManager sessionManager, CacheContext cacheContext) {
+        this.dataSource = sessionManager.getDataSource();
+        this.sessionCache = new SessionObjectCache();
+        CacheContext sessionCacheContext = new CacheContext(sessionCache);
 
+        sessionManager.getMetaModel().getPersistentClasses().forEach(clazz -> sessionCache.registerClass(clazz));
+        sessionCacheContext.caching(sessionManager.getMetaModel().getPersistentClasses(), true);
         this.statementExecutor = new StatementValidator(
                 new CachedStatementExecutor(
+                        sessionManager.getMetaModel(),
                         cacheContext,
+                        sessionCacheContext,
                         new StatementExecutorImpl(
+                                this,
+                                sessionManager.getMetaModel(),
                                 dataSource.getDatabaseType(),
-                                new ForeignCreator<>(dataSource)
+                                new ForeignCreator<>(this)
                         )
                 )
         );
@@ -188,17 +194,27 @@ public class SessionImpl implements Session {
         return new TransactionImpl(statementExecutor, dataSource);
     }
 
+    @Override
+    public void addEntityToCache(Class<?> clazz, Object id, Object data) {
+        sessionCache.put(clazz, id, data);
+    }
+
+    @Override
+    public void close() {
+        sessionCache.invalidateAll();
+    }
+
     private static final class SessionObjectCache implements ObjectCache {
 
         private Map<Class<?>, Map<Object, Object>> cache = new HashMap<>();
 
         @Override
-        public <T> void registerClass(Class<T> tClass) {
+        public void registerClass(Class<?> tClass) {
             cache.computeIfAbsent(tClass, aClass -> new HashMap<>());
         }
 
         @Override
-        public <T, ID> void put(Class<T> tClass, ID id, T data) {
+        public void put(Class<?> tClass, Object id, Object data) {
             Map<Object, Object> objectCache = cache.get(tClass);
 
             if (objectCache != null) {
@@ -207,26 +223,25 @@ public class SessionImpl implements Session {
         }
 
         @Override
-        public <T, ID> T get(Class<T> tClass, ID id) {
+        public Object get(Class<?> tClass, Object id) {
             Map<Object, Object> objectCache = cache.get(tClass);
 
             if (objectCache == null) {
                 return null;
             }
-            Object data = objectCache.get(id);
 
-            return (T) data;
+            return objectCache.get(id);
         }
 
         @Override
-        public<T, ID> boolean contains(Class<T> tClass, ID id) {
+        public boolean contains(Class<?> tClass, Object id) {
             Map<Object, Object> objectCache = cache.get(tClass);
 
             return objectCache != null && objectCache.containsKey(id);
         }
 
         @Override
-        public <T, ID> void invalidate(Class<T> tClass, ID id) {
+        public void invalidate(Class<?> tClass, Object id) {
             Map<Object, Object> objectCache = cache.get(tClass);
 
             if (objectCache == null) {
@@ -236,7 +251,7 @@ public class SessionImpl implements Session {
         }
 
         @Override
-        public<T> void invalidateAll(Class<T> tClass) {
+        public void invalidateAll(Class<?> tClass) {
             Map<Object, Object> objectCache = cache.get(tClass);
 
             if (objectCache == null) {
@@ -251,7 +266,7 @@ public class SessionImpl implements Session {
         }
 
         @Override
-        public <T> long size(Class<T> tClass) {
+        public long size(Class<?> tClass) {
             Map<Object, Object> objectCache = cache.get(tClass);
 
             if (objectCache == null) {

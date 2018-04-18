@@ -9,9 +9,12 @@ public class EntityAliasesImpl implements EntityAliases {
 
     private List<String> columnAliases;
 
-    public EntityAliasesImpl(String tableAlias, List<String> columnAliases) {
+    private String keyAlias;
+
+    public EntityAliasesImpl(String tableAlias, List<String> columnAliases, String keyAlias) {
         this.tableAlias = tableAlias;
         this.columnAliases = columnAliases;
+        this.keyAlias = keyAlias;
     }
 
     @Override
@@ -22,5 +25,10 @@ public class EntityAliasesImpl implements EntityAliases {
     @Override
     public List<String> getColumnAliases() {
         return columnAliases;
+    }
+
+    @Override
+    public String getKeyAlias() {
+        return keyAlias;
     }
 }

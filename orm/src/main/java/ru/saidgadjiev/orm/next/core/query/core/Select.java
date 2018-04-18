@@ -1,28 +1,21 @@
 package ru.saidgadjiev.orm.next.core.query.core;
 
-import ru.saidgadjiev.orm.next.core.field.fieldtype.ForeignColumnType;
 import ru.saidgadjiev.orm.next.core.field.fieldtype.IDatabaseColumnType;
 import ru.saidgadjiev.orm.next.core.query.core.clause.GroupBy;
 import ru.saidgadjiev.orm.next.core.query.core.clause.Having;
 import ru.saidgadjiev.orm.next.core.query.core.clause.OrderBy;
 import ru.saidgadjiev.orm.next.core.query.core.clause.from.FromExpression;
-import ru.saidgadjiev.orm.next.core.query.core.clause.from.FromJoinedTables;
 import ru.saidgadjiev.orm.next.core.query.core.clause.from.FromTable;
 import ru.saidgadjiev.orm.next.core.query.core.clause.select.SelectAll;
-import ru.saidgadjiev.orm.next.core.query.core.clause.select.SelectColumnsList;
 import ru.saidgadjiev.orm.next.core.query.core.clause.select.SelectColumnsStrategy;
 import ru.saidgadjiev.orm.next.core.query.core.column_spec.ColumnSpec;
-import ru.saidgadjiev.orm.next.core.query.core.column_spec.DisplayedColumn;
-import ru.saidgadjiev.orm.next.core.query.core.column_spec.DisplayedColumnSpec;
 import ru.saidgadjiev.orm.next.core.query.core.common.TableRef;
 import ru.saidgadjiev.orm.next.core.query.core.condition.Equals;
 import ru.saidgadjiev.orm.next.core.query.core.condition.Expression;
-import ru.saidgadjiev.orm.next.core.query.core.join.JoinExpression;
-import ru.saidgadjiev.orm.next.core.query.core.join.LeftJoin;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryElement;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryVisitor;
+import ru.saidgadjiev.orm.next.core.stamentexecutor.alias.EntityAliases;
 import ru.saidgadjiev.orm.next.core.table.DatabaseEntityMetadata;
-import ru.saidgadjiev.orm.next.core.table.TableInfoManager;
 
 /**
  * Класс SELECT запроса
@@ -111,67 +104,12 @@ public class Select implements QueryElement {
         this.offset = offset;
     }
 
-    public static <ID> Select buildQueryById(DatabaseEntityMetadata<?> databaseEntityMetadata, ID id) {
-        Select selectQuery = new Select();
-
-        selectQuery.setSelectColumnsStrategy(selectColumnsStrategy(databaseEntityMetadata, new SelectColumnsList()));
-        selectQuery.setFrom(from(databaseEntityMetadata));
+    public void appendByIdClause(DatabaseEntityMetadata<?> entityMetadata, String tableAlias, Object id) {
         AndCondition andCondition = new AndCondition();
-        IDatabaseColumnType idField = databaseEntityMetadata.getPrimaryKey().get();
+        IDatabaseColumnType idField = entityMetadata.getPrimaryKey().get();
 
-        andCondition.add(new Equals(new ColumnSpec(idField.getColumnName()).alias(new Alias(databaseEntityMetadata.getTableName())), idField.getDataPersister().getLiteral(idField, id)));
-        selectQuery.getWhere().getConditions().add(andCondition);
-
-        return selectQuery;
-    }
-
-    private static FromExpression from(DatabaseEntityMetadata<?> databaseEntityMetadata) {
-        if (databaseEntityMetadata.toForeignFieldTypes().isEmpty()) {
-            return new FromTable(new TableRef(databaseEntityMetadata.getTableName()).alias(new Alias(databaseEntityMetadata.getTableName())));
-        }
-        FromJoinedTables fromJoinedTables = new FromJoinedTables(new TableRef(databaseEntityMetadata.getTableName()).alias(new Alias(databaseEntityMetadata.getTableName())));
-
-        appendJoinExpression(fromJoinedTables, databaseEntityMetadata);
-
-        return fromJoinedTables;
-    }
-
-    private static void appendJoinExpression(FromJoinedTables from, DatabaseEntityMetadata<?> databaseEntityMetadata) {
-        for (ForeignColumnType foreignColumnType : databaseEntityMetadata.toForeignFieldTypes()) {
-            appendJoinExpression(from, TableInfoManager.buildOrGet(foreignColumnType.getForeignFieldClass()));
-            Expression onExpression = new Expression();
-            AndCondition andCondition = new AndCondition();
-
-            andCondition.add(
-                    new Equals(
-                            new ColumnSpec(foreignColumnType.getColumnName()).alias(new Alias(databaseEntityMetadata.getTableName())),
-                            new ColumnSpec(foreignColumnType.getForeignPrimaryKey().getColumnName()).alias(new Alias(foreignColumnType.getForeignTableName()))
-                    )
-            );
-            onExpression.add(andCondition);
-
-            JoinExpression joinExpression = new LeftJoin(new TableRef(foreignColumnType.getForeignTableName()).alias(new Alias(foreignColumnType.getForeignTableName())), onExpression);
-
-            from.add(joinExpression);
-        }
-    }
-
-    private static SelectColumnsStrategy selectColumnsStrategy(DatabaseEntityMetadata<?> databaseEntityMetadata, SelectColumnsList selectColumnsList) {
-        for (IDatabaseColumnType IDatabaseColumnType : databaseEntityMetadata.getFieldTypes()) {
-            if (IDatabaseColumnType.isForeignCollectionFieldType()) {
-                continue;
-            }
-            ColumnSpec columnSpec = new ColumnSpec(IDatabaseColumnType.getColumnName()).alias(new Alias(databaseEntityMetadata.getTableName()));
-            DisplayedColumnSpec displayedColumnSpec = new DisplayedColumn(columnSpec);
-
-            displayedColumnSpec.setAlias(new Alias(databaseEntityMetadata.getTableName() + "_" + IDatabaseColumnType.getColumnName()));
-            selectColumnsList.addColumn(displayedColumnSpec);
-        }
-        for (ForeignColumnType foreignColumnType : databaseEntityMetadata.toForeignFieldTypes()) {
-            selectColumnsStrategy(TableInfoManager.buildOrGet(foreignColumnType.getForeignFieldClass()), selectColumnsList);
-        }
-
-        return selectColumnsList;
+        andCondition.add(new Equals(new ColumnSpec(idField.getColumnName()).alias(new Alias(tableAlias)), idField.getDataPersister().getLiteral(idField, id)));
+        where.getConditions().add(andCondition);
     }
 
     public static Select buildQueryForAll(String typeName) {

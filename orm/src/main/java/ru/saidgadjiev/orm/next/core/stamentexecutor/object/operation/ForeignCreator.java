@@ -12,10 +12,10 @@ import ru.saidgadjiev.orm.next.core.table.TableInfoManager;
  */
 public class ForeignCreator<O> implements IObjectOperation<Void, O> {
 
-    private ConnectionSource source;
+    private Session session;
 
-    public ForeignCreator(ConnectionSource source) {
-        this.source = source;
+    public ForeignCreator(Session session) {
+        this.session = session;
     }
 
     @Override
@@ -26,9 +26,7 @@ public class ForeignCreator<O> implements IObjectOperation<Void, O> {
             Object foreignObject = fieldType.access(object);
 
             if (foreignObject != null && fieldType.isForeignAutoCreate()) {
-                Session foreignDao = new SessionManagerImpl(source, null).getCurrentSession();
-
-                foreignDao.create(foreignObject);
+                session.create(foreignObject);
             }
         }
 

@@ -1,6 +1,7 @@
 package ru.saidgadjiev.orm.next.core.dao;
 
 import ru.saidgadjiev.orm.next.core.cache.ObjectCache;
+import ru.saidgadjiev.orm.next.core.dao.metamodel.MetaModel;
 import ru.saidgadjiev.orm.next.core.support.ConnectionSource;
 
 /**
@@ -15,4 +16,6 @@ public interface SessionManager {
     ConnectionSource getDataSource();
 
     Session getCurrentSession();
+
+    MetaModel getMetaModel();
 }

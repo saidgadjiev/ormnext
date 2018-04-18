@@ -67,8 +67,14 @@ public class ForeignColumnType implements IDatabaseColumnType {
     }
 
     @Override
-    public void assign(Object object, Object value) throws IllegalAccessException, InvocationTargetException {
-        fieldAccessor.assign(object, value);
+    public void assign(Object object, Object value) {
+        try {
+            fieldAccessor.assign(object, value);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
     }
 
     public void setField(Field field) {

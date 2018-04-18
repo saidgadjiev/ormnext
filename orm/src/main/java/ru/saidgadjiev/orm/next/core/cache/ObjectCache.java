@@ -2,21 +2,21 @@ package ru.saidgadjiev.orm.next.core.cache;
 
 public interface ObjectCache {
 
-    <T> void registerClass(Class<T> tClass);
+    void registerClass(Class<?> tClass);
 
-    <T, ID> void put(Class<T> tClass, ID id, T data);
+    void put(Class<?> tClass, Object id, Object data);
 
-    <T, ID> T get(Class<T> tClass, ID id);
+    Object get(Class<?> tClass, Object id);
 
-    <T, ID> boolean contains(Class<T> tClass, ID id);
+    boolean contains(Class<?> tClass, Object id);
 
-    <T, ID> void invalidate(Class<T> tClass, ID id);
+    void invalidate(Class<?> tClass, Object id);
 
-    <T> void invalidateAll(Class<T> tClass);
+    void invalidateAll(Class<?> tClass);
 
     void invalidateAll();
 
-    <T> long size(Class<T> tClass);
+    long size(Class<?> tClass);
 
     long sizeAll();
 }

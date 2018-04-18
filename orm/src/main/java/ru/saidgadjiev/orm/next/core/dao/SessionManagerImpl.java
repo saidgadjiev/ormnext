@@ -23,27 +23,25 @@ public class SessionManagerImpl implements SessionManager {
 
     private MetaModel metaModel;
 
-    public SessionManagerImpl(ConnectionSource dataSource, MetaModel metaModel) {
+    SessionManagerImpl(ConnectionSource dataSource, Collection<Class<?>> entityClasses) {
         this.dataSource = dataSource;
-        this.metaModel = metaModel;
+        this.metaModel = new MetaModel(this);
+        this.metaModel.initialize(entityClasses);
     }
 
     @Override
     public void caching(boolean flag, Class<?>... classes) {
-        Optional<ObjectCache> objectCache = cacheContext.getObjectCache();
+        ObjectCache objectCache = cacheContext.getObjectCache();
 
-        objectCache.ifPresent(objectCache1 -> {
-            for (Class<?> clazz : classes) {
-                cacheContext.caching(clazz, flag);
-                objectCache1.registerClass(clazz);
-            }
-        });
-
+        for (Class<?> clazz : classes) {
+            cacheContext.caching(clazz, flag);
+            objectCache.registerClass(clazz);
+        }
     }
 
     @Override
     public void setObjectCache(ObjectCache objectCache, Class<?>... classes) {
-        cacheContext.getObjectCache().ifPresent(ObjectCache::invalidateAll);
+        cacheContext.getObjectCache().invalidateAll();
         if (objectCache != null) {
             cacheContext
                     .objectCache(objectCache);
@@ -63,9 +61,14 @@ public class SessionManagerImpl implements SessionManager {
     @Override
     public Session getCurrentSession() {
         if (session == null) {
-            session = new SessionImpl(dataSource, cacheContext);
+            session = new SessionImpl(this, cacheContext);
         }
 
         return session;
+    }
+
+    @Override
+    public MetaModel getMetaModel() {
+        return metaModel;
     }
 }
