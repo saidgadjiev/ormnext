@@ -1,6 +1,8 @@
 package ru.saidgadjiev.orm.next.core.test.model.hibernate;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity(name = "b")
 public class B {
@@ -17,6 +19,9 @@ public class B {
 
     @OneToOne(fetch = FetchType.EAGER)
     private A a;
+
+    @OneToMany(mappedBy = "b", fetch = FetchType.EAGER)
+    private Set<D> dSet = new HashSet<>();
 
     public int getId() {
         return id;
@@ -50,6 +55,14 @@ public class B {
         this.a = a;
     }
 
+    public Set<D> getdSet() {
+        return dSet;
+    }
+
+    public void setdSet(Set<D> dSet) {
+        this.dSet = dSet;
+    }
+
     @Override
     public String toString() {
         return "B{" +
@@ -57,6 +70,7 @@ public class B {
                 ", name='" + name + '\'' +
                 ", c=" + c +
                 ", a=" + a +
+                ", dSet=" + dSet +
                 '}';
     }
 }

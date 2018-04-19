@@ -14,7 +14,6 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static ru.saidgadjiev.orm.next.core.utils.ReflectUtils.lookupDefaultConstructor;
@@ -28,7 +27,7 @@ public final class DatabaseEntityMetadata<T> implements EntityElement {
 
     private List<ForeignColumnType> foreignColumnypes;
 
-    private List<ForeignCollectionFieldType> foreignCollectionFieldTypes;
+    private List<ForeignCollectionColumnType> foreignCollectionColumnTypes;
 
     private List<UniqueFieldType> uniqueFieldTypes;
 
@@ -73,10 +72,10 @@ public final class DatabaseEntityMetadata<T> implements EntityElement {
                 .filter(IDatabaseColumnType::isForeignFieldType)
                 .map(idbFieldType -> (ForeignColumnType) idbFieldType)
                 .collect(Collectors.toList());
-        this.foreignCollectionFieldTypes = fieldTypes
+        this.foreignCollectionColumnTypes = fieldTypes
                 .stream()
                 .filter(IDatabaseColumnType::isForeignCollectionFieldType)
-                .map(idbFieldType -> (ForeignCollectionFieldType) idbFieldType)
+                .map(idbFieldType -> (ForeignCollectionColumnType) idbFieldType)
                 .collect(Collectors.toList());
         this.uniqueFieldTypes = uniqueFieldTypes;
         this.fieldTypes = fieldTypes;
@@ -90,8 +89,8 @@ public final class DatabaseEntityMetadata<T> implements EntityElement {
         return tableName;
     }
 
-    public Optional<IDatabaseColumnType> getPrimaryKey() {
-        return Optional.ofNullable(primaryKeyFieldType);
+    public IDatabaseColumnType getPrimaryKey() {
+        return primaryKeyFieldType;
     }
 
     public List<UniqueFieldType> getUniqueFieldTypes() {
@@ -110,8 +109,8 @@ public final class DatabaseEntityMetadata<T> implements EntityElement {
         return Collections.unmodifiableList(foreignColumnypes);
     }
 
-    public List<ForeignCollectionFieldType> toForeignCollectionFieldTypes() {
-        return Collections.unmodifiableList(foreignCollectionFieldTypes);
+    public List<ForeignCollectionColumnType> toForeignCollectionFieldTypes() {
+        return Collections.unmodifiableList(foreignCollectionColumnTypes);
     }
 
     public List<IDatabaseColumnType> getFieldTypes() {

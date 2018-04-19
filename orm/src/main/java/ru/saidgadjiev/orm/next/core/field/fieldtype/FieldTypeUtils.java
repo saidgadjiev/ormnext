@@ -48,7 +48,7 @@ public class FieldTypeUtils {
 
     public static Optional<Field> findFieldByType(Class<?> type, Class<?> clazz) {
         return Arrays.stream(clazz.getDeclaredFields())
-                .filter(field -> field.isAnnotationPresent(DatabaseColumn.class) && field.getType() == type)
+                .filter(field -> field.isAnnotationPresent(ForeignColumn.class) && field.getType() == type)
                 .findFirst();
     }
 }

@@ -71,4 +71,10 @@ public interface IDatabaseColumnType extends EntityElement {
     default boolean isForeignCollectionFieldType() {
         return false;
     }
+
+    default Class<?> getOwnerClass() {
+        return getField().getDeclaringClass();
+    }
+
+    String getTableName();
 }

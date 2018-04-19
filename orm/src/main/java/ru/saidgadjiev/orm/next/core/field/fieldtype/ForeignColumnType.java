@@ -3,6 +3,7 @@ package ru.saidgadjiev.orm.next.core.field.fieldtype;
 import ru.saidgadjiev.orm.next.core.dao.visitor.EntityMetadataVisitor;
 import ru.saidgadjiev.orm.next.core.field.FieldAccessor;
 import ru.saidgadjiev.orm.next.core.field.persister.DataPersister;
+import ru.saidgadjiev.orm.next.core.utils.TableInfoUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -10,7 +11,7 @@ import java.lang.reflect.InvocationTargetException;
 /**
  * Created by said on 30.10.17.
  */
-public class ForeignColumnType implements IDatabaseColumnType {
+public class ForeignColumnType implements IForeignDatabaseColumnType {
 
     private static final String ID_SUFFIX = "_id";
 
@@ -45,6 +46,16 @@ public class ForeignColumnType implements IDatabaseColumnType {
 
     public Class<?> getForeignFieldClass() {
         return foreignFieldClass;
+    }
+
+    @Override
+    public ForeignColumnType getForeignColumnType() {
+        return this;
+    }
+
+    @Override
+    public ForeignColumnKey getForeignColumnKey() {
+        return new ForeignColumnKey(getTableName(), getColumnName());
     }
 
     @Override
@@ -142,6 +153,11 @@ public class ForeignColumnType implements IDatabaseColumnType {
 
     public Class<?> getOwnerClass() {
         return ownerClass;
+    }
+
+    @Override
+    public String getTableName() {
+        return TableInfoUtils.resolveTableName(ownerClass);
     }
 
     public void setOwnerClass(Class<?> ownerClass) {

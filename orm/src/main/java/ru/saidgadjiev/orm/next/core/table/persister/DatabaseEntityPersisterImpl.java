@@ -5,11 +5,8 @@ import ru.saidgadjiev.orm.next.core.dao.Session;
 import ru.saidgadjiev.orm.next.core.dao.SessionManagerImpl;
 import ru.saidgadjiev.orm.next.core.dao.metamodel.MetaModel;
 import ru.saidgadjiev.orm.next.core.dao.visitor.DefaultEntityMetadataVisitor;
-import ru.saidgadjiev.orm.next.core.query.core.Alias;
 import ru.saidgadjiev.orm.next.core.query.core.clause.from.FromExpression;
-import ru.saidgadjiev.orm.next.core.query.core.clause.from.FromJoinedTables;
 import ru.saidgadjiev.orm.next.core.query.core.clause.select.SelectColumnsList;
-import ru.saidgadjiev.orm.next.core.query.core.common.TableRef;
 import ru.saidgadjiev.orm.next.core.stamentexecutor.DatabaseResults;
 import ru.saidgadjiev.orm.next.core.stamentexecutor.ResultSetContext;
 import ru.saidgadjiev.orm.next.core.stamentexecutor.alias.EntityAliasResolverContext;
@@ -23,7 +20,6 @@ import ru.saidgadjiev.orm.next.core.table.persister.instatiator.Instantiator;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 public class DatabaseEntityPersisterImpl implements DatabaseEntityPersister {
@@ -86,7 +82,7 @@ public class DatabaseEntityPersisterImpl implements DatabaseEntityPersister {
 
         databaseEntityMetadata.accept(visitor);
         aliasResolverContext = visitor.getEntityAliasResolverContext();
-        rowReader = new RowReaderImpl(visitor.getEntityInitializers(), rootEntityInitializer);
+        rowReader = new RowReaderImpl(visitor.getEntityInitializers(), collectionInitializers, rootEntityInitializer);
         fromExpression = visitor.getFromJoinedTables();
         selectColumnsList = visitor.getSelectColumnsList();
     }

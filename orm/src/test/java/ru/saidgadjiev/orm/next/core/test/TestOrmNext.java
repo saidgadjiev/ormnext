@@ -14,6 +14,7 @@ import ru.saidgadjiev.orm.next.core.support.PolledConnectionSource;
 import ru.saidgadjiev.orm.next.core.test.model.ormnext.A;
 import ru.saidgadjiev.orm.next.core.test.model.ormnext.B;
 import ru.saidgadjiev.orm.next.core.test.model.ormnext.C;
+import ru.saidgadjiev.orm.next.core.test.model.ormnext.D;
 import ru.saidgadjiev.orm.next.core.utils.TableUtils;
 
 import java.sql.SQLException;
@@ -23,18 +24,20 @@ public class TestOrmNext {
     public static void main(String[] args) throws SQLException {
         System.setProperty(LoggerFactory.LOG_ENABLED_PROPERTY, "true");
         SessionManager sessionManager = new SessionMangerBuilder()
-                .addEntityClasses(B.class, A.class, C.class)
+                .addEntityClasses(B.class, A.class, C.class, D.class)
                 .connectionSource(postgreConnectionSource())
                 .build();
 
         TableUtils.createTable(sessionManager.getDataSource(), C.class, true);
         TableUtils.createTable(sessionManager.getDataSource(), A.class, true);
         TableUtils.createTable(sessionManager.getDataSource(), B.class, true);
+        TableUtils.createTable(sessionManager.getDataSource(), D.class, true);
         Session session = sessionManager.getCurrentSession();
 
-        C b = session.queryForId(C.class, 0);
+        B b = session.queryForId(B.class, 0);
 
         System.out.println(b);
+        session.close();
     }
 
     private static ConnectionSource postgreConnectionSource() {

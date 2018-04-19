@@ -33,7 +33,7 @@ public class EntityInitializer {
 
         processingState.setEntityInstance(entityInstance);
         DatabaseEntityMetadata<?> entityMetadata = persister.getMetadata();
-        IDatabaseColumnType primaryKey = entityMetadata.getPrimaryKey().get();
+        IDatabaseColumnType primaryKey = entityMetadata.getPrimaryKey();
         Object id = context.getDatabaseResults().getObject(entityAliases.getKeyAlias());
 
         primaryKey.assign(entityInstance, id);

@@ -12,7 +12,6 @@ import ru.saidgadjiev.orm.next.core.query.core.*;
 import ru.saidgadjiev.orm.next.core.query.core.clause.select.SelectColumnsList;
 import ru.saidgadjiev.orm.next.core.query.core.column_spec.DisplayedOperand;
 import ru.saidgadjiev.orm.next.core.query.core.common.UpdateValue;
-import ru.saidgadjiev.orm.next.core.query.core.condition.Expression;
 import ru.saidgadjiev.orm.next.core.query.core.function.CountAll;
 import ru.saidgadjiev.orm.next.core.query.core.literals.Param;
 import ru.saidgadjiev.orm.next.core.query.visitor.DefaultVisitor;
@@ -141,22 +140,20 @@ public class StatementExecutorImpl implements IStatementExecutor {
             String query = getQuery(createQuery);
 
             try (IPreparedStatement statement = new PreparedQueryImpl(connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS), query)) {
-                for (Map.Entry<Integer, Object> entry : ArgumentUtils.eject(object, (DatabaseEntityMetadata<T>) databaseEntityMetadata).entrySet()) {
+                for (Map.Entry<Integer, Object> entry : ArgumentUtils.eject(object, databaseEntityMetadata).entrySet()) {
                     statement.setObject(entry.getKey(), entry.getValue());
                 }
                 Integer result = statement.executeUpdate();
 
-                if (databaseEntityMetadata.getPrimaryKey().isPresent()) {
-                    IDatabaseColumnType idField = databaseEntityMetadata.getPrimaryKey().get();
+                IDatabaseColumnType idField = databaseEntityMetadata.getPrimaryKey();
 
-                    ResultSet resultSet = statement.getGeneratedKeys();
-                    try (GeneratedKeys generatedKeys = new GeneratedKeys(resultSet, resultSet.getMetaData())) {
-                        if (generatedKeys.next()) {
-                            try {
-                                idField.assignId(object, generatedKeys.getGeneratedKey());
-                            } catch (IllegalAccessException ex) {
-                                throw new SQLException(ex);
-                            }
+                ResultSet resultSet = statement.getGeneratedKeys();
+                try (GeneratedKeys generatedKeys = new GeneratedKeys(resultSet, resultSet.getMetaData())) {
+                    if (generatedKeys.next()) {
+                        try {
+                            idField.assignId(object, generatedKeys.getGeneratedKey());
+                        } catch (IllegalAccessException ex) {
+                            throw new SQLException(ex);
                         }
                     }
                 }
@@ -206,7 +203,7 @@ public class StatementExecutorImpl implements IStatementExecutor {
     @Override
     public <T> int update(Connection connection, T object) throws SQLException {
         DatabaseEntityMetadata<T> databaseEntityMetadata = TableInfoManager.buildOrGet((Class<T>) object.getClass());
-        IDatabaseColumnType idFieldType = databaseEntityMetadata.getPrimaryKey().get();
+        IDatabaseColumnType idFieldType = databaseEntityMetadata.getPrimaryKey();
         UpdateQuery updateQuery = UpdateQuery.buildQuery(
                 databaseEntityMetadata.getTableName(),
                 databaseEntityMetadata.toDBFieldTypes(),
@@ -238,7 +235,7 @@ public class StatementExecutorImpl implements IStatementExecutor {
     public <T> int delete(Connection connection, T object) throws SQLException {
         try {
             DatabaseEntityMetadata<T> databaseEntityMetadata = TableInfoManager.buildOrGet((Class<T>) object.getClass());
-            IDatabaseColumnType dbFieldType = databaseEntityMetadata.getPrimaryKey().get();
+            IDatabaseColumnType dbFieldType = databaseEntityMetadata.getPrimaryKey();
             Object id = dbFieldType.access(object);
             DeleteQuery deleteQuery = DeleteQuery.buildQuery(databaseEntityMetadata.getTableName(), dbFieldType.getColumnName());
             String query = getQuery(deleteQuery);
@@ -260,7 +257,7 @@ public class StatementExecutorImpl implements IStatementExecutor {
     @Override
     public <T, ID> int deleteById(Connection connection, Class<T> tClass, ID id) throws SQLException {
         DatabaseEntityMetadata<T> databaseEntityMetadata = TableInfoManager.buildOrGet(tClass);
-        IDatabaseColumnType dbFieldType = databaseEntityMetadata.getPrimaryKey().get();
+        IDatabaseColumnType dbFieldType = databaseEntityMetadata.getPrimaryKey();
         DeleteQuery deleteQuery = DeleteQuery.buildQuery(databaseEntityMetadata.getTableName(), dbFieldType.getColumnName());
         String query = getQuery(deleteQuery);
 

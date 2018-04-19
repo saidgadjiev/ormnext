@@ -14,7 +14,6 @@ import ru.saidgadjiev.orm.next.core.query.core.condition.Equals;
 import ru.saidgadjiev.orm.next.core.query.core.condition.Expression;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryElement;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryVisitor;
-import ru.saidgadjiev.orm.next.core.stamentexecutor.alias.EntityAliases;
 import ru.saidgadjiev.orm.next.core.table.DatabaseEntityMetadata;
 
 /**
@@ -106,7 +105,7 @@ public class Select implements QueryElement {
 
     public void appendByIdClause(DatabaseEntityMetadata<?> entityMetadata, String tableAlias, Object id) {
         AndCondition andCondition = new AndCondition();
-        IDatabaseColumnType idField = entityMetadata.getPrimaryKey().get();
+        IDatabaseColumnType idField = entityMetadata.getPrimaryKey();
 
         andCondition.add(new Equals(new ColumnSpec(idField.getColumnName()).alias(new Alias(tableAlias)), idField.getDataPersister().getLiteral(idField, id)));
         where.getConditions().add(andCondition);

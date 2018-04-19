@@ -30,8 +30,8 @@ public class EntityAliasResolverContext {
             }
             columnAliases.add(aliasResolver.createAlias(columnType.getColumnName()));
         }
-        IDatabaseColumnType primaryKey = entityMetadata.getPrimaryKey().get();
-        EntityAliases entityAliases = new EntityAliasesImpl(tableAlias, columnAliases, aliasResolver.createAlias(primaryKey.getColumnName()));
+        IDatabaseColumnType primaryKey = entityMetadata.getPrimaryKey();
+        EntityAliases entityAliases = new EntityAliases(tableAlias, columnAliases, aliasResolver.createAlias(primaryKey.getColumnName()));
 
         resolvedAliases.putIfAbsent(uid, entityAliases);
 

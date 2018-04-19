@@ -3,6 +3,7 @@ package ru.saidgadjiev.orm.next.core.field.fieldtype;
 import ru.saidgadjiev.orm.next.core.dao.visitor.EntityMetadataVisitor;
 import ru.saidgadjiev.orm.next.core.field.FieldAccessor;
 import ru.saidgadjiev.orm.next.core.field.persister.DataPersister;
+import ru.saidgadjiev.orm.next.core.utils.TableInfoUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -30,7 +31,6 @@ public class DatabaseColumnType implements IDatabaseColumnType {
     private Object defaultValue;
 
     private String format;
-
 
     @Override
     public Object getDefaultValue() {
@@ -150,6 +150,11 @@ public class DatabaseColumnType implements IDatabaseColumnType {
     @Override
     public boolean isDbFieldType() {
         return true;
+    }
+
+    @Override
+    public String getTableName() {
+        return TableInfoUtils.resolveTableName(getOwnerClass());
     }
 
     @Override

@@ -1,15 +1,9 @@
 package ru.saidgadjiev.orm.next.core.test.model.ormnext;
 
 import ru.saidgadjiev.orm.next.core.field.DatabaseColumn;
-import ru.saidgadjiev.orm.next.core.field.ForeignCollectionField;
 import ru.saidgadjiev.orm.next.core.field.ForeignColumn;
 
-import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
-
-@Entity(name = "b")
-public class B {
+public class D {
 
     @DatabaseColumn(id = true, generated = true, dataType = 8)
     private int id;
@@ -18,13 +12,7 @@ public class B {
     private String name;
 
     @ForeignColumn
-    private C c;
-
-    @ForeignColumn
-    private A a;
-
-    @ForeignCollectionField
-    private Set<D> dSet = new HashSet<>();
+    private B b;
 
     public int getId() {
         return id;
@@ -42,38 +30,20 @@ public class B {
         this.name = name;
     }
 
-    public Set<D> getdSet() {
-        return dSet;
+    public B getB() {
+        return b;
     }
 
-    public void setdSet(Set<D> dSet) {
-        this.dSet = dSet;
-    }
-
-    public C getC() {
-        return c;
-    }
-
-    public void setC(C c) {
-        this.c = c;
-    }
-
-    public A getA() {
-        return a;
-    }
-
-    public void setA(A a) {
-        this.a = a;
+    public void setB(B b) {
+        this.b = b;
     }
 
     @Override
     public String toString() {
-        return "B{" +
+        return "D{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", c=" + c +
-                ", a=" + a +
-                ", dSet=" + dSet +
+                ", b=" + b +
                 '}';
     }
 }

@@ -13,6 +13,7 @@ import org.hibernate.service.ServiceRegistry;
 import ru.saidgadjiev.orm.next.core.test.model.hibernate.A;
 import ru.saidgadjiev.orm.next.core.test.model.hibernate.B;
 import ru.saidgadjiev.orm.next.core.test.model.hibernate.C;
+import ru.saidgadjiev.orm.next.core.test.model.hibernate.D;
 
 public class TestHibernate {
 
@@ -22,6 +23,7 @@ public class TestHibernate {
         configuration.addAnnotatedClass(A.class);
         configuration.addAnnotatedClass(B.class);
         configuration.addAnnotatedClass(C.class);
+        configuration.addAnnotatedClass(D.class);
         configuration.setProperty("hibernate.dialect", "org.hibernate.dialect.PostgreSQL94Dialect");
         configuration.setProperty("hibernate.connection.driver_class", "org.postgresql.Driver");
         configuration.setProperty("hibernate.connection.url", "jdbc:postgresql://127.0.0.1:5432/ormtest");
@@ -33,7 +35,7 @@ public class TestHibernate {
         SessionFactory sessionFactory = createSessionFactory(configuration);
         Session session = sessionFactory.openSession();
         B b = session.get(B.class, 0);
-
+        session.save()
         System.out.println(b);
         session.close();
         sessionFactory.close();

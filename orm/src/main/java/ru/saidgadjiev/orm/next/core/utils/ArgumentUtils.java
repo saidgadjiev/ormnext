@@ -18,7 +18,7 @@ public class ArgumentUtils {
         Map<Integer, Object> args = new HashMap<>();
 
         for (IDatabaseColumnType fieldType : databaseEntityMetadata.getFieldTypes()) {
-            if (!fieldType.isForeignCollectionFieldType() && !fieldType.isGenerated()) {
+            if (!fieldType.isForeignCollectionFieldType() && !fieldType.isGenerated() && !fieldType.isForeignFieldType()) {
                 Object value = fieldType.access(object);
 
                 if (value != null) {

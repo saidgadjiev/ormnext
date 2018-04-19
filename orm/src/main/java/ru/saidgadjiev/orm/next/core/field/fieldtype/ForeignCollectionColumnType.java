@@ -5,24 +5,27 @@ import ru.saidgadjiev.orm.next.core.field.CollectionType;
 import ru.saidgadjiev.orm.next.core.field.FetchType;
 import ru.saidgadjiev.orm.next.core.field.FieldAccessor;
 import ru.saidgadjiev.orm.next.core.field.persister.DataPersister;
+import ru.saidgadjiev.orm.next.core.utils.TableInfoUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 
-public class ForeignCollectionFieldType implements IDatabaseColumnType {
+public class ForeignCollectionColumnType implements IForeignDatabaseColumnType {
 
     private Field field;
 
     private Class<?> foreignFieldClass;
-
-    private Field foreignField;
 
     private FetchType fetchType;
 
     private CollectionType collectionType;
 
     private FieldAccessor fieldAccessor;
+
+    private ForeignColumnType foreignColumnType;
+
+    private String foreignTableName;
 
     @Override
     public Object access(Object object) throws InvocationTargetException, IllegalAccessException {
@@ -45,6 +48,7 @@ public class ForeignCollectionFieldType implements IDatabaseColumnType {
         }
     }
 
+    @Override
     public Field getField() {
         return field;
     }
@@ -52,6 +56,11 @@ public class ForeignCollectionFieldType implements IDatabaseColumnType {
     @Override
     public boolean isForeignCollectionFieldType() {
         return true;
+    }
+
+    @Override
+    public String getTableName() {
+        return TableInfoUtils.resolveTableName(getOwnerClass());
     }
 
     public void add(Object object, Object value) throws IllegalAccessException {
@@ -82,14 +91,7 @@ public class ForeignCollectionFieldType implements IDatabaseColumnType {
         this.foreignFieldClass = foreignFieldClass;
     }
 
-    public void setForeignField(Field foreignField) {
-        this.foreignField = foreignField;
-    }
-
-    public Field getForeignField() {
-        return foreignField;
-    }
-
+    @Override
     public Class<?> getForeignFieldClass() {
         return foreignFieldClass;
     }
@@ -115,7 +117,27 @@ public class ForeignCollectionFieldType implements IDatabaseColumnType {
     }
 
     @Override
-    public void accept(EntityMetadataVisitor visitor) {
-
+    public ForeignColumnType getForeignColumnType() {
+        return foreignColumnType;
     }
+
+    @Override
+    public ForeignColumnKey getForeignColumnKey() {
+        return new ForeignColumnKey(foreignColumnType.getTableName(), foreignColumnType.getColumnName());
+    }
+
+    public void setForeignColumnType(ForeignColumnType foreignColumnType) {
+        this.foreignColumnType = foreignColumnType;
+    }
+
+    @Override
+    public String getForeignTableName() {
+        return foreignColumnType.getTableName();
+    }
+
+    @Override
+    public void accept(EntityMetadataVisitor visitor) {
+        visitor.visit(this);
+    }
+
 }

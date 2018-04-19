@@ -2,6 +2,7 @@ package ru.saidgadjiev.orm.next.core.stamentexecutor;
 
 import ru.saidgadjiev.orm.next.core.dao.Session;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,8 @@ public class ResultSetContext {
     private DatabaseResults databaseResults;
 
     private Map<String, EntityProcessingState> processingStateMap = new HashMap<>();
+
+    private Map<Object, Collection<?>> registeredCollectionsMap = new HashMap<>();
 
     public ResultSetContext(Session session, DatabaseResults databaseResults) {
         this.session = session;
@@ -39,6 +42,7 @@ public class ResultSetContext {
 
         private List<Object> values;
 
+
         public void setEntityInstance(Object instance) {
             this.entityInstance = instance;
         }
@@ -54,5 +58,6 @@ public class ResultSetContext {
         public List<Object> getValues() {
             return values;
         }
+
     }
 }

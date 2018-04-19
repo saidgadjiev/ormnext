@@ -21,7 +21,7 @@ public class ForeignCollectionColumnTypeFactory implements ColumnTypeFactory {
             return null;
         }
         ForeignCollectionField foreignCollectionField = field.getAnnotation(ForeignCollectionField.class);
-        ForeignCollectionFieldType fieldType = new ForeignCollectionFieldType();
+        ForeignCollectionColumnType fieldType = new ForeignCollectionColumnType();
         String foreignFieldName = foreignCollectionField.foreignFieldName();
         Class<?> foreignFieldClazz = getCollectionGenericClass(field);
 
@@ -36,14 +36,14 @@ public class ForeignCollectionColumnTypeFactory implements ColumnTypeFactory {
         }
 
         if (foreignFieldName.isEmpty()) {
-            fieldType.setForeignField(
-                    findFieldByType(
+            fieldType.setForeignColumnType(
+                    (ForeignColumnType) new ForeignColumnTypeFactory().createFieldType(findFieldByType(
                             field.getDeclaringClass(),
                             fieldType.getForeignFieldClass()
-                    ).orElseThrow(() -> new IllegalArgumentException(new NoSuchFieldException("Foreign field is not defined")))
+                    ).orElse(null))
             );
         } else {
-            fieldType.setForeignField(findFieldByName(foreignFieldName, foreignFieldClazz));
+            fieldType.setForeignColumnType((ForeignColumnType) new ForeignColumnTypeFactory().createFieldType(findFieldByName(foreignFieldName, foreignFieldClazz)));
         }
 
         return fieldType;

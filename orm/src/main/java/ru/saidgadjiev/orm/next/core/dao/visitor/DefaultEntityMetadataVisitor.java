@@ -1,7 +1,10 @@
 package ru.saidgadjiev.orm.next.core.dao.visitor;
 
+import org.apache.log4j.Logger;
 import ru.saidgadjiev.orm.next.core.common.UIDGenerator;
 import ru.saidgadjiev.orm.next.core.dao.metamodel.MetaModel;
+import ru.saidgadjiev.orm.next.core.field.fieldtype.ForeignCollectionColumnType;
+import ru.saidgadjiev.orm.next.core.field.fieldtype.ForeignColumnKey;
 import ru.saidgadjiev.orm.next.core.field.fieldtype.ForeignColumnType;
 import ru.saidgadjiev.orm.next.core.field.fieldtype.IDatabaseColumnType;
 import ru.saidgadjiev.orm.next.core.query.core.Alias;
@@ -24,6 +27,8 @@ import java.util.*;
 
 public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
 
+    private final static Logger LOGGER = Logger.getLogger(DefaultEntityMetadataVisitor.class);
+
     private FromJoinedTables fromJoinedTables;
 
     private MetaModel metaModel;
@@ -36,26 +41,30 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
 
     private Map<Class<?>, String> metaDataUidMap = new LinkedHashMap<>();
 
-    private List<EntityInitializer> entityInitializers = new ArrayList<>();
+    private Map<String, EntityInitializer> entityInitializerMap = new LinkedHashMap<>();
 
+    private Set<ForeignColumnKey> visitedForeignColumnKey = new HashSet<>();
 
     public DefaultEntityMetadataVisitor(DatabaseEntityMetadata mainEntityMetadata,
                                         MetaModel metaModel,
                                         EntityAliasResolverContext entityAliasResolverContext,
                                         UIDGenerator uidGenerator,
-                                        EntityInitializer rootEntityInitializer) {
+                                        EntityInitializer rootInitializer) {
         this.entityAliasResolverContext = entityAliasResolverContext;
         this.uidGenerator = uidGenerator;
 
-        metaDataUidMap.put(mainEntityMetadata.getTableClass(), rootEntityInitializer.getUid());
-        this.fromJoinedTables = new FromJoinedTables(new TableRef(mainEntityMetadata.getTableName()).alias(new Alias(rootEntityInitializer.getEntityAliases().getTableAlias())));
+        metaDataUidMap.put(mainEntityMetadata.getTableClass(), rootInitializer.getUid());
+        this.fromJoinedTables = new FromJoinedTables(new TableRef(mainEntityMetadata.getTableName()).alias(new Alias(rootInitializer.getEntityAliases().getTableAlias())));
         this.metaModel = metaModel;
 
-        entityInitializers.add(rootEntityInitializer);
-        appendSelectColumns(rootEntityInitializer.getEntityAliases(), mainEntityMetadata);
+        appendSelectColumns(rootInitializer.getEntityAliases(), mainEntityMetadata);
     }
 
     public void visit(ForeignColumnType foreignColumnType) {
+        if (visitedForeignColumnKey.contains(foreignColumnType.getForeignColumnKey())) {
+            LOGGER.debug("Detected circular references!");
+            return;
+        }
         DatabaseEntityMetadata<?> ownerMetadata = metaModel.getPersister(foreignColumnType.getOwnerClass()).getMetadata();
         EntityAliases ownerAliases = entityAliasResolverContext.getAliases(metaDataUidMap.get(ownerMetadata.getTableClass()));
 
@@ -68,7 +77,41 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
         appendJoin(foreignColumnType, ownerAliases, foreignEntityAliases);
         appendSelectColumns(foreignEntityAliases, foreignMetaData);
 
-        entityInitializers.add(new EntityInitializer(nextUID, foreignEntityAliases, metaModel.getPersister(foreignMetaData.getTableClass())));
+        entityInitializerMap.put(nextUID, new EntityInitializer(nextUID, foreignEntityAliases, metaModel.getPersister(foreignMetaData.getTableClass())));
+        visitedForeignColumnKey.add(foreignColumnType.getForeignColumnKey());
+        foreignMetaData.accept(this);
+    }
+
+    @Override
+    public void visit(ForeignCollectionColumnType foreignCollectionColumnType) {
+        if (metaDataUidMap.containsKey(foreignCollectionColumnType.getForeignFieldClass())) {
+            return;
+        }
+        DatabaseEntityMetadata<?> ownerMetaData = metaModel.getPersister(foreignCollectionColumnType.getOwnerClass()).getMetadata();
+        EntityAliases ownerAliases = entityAliasResolverContext.getAliases(metaDataUidMap.get(ownerMetaData.getTableClass()));
+
+        DatabaseEntityMetadata<?> foreignMetaData = metaModel.getPersister(foreignCollectionColumnType.getForeignFieldClass()).getMetadata();
+        String nextUID = uidGenerator.nextUID();
+
+        metaDataUidMap.put(foreignMetaData.getTableClass(), nextUID);
+        EntityAliases foreignEntityAliases = entityAliasResolverContext.resolveAliases(nextUID, foreignMetaData);
+
+        Expression onExpression = new Expression();
+        AndCondition andCondition = new AndCondition();
+
+        andCondition.add(
+                new Equals(
+                        new ColumnSpec(ownerMetaData.getPrimaryKey().getColumnName()).alias(new Alias(ownerAliases.getTableAlias())),
+                        new ColumnSpec(foreignCollectionColumnType.getForeignColumnType().getColumnName()).alias(new Alias(foreignEntityAliases.getTableAlias()))
+                )
+        );
+        onExpression.add(andCondition);
+
+        fromJoinedTables.add(new LeftJoin(new TableRef(foreignCollectionColumnType.getForeignTableName()).alias(new Alias(foreignEntityAliases.getTableAlias())), onExpression));
+        appendSelectColumns(foreignEntityAliases, foreignMetaData);
+
+        entityInitializerMap.put(nextUID, new EntityInitializer(nextUID, foreignEntityAliases, metaModel.getPersister(foreignMetaData.getTableClass())));
+        visitedForeignColumnKey.add(foreignCollectionColumnType.getForeignColumnKey());
         foreignMetaData.accept(this);
     }
 
@@ -111,6 +154,8 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
         selectColumnsList.addColumn(displayedColumnSpec);
     }
 
+
+
     public FromJoinedTables getFromJoinedTables() {
         return fromJoinedTables;
     }
@@ -129,6 +174,6 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
     }
 
     public List<EntityInitializer> getEntityInitializers() {
-        return entityInitializers;
+        return new ArrayList<>(entityInitializerMap.values());
     }
 }
