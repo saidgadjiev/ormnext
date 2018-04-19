@@ -29,10 +29,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -276,6 +273,12 @@ public class StatementExecutorImpl implements IStatementExecutor {
      */
     @Override
     public <T, ID> T queryForId(Connection connection, Class<T> tClass, ID id) throws SQLException {
+        Optional<Object> instance = session.cacheHelper().get(tClass, id);
+
+        if (instance.isPresent()) {
+            return (T) instance.get();
+        }
+
         DatabaseEntityPersister entityPersister = metaModel.getPersister(tClass);
         Select selectQuery = new Select();
 

@@ -37,7 +37,7 @@ public class EntityInitializer {
         Object id = context.getDatabaseResults().getObject(entityAliases.getKeyAlias());
 
         primaryKey.assign(entityInstance, id);
-        context.getSession().addEntityToCache(entityMetadata.getTableClass(), id, entityInstance);
+        context.getSession().cacheHelper().saveToCache(entityInstance, id);
         List<Object> values = new ArrayList<>();
 
         List<String> columnAliases = entityAliases.getColumnAliases();

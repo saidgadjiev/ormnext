@@ -82,7 +82,7 @@ public class DatabaseEntityPersisterImpl implements DatabaseEntityPersister {
 
         databaseEntityMetadata.accept(visitor);
         aliasResolverContext = visitor.getEntityAliasResolverContext();
-        rowReader = new RowReaderImpl(visitor.getEntityInitializers(), collectionInitializers, rootEntityInitializer);
+        rowReader = new RowReaderImpl(visitor.getEntityInitializers(), null, rootEntityInitializer);
         fromExpression = visitor.getFromJoinedTables();
         selectColumnsList = visitor.getSelectColumnsList();
     }

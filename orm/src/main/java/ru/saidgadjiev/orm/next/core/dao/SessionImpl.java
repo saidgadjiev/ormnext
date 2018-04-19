@@ -3,6 +3,7 @@ package ru.saidgadjiev.orm.next.core.dao;
 import ru.saidgadjiev.orm.next.core.cache.CacheContext;
 import ru.saidgadjiev.orm.next.core.cache.ObjectCache;
 import ru.saidgadjiev.orm.next.core.criteria.impl.SelectStatement;
+import ru.saidgadjiev.orm.next.core.stamentexecutor.CacheHelper;
 import ru.saidgadjiev.orm.next.core.stamentexecutor.GenericResults;
 import ru.saidgadjiev.orm.next.core.stamentexecutor.IStatementExecutor;
 import ru.saidgadjiev.orm.next.core.stamentexecutor.StatementExecutorImpl;
@@ -27,10 +28,14 @@ public class SessionImpl implements Session {
 
     private ObjectCache sessionCache;
 
+    private CacheHelper cacheHelper;
+
     SessionImpl(SessionManager sessionManager, CacheContext cacheContext) {
         this.dataSource = sessionManager.getDataSource();
         this.sessionCache = new SessionObjectCache();
         CacheContext sessionCacheContext = new CacheContext(sessionCache);
+
+        this.cacheHelper = new CacheHelper(cacheContext, sessionCacheContext);
 
         sessionManager.getMetaModel().getPersistentClasses().forEach(clazz -> sessionCache.registerClass(clazz));
         sessionCacheContext.caching(sessionManager.getMetaModel().getPersistentClasses(), true);
@@ -190,8 +195,8 @@ public class SessionImpl implements Session {
     }
 
     @Override
-    public void addEntityToCache(Class<?> clazz, Object id, Object data) {
-        sessionCache.put(clazz, id, data);
+    public CacheHelper cacheHelper() {
+        return cacheHelper;
     }
 
     @Override
