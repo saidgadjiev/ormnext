@@ -308,23 +308,25 @@ public class StatementExecutorImpl implements IStatementExecutor {
      */
     @Override
     public <T> List<T> queryForAll(Connection connection, Class<T> tClass) throws SQLException {
-        DatabaseEntityMetadata<T> databaseEntityMetadata = TableInfoManager.buildOrGet(tClass);
-        Select select = Select.buildQueryForAll(databaseEntityMetadata.getTableName());
-        List<T> resultObjectList = new ArrayList<>();
-        String query = getQuery(select);
-        ResultsMapper<?> resultsMapper = null;
+        DatabaseEntityPersister entityPersister = metaModel.getPersister(tClass);
+        Select selectQuery = new Select();
+
+        selectQuery.setFrom(entityPersister.getFromExpression());
+        selectQuery.setSelectColumnsStrategy(entityPersister.getSelectColumnsList());
+        String query = getQuery(selectQuery);
+        List<Object> resultObjectList = new ArrayList<>();
 
         try (IStatement statement = new StatementImpl(connection.createStatement())) {
             try (DatabaseResults databaseResults = statement.executeQuery(query)) {
                 while (databaseResults.next()) {
-                    resultObjectList.add((T) resultsMapper.mapResults(databaseResults));
+                    resultObjectList.add(entityPersister.load(session, databaseResults));
                 }
             }
         } catch (Exception ex) {
             throw new SQLException(ex);
         }
 
-        return resultObjectList;
+        return (List<T>) resultObjectList;
     }
 
 

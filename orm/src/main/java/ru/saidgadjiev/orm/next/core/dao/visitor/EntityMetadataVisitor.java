@@ -11,4 +11,8 @@ public interface EntityMetadataVisitor {
     void visit(ForeignColumnType foreignColumnType);
 
     void visit(ForeignCollectionColumnType foreignCollectionColumnType);
+
+    void finish(ForeignColumnType foreignColumnType);
+
+    void finish(ForeignCollectionColumnType foreignCollectionColumnType);
 }

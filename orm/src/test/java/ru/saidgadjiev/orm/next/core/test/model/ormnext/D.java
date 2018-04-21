@@ -43,7 +43,6 @@ public class D {
         return "D{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", b=" + b +
                 '}';
     }
 }

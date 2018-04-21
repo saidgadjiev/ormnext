@@ -35,7 +35,6 @@ public class TestHibernate {
         SessionFactory sessionFactory = createSessionFactory(configuration);
         Session session = sessionFactory.openSession();
         B b = session.get(B.class, 0);
-        session.save()
         System.out.println(b);
         session.close();
         sessionFactory.close();

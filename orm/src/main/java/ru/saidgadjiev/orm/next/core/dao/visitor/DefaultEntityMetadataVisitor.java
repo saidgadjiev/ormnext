@@ -18,8 +18,10 @@ import ru.saidgadjiev.orm.next.core.query.core.common.TableRef;
 import ru.saidgadjiev.orm.next.core.query.core.condition.Equals;
 import ru.saidgadjiev.orm.next.core.query.core.condition.Expression;
 import ru.saidgadjiev.orm.next.core.query.core.join.LeftJoin;
+import ru.saidgadjiev.orm.next.core.stamentexecutor.alias.CollectionEntityAliases;
 import ru.saidgadjiev.orm.next.core.stamentexecutor.alias.EntityAliasResolverContext;
 import ru.saidgadjiev.orm.next.core.stamentexecutor.alias.EntityAliases;
+import ru.saidgadjiev.orm.next.core.stamentexecutor.rowreader.CollectionInitializer;
 import ru.saidgadjiev.orm.next.core.stamentexecutor.rowreader.EntityInitializer;
 import ru.saidgadjiev.orm.next.core.table.DatabaseEntityMetadata;
 
@@ -39,11 +41,13 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
 
     private SelectColumnsList selectColumnsList = new SelectColumnsList();
 
-    private Map<Class<?>, String> metaDataUidMap = new LinkedHashMap<>();
-
     private Map<String, EntityInitializer> entityInitializerMap = new LinkedHashMap<>();
 
+    private List<CollectionInitializer> collectionInitializers = new ArrayList<>();
+
     private Set<ForeignColumnKey> visitedForeignColumnKey = new HashSet<>();
+
+    private Stack<String> parentUidStack = new Stack<>();
 
     public DefaultEntityMetadataVisitor(DatabaseEntityMetadata mainEntityMetadata,
                                         MetaModel metaModel,
@@ -53,7 +57,7 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
         this.entityAliasResolverContext = entityAliasResolverContext;
         this.uidGenerator = uidGenerator;
 
-        metaDataUidMap.put(mainEntityMetadata.getTableClass(), rootInitializer.getUid());
+        parentUidStack.push(rootInitializer.getUid());
         this.fromJoinedTables = new FromJoinedTables(new TableRef(mainEntityMetadata.getTableName()).alias(new Alias(rootInitializer.getEntityAliases().getTableAlias())));
         this.metaModel = metaModel;
 
@@ -65,13 +69,10 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
             LOGGER.debug("Detected circular references!");
             return;
         }
-        DatabaseEntityMetadata<?> ownerMetadata = metaModel.getPersister(foreignColumnType.getOwnerClass()).getMetadata();
-        EntityAliases ownerAliases = entityAliasResolverContext.getAliases(metaDataUidMap.get(ownerMetadata.getTableClass()));
+        EntityAliases ownerAliases = entityAliasResolverContext.getAliases(parentUidStack.peek());
 
         DatabaseEntityMetadata<?> foreignMetaData = metaModel.getPersister(foreignColumnType.getForeignFieldClass()).getMetadata();
         String nextUID = uidGenerator.nextUID();
-
-        metaDataUidMap.put(foreignMetaData.getTableClass(), nextUID);
         EntityAliases foreignEntityAliases = entityAliasResolverContext.resolveAliases(nextUID, foreignMetaData);
 
         appendJoin(foreignColumnType, ownerAliases, foreignEntityAliases);
@@ -79,21 +80,18 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
 
         entityInitializerMap.put(nextUID, new EntityInitializer(nextUID, foreignEntityAliases, metaModel.getPersister(foreignMetaData.getTableClass())));
         visitedForeignColumnKey.add(foreignColumnType.getForeignColumnKey());
+        parentUidStack.push(nextUID);
         foreignMetaData.accept(this);
     }
 
     @Override
     public void visit(ForeignCollectionColumnType foreignCollectionColumnType) {
-        if (metaDataUidMap.containsKey(foreignCollectionColumnType.getForeignFieldClass())) {
-            return;
-        }
         DatabaseEntityMetadata<?> ownerMetaData = metaModel.getPersister(foreignCollectionColumnType.getOwnerClass()).getMetadata();
-        EntityAliases ownerAliases = entityAliasResolverContext.getAliases(metaDataUidMap.get(ownerMetaData.getTableClass()));
+        EntityAliases ownerAliases = entityAliasResolverContext.getAliases(parentUidStack.peek());
 
         DatabaseEntityMetadata<?> foreignMetaData = metaModel.getPersister(foreignCollectionColumnType.getForeignFieldClass()).getMetadata();
         String nextUID = uidGenerator.nextUID();
 
-        metaDataUidMap.put(foreignMetaData.getTableClass(), nextUID);
         EntityAliases foreignEntityAliases = entityAliasResolverContext.resolveAliases(nextUID, foreignMetaData);
 
         Expression onExpression = new Expression();
@@ -110,9 +108,28 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
         fromJoinedTables.add(new LeftJoin(new TableRef(foreignCollectionColumnType.getForeignTableName()).alias(new Alias(foreignEntityAliases.getTableAlias())), onExpression));
         appendSelectColumns(foreignEntityAliases, foreignMetaData);
 
+        collectionInitializers.add(
+                new CollectionInitializer(
+                        parentUidStack.peek(),
+                        new CollectionEntityAliases(foreignEntityAliases.getKeyAlias(), foreignEntityAliases.getAliasByPropertyName(foreignCollectionColumnType.getForeignColumnKey().getColumnName()),
+                                foreignMetaData.getTableClass()),
+                        foreignCollectionColumnType
+                )
+        );
         entityInitializerMap.put(nextUID, new EntityInitializer(nextUID, foreignEntityAliases, metaModel.getPersister(foreignMetaData.getTableClass())));
         visitedForeignColumnKey.add(foreignCollectionColumnType.getForeignColumnKey());
+        parentUidStack.push(nextUID);
         foreignMetaData.accept(this);
+    }
+
+    @Override
+    public void finish(ForeignColumnType foreignColumnType) {
+        parentUidStack.pop();
+    }
+
+    @Override
+    public void finish(ForeignCollectionColumnType foreignCollectionColumnType) {
+        parentUidStack.pop();
     }
 
     private void appendJoin(ForeignColumnType foreignColumnType, EntityAliases ownerAliases, EntityAliases foreignEntityAliases) {
@@ -154,8 +171,6 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
         selectColumnsList.addColumn(displayedColumnSpec);
     }
 
-
-
     public FromJoinedTables getFromJoinedTables() {
         return fromJoinedTables;
     }
@@ -176,4 +191,11 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
     public List<EntityInitializer> getEntityInitializers() {
         return new ArrayList<>(entityInitializerMap.values());
     }
+
+    public List<CollectionInitializer> getCollectionInitializers() {
+        return collectionInitializers;
+    }
 }
+/**
+ * Получаем объект который имеет коллекцию через кеш сессии по id. Передаем в коллекшен инициализер алиасы
+ */

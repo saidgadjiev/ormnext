@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 public class ResultSetContext {
 
@@ -13,9 +14,7 @@ public class ResultSetContext {
 
     private DatabaseResults databaseResults;
 
-    private Map<String, EntityProcessingState> processingStateMap = new HashMap<>();
-
-    private Map<Object, Collection<?>> registeredCollectionsMap = new HashMap<>();
+    private Map<String, Map<Object, EntityProcessingState>> processingStateMap = new HashMap<>();
 
     public ResultSetContext(Session session, DatabaseResults databaseResults) {
         this.session = session;
@@ -30,10 +29,11 @@ public class ResultSetContext {
         return databaseResults;
     }
 
-    public EntityProcessingState getProcessingState(String uid) {
-        processingStateMap.putIfAbsent(uid, new EntityProcessingState());
+    public EntityProcessingState getProcessingState(String uid, Object id) {
+        processingStateMap.putIfAbsent(uid, new HashMap<>());
+        processingStateMap.get(uid).putIfAbsent(id, new EntityProcessingState());
 
-        return processingStateMap.get(uid);
+        return processingStateMap.get(uid).get(id);
     }
 
     public static class EntityProcessingState {
@@ -42,6 +42,7 @@ public class ResultSetContext {
 
         private List<Object> values;
 
+        private Object key;
 
         public void setEntityInstance(Object instance) {
             this.entityInstance = instance;
@@ -59,5 +60,12 @@ public class ResultSetContext {
             return values;
         }
 
+        public void setEntityKey(Object key) {
+            this.key = key;
+        }
+
+        public Object getKey() {
+            return key;
+        }
     }
 }

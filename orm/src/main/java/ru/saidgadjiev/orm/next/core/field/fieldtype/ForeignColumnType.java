@@ -149,6 +149,7 @@ public class ForeignColumnType implements IForeignDatabaseColumnType {
     @Override
     public void accept(EntityMetadataVisitor visitor) {
         visitor.visit(this);
+        visitor.finish(this);
     }
 
     public Class<?> getOwnerClass() {

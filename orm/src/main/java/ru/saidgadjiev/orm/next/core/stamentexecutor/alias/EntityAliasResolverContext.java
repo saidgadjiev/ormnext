@@ -3,23 +3,20 @@ package ru.saidgadjiev.orm.next.core.stamentexecutor.alias;
 import ru.saidgadjiev.orm.next.core.field.fieldtype.IDatabaseColumnType;
 import ru.saidgadjiev.orm.next.core.table.DatabaseEntityMetadata;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class EntityAliasResolverContext {
 
-    private Map<String, EntityAliases> resolvedAliases = new HashMap<>();
+    private Map<String, EntityAliases> resolvedEntityAliases = new HashMap<>();
 
-    public AliasResolver aliasResolver = new AliasResolverImpl();
+    private AliasResolver aliasResolver = new AliasResolverImpl();
 
     public EntityAliases resolveAliases(String uid, DatabaseEntityMetadata<?> entityMetadata) {
-        if (resolvedAliases.containsKey(uid)) {
-            return resolvedAliases.get(uid);
+        if (resolvedEntityAliases.containsKey(uid)) {
+            return resolvedEntityAliases.get(uid);
         }
         String tableAlias = aliasResolver.createAlias(entityMetadata.getTableName());
-        List<String> columnAliases = new ArrayList<>();
+        Map<String, String> columnAliases = new LinkedHashMap<>();
 
         for (IDatabaseColumnType columnType: entityMetadata.getFieldTypes()) {
             if (columnType.isForeignCollectionFieldType()) {
@@ -28,17 +25,19 @@ public class EntityAliasResolverContext {
             if (columnType.isId()) {
                 continue;
             }
-            columnAliases.add(aliasResolver.createAlias(columnType.getColumnName()));
+            columnAliases.put(columnType.getColumnName(), aliasResolver.createAlias(columnType.getColumnName()));
         }
         IDatabaseColumnType primaryKey = entityMetadata.getPrimaryKey();
         EntityAliases entityAliases = new EntityAliases(tableAlias, columnAliases, aliasResolver.createAlias(primaryKey.getColumnName()));
 
-        resolvedAliases.putIfAbsent(uid, entityAliases);
+        resolvedEntityAliases.putIfAbsent(uid, entityAliases);
 
         return entityAliases;
     }
 
+
+
     public EntityAliases getAliases(String uid) {
-        return resolvedAliases.get(uid);
+        return resolvedEntityAliases.get(uid);
     }
 }

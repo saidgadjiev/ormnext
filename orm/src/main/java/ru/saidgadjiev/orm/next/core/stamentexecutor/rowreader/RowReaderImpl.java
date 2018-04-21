@@ -26,8 +26,9 @@ public class RowReaderImpl implements RowReader {
         for (EntityInitializer entityInitializer: entityInitializers) {
             entityInitializer.startRead(resultSetContext);
         }
+        Object currentId = resultSetContext.getDatabaseResults().getObject(rootEntityInitializer.getEntityAliases().getKeyAlias());
 
-        return resultSetContext.getProcessingState(rootEntityInitializer.getUid()).getEntityInstance();
+        return resultSetContext.getProcessingState(rootEntityInitializer.getUid(), currentId).getEntityInstance();
     }
 
     @Override
@@ -36,6 +37,9 @@ public class RowReaderImpl implements RowReader {
 
         for (EntityInitializer entityInitializer: entityInitializers) {
             entityInitializer.finishRead(resultSetContext);
+        }
+        for (CollectionInitializer collectionInitializer : collectionInitializers) {
+            collectionInitializer.loadCollection(resultSetContext);
         }
     }
 }

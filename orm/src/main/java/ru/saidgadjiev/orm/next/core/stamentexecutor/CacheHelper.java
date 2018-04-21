@@ -17,7 +17,7 @@ public class CacheHelper {
         this.sessionCacheContext = sessionCacheContext;
     }
 
-    public void saveToCache(Object object, Object id) throws SQLException {
+    public void saveToCache(Object object, Object id) {
         if (sessionFactoryCacheContext.isCaching(object.getClass())) {
             ObjectCache objectCache = sessionFactoryCacheContext.getObjectCache();
 
@@ -26,7 +26,7 @@ public class CacheHelper {
         sessionCacheContext.getObjectCache().put(object.getClass(), id, object);
     }
 
-    public void delete(Class<?> objectClass, Object id) throws SQLException {
+    public void delete(Class<?> objectClass, Object id) {
         if (sessionFactoryCacheContext.isCaching(objectClass)) {
             sessionFactoryCacheContext.getObjectCache().invalidate(objectClass, id);
         }
@@ -44,5 +44,9 @@ public class CacheHelper {
         }
 
         return Optional.empty();
+    }
+
+    public boolean existInSessionCache(Class<?> objectClass, Object id) {
+        return sessionCacheContext.getObjectCache().contains(objectClass, id);
     }
 }

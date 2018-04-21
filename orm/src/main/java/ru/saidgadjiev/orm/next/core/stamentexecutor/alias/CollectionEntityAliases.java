@@ -2,13 +2,27 @@ package ru.saidgadjiev.orm.next.core.stamentexecutor.alias;
 
 public class CollectionEntityAliases {
 
-    private final String collectionColumnAlias;
+    private final String collectionColumnKeyAlias;
 
-    public CollectionEntityAliases(String collectionColumnAlias) {
-        this.collectionColumnAlias = collectionColumnAlias;
+    private final String collectionOwnerAlias;
+
+    private final Class<?> collectionObjectClass;
+
+    public CollectionEntityAliases(String collectionColumnKeyAlias, String collectionOwnerAlias, Class<?> collectionObjectClass) {
+        this.collectionColumnKeyAlias = collectionColumnKeyAlias;
+        this.collectionOwnerAlias = collectionOwnerAlias;
+        this.collectionObjectClass = collectionObjectClass;
     }
 
-    public String getCollectionColumnAlias() {
-        return collectionColumnAlias;
+    public String getCollectionColumnKeyAlias() {
+        return collectionColumnKeyAlias;
+    }
+
+    public Class<?> getCollectionObjectClass() {
+        return collectionObjectClass;
+    }
+
+    public String getCollectionOwnerAlias() {
+        return collectionOwnerAlias;
     }
 }

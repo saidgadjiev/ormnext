@@ -28,13 +28,24 @@ public class EntityInitializer {
     }
 
     public void startRead(ResultSetContext context) throws SQLException {
-        EntityProcessingState processingState = context.getProcessingState(uid);
-        Object entityInstance = persister.instance();
+        Object id = context.getDatabaseResults().getObject(entityAliases.getKeyAlias());
 
-        processingState.setEntityInstance(entityInstance);
+        if (id == null) {
+            return;
+        }
+        EntityProcessingState processingState = context.getProcessingState(uid, id);
+        Object entityInstance;
+
+        if (processingState.getEntityInstance() == null) {
+            entityInstance = persister.instance();
+
+            processingState.setEntityKey(id);
+            processingState.setEntityInstance(entityInstance);
+        } else {
+            entityInstance = processingState.getEntityInstance();
+        }
         DatabaseEntityMetadata<?> entityMetadata = persister.getMetadata();
         IDatabaseColumnType primaryKey = entityMetadata.getPrimaryKey();
-        Object id = context.getDatabaseResults().getObject(entityAliases.getKeyAlias());
 
         primaryKey.assign(entityInstance, id);
         context.getSession().cacheHelper().saveToCache(entityInstance, id);
@@ -58,8 +69,9 @@ public class EntityInitializer {
     }
 
     public void finishRead(ResultSetContext context) throws SQLException {
+        Object id = context.getDatabaseResults().getObject(entityAliases.getKeyAlias());
+        EntityProcessingState processingState = context.getProcessingState(uid, id);
         DatabaseEntityMetadata<?> entityMetadata = persister.getMetadata();
-        EntityProcessingState processingState = context.getProcessingState(uid);
         Object entityInstance = processingState.getEntityInstance();
         List<Object> values = processingState.getValues();
         int  i = 0;

@@ -9,6 +9,7 @@ import ru.saidgadjiev.orm.next.core.utils.TableInfoUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayDeque;
 import java.util.Collection;
 
 public class ForeignCollectionColumnType implements IForeignDatabaseColumnType {
@@ -63,13 +64,17 @@ public class ForeignCollectionColumnType implements IForeignDatabaseColumnType {
         return TableInfoUtils.resolveTableName(getOwnerClass());
     }
 
-    public void add(Object object, Object value) throws IllegalAccessException {
-        if (!field.isAccessible()) {
-            field.setAccessible(true);
-            ((Collection<Object>) field.get(object)).add(value);
-            field.setAccessible(false);
-        } else {
-            ((Collection) field.get(object)).add(value);
+    public void add(Object object, Object value) {
+        try {
+            if (!field.isAccessible()) {
+                field.setAccessible(true);
+                ((Collection<Object>) field.get(object)).add(value);
+                field.setAccessible(false);
+            } else {
+                ((Collection) field.get(object)).add(value);
+            }
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
         }
     }
 
@@ -138,6 +143,7 @@ public class ForeignCollectionColumnType implements IForeignDatabaseColumnType {
     @Override
     public void accept(EntityMetadataVisitor visitor) {
         visitor.visit(this);
+        visitor.finish(this);
     }
 
 }

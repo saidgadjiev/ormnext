@@ -11,6 +11,14 @@ public class ForeignColumnKey {
         this.columnName = columnName;
     }
 
+    public String getTableName() {
+        return tableName;
+    }
+
+    public String getColumnName() {
+        return columnName;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

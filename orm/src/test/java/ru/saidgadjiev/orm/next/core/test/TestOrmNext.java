@@ -18,6 +18,7 @@ import ru.saidgadjiev.orm.next.core.test.model.ormnext.D;
 import ru.saidgadjiev.orm.next.core.utils.TableUtils;
 
 import java.sql.SQLException;
+import java.util.List;
 
 public class TestOrmNext {
 
@@ -34,7 +35,7 @@ public class TestOrmNext {
         TableUtils.createTable(sessionManager.getDataSource(), D.class, true);
         Session session = sessionManager.getCurrentSession();
 
-        B b = session.queryForId(B.class, 0);
+        List<B> b = session.queryForAll(B.class);
 
         System.out.println(b);
         session.close();
