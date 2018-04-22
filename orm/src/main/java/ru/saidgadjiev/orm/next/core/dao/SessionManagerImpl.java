@@ -2,13 +2,10 @@ package ru.saidgadjiev.orm.next.core.dao;
 
 import ru.saidgadjiev.orm.next.core.cache.CacheContext;
 import ru.saidgadjiev.orm.next.core.cache.ObjectCache;
-import ru.saidgadjiev.orm.next.core.dao.metamodel.MetaModel;
+import ru.saidgadjiev.orm.next.core.table.internal.metamodel.MetaModel;
 import ru.saidgadjiev.orm.next.core.support.ConnectionSource;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Optional;
 
 /**
  * Базовый класс для DAO. Используется в DaoBuilder
@@ -25,8 +22,7 @@ public class SessionManagerImpl implements SessionManager {
 
     SessionManagerImpl(ConnectionSource dataSource, Collection<Class<?>> entityClasses) {
         this.dataSource = dataSource;
-        this.metaModel = new MetaModel(this);
-        this.metaModel.initialize(entityClasses);
+        this.metaModel = new MetaModel(entityClasses);
     }
 
     @Override

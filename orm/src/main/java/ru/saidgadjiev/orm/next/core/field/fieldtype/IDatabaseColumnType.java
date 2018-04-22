@@ -1,7 +1,6 @@
 package ru.saidgadjiev.orm.next.core.field.fieldtype;
 
-import ru.saidgadjiev.orm.next.core.dao.visitor.EntityElement;
-import ru.saidgadjiev.orm.next.core.field.DatabaseColumn;
+import ru.saidgadjiev.orm.next.core.table.internal.visitor.EntityElement;
 import ru.saidgadjiev.orm.next.core.field.persister.DataPersister;
 
 import java.lang.reflect.Field;
@@ -76,5 +75,7 @@ public interface IDatabaseColumnType extends EntityElement {
         return getField().getDeclaringClass();
     }
 
-    String getTableName();
+    String getOwnerTableName();
+
+    void setOwnerTableName(String ownerTableName);
 }

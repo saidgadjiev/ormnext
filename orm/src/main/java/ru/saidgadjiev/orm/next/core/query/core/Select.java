@@ -1,6 +1,5 @@
 package ru.saidgadjiev.orm.next.core.query.core;
 
-import ru.saidgadjiev.orm.next.core.field.fieldtype.IDatabaseColumnType;
 import ru.saidgadjiev.orm.next.core.query.core.clause.GroupBy;
 import ru.saidgadjiev.orm.next.core.query.core.clause.Having;
 import ru.saidgadjiev.orm.next.core.query.core.clause.OrderBy;
@@ -8,13 +7,11 @@ import ru.saidgadjiev.orm.next.core.query.core.clause.from.FromExpression;
 import ru.saidgadjiev.orm.next.core.query.core.clause.from.FromTable;
 import ru.saidgadjiev.orm.next.core.query.core.clause.select.SelectAll;
 import ru.saidgadjiev.orm.next.core.query.core.clause.select.SelectColumnsStrategy;
-import ru.saidgadjiev.orm.next.core.query.core.column_spec.ColumnSpec;
 import ru.saidgadjiev.orm.next.core.query.core.common.TableRef;
-import ru.saidgadjiev.orm.next.core.query.core.condition.Equals;
 import ru.saidgadjiev.orm.next.core.query.core.condition.Expression;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryElement;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryVisitor;
-import ru.saidgadjiev.orm.next.core.table.DatabaseEntityMetadata;
+import ru.saidgadjiev.orm.next.core.table.internal.metamodel.DatabaseEntityMetadata;
 
 /**
  * Класс SELECT запроса
@@ -104,11 +101,7 @@ public class Select implements QueryElement {
     }
 
     public void appendByIdClause(DatabaseEntityMetadata<?> entityMetadata, String tableAlias, Object id) {
-        AndCondition andCondition = new AndCondition();
-        IDatabaseColumnType idField = entityMetadata.getPrimaryKey();
 
-        andCondition.add(new Equals(new ColumnSpec(idField.getColumnName()).alias(new Alias(tableAlias)), idField.getDataPersister().getLiteral(idField, id)));
-        where.getConditions().add(andCondition);
     }
 
     public static Select buildQueryForAll(String typeName) {

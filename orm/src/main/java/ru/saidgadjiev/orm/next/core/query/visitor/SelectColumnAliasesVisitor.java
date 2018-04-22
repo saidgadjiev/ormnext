@@ -1,7 +1,7 @@
 package ru.saidgadjiev.orm.next.core.query.visitor;
 
-import ru.saidgadjiev.orm.next.core.query.core.column_spec.ColumnSpec;
-import ru.saidgadjiev.orm.next.core.query.core.column_spec.DisplayedColumn;
+import ru.saidgadjiev.orm.next.core.query.core.columnspec.ColumnSpec;
+import ru.saidgadjiev.orm.next.core.query.core.columnspec.DisplayedColumn;
 
 import java.util.HashMap;
 import java.util.Map;

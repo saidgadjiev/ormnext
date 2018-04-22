@@ -1,10 +1,8 @@
 package ru.saidgadjiev.orm.next.core.dao;
 
-import ru.saidgadjiev.orm.next.core.criteria.impl.SelectStatement;
-import ru.saidgadjiev.orm.next.core.stamentexecutor.GenericResults;
-import ru.saidgadjiev.orm.next.core.stamentexecutor.IStatementExecutor;
+import ru.saidgadjiev.orm.next.core.dao.transaction.Transaction;
+import ru.saidgadjiev.orm.next.core.stamentexecutor.DefaultEntityLoader;
 import ru.saidgadjiev.orm.next.core.support.ConnectionSource;
-import ru.saidgadjiev.orm.next.core.support.WrappedConnectionSource;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -13,7 +11,7 @@ import java.util.List;
 
 public class TransactionImpl implements Transaction {
 
-    private final IStatementExecutor statementExecutor;
+    private final DefaultEntityLoader statementExecutor;
 
     private final Connection connection;
 
@@ -21,7 +19,7 @@ public class TransactionImpl implements Transaction {
 
     private State state;
 
-    TransactionImpl(IStatementExecutor statementExecutor, ConnectionSource connectionSource) throws SQLException {
+    TransactionImpl(DefaultEntityLoader statementExecutor, ConnectionSource connectionSource) throws SQLException {
         this.statementExecutor = statementExecutor;
         this.connection = connectionSource.getConnection();
         this.connectionSource = connectionSource;
@@ -95,21 +93,6 @@ public class TransactionImpl implements Transaction {
     public<T> long countOff(Class<T> tClass) throws SQLException {
         check();
         return statementExecutor.countOff(connection, tClass);
-    }
-
-    @Override
-    public<R> GenericResults<R> query(SelectStatement<R> statement) throws SQLException {
-        check();
-        return statementExecutor.query(new WrappedConnectionSource(connectionSource) {
-            @Override
-            public Connection getConnection() throws SQLException {
-                return connection;
-            }
-
-            @Override
-            public void releaseConnection(Connection connection) throws SQLException {
-            }
-        }, statement);
     }
 
     @Override

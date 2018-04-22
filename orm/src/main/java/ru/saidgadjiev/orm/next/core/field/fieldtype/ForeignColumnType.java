@@ -1,9 +1,8 @@
 package ru.saidgadjiev.orm.next.core.field.fieldtype;
 
-import ru.saidgadjiev.orm.next.core.dao.visitor.EntityMetadataVisitor;
+import ru.saidgadjiev.orm.next.core.table.internal.visitor.EntityMetadataVisitor;
 import ru.saidgadjiev.orm.next.core.field.FieldAccessor;
 import ru.saidgadjiev.orm.next.core.field.persister.DataPersister;
-import ru.saidgadjiev.orm.next.core.utils.TableInfoUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -13,7 +12,7 @@ import java.lang.reflect.InvocationTargetException;
  */
 public class ForeignColumnType implements IForeignDatabaseColumnType {
 
-    private static final String ID_SUFFIX = "_id";
+    public static final String ID_SUFFIX = "_id";
 
     private IDatabaseColumnType foreignPrimaryKey;
 
@@ -33,6 +32,8 @@ public class ForeignColumnType implements IForeignDatabaseColumnType {
 
     private String columnName;
 
+    private String tableName;
+
     private int dataType;
 
     @Override
@@ -49,13 +50,8 @@ public class ForeignColumnType implements IForeignDatabaseColumnType {
     }
 
     @Override
-    public ForeignColumnType getForeignColumnType() {
-        return this;
-    }
-
-    @Override
     public ForeignColumnKey getForeignColumnKey() {
-        return new ForeignColumnKey(getTableName(), getColumnName());
+        return new ForeignColumnKey(getOwnerTableName(), getColumnName());
     }
 
     @Override
@@ -157,8 +153,12 @@ public class ForeignColumnType implements IForeignDatabaseColumnType {
     }
 
     @Override
-    public String getTableName() {
-        return TableInfoUtils.resolveTableName(ownerClass);
+    public String getOwnerTableName() {
+        return tableName;
+    }
+
+    public void setOwnerTableName(String ownerTableName) {
+        this.tableName = ownerTableName;
     }
 
     public void setOwnerClass(Class<?> ownerClass) {

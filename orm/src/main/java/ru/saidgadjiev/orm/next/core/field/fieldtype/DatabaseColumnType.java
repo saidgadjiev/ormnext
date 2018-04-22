@@ -1,9 +1,8 @@
 package ru.saidgadjiev.orm.next.core.field.fieldtype;
 
-import ru.saidgadjiev.orm.next.core.dao.visitor.EntityMetadataVisitor;
 import ru.saidgadjiev.orm.next.core.field.FieldAccessor;
 import ru.saidgadjiev.orm.next.core.field.persister.DataPersister;
-import ru.saidgadjiev.orm.next.core.utils.TableInfoUtils;
+import ru.saidgadjiev.orm.next.core.table.internal.visitor.EntityMetadataVisitor;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -31,6 +30,8 @@ public class DatabaseColumnType implements IDatabaseColumnType {
     private Object defaultValue;
 
     private String format;
+
+    private String tableName;
 
     @Override
     public Object getDefaultValue() {
@@ -153,8 +154,12 @@ public class DatabaseColumnType implements IDatabaseColumnType {
     }
 
     @Override
-    public String getTableName() {
-        return TableInfoUtils.resolveTableName(getOwnerClass());
+    public String getOwnerTableName() {
+        return tableName;
+    }
+
+    public void setOwnerTableName(String ownerTableName) {
+        this.tableName = ownerTableName;
     }
 
     @Override

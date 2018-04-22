@@ -1,6 +1,6 @@
 package ru.saidgadjiev.orm.next.core.query.core.clause.select;
 
-import ru.saidgadjiev.orm.next.core.query.core.column_spec.DisplayedColumnSpec;
+import ru.saidgadjiev.orm.next.core.query.core.columnspec.DisplayedColumnSpec;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryVisitor;
 
 import java.util.ArrayList;

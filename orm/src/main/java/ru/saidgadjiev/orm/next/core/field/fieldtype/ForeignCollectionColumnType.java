@@ -1,15 +1,13 @@
 package ru.saidgadjiev.orm.next.core.field.fieldtype;
 
-import ru.saidgadjiev.orm.next.core.dao.visitor.EntityMetadataVisitor;
+import ru.saidgadjiev.orm.next.core.table.internal.visitor.EntityMetadataVisitor;
 import ru.saidgadjiev.orm.next.core.field.CollectionType;
 import ru.saidgadjiev.orm.next.core.field.FetchType;
 import ru.saidgadjiev.orm.next.core.field.FieldAccessor;
 import ru.saidgadjiev.orm.next.core.field.persister.DataPersister;
-import ru.saidgadjiev.orm.next.core.utils.TableInfoUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayDeque;
 import java.util.Collection;
 
 public class ForeignCollectionColumnType implements IForeignDatabaseColumnType {
@@ -24,7 +22,9 @@ public class ForeignCollectionColumnType implements IForeignDatabaseColumnType {
 
     private FieldAccessor fieldAccessor;
 
-    private ForeignColumnType foreignColumnType;
+    private String ownerTableName;
+
+    private String foreignColumnName;
 
     private String foreignTableName;
 
@@ -60,8 +60,12 @@ public class ForeignCollectionColumnType implements IForeignDatabaseColumnType {
     }
 
     @Override
-    public String getTableName() {
-        return TableInfoUtils.resolveTableName(getOwnerClass());
+    public String getOwnerTableName() {
+        return ownerTableName;
+    }
+
+    public void setOwnerTableName(String ownerTableName) {
+        this.ownerTableName = ownerTableName;
     }
 
     public void add(Object object, Object value) {
@@ -122,22 +126,25 @@ public class ForeignCollectionColumnType implements IForeignDatabaseColumnType {
     }
 
     @Override
-    public ForeignColumnType getForeignColumnType() {
-        return foreignColumnType;
-    }
-
-    @Override
     public ForeignColumnKey getForeignColumnKey() {
-        return new ForeignColumnKey(foreignColumnType.getTableName(), foreignColumnType.getColumnName());
-    }
-
-    public void setForeignColumnType(ForeignColumnType foreignColumnType) {
-        this.foreignColumnType = foreignColumnType;
+        return new ForeignColumnKey(foreignTableName, foreignColumnName);
     }
 
     @Override
     public String getForeignTableName() {
-        return foreignColumnType.getTableName();
+        return foreignTableName;
+    }
+
+    public void setForeignColumnName(String foreignColumnName) {
+        this.foreignColumnName = foreignColumnName;
+    }
+
+    public void setForeignTableName(String foreignTableName) {
+        this.foreignTableName = foreignTableName;
+    }
+
+    public String getForeignColumnName() {
+        return foreignColumnName;
     }
 
     @Override

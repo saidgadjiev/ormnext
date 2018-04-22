@@ -1,10 +1,10 @@
 package ru.saidgadjiev.orm.next.core.criteria;
 
 import ru.saidgadjiev.orm.next.core.query.core.Alias;
-import ru.saidgadjiev.orm.next.core.query.core.column_spec.ColumnSpec;
+import ru.saidgadjiev.orm.next.core.query.core.columnspec.ColumnSpec;
 import ru.saidgadjiev.orm.next.core.query.core.common.TableRef;
 import ru.saidgadjiev.orm.next.core.query.visitor.NoActionVisitor;
-import ru.saidgadjiev.orm.next.core.table.DatabaseEntityMetadata;
+import ru.saidgadjiev.orm.next.core.table.internal.metamodel.DatabaseEntityMetadata;
 
 /**
  * Created by said on 23.02.2018.
@@ -23,7 +23,7 @@ public class CriteriaQueryVisitor extends NoActionVisitor {
     @Override
     public boolean visit(ColumnSpec columnSpec) {
         if (columnSpec.getAlias() == null) {
-            columnSpec.alias(alias).name(databaseEntityMetadata.getPersistenceName(columnSpec.getName()));
+            columnSpec.alias(alias).name(databaseEntityMetadata.getColumnNameByPropertyName(columnSpec.getName()));
         }
 
         return false;

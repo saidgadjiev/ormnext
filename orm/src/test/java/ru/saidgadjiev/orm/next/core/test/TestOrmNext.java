@@ -1,8 +1,10 @@
 package ru.saidgadjiev.orm.next.core.test;
 
 import org.postgresql.ds.PGPoolingDataSource;
+import ru.saidgadjiev.orm.next.core.criteria.impl.Criteria;
+import ru.saidgadjiev.orm.next.core.criteria.impl.OrderByCriteria;
+import ru.saidgadjiev.orm.next.core.criteria.impl.Restrictions;
 import ru.saidgadjiev.orm.next.core.dao.Session;
-import ru.saidgadjiev.orm.next.core.dao.SessionManagerImpl;
 import ru.saidgadjiev.orm.next.core.dao.SessionManager;
 import ru.saidgadjiev.orm.next.core.dao.SessionMangerBuilder;
 import ru.saidgadjiev.orm.next.core.db.PGDatabaseType;
@@ -15,10 +17,11 @@ import ru.saidgadjiev.orm.next.core.test.model.ormnext.A;
 import ru.saidgadjiev.orm.next.core.test.model.ormnext.B;
 import ru.saidgadjiev.orm.next.core.test.model.ormnext.C;
 import ru.saidgadjiev.orm.next.core.test.model.ormnext.D;
-import ru.saidgadjiev.orm.next.core.utils.TableUtils;
 
 import java.sql.SQLException;
 import java.util.List;
+
+import static ru.saidgadjiev.orm.next.core.criteria.impl.Restrictions.*;
 
 public class TestOrmNext {
 
@@ -29,16 +32,22 @@ public class TestOrmNext {
                 .connectionSource(postgreConnectionSource())
                 .build();
 
-        TableUtils.createTable(sessionManager.getDataSource(), C.class, true);
-        TableUtils.createTable(sessionManager.getDataSource(), A.class, true);
-        TableUtils.createTable(sessionManager.getDataSource(), B.class, true);
-        TableUtils.createTable(sessionManager.getDataSource(), D.class, true);
         Session session = sessionManager.getCurrentSession();
+        testCriteriaQuery(session);
 
-        List<B> b = session.queryForAll(B.class);
-
-        System.out.println(b);
         session.close();
+    }
+
+    private static void testCriteriaQuery(Session session) throws SQLException {
+        List<B> objects = session
+                .criteriaQuery(B.class)
+                .orderBy(new OrderByCriteria()
+                    .add(false, "name"))
+                .limit(10)
+                .offset(0)
+                .list();
+
+        objects.forEach(System.out::println);
     }
 
     private static ConnectionSource postgreConnectionSource() {

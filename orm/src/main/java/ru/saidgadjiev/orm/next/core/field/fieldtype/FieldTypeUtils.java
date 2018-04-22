@@ -51,4 +51,12 @@ public class FieldTypeUtils {
                 .filter(field -> field.isAnnotationPresent(ForeignColumn.class) && field.getType() == type)
                 .findFirst();
     }
+
+    public static String resolveForeignColumnTypeName(Field field) {
+        ForeignColumn foreignColumn = field.getAnnotation(ForeignColumn.class);
+
+        String columnName = foreignColumn.columnName().isEmpty() ? field.getName().toLowerCase() : foreignColumn.columnName();
+
+        return columnName + ForeignColumnType.ID_SUFFIX;
+    }
 }

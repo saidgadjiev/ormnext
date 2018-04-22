@@ -6,9 +6,10 @@ import ru.saidgadjiev.orm.next.core.query.visitor.QueryVisitor;
 public class DropTableQuery implements QueryElement {
 
     private String tableName;
+
     private boolean ifExists;
 
-    private DropTableQuery(String tableName, boolean ifExists) {
+    public DropTableQuery(String tableName, boolean ifExists) {
         this.tableName = tableName;
         this.ifExists = ifExists;
     }
@@ -25,12 +26,5 @@ public class DropTableQuery implements QueryElement {
     public void accept(QueryVisitor visitor) {
         visitor.visit(this);
 
-    }
-
-    public static DropTableQuery buildQuery(String typeName, boolean ifExists) {
-        return new DropTableQuery(
-                typeName,
-                ifExists
-        );
     }
 }

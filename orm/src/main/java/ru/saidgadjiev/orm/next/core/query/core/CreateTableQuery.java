@@ -1,22 +1,11 @@
 package ru.saidgadjiev.orm.next.core.query.core;
 
-import ru.saidgadjiev.orm.next.core.field.DataPersisterManager;
-import ru.saidgadjiev.orm.next.core.field.fieldtype.ForeignColumnType;
-import ru.saidgadjiev.orm.next.core.field.fieldtype.IDatabaseColumnType;
-import ru.saidgadjiev.orm.next.core.query.core.constraints.attribute.Default;
-import ru.saidgadjiev.orm.next.core.query.core.constraints.attribute.NotNullConstraint;
-import ru.saidgadjiev.orm.next.core.query.core.constraints.attribute.PrimaryKeyConstraint;
-import ru.saidgadjiev.orm.next.core.query.core.constraints.table.ForeignKeyConstraint;
 import ru.saidgadjiev.orm.next.core.query.core.constraints.table.TableConstraint;
-import ru.saidgadjiev.orm.next.core.query.core.constraints.table.UniqueConstraint;
-import ru.saidgadjiev.orm.next.core.query.core.literals.Literal;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryElement;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryVisitor;
-import ru.saidgadjiev.orm.next.core.table.DatabaseEntityMetadata;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class CreateTableQuery implements QueryElement {
 
@@ -28,7 +17,7 @@ public class CreateTableQuery implements QueryElement {
 
     private boolean ifNotExists;
 
-    private CreateTableQuery(String typeName,
+    public CreateTableQuery(String typeName,
                              boolean ifNotExists,
                              List<AttributeDefinition> attributeDefinitions) {
         this.ifNotExists = ifNotExists;
@@ -50,53 +39,6 @@ public class CreateTableQuery implements QueryElement {
 
     public List<TableConstraint> getTableConstraints() {
         return tableConstraints;
-    }
-
-    public static CreateTableQuery buildQuery(DatabaseEntityMetadata<?> databaseEntityMetadata, boolean ifNotExists) {
-        List<AttributeDefinition> attributeDefinitions = new ArrayList<>();
-
-        for (IDatabaseColumnType dbFieldType : databaseEntityMetadata.getFieldTypes()) {
-            if (dbFieldType.isForeignCollectionFieldType()) {
-                continue;
-            }
-            AttributeDefinition attributeDefinition = new AttributeDefinition(dbFieldType.getColumnName(), dbFieldType.getDataType(), dbFieldType.getLength());
-
-            if (dbFieldType.isId()) {
-                attributeDefinition.getAttributeConstraints().add(new PrimaryKeyConstraint(dbFieldType.isGenerated()));
-            }
-            if (dbFieldType.isNotNull()) {
-                attributeDefinition.getAttributeConstraints().add(new NotNullConstraint());
-            }
-            if (dbFieldType.getDefaultValue() != null) {
-                Literal<?> literal = DataPersisterManager
-                        .lookup(dbFieldType.getDefaultValue().getClass())
-                        .getLiteral(dbFieldType, dbFieldType.getDefaultValue());
-                attributeDefinition.getAttributeConstraints().add(new Default<>(literal));
-            }
-            attributeDefinitions.add(attributeDefinition);
-        }
-        CreateTableQuery createTableQuery = new CreateTableQuery(
-                databaseEntityMetadata.getTableName(),
-                ifNotExists,
-                attributeDefinitions
-        );
-
-        for (ForeignColumnType foreignColumnType : databaseEntityMetadata.toForeignFieldTypes()) {
-            createTableQuery
-                    .getTableConstraints()
-                    .add(new ForeignKeyConstraint(
-                            foreignColumnType.getForeignTableName(),
-                            foreignColumnType.getForeignColumnName(),
-                            foreignColumnType.getColumnName())
-                    );
-        }
-
-        createTableQuery.getTableConstraints().addAll(databaseEntityMetadata.getUniqueFieldTypes()
-                .stream()
-                .map(UniqueConstraint::new)
-                .collect(Collectors.toList()));
-
-        return createTableQuery;
     }
 
     @Override

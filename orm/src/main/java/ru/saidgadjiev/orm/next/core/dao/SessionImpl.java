@@ -2,12 +2,8 @@ package ru.saidgadjiev.orm.next.core.dao;
 
 import ru.saidgadjiev.orm.next.core.cache.CacheContext;
 import ru.saidgadjiev.orm.next.core.cache.ObjectCache;
-import ru.saidgadjiev.orm.next.core.criteria.impl.SelectStatement;
 import ru.saidgadjiev.orm.next.core.stamentexecutor.CacheHelper;
-import ru.saidgadjiev.orm.next.core.stamentexecutor.GenericResults;
-import ru.saidgadjiev.orm.next.core.stamentexecutor.IStatementExecutor;
-import ru.saidgadjiev.orm.next.core.stamentexecutor.StatementExecutorImpl;
-import ru.saidgadjiev.orm.next.core.stamentexecutor.object.operation.ForeignCreator;
+import ru.saidgadjiev.orm.next.core.stamentexecutor.DefaultEntityLoader;
 import ru.saidgadjiev.orm.next.core.support.ConnectionSource;
 
 import java.sql.Connection;
@@ -24,7 +20,7 @@ public class SessionImpl implements Session {
 
     private final ConnectionSource dataSource;
 
-    private IStatementExecutor statementExecutor;
+    private DefaultEntityLoader statementExecutor;
 
     private ObjectCache sessionCache;
 
@@ -39,11 +35,10 @@ public class SessionImpl implements Session {
 
         sessionManager.getMetaModel().getPersistentClasses().forEach(clazz -> sessionCache.registerClass(clazz));
         sessionCacheContext.caching(sessionManager.getMetaModel().getPersistentClasses(), true);
-        this.statementExecutor = new StatementExecutorImpl(
+        this.statementExecutor = new DefaultEntityLoader(
                 this,
                 sessionManager.getMetaModel(),
-                dataSource.getDatabaseType(),
-                new ForeignCreator<>(this)
+                dataSource.getDatabaseType()
         );
     }
 
@@ -179,17 +174,6 @@ public class SessionImpl implements Session {
     }
 
     @Override
-    public <R> GenericResults<R> query(SelectStatement<R> statement) throws SQLException {
-        Connection connection = dataSource.getConnection();
-
-        try {
-            return statementExecutor.query(dataSource, statement);
-        } finally {
-            dataSource.releaseConnection(connection);
-        }
-    }
-
-    @Override
     public TransactionImpl transaction() throws SQLException {
         return new TransactionImpl(statementExecutor, dataSource);
     }
@@ -202,6 +186,22 @@ public class SessionImpl implements Session {
     @Override
     public void close() {
         sessionCache.invalidateAll();
+    }
+
+    @Override
+    public <T> List<T> list(CriteriaQuery<T> criteria) throws SQLException {
+        Connection connection = dataSource.getConnection();
+
+        try {
+            return statementExecutor.list(connection, criteria);
+        } finally {
+            dataSource.releaseConnection(connection);
+        }
+    }
+
+    @Override
+    public<T> CriteriaQuery<T> criteriaQuery(Class<T> persistenceClass) {
+        return new CriteriaQuery<>(this, persistenceClass);
     }
 
     private static final class SessionObjectCache implements ObjectCache {

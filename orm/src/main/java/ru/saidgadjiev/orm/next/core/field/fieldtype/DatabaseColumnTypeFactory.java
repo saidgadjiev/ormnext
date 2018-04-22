@@ -2,8 +2,8 @@ package ru.saidgadjiev.orm.next.core.field.fieldtype;
 
 import ru.saidgadjiev.orm.next.core.field.*;
 import ru.saidgadjiev.orm.next.core.field.persister.DataPersister;
-import ru.saidgadjiev.orm.next.core.validator.data_persister.DataTypeValidator;
-import ru.saidgadjiev.orm.next.core.validator.data_persister.GeneratedTypeValidator;
+import ru.saidgadjiev.orm.next.core.validator.datapersister.DataTypeValidator;
+import ru.saidgadjiev.orm.next.core.validator.datapersister.GeneratedTypeValidator;
 
 import java.lang.reflect.Field;
 

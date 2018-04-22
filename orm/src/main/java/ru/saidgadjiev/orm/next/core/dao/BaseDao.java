@@ -1,8 +1,5 @@
 package ru.saidgadjiev.orm.next.core.dao;
 
-import ru.saidgadjiev.orm.next.core.criteria.impl.SelectStatement;
-import ru.saidgadjiev.orm.next.core.stamentexecutor.GenericResults;
-
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
@@ -64,6 +61,4 @@ public interface BaseDao {
     <T> void dropIndexes(Class<T> tClass) throws SQLException;
 
     <T> long countOff(Class<T> tClass) throws SQLException;
-
-    <R> GenericResults<R> query(SelectStatement<R> statement) throws SQLException;
 }

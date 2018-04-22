@@ -7,9 +7,9 @@ import ru.saidgadjiev.orm.next.core.query.core.clause.from.FromSubQuery;
 import ru.saidgadjiev.orm.next.core.query.core.clause.from.FromTable;
 import ru.saidgadjiev.orm.next.core.query.core.clause.select.SelectAll;
 import ru.saidgadjiev.orm.next.core.query.core.clause.select.SelectColumnsList;
-import ru.saidgadjiev.orm.next.core.query.core.column_spec.ColumnSpec;
-import ru.saidgadjiev.orm.next.core.query.core.column_spec.DisplayedColumn;
-import ru.saidgadjiev.orm.next.core.query.core.column_spec.DisplayedOperand;
+import ru.saidgadjiev.orm.next.core.query.core.columnspec.ColumnSpec;
+import ru.saidgadjiev.orm.next.core.query.core.columnspec.DisplayedColumn;
+import ru.saidgadjiev.orm.next.core.query.core.columnspec.DisplayedOperand;
 import ru.saidgadjiev.orm.next.core.query.core.common.TableRef;
 import ru.saidgadjiev.orm.next.core.query.core.common.UpdateValue;
 import ru.saidgadjiev.orm.next.core.query.core.condition.*;
@@ -135,8 +135,6 @@ public interface QueryVisitor {
 
     boolean visit(OrderBy orderBy);
 
-    boolean visit(OrderByItem orderByItem, QueryVisitor visitor);
-
     void visit(Limit limit);
 
     void visit(Offset offset);
@@ -164,4 +162,6 @@ public interface QueryVisitor {
     boolean visit(GroupByItem groupByItem);
 
     boolean visit(OrderByItem orderByItem);
+
+    void visit(InsertValues insertValues);
 }

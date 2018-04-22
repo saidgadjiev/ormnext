@@ -1,15 +1,10 @@
 package ru.saidgadjiev.orm.next.core.query.core;
 
-import ru.saidgadjiev.orm.next.core.field.fieldtype.DatabaseColumnType;
-import ru.saidgadjiev.orm.next.core.query.core.column_spec.ColumnSpec;
 import ru.saidgadjiev.orm.next.core.query.core.common.UpdateValue;
-import ru.saidgadjiev.orm.next.core.query.core.condition.Equals;
 import ru.saidgadjiev.orm.next.core.query.core.condition.Expression;
-import ru.saidgadjiev.orm.next.core.query.core.literals.Param;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryElement;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryVisitor;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,7 +26,7 @@ public class UpdateQuery implements QueryElement {
 
     private Expression where = new Expression();
 
-    private UpdateQuery(String typeName) {
+    public UpdateQuery(String typeName) {
         this.typeName = typeName;
     }
 
@@ -77,24 +72,6 @@ public class UpdateQuery implements QueryElement {
 
     public void setWhere(Expression where) {
         this.where = where;
-    }
-
-    public static <T> UpdateQuery buildQuery(String typeName, List<DatabaseColumnType> fieldTypes, String idColumnName, T object) throws SQLException {
-        UpdateQuery updateQuery = new UpdateQuery(typeName);
-
-        for (DatabaseColumnType fieldType : fieldTypes) {
-            updateQuery.updateValues.add(
-                    new UpdateValue(
-                            fieldType.getColumnName(),
-                            new Param())
-            );
-        }
-        AndCondition andCondition = new AndCondition();
-
-        andCondition.add(new Equals(new ColumnSpec(idColumnName).alias(new Alias(typeName)), new Param()));
-        updateQuery.getWhere().getConditions().add(andCondition);
-
-        return updateQuery;
     }
 
     @Override

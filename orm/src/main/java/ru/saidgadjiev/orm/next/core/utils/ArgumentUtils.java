@@ -2,7 +2,7 @@ package ru.saidgadjiev.orm.next.core.utils;
 
 import ru.saidgadjiev.orm.next.core.field.fieldtype.ForeignColumnType;
 import ru.saidgadjiev.orm.next.core.field.fieldtype.IDatabaseColumnType;
-import ru.saidgadjiev.orm.next.core.table.DatabaseEntityMetadata;
+import ru.saidgadjiev.orm.next.core.table.internal.metamodel.DatabaseEntityMetadata;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class ArgumentUtils {
 
-    public static <T> Map<Integer, Object> eject(T object, DatabaseEntityMetadata<T> databaseEntityMetadata) throws Exception {
+    public static Map<Integer, Object> eject(Object object, DatabaseEntityMetadata<?> databaseEntityMetadata) throws Exception {
         AtomicInteger index = new AtomicInteger();
         Map<Integer, Object> args = new HashMap<>();
 

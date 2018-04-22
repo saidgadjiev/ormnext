@@ -1,26 +1,27 @@
 package ru.saidgadjiev.orm.next.core.stamentexecutor.object.operation;
 
-import ru.saidgadjiev.orm.next.core.dao.SessionManagerImpl;
 import ru.saidgadjiev.orm.next.core.dao.Session;
 import ru.saidgadjiev.orm.next.core.field.fieldtype.ForeignColumnType;
-import ru.saidgadjiev.orm.next.core.support.ConnectionSource;
-import ru.saidgadjiev.orm.next.core.table.DatabaseEntityMetadata;
-import ru.saidgadjiev.orm.next.core.table.TableInfoManager;
+import ru.saidgadjiev.orm.next.core.table.internal.metamodel.DatabaseEntityMetadata;
+import ru.saidgadjiev.orm.next.core.table.internal.metamodel.MetaModel;
 
 /**
  * Created by said on 10.02.2018.
  */
-public class ForeignCreator<O> implements IObjectOperation<Void, O> {
+public class ForeignCreator<O> implements IObjectOperation<Void, Object> {
 
     private Session session;
 
-    public ForeignCreator(Session session) {
+    private MetaModel metaModel;
+
+    public ForeignCreator(Session session, MetaModel metaModel) {
         this.session = session;
+        this.metaModel = metaModel;
     }
 
     @Override
-    public Void execute(O object) throws Exception {
-        DatabaseEntityMetadata<O> databaseEntityMetadata = TableInfoManager.buildOrGet((Class<O>) object.getClass());
+    public Void execute(Object object) throws Exception {
+        DatabaseEntityMetadata<?> databaseEntityMetadata = metaModel.getPersister(object.getClass()).getMetadata();
 
         for (ForeignColumnType fieldType : databaseEntityMetadata.toForeignFieldTypes()) {
             Object foreignObject = fieldType.access(object);

@@ -3,6 +3,8 @@ package ru.saidgadjiev.orm.next.core.field.fieldtype;
 import ru.saidgadjiev.orm.next.core.field.CollectionType;
 import ru.saidgadjiev.orm.next.core.field.FieldAccessor;
 import ru.saidgadjiev.orm.next.core.field.ForeignCollectionField;
+import ru.saidgadjiev.orm.next.core.field.ForeignColumn;
+import ru.saidgadjiev.orm.next.core.utils.DatabaseMetaDataUtils;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -35,16 +37,19 @@ public class ForeignCollectionColumnTypeFactory implements ColumnTypeFactory {
             throw new IllegalArgumentException(ex);
         }
 
+        Field foreignField;
+
         if (foreignFieldName.isEmpty()) {
-            fieldType.setForeignColumnType(
-                    (ForeignColumnType) new ForeignColumnTypeFactory().createFieldType(findFieldByType(
-                            field.getDeclaringClass(),
-                            fieldType.getForeignFieldClass()
-                    ).orElse(null))
-            );
+            foreignField = findFieldByType(
+                    field.getDeclaringClass(),
+                    fieldType.getForeignFieldClass()
+            ).get();
         } else {
-            fieldType.setForeignColumnType((ForeignColumnType) new ForeignColumnTypeFactory().createFieldType(findFieldByName(foreignFieldName, foreignFieldClazz)));
+           foreignField = findFieldByName(foreignFieldName, foreignFieldClazz);
         }
+
+        fieldType.setForeignColumnName(FieldTypeUtils.resolveForeignColumnTypeName(foreignField));
+        fieldType.setForeignTableName(DatabaseMetaDataUtils.resolveTableName(foreignField.getDeclaringClass()));
 
         return fieldType;
     }

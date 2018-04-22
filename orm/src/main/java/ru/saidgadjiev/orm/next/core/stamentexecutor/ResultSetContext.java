@@ -2,21 +2,19 @@ package ru.saidgadjiev.orm.next.core.stamentexecutor;
 
 import ru.saidgadjiev.orm.next.core.dao.Session;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.sql.ResultSet;
+import java.util.*;
 import java.util.function.Function;
 
 public class ResultSetContext {
 
     private Session session;
 
-    private DatabaseResults databaseResults;
+    private ResultSet databaseResults;
 
     private Map<String, Map<Object, EntityProcessingState>> processingStateMap = new HashMap<>();
 
-    public ResultSetContext(Session session, DatabaseResults databaseResults) {
+    public ResultSetContext(Session session, ResultSet databaseResults) {
         this.session = session;
         this.databaseResults = databaseResults;
     }
@@ -25,7 +23,7 @@ public class ResultSetContext {
         return session;
     }
 
-    public DatabaseResults getDatabaseResults() {
+    public ResultSet getDatabaseResults() {
         return databaseResults;
     }
 
@@ -38,11 +36,11 @@ public class ResultSetContext {
 
     public static class EntityProcessingState {
 
+        private boolean isNew;
+
         private Object entityInstance;
 
         private List<Object> values;
-
-        private Object key;
 
         public void setEntityInstance(Object instance) {
             this.entityInstance = instance;
@@ -60,12 +58,12 @@ public class ResultSetContext {
             return values;
         }
 
-        public void setEntityKey(Object key) {
-            this.key = key;
+        public boolean isNew() {
+            return isNew;
         }
 
-        public Object getKey() {
-            return key;
+        public void setNew(boolean aNew) {
+            isNew = aNew;
         }
     }
 }

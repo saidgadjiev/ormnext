@@ -7,10 +7,10 @@ import ru.saidgadjiev.orm.next.core.query.core.clause.from.FromJoinedTables;
 import ru.saidgadjiev.orm.next.core.query.core.clause.from.FromTable;
 import ru.saidgadjiev.orm.next.core.query.core.clause.select.SelectAll;
 import ru.saidgadjiev.orm.next.core.query.core.clause.select.SelectColumnsList;
-import ru.saidgadjiev.orm.next.core.query.core.column_spec.ColumnSpec;
-import ru.saidgadjiev.orm.next.core.query.core.column_spec.DisplayedColumn;
-import ru.saidgadjiev.orm.next.core.query.core.column_spec.DisplayedColumnSpec;
-import ru.saidgadjiev.orm.next.core.query.core.column_spec.DisplayedOperand;
+import ru.saidgadjiev.orm.next.core.query.core.columnspec.ColumnSpec;
+import ru.saidgadjiev.orm.next.core.query.core.columnspec.DisplayedColumn;
+import ru.saidgadjiev.orm.next.core.query.core.columnspec.DisplayedColumnSpec;
+import ru.saidgadjiev.orm.next.core.query.core.columnspec.DisplayedOperand;
 import ru.saidgadjiev.orm.next.core.query.core.common.TableRef;
 import ru.saidgadjiev.orm.next.core.query.core.common.UpdateValue;
 import ru.saidgadjiev.orm.next.core.query.core.condition.*;
@@ -18,7 +18,6 @@ import ru.saidgadjiev.orm.next.core.query.core.constraints.attribute.*;
 import ru.saidgadjiev.orm.next.core.query.core.constraints.table.ForeignKeyConstraint;
 import ru.saidgadjiev.orm.next.core.query.core.constraints.table.TableConstraint;
 import ru.saidgadjiev.orm.next.core.query.core.constraints.table.UniqueConstraint;
-import ru.saidgadjiev.orm.next.core.query.core.function.AVG;
 import ru.saidgadjiev.orm.next.core.query.core.function.CountAll;
 import ru.saidgadjiev.orm.next.core.query.core.function.CountExpression;
 import ru.saidgadjiev.orm.next.core.query.core.function.SUM;
@@ -58,28 +57,25 @@ public class DefaultVisitor extends NoActionVisitor {
     public boolean visit(CreateQuery tCreateQuery) {
         sql.append("INSERT INTO ").append(escapeEntity).append(tCreateQuery.getTypeName()).append(escapeEntity);
 
-        if (tCreateQuery.getUpdateValues().isEmpty()) {
+        if (tCreateQuery.getColumnNames().isEmpty()) {
             sql.append(" ").append(databaseType.appendNoColumn());
         } else {
             sql.append(" (");
 
-            for (Iterator<UpdateValue> iterator = tCreateQuery.getUpdateValues().iterator(); iterator.hasNext(); ) {
-                UpdateValue updateValue = iterator.next();
-
-                sql.append(escapeEntity).append(updateValue.getName()).append(escapeEntity);
+            for (Iterator<String> iterator = tCreateQuery.getColumnNames().iterator(); iterator.hasNext(); ) {
+                sql.append(escapeEntity).append(iterator.next()).append(escapeEntity);
                 if (iterator.hasNext()) {
                     sql.append(",");
                 }
             }
             sql.append(")");
             sql.append(" VALUES (");
-            for (Iterator<UpdateValue> iterator = tCreateQuery.getUpdateValues().iterator(); iterator.hasNext(); ) {
-                UpdateValue updateValue = iterator.next();
-                RValue value = updateValue.getValue();
+            for (Iterator<InsertValues> iterator = tCreateQuery.getInsertValues().iterator(); iterator.hasNext(); ) {
+                InsertValues insertValues = iterator.next();
 
-                value.accept(this);
+                insertValues.accept(this);
                 if (iterator.hasNext()) {
-                    sql.append(",");
+                    sql.append(", ");
                 }
             }
             sql.append(")");
@@ -553,11 +549,11 @@ public class DefaultVisitor extends NoActionVisitor {
     public boolean visit(OrderBy orderBy) {
         sql.append(" ORDER BY ");
 
-        return false;
+        return true;
     }
 
     @Override
-    public boolean visit(OrderByItem orderByItem, QueryVisitor visitor) {
+    public boolean visit(OrderByItem orderByItem) {
         for (Iterator<ColumnSpec> iterator = orderByItem.getColumns().iterator(); iterator.hasNext(); ) {
             iterator.next().accept(this);
 
@@ -565,8 +561,10 @@ public class DefaultVisitor extends NoActionVisitor {
                 sql.append(", ");
             }
         }
-        if (!orderByItem.getColumns().isEmpty()) {
+        if (orderByItem.isAsc()) {
             sql.append(" ASC ");
+        } else {
+            sql.append(" DESC ");
         }
 
         return false;
@@ -591,6 +589,19 @@ public class DefaultVisitor extends NoActionVisitor {
         }
 
         return false;
+    }
+
+    @Override
+    public void visit(InsertValues insertValues) {
+        for (Iterator<UpdateValue> iterator = insertValues.getUpdateValues().iterator(); iterator.hasNext(); ) {
+            UpdateValue updateValue = iterator.next();
+            RValue value = updateValue.getValue();
+
+            value.accept(this);
+            if (iterator.hasNext()) {
+                sql.append(",");
+            }
+        }
     }
 
     @Override

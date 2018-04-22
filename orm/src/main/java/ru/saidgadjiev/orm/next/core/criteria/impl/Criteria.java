@@ -2,22 +2,22 @@ package ru.saidgadjiev.orm.next.core.criteria.impl;
 
 import ru.saidgadjiev.orm.next.core.criteria.api.Criterion;
 import ru.saidgadjiev.orm.next.core.query.core.AndCondition;
+import ru.saidgadjiev.orm.next.core.query.core.Limit;
+import ru.saidgadjiev.orm.next.core.query.core.Offset;
 import ru.saidgadjiev.orm.next.core.query.core.condition.Expression;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
 
 public class Criteria {
 
-    private Expression expression = new Expression();
+    private Expression where = new Expression();
 
     private AndCondition andCondition = new AndCondition();
 
-    private Queue<Object> args = new LinkedList<>();
+    private List<Object> args = new ArrayList<>();
 
     public Criteria() {
-        expression.add(andCondition);
+        where.add(andCondition);
     }
 
     public Criteria add(Criterion criterion) {
@@ -29,7 +29,7 @@ public class Criteria {
 
     public Criteria or() {
         this.andCondition = new AndCondition();
-        expression.add(andCondition);
+        where.add(andCondition);
 
         return this;
     }
@@ -38,12 +38,12 @@ public class Criteria {
         args.addAll(Arrays.asList(values));
     }
 
-    public Queue<Object> getArgs() {
+    public List<Object> getArgs() {
         return args;
     }
 
-    public Expression getExpression() {
-        return expression;
+    public Expression getWhere() {
+        return where;
     }
 
 }

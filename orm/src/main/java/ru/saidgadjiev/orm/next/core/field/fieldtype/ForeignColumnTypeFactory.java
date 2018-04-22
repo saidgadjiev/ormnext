@@ -3,9 +3,9 @@ package ru.saidgadjiev.orm.next.core.field.fieldtype;
 import ru.saidgadjiev.orm.next.core.field.FieldAccessor;
 import ru.saidgadjiev.orm.next.core.field.ForeignColumn;
 import ru.saidgadjiev.orm.next.core.field.persister.DataPersister;
-import ru.saidgadjiev.orm.next.core.utils.TableInfoUtils;
-import ru.saidgadjiev.orm.next.core.validator.data_persister.DataTypeValidator;
-import ru.saidgadjiev.orm.next.core.validator.data_persister.GeneratedTypeValidator;
+import ru.saidgadjiev.orm.next.core.utils.DatabaseMetaDataUtils;
+import ru.saidgadjiev.orm.next.core.validator.datapersister.DataTypeValidator;
+import ru.saidgadjiev.orm.next.core.validator.datapersister.GeneratedTypeValidator;
 import ru.saidgadjiev.orm.next.core.validator.table.PrimaryKeyValidator;
 
 import java.lang.reflect.Field;
@@ -23,14 +23,14 @@ public class ForeignColumnTypeFactory implements ColumnTypeFactory {
         ForeignColumn foreignColumn = field.getAnnotation(ForeignColumn.class);
         new PrimaryKeyValidator().validate(field.getType());
         ForeignColumnType foreignColumnType = new ForeignColumnType();
-        IDatabaseColumnType foreignPrimaryKey = TableInfoUtils.resolvePrimaryKey(field.getType()).get();
+        IDatabaseColumnType foreignPrimaryKey = DatabaseMetaDataUtils.resolvePrimaryKey(field.getType()).get();
         DataPersister<?> dataPersister = foreignPrimaryKey.getDataPersister();
 
         new DataTypeValidator(foreignPrimaryKey.getField()).validate(dataPersister);
         new GeneratedTypeValidator(foreignPrimaryKey.isGenerated()).validate(dataPersister);
         foreignColumnType.setForeignAutoCreate(foreignColumn.foreignAutoCreate());
         foreignColumnType.setForeignPrimaryKey(foreignPrimaryKey);
-        foreignColumnType.setForeignTableName(TableInfoUtils.resolveTableName(foreignPrimaryKey.getField().getDeclaringClass()));
+        foreignColumnType.setForeignTableName(DatabaseMetaDataUtils.resolveTableName(foreignPrimaryKey.getField().getDeclaringClass()));
         foreignColumnType.setForeignFieldClass(field.getType());
         foreignColumnType.setOwnerClass(field.getDeclaringClass());
         foreignColumnType.setDataPersister(dataPersister);

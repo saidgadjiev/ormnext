@@ -3,12 +3,6 @@ package ru.saidgadjiev.orm.next.core.test;
 import org.hibernate.*;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
-import org.hibernate.event.service.spi.EventListenerRegistry;
-import org.hibernate.event.spi.EventType;
-import org.hibernate.event.spi.LoadEvent;
-import org.hibernate.event.spi.LoadEventListener;
-import org.hibernate.event.spi.PreLoadEventListener;
-import org.hibernate.internal.SessionFactoryImpl;
 import org.hibernate.service.ServiceRegistry;
 import ru.saidgadjiev.orm.next.core.test.model.hibernate.A;
 import ru.saidgadjiev.orm.next.core.test.model.hibernate.B;
@@ -34,8 +28,9 @@ public class TestHibernate {
 
         SessionFactory sessionFactory = createSessionFactory(configuration);
         Session session = sessionFactory.openSession();
-        B b = session.get(B.class, 0);
-        System.out.println(b);
+
+        session.getCriteriaBuilder().createQuery();
+        System.out.println( session.createCriteria(B.class).list());
         session.close();
         sessionFactory.close();
     }
