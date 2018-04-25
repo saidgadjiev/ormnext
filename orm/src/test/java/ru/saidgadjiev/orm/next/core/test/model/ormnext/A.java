@@ -3,9 +3,7 @@ package ru.saidgadjiev.orm.next.core.test.model.ormnext;
 import ru.saidgadjiev.orm.next.core.field.DatabaseColumn;
 import ru.saidgadjiev.orm.next.core.field.ForeignColumn;
 
-import javax.persistence.*;
 
-@Entity(name = "a")
 public class A {
 
     @DatabaseColumn(id = true, generated = true, dataType = 8)

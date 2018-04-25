@@ -36,6 +36,7 @@ public class ForeignColumnTypeFactory implements ColumnTypeFactory {
         foreignColumnType.setDataPersister(dataPersister);
         foreignColumnType.setDataType(foreignPrimaryKey.getDataType());
         foreignColumnType.setField(field);
+        foreignColumnType.setFetchType(foreignColumn.fetchType());
         try {
             foreignColumnType.setFieldAccessor(new FieldAccessor(field));
         } catch (NoSuchMethodException ex) {

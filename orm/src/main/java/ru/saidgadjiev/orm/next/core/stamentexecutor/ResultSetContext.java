@@ -1,29 +1,32 @@
 package ru.saidgadjiev.orm.next.core.stamentexecutor;
 
-import ru.saidgadjiev.orm.next.core.dao.Session;
+import ru.saidgadjiev.orm.next.core.dao.Dao;
+import ru.saidgadjiev.orm.next.core.support.OrmNextResultSet;
 
-import java.sql.ResultSet;
-import java.util.*;
-import java.util.function.Function;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ResultSetContext {
 
-    private Session session;
+    private Dao dao;
 
-    private ResultSet databaseResults;
+    private OrmNextResultSet databaseResults;
 
     private Map<String, Map<Object, EntityProcessingState>> processingStateMap = new HashMap<>();
 
-    public ResultSetContext(Session session, ResultSet databaseResults) {
-        this.session = session;
+    private Map<Class<?>, Map<Object, Object>> cache = new HashMap<>();
+
+    public ResultSetContext(Dao dao, OrmNextResultSet databaseResults) {
+        this.dao = dao;
         this.databaseResults = databaseResults;
     }
 
-    public Session getSession() {
-        return session;
+    public Dao getDao() {
+        return dao;
     }
 
-    public ResultSet getDatabaseResults() {
+    public OrmNextResultSet getDatabaseResults() {
         return databaseResults;
     }
 
@@ -32,6 +35,17 @@ public class ResultSetContext {
         processingStateMap.get(uid).putIfAbsent(id, new EntityProcessingState());
 
         return processingStateMap.get(uid).get(id);
+    }
+
+    public void addEntry(Object id, Object data) {
+        cache.putIfAbsent(data.getClass(), new HashMap<>());
+        Map<Object, Object> objectCache = cache.get(data.getClass());
+
+        objectCache.put(id, data);
+    }
+
+    public Object getEntry(Class<?> tClass, Object id) {
+        return cache.get(tClass).get(id);
     }
 
     public static class EntityProcessingState {

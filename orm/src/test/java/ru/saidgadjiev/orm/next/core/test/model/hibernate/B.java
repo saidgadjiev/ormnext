@@ -1,8 +1,8 @@
 package ru.saidgadjiev.orm.next.core.test.model.hibernate;
 
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity(name = "b")
 public class B {
@@ -14,14 +14,14 @@ public class B {
     @Column(nullable = false)
     private String name;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.LAZY)
     private C c;
 
     @OneToOne(fetch = FetchType.EAGER)
     private A a;
 
-    @OneToMany(mappedBy = "b", fetch = FetchType.EAGER)
-    private Set<D> dSet = new HashSet<>();
+    @OneToMany(mappedBy = "b", fetch = FetchType.LAZY)
+    private List<D> dSet = new ArrayList<>();
 
     public int getId() {
         return id;
@@ -55,11 +55,11 @@ public class B {
         this.a = a;
     }
 
-    public Set<D> getdSet() {
+    public List<D> getdSet() {
         return dSet;
     }
 
-    public void setdSet(Set<D> dSet) {
+    public void setdSet(ArrayList<D> dSet) {
         this.dSet = dSet;
     }
 

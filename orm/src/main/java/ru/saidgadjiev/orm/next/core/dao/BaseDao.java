@@ -1,5 +1,8 @@
 package ru.saidgadjiev.orm.next.core.dao;
 
+import ru.saidgadjiev.orm.next.core.criteria.impl.CriteriaQuery;
+import ru.saidgadjiev.orm.next.core.criteria.impl.SimpleCriteriaQuery;
+
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
@@ -61,4 +64,8 @@ public interface BaseDao {
     <T> void dropIndexes(Class<T> tClass) throws SQLException;
 
     <T> long countOff(Class<T> tClass) throws SQLException;
+
+    <T> List<T> list(CriteriaQuery<T> criteriaQuery) throws SQLException;
+
+    long queryForLong(SimpleCriteriaQuery simpleCriteriaQuery) throws SQLException;
 }

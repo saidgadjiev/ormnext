@@ -1,6 +1,8 @@
 package ru.saidgadjiev.orm.next.core.test;
 
-import org.hibernate.*;
+import org.hibernate.Hibernate;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
@@ -29,8 +31,9 @@ public class TestHibernate {
         SessionFactory sessionFactory = createSessionFactory(configuration);
         Session session = sessionFactory.openSession();
 
-        session.getCriteriaBuilder().createQuery();
-        System.out.println( session.createCriteria(B.class).list());
+        B b = session.get(B.class, 1);
+
+        Hibernate.initialize(b.getC());
         session.close();
         sessionFactory.close();
     }

@@ -1,10 +1,12 @@
 package ru.saidgadjiev.orm.next.core.dao;
 
+import ru.saidgadjiev.orm.next.core.criteria.impl.CriteriaQuery;
+import ru.saidgadjiev.orm.next.core.criteria.impl.SimpleCriteriaQuery;
 import ru.saidgadjiev.orm.next.core.dao.transaction.Transaction;
 import ru.saidgadjiev.orm.next.core.stamentexecutor.DefaultEntityLoader;
 import ru.saidgadjiev.orm.next.core.support.ConnectionSource;
+import ru.saidgadjiev.orm.next.core.support.DatabaseConnection;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
@@ -13,7 +15,7 @@ public class TransactionImpl implements Transaction {
 
     private final DefaultEntityLoader statementExecutor;
 
-    private final Connection connection;
+    private final DatabaseConnection connection;
 
     private ConnectionSource connectionSource;
 
@@ -93,6 +95,16 @@ public class TransactionImpl implements Transaction {
     public<T> long countOff(Class<T> tClass) throws SQLException {
         check();
         return statementExecutor.countOff(connection, tClass);
+    }
+
+    @Override
+    public <T> List<T> list(CriteriaQuery<T> criteriaQuery) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public long queryForLong(SimpleCriteriaQuery simpleCriteriaQuery) throws SQLException {
+        return 0;
     }
 
     @Override

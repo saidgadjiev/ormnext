@@ -164,4 +164,6 @@ public interface QueryVisitor {
     boolean visit(OrderByItem orderByItem);
 
     void visit(InsertValues insertValues);
+
+    boolean visit(CountColumn countColumn);
 }

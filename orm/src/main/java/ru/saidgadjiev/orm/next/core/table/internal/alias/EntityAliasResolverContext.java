@@ -4,7 +4,9 @@ import ru.saidgadjiev.orm.next.core.common.AliasResolver;
 import ru.saidgadjiev.orm.next.core.field.fieldtype.IDatabaseColumnType;
 import ru.saidgadjiev.orm.next.core.table.internal.metamodel.DatabaseEntityMetadata;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class EntityAliasResolverContext {
 

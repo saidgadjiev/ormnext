@@ -8,10 +8,13 @@ public class CollectionEntityAliases {
 
     private final Class<?> collectionObjectClass;
 
-    public CollectionEntityAliases(String collectionColumnKeyAlias, String collectionOwnerAlias, Class<?> collectionObjectClass) {
+    private final EntityAliases ownerAliases;
+
+    public CollectionEntityAliases(String collectionColumnKeyAlias, String collectionOwnerAlias, Class<?> collectionObjectClass, EntityAliases ownerAliases) {
         this.collectionColumnKeyAlias = collectionColumnKeyAlias;
         this.collectionOwnerAlias = collectionOwnerAlias;
         this.collectionObjectClass = collectionObjectClass;
+        this.ownerAliases = ownerAliases;
     }
 
     public String getCollectionColumnKeyAlias() {
@@ -24,5 +27,9 @@ public class CollectionEntityAliases {
 
     public String getCollectionOwnerAlias() {
         return collectionOwnerAlias;
+    }
+
+    public EntityAliases getOwnerAliases() {
+        return ownerAliases;
     }
 }

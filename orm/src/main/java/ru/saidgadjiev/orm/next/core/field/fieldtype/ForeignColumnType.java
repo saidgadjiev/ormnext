@@ -1,8 +1,9 @@
 package ru.saidgadjiev.orm.next.core.field.fieldtype;
 
-import ru.saidgadjiev.orm.next.core.table.internal.visitor.EntityMetadataVisitor;
+import ru.saidgadjiev.orm.next.core.field.FetchType;
 import ru.saidgadjiev.orm.next.core.field.FieldAccessor;
 import ru.saidgadjiev.orm.next.core.field.persister.DataPersister;
+import ru.saidgadjiev.orm.next.core.table.internal.visitor.EntityMetadataVisitor;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -35,6 +36,7 @@ public class ForeignColumnType implements IForeignDatabaseColumnType {
     private String tableName;
 
     private int dataType;
+    private FetchType fetchType;
 
     @Override
     public Field getField() {
@@ -163,5 +165,13 @@ public class ForeignColumnType implements IForeignDatabaseColumnType {
 
     public void setOwnerClass(Class<?> ownerClass) {
         this.ownerClass = ownerClass;
+    }
+
+    public void setFetchType(FetchType fetchType) {
+        this.fetchType = fetchType;
+    }
+
+    public FetchType getFetchType() {
+        return fetchType;
     }
 }

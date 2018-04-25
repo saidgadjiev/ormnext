@@ -4,7 +4,6 @@ import ru.saidgadjiev.orm.next.core.query.core.AndCondition;
 import ru.saidgadjiev.orm.next.core.query.core.columnspec.ColumnSpec;
 import ru.saidgadjiev.orm.next.core.query.core.condition.Expression;
 import ru.saidgadjiev.orm.next.core.query.core.condition.OperandCondition;
-import ru.saidgadjiev.orm.next.core.query.core.function.CountAll;
 import ru.saidgadjiev.orm.next.core.query.core.function.CountExpression;
 import ru.saidgadjiev.orm.next.core.query.core.function.Function;
 import ru.saidgadjiev.orm.next.core.query.core.function.SUM;

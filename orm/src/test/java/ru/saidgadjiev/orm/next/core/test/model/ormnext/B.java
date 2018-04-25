@@ -1,14 +1,14 @@
 package ru.saidgadjiev.orm.next.core.test.model.ormnext;
 
 import ru.saidgadjiev.orm.next.core.field.DatabaseColumn;
+import ru.saidgadjiev.orm.next.core.field.FetchType;
 import ru.saidgadjiev.orm.next.core.field.ForeignCollectionField;
 import ru.saidgadjiev.orm.next.core.field.ForeignColumn;
 
-import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
-@Entity(name = "b")
+
 public class B {
 
     @DatabaseColumn(id = true, generated = true, dataType = 8)
@@ -17,7 +17,7 @@ public class B {
     @DatabaseColumn(notNull = true)
     private String name;
 
-    @ForeignColumn
+    @ForeignColumn(fetchType = FetchType.LAZY)
     private C c;
 
     @ForeignColumn

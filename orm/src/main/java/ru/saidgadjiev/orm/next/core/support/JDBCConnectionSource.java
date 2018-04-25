@@ -1,8 +1,5 @@
 package ru.saidgadjiev.orm.next.core.support;
 
-import ru.saidgadjiev.orm.next.core.db.DatabaseType;
-
-import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
@@ -10,26 +7,32 @@ public class JDBCConnectionSource implements ConnectionSource {
 
     private final String dataBaseUrl;
 
-    private final DatabaseType databaseType;
+    private String driverClassName;
 
 
-    public JDBCConnectionSource(String dataBaseUrl, DatabaseType databaseType) throws SQLException {
+    public JDBCConnectionSource(String dataBaseUrl, String driverClassName) throws SQLException {
         this.dataBaseUrl = dataBaseUrl;
-        this.databaseType = databaseType;
+        this.driverClassName = driverClassName;
         initialize();
     }
 
     private void initialize() throws SQLException {
-        databaseType.loadDriver();
+        loadDriver();
+    }
+
+    private void loadDriver() throws SQLException {
+        if (driverClassName != null) {
+            try {
+                Class.forName(driverClassName);
+            } catch (ClassNotFoundException e) {
+                throw new SQLException("Driver class was not found.  Missing jar with class " + driverClassName + ".", e);
+            }
+        }
     }
 
     @Override
-    public Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(dataBaseUrl);
+    public DatabaseConnection getConnection() throws SQLException {
+        return new SqlConnectionImpl(DriverManager.getConnection(dataBaseUrl));
     }
 
-    @Override
-    public DatabaseType getDatabaseType() {
-        return databaseType;
-    }
 }

@@ -2,9 +2,7 @@ package ru.saidgadjiev.orm.next.core.test.model.ormnext;
 
 import ru.saidgadjiev.orm.next.core.field.DatabaseColumn;
 
-import javax.persistence.*;
 
-@Entity(name = "c")
 public class C {
 
     @DatabaseColumn(id = true, generated = true, dataType = 8)

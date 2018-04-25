@@ -12,6 +12,20 @@ public class Restrictions {
 
     }
 
+    public static Criterion eq(String propertyName) {
+        return new Criterion() {
+            @Override
+            public Condition getCondition() {
+                return new Equals(new ColumnSpec(propertyName), new Param());
+            }
+
+            @Override
+            public Object[] getArgs() {
+                return new Object[] {};
+            }
+        };
+    }
+
     public static Criterion eq(String propertyName, Object value) {
         return new Criterion() {
             @Override

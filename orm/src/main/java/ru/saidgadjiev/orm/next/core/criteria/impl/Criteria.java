@@ -2,11 +2,11 @@ package ru.saidgadjiev.orm.next.core.criteria.impl;
 
 import ru.saidgadjiev.orm.next.core.criteria.api.Criterion;
 import ru.saidgadjiev.orm.next.core.query.core.AndCondition;
-import ru.saidgadjiev.orm.next.core.query.core.Limit;
-import ru.saidgadjiev.orm.next.core.query.core.Offset;
 import ru.saidgadjiev.orm.next.core.query.core.condition.Expression;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class Criteria {
 

@@ -1,8 +1,5 @@
-package ru.saidgadjiev.orm.next.core.dao;
+package ru.saidgadjiev.orm.next.core.criteria.impl;
 
-import ru.saidgadjiev.orm.next.core.criteria.impl.Criteria;
-import ru.saidgadjiev.orm.next.core.criteria.impl.GroupByCriteria;
-import ru.saidgadjiev.orm.next.core.criteria.impl.OrderByCriteria;
 import ru.saidgadjiev.orm.next.core.query.core.Limit;
 import ru.saidgadjiev.orm.next.core.query.core.Offset;
 import ru.saidgadjiev.orm.next.core.query.core.clause.GroupBy;
@@ -12,9 +9,12 @@ import ru.saidgadjiev.orm.next.core.query.core.condition.Expression;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryElement;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryVisitor;
 
-import java.sql.SQLException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
+@SuppressWarnings("CPD-START")
 public class CriteriaQuery<T> implements QueryElement {
 
     private final Class<T> persistentClass;
@@ -31,11 +31,10 @@ public class CriteriaQuery<T> implements QueryElement {
 
     private Offset offset;
 
-    private ExpandedDao expandedDao;
+    private Map<Integer, Object> userProvidedArgs = new HashMap<>();
 
-    CriteriaQuery(ExpandedDao expandedDao, Class<T> persistentClass) {
+    public CriteriaQuery(Class<T> persistentClass) {
         this.persistentClass = persistentClass;
-        this.expandedDao = expandedDao;
     }
 
     public CriteriaQuery<T> where(Criteria where) {
@@ -74,14 +73,24 @@ public class CriteriaQuery<T> implements QueryElement {
         return this;
     }
 
+    public CriteriaQuery<T> addArg(int index, Object arg) {
+        userProvidedArgs.put(index, arg);
+
+        return this;
+    }
+
     public List<Object> getArgs() {
-        List<Object> args = new ArrayList<>();
+        List<Object> args = new LinkedList<>();
 
         if (where != null) {
             args.addAll(where.getArgs());
         }
         if (having != null) {
             args.addAll(having.getArgs());
+        }
+
+        for (Map.Entry<Integer, Object> entry: userProvidedArgs.entrySet()) {
+            args.add(entry.getKey() - 1, entry.getValue());
         }
 
         return args;
@@ -113,10 +122,6 @@ public class CriteriaQuery<T> implements QueryElement {
 
     public Offset getOffset() {
         return offset;
-    }
-
-    public List<T> list() throws SQLException {
-        return expandedDao.list(this);
     }
 
     @Override

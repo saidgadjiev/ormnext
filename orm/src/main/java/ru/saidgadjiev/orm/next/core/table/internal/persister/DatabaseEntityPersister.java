@@ -1,17 +1,17 @@
 package ru.saidgadjiev.orm.next.core.table.internal.persister;
 
 import ru.saidgadjiev.orm.next.core.common.UIDGenerator;
-import ru.saidgadjiev.orm.next.core.table.internal.metamodel.MetaModel;
-import ru.saidgadjiev.orm.next.core.table.internal.visitor.DefaultEntityMetadataVisitor;
-import ru.saidgadjiev.orm.next.core.table.internal.queryspace.EntityQuerySpace;
-import ru.saidgadjiev.orm.next.core.table.internal.alias.EntityAliasResolverContext;
-import ru.saidgadjiev.orm.next.core.table.internal.alias.EntityAliases;
-import ru.saidgadjiev.orm.next.core.stamentexecutor.rowreader.entityinitializer.EntityInitializer;
 import ru.saidgadjiev.orm.next.core.stamentexecutor.rowreader.RowReader;
 import ru.saidgadjiev.orm.next.core.stamentexecutor.rowreader.RowReaderImpl;
-import ru.saidgadjiev.orm.next.core.table.internal.metamodel.DatabaseEntityMetadata;
+import ru.saidgadjiev.orm.next.core.stamentexecutor.rowreader.entityinitializer.EntityInitializer;
+import ru.saidgadjiev.orm.next.core.table.internal.alias.EntityAliasResolverContext;
+import ru.saidgadjiev.orm.next.core.table.internal.alias.EntityAliases;
 import ru.saidgadjiev.orm.next.core.table.internal.instatiator.EntityInstantiator;
 import ru.saidgadjiev.orm.next.core.table.internal.instatiator.Instantiator;
+import ru.saidgadjiev.orm.next.core.table.internal.metamodel.DatabaseEntityMetadata;
+import ru.saidgadjiev.orm.next.core.table.internal.metamodel.MetaModel;
+import ru.saidgadjiev.orm.next.core.table.internal.queryspace.EntityQuerySpace;
+import ru.saidgadjiev.orm.next.core.table.internal.visitor.DefaultEntityMetadataVisitor;
 
 public class DatabaseEntityPersister {
 

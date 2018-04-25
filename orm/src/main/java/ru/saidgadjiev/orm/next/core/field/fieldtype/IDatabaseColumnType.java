@@ -1,7 +1,7 @@
 package ru.saidgadjiev.orm.next.core.field.fieldtype;
 
-import ru.saidgadjiev.orm.next.core.table.internal.visitor.EntityElement;
 import ru.saidgadjiev.orm.next.core.field.persister.DataPersister;
+import ru.saidgadjiev.orm.next.core.table.internal.visitor.EntityElement;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;

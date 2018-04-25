@@ -1,12 +1,15 @@
 package ru.saidgadjiev.orm.next.core.stamentexecutor.rowreader.entityinitializer;
 
+import ru.saidgadjiev.orm.next.core.dao.Dao;
 import ru.saidgadjiev.orm.next.core.field.fieldtype.ForeignColumnType;
 import ru.saidgadjiev.orm.next.core.field.fieldtype.IDatabaseColumnType;
 import ru.saidgadjiev.orm.next.core.stamentexecutor.ResultSetContext;
+import ru.saidgadjiev.orm.next.core.stamentexecutor.object.OrmNextProxy;
 import ru.saidgadjiev.orm.next.core.table.internal.alias.EntityAliases;
 import ru.saidgadjiev.orm.next.core.table.internal.metamodel.DatabaseEntityMetadata;
 import ru.saidgadjiev.orm.next.core.table.internal.persister.DatabaseEntityPersister;
 
+import java.lang.reflect.Proxy;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +52,7 @@ public class EntityInitializer {
         IDatabaseColumnType primaryKey = entityMetadata.getPrimaryKey();
 
         primaryKey.assign(entityInstance, id);
-        context.getSession().cacheHelper().saveToCache(entityInstance, id);
+        addToCache(context, id, entityInstance);
         List<Object> values = new ArrayList<>();
 
         List<String> columnAliases = entityAliases.getColumnAliases();
@@ -92,9 +95,25 @@ public class EntityInitializer {
                 columnType.assign(entityInstance, values.get(i++));
             }
             if (columnType.isForeignFieldType()) {
-                columnType.assign(entityInstance, context.getSession().queryForId(((ForeignColumnType) columnType).getForeignFieldClass(), values.get(i++)));
+                switch (((ForeignColumnType) columnType).getFetchType()) {
+                    case LAZY:
+                        columnType.assign(entityInstance, getProxy(context.getDao(), ((ForeignColumnType) columnType).getForeignFieldClass(), values.get(i++)));
+                        break;
+                    case EAGER:
+                        columnType.assign(entityInstance, context.getEntry(((ForeignColumnType) columnType).getForeignFieldClass(), values.get(i++)));
+                        break;
+                }
             }
         }
+    }
+
+    private Object getProxy(Dao dao, Class<?> entityClass, Object id) {
+        return Proxy.newProxyInstance(getClass().getClassLoader(), new Class[] {entityClass}, new OrmNextProxy(dao, entityClass, id));
+    }
+
+    private void addToCache(ResultSetContext context, Object id, Object entityInstance) {
+        context.addEntry(id, entityInstance);
+        context.getDao().cacheHelper().saveToCache(id, entityInstance);
     }
 
     public String getUid() {

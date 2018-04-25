@@ -1,10 +1,10 @@
 package ru.saidgadjiev.orm.next.core.field.fieldtype;
 
-import ru.saidgadjiev.orm.next.core.table.internal.visitor.EntityMetadataVisitor;
 import ru.saidgadjiev.orm.next.core.field.CollectionType;
 import ru.saidgadjiev.orm.next.core.field.FetchType;
 import ru.saidgadjiev.orm.next.core.field.FieldAccessor;
 import ru.saidgadjiev.orm.next.core.field.persister.DataPersister;
+import ru.saidgadjiev.orm.next.core.table.internal.visitor.EntityMetadataVisitor;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -13,6 +13,8 @@ import java.util.Collection;
 public class ForeignCollectionColumnType implements IForeignDatabaseColumnType {
 
     private Field field;
+
+    private Field foreignField;
 
     private Class<?> foreignFieldClass;
 
@@ -145,6 +147,14 @@ public class ForeignCollectionColumnType implements IForeignDatabaseColumnType {
 
     public String getForeignColumnName() {
         return foreignColumnName;
+    }
+
+    public Field getForeignField() {
+        return foreignField;
+    }
+
+    public void setForeignField(Field foreignField) {
+        this.foreignField = foreignField;
     }
 
     @Override

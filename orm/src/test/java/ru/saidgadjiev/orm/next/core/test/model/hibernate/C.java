@@ -1,6 +1,8 @@
 package ru.saidgadjiev.orm.next.core.test.model.hibernate;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 
 @Entity(name = "c")
 public class C {

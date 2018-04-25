@@ -1,6 +1,6 @@
 package ru.saidgadjiev.orm.next.core.stamentexecutor.object.operation;
 
-import ru.saidgadjiev.orm.next.core.dao.Session;
+import ru.saidgadjiev.orm.next.core.dao.Dao;
 import ru.saidgadjiev.orm.next.core.field.fieldtype.ForeignColumnType;
 import ru.saidgadjiev.orm.next.core.table.internal.metamodel.DatabaseEntityMetadata;
 import ru.saidgadjiev.orm.next.core.table.internal.metamodel.MetaModel;
@@ -10,12 +10,12 @@ import ru.saidgadjiev.orm.next.core.table.internal.metamodel.MetaModel;
  */
 public class ForeignCreator<O> implements IObjectOperation<Void, Object> {
 
-    private Session session;
+    private Dao dao;
 
     private MetaModel metaModel;
 
-    public ForeignCreator(Session session, MetaModel metaModel) {
-        this.session = session;
+    public ForeignCreator(Dao dao, MetaModel metaModel) {
+        this.dao = dao;
         this.metaModel = metaModel;
     }
 
@@ -27,7 +27,7 @@ public class ForeignCreator<O> implements IObjectOperation<Void, Object> {
             Object foreignObject = fieldType.access(object);
 
             if (foreignObject != null && fieldType.isForeignAutoCreate()) {
-                session.create(foreignObject);
+                dao.create(foreignObject);
             }
         }
 

@@ -1,10 +1,12 @@
 package ru.saidgadjiev.orm.next.core.table.internal.queryspace;
 
-import ru.saidgadjiev.orm.next.core.dao.CriteriaQuery;
+import ru.saidgadjiev.orm.next.core.criteria.impl.CriteriaQuery;
+import ru.saidgadjiev.orm.next.core.criteria.impl.SimpleCriteriaQuery;
 import ru.saidgadjiev.orm.next.core.field.DataPersisterManager;
 import ru.saidgadjiev.orm.next.core.field.fieldtype.*;
 import ru.saidgadjiev.orm.next.core.query.core.*;
 import ru.saidgadjiev.orm.next.core.query.core.clause.from.FromJoinedTables;
+import ru.saidgadjiev.orm.next.core.query.core.clause.from.FromTable;
 import ru.saidgadjiev.orm.next.core.query.core.clause.select.SelectColumnsList;
 import ru.saidgadjiev.orm.next.core.query.core.columnspec.ColumnSpec;
 import ru.saidgadjiev.orm.next.core.query.core.columnspec.DisplayedColumn;
@@ -302,15 +304,32 @@ public class EntityQuerySpace  {
 
         select.setSelectColumnsStrategy(selectColumnsList);
         select.setFrom(fromJoinedTables);
-        QuerySpaceVisitor visitor = new QuerySpaceVisitor(rootEntityMetaData, rootEntityAliases);
-
-        criteria.accept(visitor);
         select.setWhere(criteria.getWhere());
         select.setGroupBy(criteria.getGroupBy());
         select.setOrderBy(criteria.getOrderBy());
         select.setHaving(criteria.getHaving());
         select.setLimit(criteria.getLimit());
         select.setOffset(criteria.getOffset());
+        select.accept(new QuerySpaceVisitor(rootEntityMetaData, rootEntityAliases));
+
+        return select;
+    }
+
+    public Select getByCriteria(SimpleCriteriaQuery criteria) {
+        Select select = new Select();
+
+        select.setFrom(new FromTable(new TableRef(rootEntityMetaData.getTableName())));
+        select.setWhere(criteria.getWhere());
+        select.setGroupBy(criteria.getGroupBy());
+        select.setOrderBy(criteria.getOrderBy());
+        select.setHaving(criteria.getHaving());
+        select.setLimit(criteria.getLimit());
+        select.setOffset(criteria.getOffset());
+        SelectColumnsList selectColumnsList = new SelectColumnsList();
+
+        selectColumnsList.addColumn(new DisplayedOperand(criteria.getFunction()));
+        select.setSelectColumnsStrategy(selectColumnsList);
+        select.accept(new QuerySpaceVisitor(rootEntityMetaData, rootEntityAliases));
 
         return select;
     }

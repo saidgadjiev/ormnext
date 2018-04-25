@@ -1,9 +1,11 @@
 package ru.saidgadjiev.orm.next.core.stamentexecutor.object.collection;
 
+import ru.saidgadjiev.orm.next.core.dao.Dao;
+import ru.saidgadjiev.orm.next.core.stamentexecutor.rowreader.entityinitializer.CollectionLoader;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.function.Supplier;
 
 /**
  * Created by said on 09.03.2018.
@@ -12,8 +14,8 @@ public class LazyList<T> extends AbstractLazyCollection<T> implements List<T> {
 
     private List<T> list;
 
-    public LazyList(Supplier<List<T>> fetcher, List<T> list) {
-        super(fetcher, list);
+    public LazyList(CollectionLoader collectionLoader, Dao dao, Object ownerId, List<T> list) {
+        super(collectionLoader, dao, ownerId, list);
         this.list = list;
     }
 

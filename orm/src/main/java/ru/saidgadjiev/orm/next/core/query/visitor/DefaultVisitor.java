@@ -19,6 +19,7 @@ import ru.saidgadjiev.orm.next.core.query.core.constraints.table.ForeignKeyConst
 import ru.saidgadjiev.orm.next.core.query.core.constraints.table.TableConstraint;
 import ru.saidgadjiev.orm.next.core.query.core.constraints.table.UniqueConstraint;
 import ru.saidgadjiev.orm.next.core.query.core.function.CountAll;
+import ru.saidgadjiev.orm.next.core.query.core.function.CountColumn;
 import ru.saidgadjiev.orm.next.core.query.core.function.CountExpression;
 import ru.saidgadjiev.orm.next.core.query.core.function.SUM;
 import ru.saidgadjiev.orm.next.core.query.core.join.JoinExpression;
@@ -27,8 +28,6 @@ import ru.saidgadjiev.orm.next.core.query.core.join.LeftJoin;
 import ru.saidgadjiev.orm.next.core.query.core.literals.*;
 
 import java.util.Iterator;
-
-import static ru.saidgadjiev.orm.next.core.field.DataType.*;
 
 /**
  * Visitor по умолчанию
@@ -203,7 +202,7 @@ public class DefaultVisitor extends NoActionVisitor {
             AttributeDefinition attributeDefinition = iterator.next();
 
             sql.append(escapeEntity).append(attributeDefinition.getName()).append(escapeEntity).append(" ");
-            appendAttributeDataType(attributeDefinition);
+            sql.append(databaseType.getTypeSqlPresent(attributeDefinition));
             sql.append(" ");
             for (Iterator<AttributeConstraint> constraintIterator = attributeDefinition.getAttributeConstraints().iterator(); constraintIterator.hasNext(); ) {
                 AttributeConstraint constraint = constraintIterator.next();
@@ -232,34 +231,6 @@ public class DefaultVisitor extends NoActionVisitor {
         sql.append(")");
 
         return false;
-    }
-
-    private void appendAttributeDataType(AttributeDefinition def) {
-        int dataType = def.getDataType();
-
-        switch (dataType) {
-            case STRING:
-            case DATE:
-                sql.append("VARCHAR").append("(").append(def.getLength()).append(")");
-                break;
-            case INTEGER:
-            case LONG:
-                sql.append("INTEGER");
-                break;
-            case BOOLEAN:
-                sql.append("BOOLEAN");
-                break;
-            case FLOAT:
-                sql.append("FLOAT");
-                break;
-            case DOUBLE:
-                sql.append("DOUBLE");
-                break;
-            case UNKNOWN:
-                break;
-            default:
-                sql.append(databaseType.typeToSql(dataType, def));
-        }
     }
 
     @Override
@@ -619,6 +590,15 @@ public class DefaultVisitor extends NoActionVisitor {
                 .append(foreignKeyConstraint.getForeignColumnName())
                 .append(escapeEntity)
                 .append(")");
+
+        return false;
+    }
+
+    @Override
+    public boolean visit(CountColumn countColumn) {
+        sql.append("COUNT(");
+        countColumn.getColumnSpec().accept(this);
+        sql.append(")");
 
         return false;
     }

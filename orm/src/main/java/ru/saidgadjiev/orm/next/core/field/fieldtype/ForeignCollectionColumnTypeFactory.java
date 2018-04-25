@@ -3,7 +3,6 @@ package ru.saidgadjiev.orm.next.core.field.fieldtype;
 import ru.saidgadjiev.orm.next.core.field.CollectionType;
 import ru.saidgadjiev.orm.next.core.field.FieldAccessor;
 import ru.saidgadjiev.orm.next.core.field.ForeignCollectionField;
-import ru.saidgadjiev.orm.next.core.field.ForeignColumn;
 import ru.saidgadjiev.orm.next.core.utils.DatabaseMetaDataUtils;
 
 import java.lang.reflect.Field;
@@ -48,6 +47,7 @@ public class ForeignCollectionColumnTypeFactory implements ColumnTypeFactory {
            foreignField = findFieldByName(foreignFieldName, foreignFieldClazz);
         }
 
+        fieldType.setForeignField(foreignField);
         fieldType.setForeignColumnName(FieldTypeUtils.resolveForeignColumnTypeName(foreignField));
         fieldType.setForeignTableName(DatabaseMetaDataUtils.resolveTableName(foreignField.getDeclaringClass()));
 

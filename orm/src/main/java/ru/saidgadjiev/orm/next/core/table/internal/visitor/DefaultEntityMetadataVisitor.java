@@ -2,17 +2,20 @@ package ru.saidgadjiev.orm.next.core.table.internal.visitor;
 
 import org.apache.log4j.Logger;
 import ru.saidgadjiev.orm.next.core.common.UIDGenerator;
-import ru.saidgadjiev.orm.next.core.table.internal.metamodel.MetaModel;
-import ru.saidgadjiev.orm.next.core.table.internal.queryspace.EntityQuerySpace;
+import ru.saidgadjiev.orm.next.core.field.FetchType;
 import ru.saidgadjiev.orm.next.core.field.fieldtype.ForeignCollectionColumnType;
 import ru.saidgadjiev.orm.next.core.field.fieldtype.ForeignColumnKey;
 import ru.saidgadjiev.orm.next.core.field.fieldtype.ForeignColumnType;
+import ru.saidgadjiev.orm.next.core.stamentexecutor.rowreader.entityinitializer.CollectionInitializer;
+import ru.saidgadjiev.orm.next.core.stamentexecutor.rowreader.entityinitializer.CollectionLoader;
+import ru.saidgadjiev.orm.next.core.stamentexecutor.rowreader.entityinitializer.CollectionQuerySpace;
+import ru.saidgadjiev.orm.next.core.stamentexecutor.rowreader.entityinitializer.EntityInitializer;
 import ru.saidgadjiev.orm.next.core.table.internal.alias.CollectionEntityAliases;
 import ru.saidgadjiev.orm.next.core.table.internal.alias.EntityAliasResolverContext;
 import ru.saidgadjiev.orm.next.core.table.internal.alias.EntityAliases;
-import ru.saidgadjiev.orm.next.core.stamentexecutor.rowreader.entityinitializer.CollectionInitializer;
-import ru.saidgadjiev.orm.next.core.stamentexecutor.rowreader.entityinitializer.EntityInitializer;
 import ru.saidgadjiev.orm.next.core.table.internal.metamodel.DatabaseEntityMetadata;
+import ru.saidgadjiev.orm.next.core.table.internal.metamodel.MetaModel;
+import ru.saidgadjiev.orm.next.core.table.internal.queryspace.EntityQuerySpace;
 
 import java.util.*;
 
@@ -84,18 +87,20 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
 
         EntityAliases foreignEntityAliases = entityAliasResolverContext.resolveAliases(nextUID, foreignMetaData);
 
-        entityQuerySpace.appendCollectionJoin(ownerMetaData.getPrimaryKey().getColumnName(), foreignCollectionColumnType, ownerAliases, foreignEntityAliases);
-        entityQuerySpace.appendSelectColumns(foreignEntityAliases, foreignMetaData);
+        if (foreignCollectionColumnType.getFetchType().equals(FetchType.EAGER)) {
+            entityQuerySpace.appendCollectionJoin(ownerMetaData.getPrimaryKey().getColumnName(), foreignCollectionColumnType, ownerAliases, foreignEntityAliases);
+            entityQuerySpace.appendSelectColumns(foreignEntityAliases, foreignMetaData);entityInitializerMap.put(nextUID, new EntityInitializer(nextUID, foreignEntityAliases, metaModel.getPersister(foreignMetaData.getTableClass())));
+        }
+        CollectionLoader collectionLoader = new CollectionLoader(new CollectionQuerySpace(foreignCollectionColumnType));
 
         collectionInitializers.add(
                 new CollectionInitializer(
                         parentUidStack.peek(),
                         new CollectionEntityAliases(foreignEntityAliases.getKeyAlias(), foreignEntityAliases.getAliasByColumnName(foreignCollectionColumnType.getForeignColumnKey().getColumnName()),
-                                foreignMetaData.getTableClass()),
-                        foreignCollectionColumnType
+                                foreignMetaData.getTableClass(), ownerAliases),
+                        collectionLoader
                 )
         );
-        entityInitializerMap.put(nextUID, new EntityInitializer(nextUID, foreignEntityAliases, metaModel.getPersister(foreignMetaData.getTableClass())));
         visitedForeignColumnKey.add(foreignCollectionColumnType.getForeignColumnKey());
         parentUidStack.push(nextUID);
         foreignMetaData.accept(this);

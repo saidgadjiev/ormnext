@@ -1,12 +1,14 @@
 package ru.saidgadjiev.orm.next.core.stamentexecutor.object.collection;
 
+import ru.saidgadjiev.orm.next.core.dao.Dao;
+import ru.saidgadjiev.orm.next.core.stamentexecutor.rowreader.entityinitializer.CollectionLoader;
+
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 /**
@@ -14,14 +16,22 @@ import java.util.stream.Stream;
  */
 public abstract class AbstractLazyCollection<T> implements Collection<T> {
 
-    private Supplier<List<T>> fetcher;
+    private Dao dao;
+
+    private Object ownerId;
 
     private Collection<T> collection;
 
     protected boolean initialized = false;
 
-    public AbstractLazyCollection(Supplier<List<T>> fetcher, Collection<T> collection) {
-        this.fetcher = fetcher;
+    private CollectionLoader collectionLoader;
+
+    private long cachedSize;
+
+    public AbstractLazyCollection(CollectionLoader collectionLoader, Dao dao, Object ownerId, Collection<T> collection) {
+        this.collectionLoader = collectionLoader;
+        this.dao = dao;
+        this.ownerId = ownerId;
         this.collection = collection;
     }
 
@@ -29,16 +39,33 @@ public abstract class AbstractLazyCollection<T> implements Collection<T> {
         if (initialized) {
             return;
         }
+        try {
+            System.out.println("readAll");
+            collection.addAll((Collection<? extends T>) collectionLoader.loadCollection(dao, ownerId));
+        } catch (SQLException ex) {
+            throw new RuntimeException(ex);
+        }
 
-        collection.addAll(fetcher.get());
         initialized = true;
+    }
+
+    protected boolean readSize() {
+        if (initialized) {
+            return false;
+        }
+        try {
+            System.out.println("readSize");
+            cachedSize = collectionLoader.loadSize(dao, ownerId);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return true;
     }
 
     @Override
     public int size() {
-        read();
-
-        return collection.size();
+        return  readSize() ? (int) cachedSize : collection.size();
     }
 
     @Override
@@ -172,5 +199,14 @@ public abstract class AbstractLazyCollection<T> implements Collection<T> {
         read();
 
         collection.forEach(action);
+    }
+
+    @Override
+    public String toString() {
+        read();
+
+        return "AbstractLazyCollection{" +
+                "collection=" + collection +
+                '}';
     }
 }

@@ -1,8 +1,5 @@
 package ru.saidgadjiev.orm.next.core.support;
 
-import ru.saidgadjiev.orm.next.core.db.DatabaseType;
-
-import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
@@ -17,22 +14,17 @@ public class WrappedConnectionSource implements ConnectionSource {
     }
 
     @Override
-    public Connection getConnection() throws SQLException {
+    public DatabaseConnection getConnection() throws SQLException {
         return connectionSource.getConnection();
     }
 
     @Override
-    public void releaseConnection(Connection connection) throws SQLException {
+    public void releaseConnection(DatabaseConnection connection) throws SQLException {
         connectionSource.releaseConnection(connection);
     }
 
     @Override
-    public DatabaseType getDatabaseType() {
-        return connectionSource.getDatabaseType();
-    }
-
-    @Override
-    public void close() throws Exception {
+    public void close() throws SQLException {
         connectionSource.close();
     }
 }

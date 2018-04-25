@@ -3,17 +3,12 @@ package ru.saidgadjiev.orm.next.core.cache;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 public class CacheContext {
 
     private ObjectCache objectCache;
 
     private Map<Class<?>, Boolean> caching = new HashMap<>();
-
-    public CacheContext(ObjectCache objectCache) {
-        this.objectCache = objectCache;
-    }
 
     public CacheContext() {
     }

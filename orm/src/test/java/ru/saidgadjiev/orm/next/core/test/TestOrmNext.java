@@ -1,12 +1,10 @@
 package ru.saidgadjiev.orm.next.core.test;
 
 import org.postgresql.ds.PGPoolingDataSource;
-import ru.saidgadjiev.orm.next.core.criteria.impl.Criteria;
+import ru.saidgadjiev.orm.next.core.criteria.impl.CriteriaQuery;
 import ru.saidgadjiev.orm.next.core.criteria.impl.OrderByCriteria;
-import ru.saidgadjiev.orm.next.core.criteria.impl.Restrictions;
-import ru.saidgadjiev.orm.next.core.dao.Session;
-import ru.saidgadjiev.orm.next.core.dao.SessionManager;
-import ru.saidgadjiev.orm.next.core.dao.SessionMangerBuilder;
+import ru.saidgadjiev.orm.next.core.dao.Dao;
+import ru.saidgadjiev.orm.next.core.dao.DaoBuilder;
 import ru.saidgadjiev.orm.next.core.db.PGDatabaseType;
 import ru.saidgadjiev.orm.next.core.db.SerialTypeDataPersister;
 import ru.saidgadjiev.orm.next.core.field.DataPersisterManager;
@@ -21,33 +19,30 @@ import ru.saidgadjiev.orm.next.core.test.model.ormnext.D;
 import java.sql.SQLException;
 import java.util.List;
 
-import static ru.saidgadjiev.orm.next.core.criteria.impl.Restrictions.*;
-
 public class TestOrmNext {
 
     public static void main(String[] args) throws SQLException {
         System.setProperty(LoggerFactory.LOG_ENABLED_PROPERTY, "true");
-        SessionManager sessionManager = new SessionMangerBuilder()
+        Dao dao = new DaoBuilder()
                 .addEntityClasses(B.class, A.class, C.class, D.class)
+                .databaseType(new PGDatabaseType())
                 .connectionSource(postgreConnectionSource())
                 .build();
 
-        Session session = sessionManager.getCurrentSession();
-        testCriteriaQuery(session);
+        B b = dao.queryForId(B.class, 0);
 
-        session.close();
+        System.out.println(b.getC().getName());
+        dao.close();
     }
 
-    private static void testCriteriaQuery(Session session) throws SQLException {
-        List<B> objects = session
-                .criteriaQuery(B.class)
+    private static void testCriteriaQuery(Dao dao) throws SQLException {
+        List<B> objects = dao.list(new CriteriaQuery<>(B.class)
                 .orderBy(new OrderByCriteria()
                     .add(false, "name"))
                 .limit(10)
-                .offset(0)
-                .list();
+                .offset(0));
 
-        objects.forEach(System.out::println);
+        objects.forEach(object -> System.out.println(object.getdSet().size()));
     }
 
     private static ConnectionSource postgreConnectionSource() {
@@ -60,6 +55,6 @@ public class TestOrmNext {
         dataSource.setPassword("postgres");
         dataSource.setDatabaseName("ormtest");
 
-        return new PolledConnectionSource(dataSource, new PGDatabaseType());
+        return new PolledConnectionSource(dataSource);
     }
 }

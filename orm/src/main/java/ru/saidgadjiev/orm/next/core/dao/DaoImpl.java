@@ -2,49 +2,47 @@ package ru.saidgadjiev.orm.next.core.dao;
 
 import ru.saidgadjiev.orm.next.core.cache.CacheContext;
 import ru.saidgadjiev.orm.next.core.cache.ObjectCache;
+import ru.saidgadjiev.orm.next.core.criteria.impl.CriteriaQuery;
+import ru.saidgadjiev.orm.next.core.criteria.impl.SimpleCriteriaQuery;
 import ru.saidgadjiev.orm.next.core.stamentexecutor.CacheHelper;
 import ru.saidgadjiev.orm.next.core.stamentexecutor.DefaultEntityLoader;
 import ru.saidgadjiev.orm.next.core.support.ConnectionSource;
+import ru.saidgadjiev.orm.next.core.support.DatabaseConnection;
+import ru.saidgadjiev.orm.next.core.table.internal.metamodel.MetaModel;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by said on 19.02.2018.
  */
-public class SessionImpl implements Session {
-
-    private final ConnectionSource dataSource;
+public class DaoImpl implements Dao {
 
     private DefaultEntityLoader statementExecutor;
 
-    private ObjectCache sessionCache;
-
     private CacheHelper cacheHelper;
 
-    SessionImpl(SessionManager sessionManager, CacheContext cacheContext) {
-        this.dataSource = sessionManager.getDataSource();
-        this.sessionCache = new SessionObjectCache();
-        CacheContext sessionCacheContext = new CacheContext(sessionCache);
+    private final ConnectionSource dataSource;
 
-        this.cacheHelper = new CacheHelper(cacheContext, sessionCacheContext);
+    private CacheContext cacheContext = new CacheContext();
 
-        sessionManager.getMetaModel().getPersistentClasses().forEach(clazz -> sessionCache.registerClass(clazz));
-        sessionCacheContext.caching(sessionManager.getMetaModel().getPersistentClasses(), true);
-        this.statementExecutor = new DefaultEntityLoader(
-                this,
-                sessionManager.getMetaModel(),
-                dataSource.getDatabaseType()
-        );
+    private MetaModel metaModel;
+
+    private DatabaseEngine databaseEngine;
+
+    DaoImpl(ConnectionSource dataSource, Collection<Class<?>> entityClasses, DatabaseEngine databaseEngine) {
+        this.dataSource = dataSource;
+        this.metaModel = new MetaModel(entityClasses);
+        this.databaseEngine = databaseEngine;
+        this.cacheHelper = new CacheHelper(cacheContext);
+
+        this.statementExecutor = new DefaultEntityLoader(this);
     }
 
     @Override
     public <T> int create(Collection<T> objects) throws SQLException {
-        Connection connection = dataSource.getConnection();
+        DatabaseConnection connection = dataSource.getConnection();
 
         try {
             return statementExecutor.create(connection, objects);
@@ -55,7 +53,7 @@ public class SessionImpl implements Session {
 
     @Override
     public <T> int create(T object) throws SQLException {
-        Connection connection = dataSource.getConnection();
+        DatabaseConnection connection = dataSource.getConnection();
 
         try {
             return statementExecutor.create(connection, object);
@@ -66,7 +64,7 @@ public class SessionImpl implements Session {
 
     @Override
     public <T> boolean createTable(Class<T> tClass, boolean ifNotExist) throws SQLException {
-        Connection connection = dataSource.getConnection();
+        DatabaseConnection connection = dataSource.getConnection();
 
         try {
             return statementExecutor.createTable(connection, tClass, ifNotExist);
@@ -77,7 +75,7 @@ public class SessionImpl implements Session {
 
     @Override
     public <T, ID> T queryForId(Class<T> tClass, ID id) throws SQLException {
-        Connection connection = dataSource.getConnection();
+        DatabaseConnection connection = dataSource.getConnection();
 
         try {
             return statementExecutor.queryForId(connection, tClass, id);
@@ -88,7 +86,7 @@ public class SessionImpl implements Session {
 
     @Override
     public <T> List<T> queryForAll(Class<T> tClass) throws SQLException {
-        Connection connection = dataSource.getConnection();
+        DatabaseConnection connection = dataSource.getConnection();
 
         try {
             return statementExecutor.queryForAll(connection, tClass);
@@ -99,7 +97,7 @@ public class SessionImpl implements Session {
 
     @Override
     public <T> int update(T object) throws SQLException {
-        Connection connection = dataSource.getConnection();
+        DatabaseConnection connection = dataSource.getConnection();
 
         try {
             return statementExecutor.update(connection, object);
@@ -110,7 +108,7 @@ public class SessionImpl implements Session {
 
     @Override
     public <T> int delete(T object) throws SQLException {
-        Connection connection = dataSource.getConnection();
+        DatabaseConnection connection = dataSource.getConnection();
 
         try {
             return statementExecutor.delete(connection, object);
@@ -120,7 +118,7 @@ public class SessionImpl implements Session {
     }
 
     public <T, ID> int deleteById(Class<T> tClass, ID id) throws SQLException {
-        Connection connection = dataSource.getConnection();
+        DatabaseConnection connection = dataSource.getConnection();
 
         try {
             return statementExecutor.deleteById(connection, tClass, id);
@@ -131,7 +129,7 @@ public class SessionImpl implements Session {
 
     @Override
     public <T> boolean dropTable(Class<T> tClass, boolean ifExists) throws SQLException {
-        Connection connection = dataSource.getConnection();
+        DatabaseConnection connection = dataSource.getConnection();
 
         try {
             return statementExecutor.dropTable(connection, tClass, ifExists);
@@ -142,7 +140,7 @@ public class SessionImpl implements Session {
 
     @Override
     public <T> void createIndexes(Class<T> tClass) throws SQLException {
-        Connection connection = dataSource.getConnection();
+        DatabaseConnection connection = dataSource.getConnection();
 
         try {
             statementExecutor.createIndexes(connection, tClass);
@@ -153,7 +151,7 @@ public class SessionImpl implements Session {
 
     @Override
     public <T> void dropIndexes(Class<T> tClass) throws SQLException {
-        Connection connection = dataSource.getConnection();
+        DatabaseConnection connection = dataSource.getConnection();
 
         try {
             statementExecutor.dropIndexes(connection, tClass);
@@ -164,7 +162,7 @@ public class SessionImpl implements Session {
 
     @Override
     public <T> long countOff(Class<T> tClass) throws SQLException {
-        Connection connection = dataSource.getConnection();
+        DatabaseConnection connection = dataSource.getConnection();
 
         try {
             return statementExecutor.countOff(connection, tClass);
@@ -184,13 +182,13 @@ public class SessionImpl implements Session {
     }
 
     @Override
-    public void close() {
-        sessionCache.invalidateAll();
+    public void close() throws SQLException {
+        dataSource.close();
     }
 
     @Override
     public <T> List<T> list(CriteriaQuery<T> criteria) throws SQLException {
-        Connection connection = dataSource.getConnection();
+        DatabaseConnection connection = dataSource.getConnection();
 
         try {
             return statementExecutor.list(connection, criteria);
@@ -200,91 +198,42 @@ public class SessionImpl implements Session {
     }
 
     @Override
-    public<T> CriteriaQuery<T> criteriaQuery(Class<T> persistenceClass) {
-        return new CriteriaQuery<>(this, persistenceClass);
+    public long queryForLong(SimpleCriteriaQuery simpleCriteriaQuery) throws SQLException {
+        DatabaseConnection connection = dataSource.getConnection();
+
+        try {
+            return statementExecutor.queryForLong(connection, simpleCriteriaQuery);
+        } finally {
+            dataSource.releaseConnection(connection);
+        }
     }
 
-    private static final class SessionObjectCache implements ObjectCache {
+    @Override
+    public void setObjectCache(ObjectCache objectCache, Class<?>... classes) {
+        cacheContext.getObjectCache().invalidateAll();
+        if (objectCache != null) {
+            cacheContext
+                    .objectCache(objectCache);
 
-        private Map<Class<?>, Map<Object, Object>> cache = new HashMap<>();
-
-        @Override
-        public void registerClass(Class<?> tClass) {
-            cache.computeIfAbsent(tClass, aClass -> new HashMap<>());
-        }
-
-        @Override
-        public void put(Class<?> tClass, Object id, Object data) {
-            Map<Object, Object> objectCache = cache.get(tClass);
-
-            if (objectCache != null) {
-                objectCache.put(id, data);
+            for (Class<?> clazz : classes) {
+                cacheContext.caching(clazz, true);
+                objectCache.registerClass(clazz);
             }
         }
+    }
 
-        @Override
-        public Object get(Class<?> tClass, Object id) {
-            Map<Object, Object> objectCache = cache.get(tClass);
+    @Override
+    public ConnectionSource getDataSource() {
+        return dataSource;
+    }
 
-            if (objectCache == null) {
-                return null;
-            }
+    @Override
+    public MetaModel getMetaModel() {
+        return metaModel;
+    }
 
-            return objectCache.get(id);
-        }
-
-        @Override
-        public boolean contains(Class<?> tClass, Object id) {
-            Map<Object, Object> objectCache = cache.get(tClass);
-
-            return objectCache != null && objectCache.containsKey(id);
-        }
-
-        @Override
-        public void invalidate(Class<?> tClass, Object id) {
-            Map<Object, Object> objectCache = cache.get(tClass);
-
-            if (objectCache == null) {
-                return;
-            }
-            objectCache.remove(id);
-        }
-
-        @Override
-        public void invalidateAll(Class<?> tClass) {
-            Map<Object, Object> objectCache = cache.get(tClass);
-
-            if (objectCache == null) {
-                return;
-            }
-            objectCache.clear();
-        }
-
-        @Override
-        public void invalidateAll() {
-            cache.forEach((key, value) -> value.clear());
-        }
-
-        @Override
-        public long size(Class<?> tClass) {
-            Map<Object, Object> objectCache = cache.get(tClass);
-
-            if (objectCache == null) {
-                return 0;
-            }
-
-            return objectCache.size();
-        }
-
-        @Override
-        public long sizeAll() {
-            long count = 0;
-
-            for (Map<Object, Object> cache : cache.values()) {
-                count += cache.size();
-            }
-
-            return count;
-        }
+    @Override
+    public DatabaseEngine getDatabaseEngine() {
+        return databaseEngine;
     }
 }

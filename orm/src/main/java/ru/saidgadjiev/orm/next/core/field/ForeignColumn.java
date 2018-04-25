@@ -13,4 +13,6 @@ public @interface ForeignColumn {
     boolean foreignAutoCreate() default false;
 
     String columnName() default "";
+
+    FetchType fetchType() default FetchType.EAGER;
 }

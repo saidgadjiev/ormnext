@@ -13,16 +13,6 @@ public class PGDatabaseType implements DatabaseType {
     }
 
     @Override
-    public String getDatabaseName() {
-        return "PostgreSQL";
-    }
-
-    @Override
-    public String getDriverClassName() {
-        return "org.postgresql.Driver";
-    }
-
-    @Override
     public String appendNoColumn() {
         return "() VALUES ()";
     }
@@ -33,8 +23,8 @@ public class PGDatabaseType implements DatabaseType {
     }
 
     @Override
-    public String typeToSql(int type, AttributeDefinition attributeDefinition) {
-        if (type == 8) {
+    public String getTypeSqlPresent(AttributeDefinition attributeDefinition) {
+        if (attributeDefinition.getDataType() == 8) {
             return "SERIAL";
         }
 
