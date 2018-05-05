@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>orm-next</artifactId>
-        <groupId>ru.saidgadjiev.orm.next</groupId>
+        <groupId>ru.saidgadjiev.ormnext</groupId>
         <version>1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -37,7 +37,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>ru.saidgadjiev.orm.next</groupId>
+            <groupId>ru.saidgadjiev.ormnext</groupId>
             <artifactId>up-cache</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
@@ -96,7 +96,28 @@
             <artifactId>postgresql</artifactId>
             <version>9.1-901-1.jdbc4</version>
             <scope>test</scope>
+
         </dependency>
+            <!-- https://mvnrepository.com/artifact/cglib/cglib -->
+            <dependency>
+                <groupId>cglib</groupId>
+                <artifactId>cglib</artifactId>
+                <version>3.2.6</version>
+            </dependency>
+
+        <!-- https://mvnrepository.com/artifact/javassist/javassist -->
+        <dependency>
+            <groupId>javassist</groupId>
+            <artifactId>javassist</artifactId>
+            <version>3.12.1.GA</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ru.saidgadjiev.ormnext</groupId>
+            <artifactId>proxy-maker</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
 
     </dependencies>
 </project>

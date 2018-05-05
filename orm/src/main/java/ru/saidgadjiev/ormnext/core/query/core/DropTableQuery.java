@@ -1,0 +1,31 @@
+package ru.saidgadjiev.ormnext.core.query.core;
+
+import ru.saidgadjiev.ormnext.core.query.visitor.QueryElement;
+import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
+import ru.saidgadjiev.ormnext.core.query.visitor.QueryElement;
+
+public class DropTableQuery implements QueryElement {
+
+    private String tableName;
+
+    private boolean ifExists;
+
+    public DropTableQuery(String tableName, boolean ifExists) {
+        this.tableName = tableName;
+        this.ifExists = ifExists;
+    }
+
+    public String getTableName() {
+        return tableName;
+    }
+
+    public boolean isIfExists() {
+        return ifExists;
+    }
+
+    @Override
+    public void accept(QueryVisitor visitor) {
+        visitor.visit(this);
+
+    }
+}

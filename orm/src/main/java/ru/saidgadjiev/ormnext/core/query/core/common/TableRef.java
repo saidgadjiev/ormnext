@@ -1,0 +1,43 @@
+package ru.saidgadjiev.ormnext.core.query.core.common;
+
+import ru.saidgadjiev.ormnext.core.query.core.Alias;
+import ru.saidgadjiev.ormnext.core.query.visitor.QueryElement;
+import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
+import ru.saidgadjiev.ormnext.core.query.core.Alias;
+import ru.saidgadjiev.ormnext.core.query.visitor.QueryElement;
+
+/**
+ * Created by said on 09.09.17.
+ */
+public class TableRef implements QueryElement {
+
+    private String tableName;
+
+    private Alias alias;
+
+    public TableRef(String tableName) {
+        this.tableName = tableName;
+    }
+
+    public TableRef alias(Alias alias) {
+        this.alias = alias;
+
+        return this;
+    }
+
+    public String getTableName() {
+        return tableName;
+    }
+
+    public Alias getAlias() {
+        return alias;
+    }
+
+    @Override
+    public void accept(QueryVisitor visitor) {
+       if (visitor.visit(this)) {
+           alias.accept(visitor);
+       }
+    }
+}
+
