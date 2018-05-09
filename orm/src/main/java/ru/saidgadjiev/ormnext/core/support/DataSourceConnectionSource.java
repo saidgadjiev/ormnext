@@ -1,9 +1,10 @@
 package ru.saidgadjiev.ormnext.core.support;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
 import java.sql.SQLException;
 
-public class DataSourceConnectionSource implements ConnectionSource {
+public class DataSourceConnectionSource implements ConnectionSource<Connection> {
 
     private DataSource dataSource;
 
@@ -11,7 +12,7 @@ public class DataSourceConnectionSource implements ConnectionSource {
         this.dataSource = dataSource;
     }
 
-    public DatabaseConnection getConnection() throws SQLException {
-        return new SqlConnectionImpl(dataSource.getConnection());
+    public DatabaseConnection<Connection> getConnection() throws SQLException {
+        return new DatabaseConnectionImpl(dataSource.getConnection());
     }
 }

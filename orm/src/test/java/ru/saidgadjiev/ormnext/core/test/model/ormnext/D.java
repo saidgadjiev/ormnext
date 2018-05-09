@@ -5,7 +5,7 @@ import ru.saidgadjiev.ormnext.core.field.ForeignColumn;
 
 public class D {
 
-    @DatabaseColumn(id = true, generated = true, dataType = 8)
+    @DatabaseColumn(id = true, generated = true, dataType = 12)
     private int id;
 
     @DatabaseColumn(notNull = true)

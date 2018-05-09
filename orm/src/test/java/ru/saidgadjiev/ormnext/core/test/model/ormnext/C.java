@@ -5,10 +5,10 @@ import ru.saidgadjiev.ormnext.core.field.DatabaseColumn;
 
 public class C {
 
-    @DatabaseColumn(id = true, generated = true, dataType = 8)
+    @DatabaseColumn(id = true, generated = true, dataType = 12)
     private int id;
 
-    @DatabaseColumn(notNull = true)
+    @DatabaseColumn(notNull = true, defaultDefinition = "'said'")
     private String name;
 
     public int getId() {

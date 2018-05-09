@@ -1,9 +1,7 @@
 package ru.saidgadjiev.ormnext.core.stamentexecutor.object;
 
-import ru.saidgadjiev.ormnext.core.dao.Dao;
-import ru.saidgadjiev.ormnext.core.logger.Log;
-import ru.saidgadjiev.ormnext.core.logger.LoggerFactory;
-import ru.saidgadjiev.ormnext.core.dao.Dao;
+import ru.saidgadjiev.ormnext.core.dao.Session;
+import ru.saidgadjiev.ormnext.core.dao.SessionManager;
 import ru.saidgadjiev.ormnext.core.logger.Log;
 import ru.saidgadjiev.ormnext.core.logger.LoggerFactory;
 import ru.saidgadjiev.proxymaker.MethodHandler;
@@ -18,14 +16,14 @@ public class OrmNextMethodHandler implements MethodHandler {
 
     private Object target;
 
-    private Dao dao;
-
     private final Class<?> entityClass;
 
     private final Object id;
 
-    public OrmNextMethodHandler(Dao dao, Class<?> entityClass, Object id) {
-        this.dao = dao;
+    private SessionManager sessionManager;
+
+    public OrmNextMethodHandler(SessionManager sessionManager, Class<?> entityClass, Object id) {
+        this.sessionManager = sessionManager;
         this.entityClass = entityClass;
         this.id = id;
     }
@@ -34,9 +32,11 @@ public class OrmNextMethodHandler implements MethodHandler {
     public Object invoke(Method method, Object[] args) {
         try {
             if (!initialized) {
-                target = dao.queryForId(entityClass, id);
+                Session session = sessionManager.createSession();
+                target = session.queryForId(entityClass, id);
                 initialized = true;
-                LOG.debug("Entity " + entityClass + " with id " + id + " lazy initialized");
+                session.close();
+                //LOG.debug("Entity " + entityClass + " with id " + id + " lazy initialized");
             }
 
             return method.invoke(target, args);

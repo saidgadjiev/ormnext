@@ -6,6 +6,7 @@ import ru.saidgadjiev.ormnext.core.stamentexecutor.rowreader.entityinitializer.E
 
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.Map;
 
 public class RowReaderImpl implements RowReader {
 
@@ -23,13 +24,15 @@ public class RowReaderImpl implements RowReader {
 
     @Override
     public RowResult<Object> startRead(ResultSetContext resultSetContext) throws SQLException {
-        rootEntityInitializer.startRead(resultSetContext);
+        Object readedId = rootEntityInitializer.startRead(resultSetContext);
 
         for (EntityInitializer entityInitializer : entityInitializers) {
             entityInitializer.startRead(resultSetContext);
         }
-        Object currentId = resultSetContext.getDatabaseResults().getObject(rootEntityInitializer.getEntityAliases().getKeyAlias());
-        ResultSetContext.EntityProcessingState entityProcessingState = resultSetContext.getProcessingState(rootEntityInitializer.getUid(), currentId);
+        for (CollectionInitializer collectionInitializer: collectionInitializers) {
+            collectionInitializer.startRead(resultSetContext, readedId);
+        }
+        ResultSetContext.EntityProcessingState entityProcessingState = resultSetContext.getProcessingState(rootEntityInitializer.getUid(), readedId);
 
         return new RowResult<>(
                 entityProcessingState.getEntityInstance(),

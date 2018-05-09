@@ -6,45 +6,13 @@ import static ru.saidgadjiev.ormnext.core.field.DataType.*;
 
 public interface DatabaseType {
 
-    String appendPrimaryKey(boolean generated);
+    String getPrimaryKeyDefinition(boolean generated);
 
-    String appendNoColumn();
+    String getNoArgsInsertDefinition();
 
-    default String getEntityNameEscape() {
-        return "`";
-    }
+    String getEntityNameEscape();
 
-    default String getValueEscape() {
-        return "'";
-    }
+    String getValueEscape();
 
-    default String getTypeSqlPresent(AttributeDefinition def) {
-        int dataType = def.getDataType();
-        StringBuilder sql = new StringBuilder();
-
-        switch (dataType) {
-            case STRING:
-            case DATE:
-                sql.append("VARCHAR").append("(").append(def.getLength()).append(")");
-                break;
-            case INTEGER:
-            case LONG:
-                sql.append("INTEGER");
-                break;
-            case BOOLEAN:
-                sql.append("BOOLEAN");
-                break;
-            case FLOAT:
-                sql.append("FLOAT");
-                break;
-            case DOUBLE:
-                sql.append("DOUBLE");
-                break;
-            case UNKNOWN:
-                break;
-        }
-
-        return sql.toString();
-    }
-
+    String getTypeSqlPresent(AttributeDefinition def);
 }

@@ -1,29 +1,26 @@
 package ru.saidgadjiev.ormnext.core.field.persister;
 
-import java.lang.reflect.Field;
+import java.sql.SQLException;
 import java.util.Arrays;
 
 /**
  * Created by said on 03.02.2018.
  */
-public abstract class BaseDataPersister implements DataPersister {
+public abstract class BaseDataPersister<T> implements DataPersister<T> {
 
-    protected Class<?>[] classes;
+    private Class<?>[] classes;
 
     public BaseDataPersister(Class<?> [] classes) {
         this.classes = classes;
     }
 
     @Override
-    public boolean isValidForField(Field field) {
-        Class<?> fieldClazz = field.getType();
+    public Object parseDefaultTo(String value) {
+        return value;
+    }
 
-        for (Class<?> clazz: classes) {
-            if (clazz.isAssignableFrom(fieldClazz)) {
-                return true;
-            }
-        }
-
+    @Override
+    public boolean isValidForGenerated() {
         return false;
     }
 
@@ -31,4 +28,10 @@ public abstract class BaseDataPersister implements DataPersister {
     public String toString() {
         return "classes=" + Arrays.toString(classes);
     }
+
+    @Override
+    public Class<?>[] getAssociatedClasses() {
+        return classes;
+    }
+
 }

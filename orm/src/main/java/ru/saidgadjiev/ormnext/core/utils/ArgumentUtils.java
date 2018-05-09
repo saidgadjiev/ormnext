@@ -2,37 +2,38 @@ package ru.saidgadjiev.ormnext.core.utils;
 
 import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignColumnType;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.IDatabaseColumnType;
+import ru.saidgadjiev.ormnext.core.stamentexecutor.Argument;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetadata;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Created by said on 10.02.2018.
  */
 public class ArgumentUtils {
 
-    public static List<Object> eject(Object object, DatabaseEntityMetadata<?> databaseEntityMetadata) throws Exception {
-        List<Object> args = new ArrayList<>();
+    public static Map<IDatabaseColumnType, Argument> eject(Object object, DatabaseEntityMetadata<?> databaseEntityMetadata) throws Exception {
+        Map<IDatabaseColumnType, Argument> args = new LinkedHashMap<>();
 
         for (IDatabaseColumnType fieldType : databaseEntityMetadata.getFieldTypes()) {
             if (!fieldType.isForeignCollectionFieldType() && !fieldType.isGenerated() && !fieldType.isForeignFieldType()) {
                 Object value = fieldType.access(object);
 
-                if (value != null) {
-                    args.add(fieldType.getDataPersister().parseJavaToSql(fieldType, value));
-                } else {
-                    args.add(fieldType.getDefaultValue());
+                if (value != null || fieldType.getDefaultDefinition() == null) {
+                    args.put(fieldType, Argument.from(fieldType, value));
                 }
             }
         }
 
         for (ForeignColumnType foreignColumnType : databaseEntityMetadata.toForeignFieldTypes()) {
             Object value = foreignColumnType.access(object);
+            Object foreignPrimaryKey = foreignColumnType.getForeignPrimaryKey().access(value);
 
-            args.add(foreignColumnType.getForeignPrimaryKey().access(value));
+            args.put(foreignColumnType, Argument.from(foreignColumnType, foreignPrimaryKey));
         }
 
         return args;
     }
+
 }

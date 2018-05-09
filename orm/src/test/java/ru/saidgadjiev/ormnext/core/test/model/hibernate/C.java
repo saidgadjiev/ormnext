@@ -11,7 +11,7 @@ public class C {
     @Column
     private int id;
 
-    @Column(nullable = false)
+    @Column
     private String name;
 
     public int getId() {

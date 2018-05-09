@@ -139,7 +139,7 @@ public class ProxyMaker {
         String key = getKey();
 
         if (PROXY_CACHE.containsKey(key)) {
-            return PROXY_CACHE.get(key);
+            createInstance(PROXY_CACHE.get(key), parametrTypes, args, handler);
         }
 
         resolveSuperClassAndClassName();
@@ -157,6 +157,11 @@ public class ProxyMaker {
         Class<?> proxyClass = ProxyFactoryHelper.toClass(classFile);
 
         PROXY_CACHE.put(getKey(), proxyClass);
+
+        return createInstance(proxyClass, parametrTypes, args, handler);
+    }
+
+    private Object createInstance(Class<?> proxyClass, Class<?>[] parametrTypes, Object[] args, MethodHandler handler) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         Constructor<?> constructor = proxyClass.getConstructor(parametrTypes);
         Object proxyInstance = constructor.newInstance(args);
 

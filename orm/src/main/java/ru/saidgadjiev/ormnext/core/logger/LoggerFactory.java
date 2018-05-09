@@ -6,7 +6,7 @@ public class LoggerFactory {
 
     public static final String LOG_CLASS_PROPERTY = "ormnext.logger";
 
-    public static final String LOG_ENABLED_PROPERTY = "ormnext.log.enabled";
+    public static final String LOG_ENABLED_PROPERTY = "ormnext.//LOG.enabled";
 
     private LoggerFactory() {
 

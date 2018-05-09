@@ -3,9 +3,9 @@ package ru.saidgadjiev.ormnext.core.db;
 /**
  * Created by said on 11.03.2018.
  */
-public class MySQLDatabaseType implements DatabaseType {
+public class MySQLDatabaseType extends BaseDatabaseType {
     @Override
-    public String appendPrimaryKey(boolean generated) {
+    public String getPrimaryKeyDefinition(boolean generated) {
         StringBuilder builder = new StringBuilder();
 
         if (generated) {
@@ -17,7 +17,8 @@ public class MySQLDatabaseType implements DatabaseType {
     }
 
     @Override
-    public String appendNoColumn() {
+    public String getNoArgsInsertDefinition() {
         return "() VALUES ()";
     }
+
 }

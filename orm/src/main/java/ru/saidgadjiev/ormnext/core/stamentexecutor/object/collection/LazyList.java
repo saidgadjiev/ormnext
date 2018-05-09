@@ -1,8 +1,7 @@
 package ru.saidgadjiev.ormnext.core.stamentexecutor.object.collection;
 
-import ru.saidgadjiev.ormnext.core.dao.Dao;
-import ru.saidgadjiev.ormnext.core.stamentexecutor.rowreader.entityinitializer.CollectionLoader;
-import ru.saidgadjiev.ormnext.core.dao.Dao;
+import ru.saidgadjiev.ormnext.core.dao.Session;
+import ru.saidgadjiev.ormnext.core.dao.SessionManager;
 import ru.saidgadjiev.ormnext.core.stamentexecutor.rowreader.entityinitializer.CollectionLoader;
 
 import java.util.Collection;
@@ -16,8 +15,8 @@ public class LazyList<T> extends AbstractLazyCollection<T> implements List<T> {
 
     private List<T> list;
 
-    public LazyList(CollectionLoader collectionLoader, Dao dao, Object ownerId, List<T> list) {
-        super(collectionLoader, dao, ownerId, list);
+    public LazyList(CollectionLoader collectionLoader, SessionManager sessionManager, Object ownerId, List<T> list) {
+        super(collectionLoader, sessionManager, ownerId, list);
         this.list = list;
     }
 

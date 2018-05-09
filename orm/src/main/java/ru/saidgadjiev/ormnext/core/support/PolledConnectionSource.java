@@ -9,25 +9,25 @@ import java.util.Set;
 /**
  * Created by said on 10.02.2018.
  */
-public class PolledConnectionSource implements ConnectionSource {
+public class PolledConnectionSource implements ConnectionSource<Connection> {
 
     private DataSource dataSource;
 
-    private Set<DatabaseConnection> available = new HashSet<>();
+    private Set<DatabaseConnection<Connection>> available = new HashSet<>();
 
-    private Set<DatabaseConnection> inUse = new HashSet<>();
+    private Set<DatabaseConnection<Connection>> inUse = new HashSet<>();
 
     public PolledConnectionSource(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
     @Override
-    public synchronized DatabaseConnection getConnection() throws SQLException {
+    public synchronized DatabaseConnection<Connection> getConnection() throws SQLException {
         if (available.isEmpty()) {
-            available.add(new SqlConnectionImpl(createNew()));
+            available.add(createNew());
         }
 
-        DatabaseConnection connection = available.iterator().next();
+        DatabaseConnection<Connection> connection = available.iterator().next();
 
         available.remove(connection);
         inUse.add(connection);
@@ -36,21 +36,21 @@ public class PolledConnectionSource implements ConnectionSource {
     }
 
     @Override
-    public synchronized void releaseConnection(DatabaseConnection connection) throws SQLException {
+    public synchronized void releaseConnection(DatabaseConnection<Connection> connection) throws SQLException {
         inUse.remove(connection);
         available.add(connection);
     }
 
-    private Connection createNew() throws SQLException {
-        return dataSource.getConnection();
+    private DatabaseConnection<Connection> createNew() throws SQLException {
+        return new DatabaseConnectionImpl(dataSource.getConnection());
     }
 
     @Override
     public void close() throws SQLException {
-        for (DatabaseConnection connection: inUse) {
+        for (DatabaseConnection<Connection> connection: inUse) {
             connection.close();
         }
-        for (DatabaseConnection connection: available) {
+        for (DatabaseConnection<Connection> connection: available) {
             connection.close();
         }
     }

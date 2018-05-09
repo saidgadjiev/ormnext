@@ -1,6 +1,5 @@
 package ru.saidgadjiev.ormnext.core.table.internal.visitor;
 
-import org.apache.log4j.Logger;
 import ru.saidgadjiev.ormnext.core.common.UIDGenerator;
 import ru.saidgadjiev.ormnext.core.field.FetchType;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignCollectionColumnType;
@@ -18,9 +17,6 @@ import ru.saidgadjiev.ormnext.core.table.internal.alias.EntityAliases;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetadata;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.MetaModel;
 import ru.saidgadjiev.ormnext.core.table.internal.queryspace.EntityQuerySpace;
-import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignColumnKey;
-import ru.saidgadjiev.ormnext.core.table.internal.alias.EntityAliases;
-import ru.saidgadjiev.ormnext.core.table.internal.metamodel.MetaModel;
 
 import java.util.*;
 
@@ -65,7 +61,7 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
         }
         EntityAliases ownerAliases = entityAliasResolverContext.getAliases(parentUidStack.peek());
 
-        DatabaseEntityMetadata<?> foreignMetaData = metaModel.getPersister(foreignColumnType.getForeignFieldClass()).getMetadata();
+        DatabaseEntityMetadata<?> foreignMetaData = metaModel.getPersister(foreignColumnType.getCollectionObjectClass()).getMetadata();
         String nextUID = uidGenerator.nextUID();
         EntityAliases foreignEntityAliases = entityAliasResolverContext.resolveAliases(nextUID, foreignMetaData);
 
@@ -87,22 +83,31 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
         DatabaseEntityMetadata<?> ownerMetaData = metaModel.getPersister(foreignCollectionColumnType.getOwnerClass()).getMetadata();
         EntityAliases ownerAliases = entityAliasResolverContext.getAliases(parentUidStack.peek());
 
-        DatabaseEntityMetadata<?> foreignMetaData = metaModel.getPersister(foreignCollectionColumnType.getForeignFieldClass()).getMetadata();
+        DatabaseEntityMetadata<?> foreignMetaData = metaModel.getPersister(foreignCollectionColumnType.getCollectionObjectClass()).getMetadata();
         String nextUID = uidGenerator.nextUID();
 
         EntityAliases foreignEntityAliases = entityAliasResolverContext.resolveAliases(nextUID, foreignMetaData);
 
         if (foreignCollectionColumnType.getFetchType().equals(FetchType.EAGER)) {
             entityQuerySpace.appendCollectionJoin(ownerMetaData.getPrimaryKey().getColumnName(), foreignCollectionColumnType, ownerAliases, foreignEntityAliases);
-            entityQuerySpace.appendSelectColumns(foreignEntityAliases, foreignMetaData);entityInitializerMap.put(nextUID, new EntityInitializer(nextUID, foreignEntityAliases, metaModel.getPersister(foreignMetaData.getTableClass())));
+            entityQuerySpace.appendSelectColumns(foreignEntityAliases, foreignMetaData);
+            entityInitializerMap.put(nextUID, new EntityInitializer(nextUID, foreignEntityAliases, metaModel.getPersister(foreignMetaData.getTableClass())));
         }
-        CollectionLoader collectionLoader = new CollectionLoader(new CollectionQuerySpace(foreignCollectionColumnType));
+        CollectionLoader collectionLoader = new CollectionLoader(
+                new CollectionQuerySpace(
+                        new CollectionEntityAliases(
+                                foreignEntityAliases.getKeyAlias(),
+                                foreignEntityAliases.getAliasByColumnName(foreignCollectionColumnType.getForeignColumnKey().getColumnName()),
+                                ownerAliases
+                        ),
+                        ownerMetaData.getPrimaryKey(),
+                        foreignCollectionColumnType
+                )
+        );
 
         collectionInitializers.add(
                 new CollectionInitializer(
                         parentUidStack.peek(),
-                        new CollectionEntityAliases(foreignEntityAliases.getKeyAlias(), foreignEntityAliases.getAliasByColumnName(foreignCollectionColumnType.getForeignColumnKey().getColumnName()),
-                                foreignMetaData.getTableClass(), ownerAliases),
                         collectionLoader
                 )
         );

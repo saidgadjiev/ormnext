@@ -1,5 +1,6 @@
 package ru.saidgadjiev.ormnext.core.table.internal.metamodel;
 
+import ru.saidgadjiev.ormnext.core.dao.SessionManager;
 import ru.saidgadjiev.ormnext.core.table.internal.persister.DatabaseEntityPersister;
 
 import java.util.Collection;
@@ -14,8 +15,11 @@ public class MetaModel {
 
     public MetaModel(Collection<Class<?>> persisterClasses) {
         this.persisterClasses = persisterClasses;
+    }
+
+    public void init(SessionManager sessionManager) {
         for (Class<?> persisterClass: persisterClasses) {
-            metadataMap.put(persisterClass, new DatabaseEntityPersister(DatabaseEntityMetadata.build(persisterClass)));
+            metadataMap.put(persisterClass, new DatabaseEntityPersister(DatabaseEntityMetadata.build(persisterClass), sessionManager));
         }
         for (DatabaseEntityPersister persister: metadataMap.values()) {
             persister.initialize(this);

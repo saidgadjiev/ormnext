@@ -38,22 +38,22 @@ import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 import org.postgresql.ds.PGPoolingDataSource;
 import ru.saidgadjiev.ormnext.benchmark.domain.*;
-import ru.saidgadjiev.ormnext.core.dao.Dao;
-import ru.saidgadjiev.ormnext.core.dao.DaoBuilder;
+import ru.saidgadjiev.ormnext.core.dao.Session;
+import ru.saidgadjiev.ormnext.core.dao.SessionManager;
+import ru.saidgadjiev.ormnext.core.dao.SessionManagerBuilder;
 import ru.saidgadjiev.ormnext.core.db.PGDatabaseType;
-import ru.saidgadjiev.ormnext.core.db.SerialTypeDataPersister;
 import ru.saidgadjiev.ormnext.core.field.DataPersisterManager;
-import ru.saidgadjiev.ormnext.core.field.persister.DateStringDataPersister;
+import ru.saidgadjiev.ormnext.core.field.persister.SerialTypeDataPersister;
 import ru.saidgadjiev.ormnext.core.support.ConnectionSource;
 import ru.saidgadjiev.ormnext.core.support.PolledConnectionSource;
 
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -78,28 +78,29 @@ public class DaoBenchmark {
     @State(Scope.Benchmark)
     public static class DaoState {
 
-        private Dao dao;
+        private Session session;
 
         @Setup(Level.Trial)
         public void doSetUp() throws SQLException {
-            dao = new DaoBuilder()
+            session = new SessionManagerBuilder()
                     .addEntityClasses(UserProfile.class, Order.class)
                     .databaseType(new PGDatabaseType())
                     .connectionSource(postgreConnectionSource())
-                    .build();
+                    .build()
+                    .createSession();
         }
 
         @TearDown
         public void doTearDown() throws SQLException {
-            dao.close();
+            session.close();
         }
 
-        public Dao getDao() {
-            return dao;
+        public Session getSession() {
+            return session;
         }
 
         private static ConnectionSource postgreConnectionSource() {
-            DataPersisterManager.register(8, new SerialTypeDataPersister());
+            DataPersisterManager.register(12, new SerialTypeDataPersister());
             PGPoolingDataSource dataSource = new PGPoolingDataSource();
 
             dataSource.setServerName("localhost");
@@ -117,21 +118,20 @@ public class DaoBenchmark {
     @Measurement(iterations = 5)
     @BenchmarkMode(value = Mode.AverageTime)
     @OutputTimeUnit(value = TimeUnit.MILLISECONDS)
-    @Fork(1)
+    @Fork(0)
     public Object testQueryForAll(DaoState daoState) throws SQLException {
-        return daoState.getDao().queryForAll(UserProfile.class);
+        return daoState.getSession().queryForAll(UserProfile.class);
     }
-
+/*
     @Benchmark
     @Warmup(iterations = 0)
     @Measurement(iterations = 5)
     @BenchmarkMode(value = Mode.AverageTime)
     @OutputTimeUnit(value = TimeUnit.MILLISECONDS)
-    @Fork(1)
+    @Fork(0)
     public Object testQueryForAllDirectAccess(DirectAccessState directAccessState) throws Exception {
         List<UserProfile> userProfiles = new ArrayList<>();
         String sql = "select u.id as uid, u.firstname as first, u.lastname as last, u.middlename as mid, o.id as oid, o.description as odes, o.date as odate, o.userprofile_id as ous from userprofile u LEFT JOIN \"order\" o ON u.id = o.userprofile_id";
-        SimpleDateFormat dateFormat = new SimpleDateFormat(DateStringDataPersister.DEFAULT_FORMAT);
 
         try (Connection connection = directAccessState.dataSource.getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -148,7 +148,7 @@ public class DaoBenchmark {
 
                         order.setId(resultSet.getInt("oid"));
                         order.setDescription(resultSet.getString("odes"));
-                        order.setDate(dateFormat.parse(resultSet.getString("odate")));
+                        order.setDate(new Date(resultSet.getTimestamp("odate").getTime()));
                         order.setUserProfile(userProfile);
                         userProfile.getOrders().add(order);
                         userProfiles.add(userProfile);
@@ -160,7 +160,7 @@ public class DaoBenchmark {
         System.out.println(userProfiles.size());
         return userProfiles;
     }
-
+*/
     public static void main(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder()
                 .include(DaoBenchmark.class.getSimpleName())

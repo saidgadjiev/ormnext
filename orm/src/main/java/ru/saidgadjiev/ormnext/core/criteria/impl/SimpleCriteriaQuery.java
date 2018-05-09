@@ -23,10 +23,7 @@ import ru.saidgadjiev.ormnext.core.query.core.function.CountColumn;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryElement;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 //TODO: добавление groupBy для других таблиц
 public class SimpleCriteriaQuery implements QueryElement {
@@ -105,8 +102,8 @@ public class SimpleCriteriaQuery implements QueryElement {
         return function;
     }
 
-    public List<Object> getArgs() {
-        List<Object> args = new LinkedList<>();
+    public List<CriterionArgument> getArgs() {
+        List<CriterionArgument> args = new LinkedList<>();
 
         if (where != null) {
             args.addAll(where.getArgs());
@@ -116,7 +113,7 @@ public class SimpleCriteriaQuery implements QueryElement {
         }
 
         for (Map.Entry<Integer, Object> entry: userProvidedArgs.entrySet()) {
-            args.add(entry.getKey() - 1, entry.getValue());
+            args.add(entry.getKey() - 1, new CriterionArgument(null, entry.getValue()));
         }
 
         return args;

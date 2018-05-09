@@ -1,9 +1,9 @@
 package ru.saidgadjiev.ormnext.core.db;
 
-public class SQLiteDatabaseType implements DatabaseType {
+public class SQLiteDatabaseType extends BaseDatabaseType {
 
     @Override
-    public String appendPrimaryKey(boolean generated) {
+    public String getPrimaryKeyDefinition(boolean generated) {
         StringBuilder builder = new StringBuilder();
 
         builder.append(" PRIMARY KEY");
@@ -15,7 +15,7 @@ public class SQLiteDatabaseType implements DatabaseType {
     }
 
     @Override
-    public String appendNoColumn() {
+    public String getNoArgsInsertDefinition() {
         return "DEFAULT VALUES";
     }
 }

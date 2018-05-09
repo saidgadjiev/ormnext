@@ -6,23 +6,21 @@ import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 /**
  * Created by said on 21.01.2018.
  */
-public class Default<T> implements AttributeConstraint {
+public class Default implements AttributeConstraint {
 
-    private Literal<T> literal;
+    private String value;
 
-    public Default(Literal<T> literal) {
-        this.literal = literal;
+    public Default(String value) {
+        this.value = value;
     }
 
-    public Literal<T> getLiteral() {
-        return literal;
+    public String getDefaultValue() {
+        return value;
     }
 
 
     @Override
     public void accept(QueryVisitor visitor) {
-        if (visitor.visit(this)) {
-            literal.accept(visitor);
-        }
+        visitor.visit(this);
     }
 }

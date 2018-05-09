@@ -272,8 +272,7 @@ public class NoActionVisitor implements QueryVisitor {
     }
 
     @Override
-    public boolean visit(Default aDefault) {
-        return true;
+    public void visit(Default aDefault) {
     }
 
     @Override

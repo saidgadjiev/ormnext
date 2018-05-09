@@ -214,6 +214,20 @@ public final class DatabaseEntityMetadata<T> implements EntityElement {
         throw new PropertyNotFoundException(tableClass, propertyName);
     }
 
+    public IDatabaseColumnType getDataTypeByPropertyName(String propertyName) {
+        for (IDatabaseColumnType fieldType: fieldTypes) {
+            if (fieldType.isForeignCollectionFieldType()) {
+                continue;
+            }
+
+            if (fieldType.getFieldName().equals(propertyName)) {
+                return fieldType;
+            }
+        }
+
+        throw new PropertyNotFoundException(tableClass, propertyName);
+    }
+
     @Override
     public void accept(EntityMetadataVisitor visitor) {
         if (visitor.visit(this)) {

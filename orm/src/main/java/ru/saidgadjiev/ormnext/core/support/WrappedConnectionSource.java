@@ -1,25 +1,26 @@
 package ru.saidgadjiev.ormnext.core.support;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
  * Created by said on 10.03.2018.
  */
-public class WrappedConnectionSource implements ConnectionSource {
+public class WrappedConnectionSource<T> implements ConnectionSource<T> {
 
-    private ConnectionSource connectionSource;
+    private ConnectionSource<T> connectionSource;
 
     public WrappedConnectionSource(ConnectionSource connectionSource) {
         this.connectionSource = connectionSource;
     }
 
     @Override
-    public DatabaseConnection getConnection() throws SQLException {
+    public DatabaseConnection<T> getConnection() throws SQLException {
         return connectionSource.getConnection();
     }
 
     @Override
-    public void releaseConnection(DatabaseConnection connection) throws SQLException {
+    public void releaseConnection(DatabaseConnection<T> connection) throws SQLException {
         connectionSource.releaseConnection(connection);
     }
 

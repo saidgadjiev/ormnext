@@ -4,6 +4,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.sql.SQLType;
 
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
@@ -23,7 +24,5 @@ public @interface DatabaseColumn {
 
     boolean generated() default false;
 
-   String defaultValue() default DEFAULT_STR;
-
-    String format() default "";
+   String defaultDefinition() default DEFAULT_STR;
 }

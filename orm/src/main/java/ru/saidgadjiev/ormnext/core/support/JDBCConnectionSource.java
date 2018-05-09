@@ -1,5 +1,6 @@
 package ru.saidgadjiev.ormnext.core.support;
 
+import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
@@ -31,8 +32,8 @@ public class JDBCConnectionSource implements ConnectionSource {
     }
 
     @Override
-    public DatabaseConnection getConnection() throws SQLException {
-        return new SqlConnectionImpl(DriverManager.getConnection(dataBaseUrl));
+    public DatabaseConnection<Connection> getConnection() throws SQLException {
+        return new DatabaseConnectionImpl(DriverManager.getConnection(dataBaseUrl));
     }
 
 }

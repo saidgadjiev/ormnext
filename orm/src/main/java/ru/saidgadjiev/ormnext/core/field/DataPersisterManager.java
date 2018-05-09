@@ -15,10 +15,13 @@ public class DataPersisterManager {
         registeredPersisters.put(DataType.STRING, new StringDataPersister());
         registeredPersisters.put(DataType.INTEGER, new IntegerDataPersister());
         registeredPersisters.put(DataType.BOOLEAN, new BooleanPersister());
-        registeredPersisters.put(DataType.DATE, new DateStringDataPersister());
-        registeredPersisters.put(DataType.LONG, new IntegerDataPersister());
+        registeredPersisters.put(DataType.LONG, new LongDataPersister());
         registeredPersisters.put(DataType.FLOAT, new FloatDataPersister());
-        registeredPersisters.put(DataType.DOUBLE, new DoubleDataPersister());
+        registeredPersisters.put(DataType.BYTE, new ByteDataPersister());
+        registeredPersisters.put(DataType.SHORT, new ShortDataPersister());
+        registeredPersisters.put(DataType.DATE, new DateDataPersister());
+        registeredPersisters.put(DataType.TIME, new TimeDataPersister());
+        registeredPersisters.put(DataType.TIMESTAMP, new TimeStampDataPersister());
         registeredPersisters.put(DataType.UNKNOWN, null);
     }
 

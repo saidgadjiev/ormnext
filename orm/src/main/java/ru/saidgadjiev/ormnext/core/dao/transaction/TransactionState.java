@@ -6,9 +6,9 @@ import java.sql.SQLException;
 
 public interface TransactionState {
 
-    void begin(DatabaseConnection<?> connection) throws SQLException;
+    void begin(DatabaseConnection connection) throws SQLException;
 
-    void commit(DatabaseConnection<?> connection) throws SQLException;
+    void commit(DatabaseConnection connection) throws SQLException;
 
-    void rollback(DatabaseConnection<?> connection) throws SQLException;
+    void rollback(DatabaseConnection connection) throws SQLException;
 }

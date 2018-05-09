@@ -1,24 +1,25 @@
 package ru.saidgadjiev.ormnext.core.stamentexecutor;
 
 import ru.saidgadjiev.ormnext.core.criteria.impl.CriteriaQuery;
+import ru.saidgadjiev.ormnext.core.criteria.impl.CriterionArgument;
 import ru.saidgadjiev.ormnext.core.criteria.impl.SimpleCriteriaQuery;
 import ru.saidgadjiev.ormnext.core.dao.DatabaseEngine;
-import ru.saidgadjiev.ormnext.core.dao.InternalDao;
+import ru.saidgadjiev.ormnext.core.dao.InternalSession;
+import ru.saidgadjiev.ormnext.core.field.DataPersisterManager;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignColumnType;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.IDatabaseColumnType;
+import ru.saidgadjiev.ormnext.core.field.persister.Converter;
+import ru.saidgadjiev.ormnext.core.field.persister.DataPersister;
 import ru.saidgadjiev.ormnext.core.query.core.*;
 import ru.saidgadjiev.ormnext.core.stamentexecutor.rowreader.RowReader;
 import ru.saidgadjiev.ormnext.core.stamentexecutor.rowreader.RowResult;
 import ru.saidgadjiev.ormnext.core.support.DatabaseConnection;
-import ru.saidgadjiev.ormnext.core.support.OrmNextResultSet;
+import ru.saidgadjiev.ormnext.core.support.DatabaseResultSet;
+import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetadata;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.MetaModel;
 import ru.saidgadjiev.ormnext.core.table.internal.persister.DatabaseEntityPersister;
 import ru.saidgadjiev.ormnext.core.utils.ArgumentUtils;
-import ru.saidgadjiev.ormnext.core.stamentexecutor.rowreader.RowReader;
-import ru.saidgadjiev.ormnext.core.stamentexecutor.rowreader.RowResult;
-import ru.saidgadjiev.ormnext.core.table.internal.metamodel.MetaModel;
 
-import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -28,38 +29,17 @@ import java.util.*;
 @SuppressWarnings("PMD")
 public class DefaultEntityLoader {
 
-    private InternalDao dao;
+    private InternalSession dao;
 
     private MetaModel metaModel;
 
     private DatabaseEngine databaseEngine;
 
-    public DefaultEntityLoader(InternalDao dao) {
+    public DefaultEntityLoader(InternalSession dao, MetaModel metaModel, DatabaseEngine databaseEngine) {
         this.dao = dao;
-        this.metaModel = dao.getMetaModel();
         this.databaseEngine = dao.getDatabaseEngine();
-    }
-
-    public <T> int create(DatabaseConnection connection, Collection<T> objects) throws SQLException {
-        try {
-            if (objects.isEmpty()) {
-                return 0;
-            }
-            Class<T> tClass = (Class<T>) objects.iterator().next().getClass();
-            DatabaseEntityPersister entityPersister = metaModel.getPersister(tClass);
-            CreateQuery createQuery = entityPersister.getEntityQuerySpace().getCreateQuery(objects.size());
-            List<Object> args = new ArrayList<>();
-
-            for (T object : objects) {
-                dao.create(object);
-
-                args.addAll(ArgumentUtils.eject(object, entityPersister.getMetadata()));
-            }
-
-            return databaseEngine.create(connection, createQuery, args, resultSetObject -> {});
-        } catch (Exception ex) {
-            throw new SQLException(ex);
-        }
+        this.metaModel = metaModel;
+        this.databaseEngine = databaseEngine;
     }
 
     /**
@@ -67,10 +47,11 @@ public class DefaultEntityLoader {
      * Выполняет запрос вида INSERT INTO ...(colname1, colname2, ...) VALUES(colvalue1, colvalue2, ...)
      */
     @SuppressWarnings("unchecked")
-    public <T> int create(DatabaseConnection connection, T object) throws SQLException {
+    public <T> void create(DatabaseConnection connection, T object) throws SQLException {
         try {
             DatabaseEntityPersister entityPersister = metaModel.getPersister(object.getClass());
-            CreateQuery createQuery = entityPersister.getEntityQuerySpace().getCreateQuery();
+            Map<IDatabaseColumnType, Argument> argumentMap = ArgumentUtils.eject(object, entityPersister.getMetadata());
+            CreateQuery createQuery = entityPersister.getEntityQuerySpace().getCreateQuery(argumentMap.keySet());
             IDatabaseColumnType idField = entityPersister.getMetadata().getPrimaryKey();
 
             for (ForeignColumnType fieldType : entityPersister.getMetadata().toForeignFieldTypes()) {
@@ -80,18 +61,11 @@ public class DefaultEntityLoader {
                     dao.create(foreignObject);
                 }
             }
-            return databaseEngine.create(connection, createQuery, ArgumentUtils.eject(object, entityPersister.getMetadata()), new DatabaseEngine.ResultSetProcessor() {
-                @Override
-                public void process(OrmNextResultSet resultSetObject) throws SQLException {
-                    OrmNextResultSet.GeneratedKeys generatedKeys = resultSetObject.generatedKeys();
+            databaseEngine.create(connection, createQuery, argumentMap.values(), resultSetObject -> {
+                if (resultSetObject.next()) {
+                    DataPersister<?> dataPersister = idField.getDataPersister();
 
-                    if (generatedKeys.next()) {
-                        try {
-                            idField.assignId(object, new GeneratedKeysEjector(generatedKeys.getGeneratedKey(), generatedKeys.getType()).getGeneratedKey());
-                        } catch (IllegalAccessException | InvocationTargetException ex) {
-                            throw new SQLException(ex);
-                        }
-                    }
+                    idField.assignId(object, (Number) dataPersister.readValue(resultSetObject, 1));
                 }
             });
         } catch (Exception ex) {
@@ -115,22 +89,22 @@ public class DefaultEntityLoader {
      * Обновляет объект в базе
      * Выполняет запрос вида UPDATE ... SET colname1 = colvalue1 SET colname2 = colvalue2 WHERE = object_builder.id
      */
-    public <T> int update(DatabaseConnection connection, T object) throws SQLException {
+    public <T> void update(DatabaseConnection connection, T object) throws SQLException {
         DatabaseEntityPersister entityPersister = metaModel.getPersister(object.getClass());
         IDatabaseColumnType idFieldType = entityPersister.getMetadata().getPrimaryKey();
         UpdateQuery updateQuery = entityPersister.getEntityQuerySpace().getUpdateQuery();
 
         try {
-            List<Object> args = new ArrayList<>();
+            List<Argument> args = new ArrayList<>();
 
-            for (IDatabaseColumnType IDatabaseColumnType : entityPersister.getMetadata().toDBFieldTypes()) {
-                Object value = IDatabaseColumnType.access(object);
+            for (IDatabaseColumnType databaseColumnType : entityPersister.getMetadata().toDBFieldTypes()) {
+                Object value = databaseColumnType.access(object);
 
-                args.add(value);
+                args.add(new Argument(databaseColumnType.getConverter().orElse(null), databaseColumnType.getDataPersister(), value));
             }
-            args.add(idFieldType.access(object));
+            args.add(new Argument(idFieldType.getConverter().orElse(null), idFieldType.getDataPersister(), idFieldType.access(object)));
 
-            return databaseEngine.update(connection, updateQuery, args);
+            databaseEngine.update(connection, updateQuery, args);
         } catch (Exception ex) {
             throw new SQLException(ex);
         }
@@ -140,14 +114,16 @@ public class DefaultEntityLoader {
      * Сохраняет объект в базе
      * Выполняет запрос вида DELETE FROM ... WHERE = object_builder.id
      */
-    public <T> int delete(DatabaseConnection connection, T object) throws SQLException {
+    public <T> void delete(DatabaseConnection connection, T object) throws SQLException {
         try {
             DatabaseEntityPersister entityPersister = metaModel.getPersister(object.getClass());
-            IDatabaseColumnType dbFieldType = entityPersister.getMetadata().getPrimaryKey();
-            Object id = dbFieldType.access(object);
+            IDatabaseColumnType primaryKeyType = entityPersister.getMetadata().getPrimaryKey();
+            Object id = primaryKeyType.access(object);
             DeleteQuery deleteQuery = entityPersister.getEntityQuerySpace().getDeleteQuery();
 
-            return databaseEngine.delete(connection, deleteQuery, Arrays.asList(id));
+            databaseEngine.delete(connection, deleteQuery, new ArrayList<Argument>() {{
+                add(new Argument(primaryKeyType.getConverter().orElse(null), primaryKeyType.getDataPersister(), id));
+            }});
         } catch (Exception ex) {
             throw new SQLException(ex);
         }
@@ -157,11 +133,14 @@ public class DefaultEntityLoader {
      * Сохраняет объект в базе
      * Выполняет запрос вида DELETE FROM ... WHERE = object_builder.id
      */
-    public <T, ID> int deleteById(DatabaseConnection connection, Class<T> tClass, ID id) throws SQLException {
+    public <T, ID> void deleteById(DatabaseConnection connection, Class<T> tClass, ID id) throws SQLException {
         DatabaseEntityPersister entityPersister = metaModel.getPersister(tClass);
         DeleteQuery deleteQuery = entityPersister.getEntityQuerySpace().getDeleteQuery();
+        IDatabaseColumnType primaryKeyType = entityPersister.getMetadata().getPrimaryKey();
 
-        return databaseEngine.delete(connection, deleteQuery, Arrays.asList(id));
+        databaseEngine.delete(connection, deleteQuery, new ArrayList<Argument>() {{
+            add(new Argument(primaryKeyType.getConverter().orElse(null), primaryKeyType.getDataPersister(), id));
+        }});
     }
 
     /**
@@ -177,10 +156,11 @@ public class DefaultEntityLoader {
 
         DatabaseEntityPersister entityPersister = metaModel.getPersister(tClass);
         List<Object> results = new ArrayList<>();
+        IDatabaseColumnType primaryKeyType = entityPersister.getMetadata().getPrimaryKey();
 
-        databaseEngine.select(connection, entityPersister.getEntityQuerySpace().getSelectById(), Arrays.asList(id), resultSetObject -> {
-            results.addAll(load(entityPersister.getRowReader(), dao, resultSetObject));
-        });
+        databaseEngine.select(connection, entityPersister.getEntityQuerySpace().getSelectById(), new ArrayList<Argument>() {{
+            add(new Argument(primaryKeyType.getConverter().orElse(null), primaryKeyType.getDataPersister(), id));
+        }}, resultSetObject -> results.addAll(load(entityPersister.getRowReader(), dao, resultSetObject)));
 
         if (results.isEmpty()) {
             return null;
@@ -197,7 +177,7 @@ public class DefaultEntityLoader {
         DatabaseEntityPersister entityPersister = metaModel.getPersister(tClass);
         List<Object> results = new ArrayList<>();
 
-        databaseEngine.select(connection, entityPersister.getEntityQuerySpace().getSelectAll(), null, resultSetObject -> {
+        databaseEngine.select(connection, entityPersister.getEntityQuerySpace().getSelectAll(), Collections.emptyList(), resultSetObject -> {
             results.addAll(load(entityPersister.getRowReader(), dao, resultSetObject));
         });
 
@@ -225,19 +205,20 @@ public class DefaultEntityLoader {
 
         databaseEngine.select(connection, select, null, resultSetObject -> {
             if (resultSetObject.next()) {
-                result[0] = (Long) resultSetObject.getObject(1);
+                result[0] = resultSetObject.getLong(1);
             }
         });
 
         return result[0];
     }
 
-    public <T> List<T> list(DatabaseConnection connection, CriteriaQuery criteriaQuery) throws SQLException {
+    public <T> List<T> list(DatabaseConnection connection, CriteriaQuery<?> criteriaQuery) throws SQLException {
         DatabaseEntityPersister entityPersister = metaModel.getPersister(criteriaQuery.getPersistentClass());
+        DatabaseEntityMetadata<?> metadata = entityPersister.getMetadata();
         Select select = entityPersister.getEntityQuerySpace().getByCriteria(criteriaQuery);
         List<Object> results = new ArrayList<>();
 
-        databaseEngine.select(connection, select, criteriaQuery.getArgs(), resultSetObject -> {
+        databaseEngine.select(connection, select, toArguments(entityPersister.getMetadata(), criteriaQuery.getArgs()), resultSetObject -> {
             results.addAll(load(entityPersister.getRowReader(), dao, resultSetObject));
         });
 
@@ -249,16 +230,16 @@ public class DefaultEntityLoader {
         Select select = entityPersister.getEntityQuerySpace().getByCriteria(simpleCriteriaQuery);
         Long [] result = new Long[]{ null };
 
-        databaseEngine.select(connection, select, simpleCriteriaQuery.getArgs(), resultSetObject -> {
+        databaseEngine.select(connection, select, toArguments(entityPersister.getMetadata(), simpleCriteriaQuery.getArgs()), resultSetObject -> {
             if (resultSetObject.next()) {
-                result[0] = (Long) resultSetObject.getObject(1);
+                result[0] = resultSetObject.getLong(1);
             }
         });
 
         return result[0];
     }
 
-    private List<Object> load(RowReader rowReader, InternalDao dao, OrmNextResultSet databaseResults) throws SQLException {
+    private List<Object> load(RowReader rowReader, InternalSession dao, DatabaseResultSet databaseResults) throws SQLException {
         ResultSetContext resultSetContext = new ResultSetContext(dao, databaseResults);
         List<Object> results = new ArrayList<>();
 
@@ -268,10 +249,33 @@ public class DefaultEntityLoader {
             if (rowResult.isNew()) {
                 results.add(rowResult.getResult());
             }
-            rowReader.finishRead(resultSetContext);
         }
+        rowReader.finishRead(resultSetContext);
 
         return results;
     }
 
+    private List<Argument> toArguments(DatabaseEntityMetadata<?> metadata, List<CriterionArgument> arguments) {
+        List<Argument> args = new ArrayList<>();
+
+        for (CriterionArgument criterionArgument: arguments) {
+            if (criterionArgument.getPropertyName() != null) {
+                IDatabaseColumnType columnType = metadata.getDataTypeByPropertyName(criterionArgument.getPropertyName());
+                Converter converter = columnType.getConverter().isPresent() ? columnType.getConverter().get() : null;
+                DataPersister<?> dataPersister = columnType.getDataPersister();
+
+                for (Object arg: criterionArgument.getValues()) {
+                    args.add(new Argument(converter, dataPersister, arg));
+                }
+            } else {
+                DataPersister<?> dataPersister = DataPersisterManager.lookup(criterionArgument.getValues().getClass());
+
+                for (Object arg: criterionArgument.getValues()) {
+                    args.add(new Argument(null, dataPersister, arg));
+                }
+            }
+        }
+
+        return args;
+    }
 }

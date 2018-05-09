@@ -10,8 +10,8 @@ public abstract class DatabaseConnection<T> {
         this.connection = connection;
     }
 
-    public T getConnection() {
-        return (T) connection;
+    public<C> C getWrappedConnection() {
+        return (C) connection;
     }
 
     public abstract void setAutoCommit(boolean autoCommit) throws SQLException;

@@ -5,9 +5,6 @@ import ru.saidgadjiev.ormnext.core.query.core.columnspec.ColumnSpec;
 import ru.saidgadjiev.ormnext.core.query.core.condition.*;
 import ru.saidgadjiev.ormnext.core.query.core.function.Function;
 import ru.saidgadjiev.ormnext.core.query.core.literals.Param;
-import ru.saidgadjiev.ormnext.core.query.core.columnspec.ColumnSpec;
-import ru.saidgadjiev.ormnext.core.query.core.condition.*;
-import ru.saidgadjiev.ormnext.core.query.core.literals.Param;
 
 public class Restrictions {
 
@@ -16,157 +13,47 @@ public class Restrictions {
     }
 
     public static Criterion eq(String propertyName) {
-        return new Criterion() {
-            @Override
-            public Condition getCondition() {
-                return new Equals(new ColumnSpec(propertyName), new Param());
-            }
-
-            @Override
-            public Object[] getArgs() {
-                return new Object[] {};
-            }
-        };
+        return new CriterionImpl(new Equals(new ColumnSpec(propertyName), new Param()), propertyName, null);
     }
 
     public static Criterion eq(String propertyName, Object value) {
-        return new Criterion() {
-            @Override
-            public Condition getCondition() {
-                return new Equals(new ColumnSpec(propertyName), new Param());
-            }
-
-            @Override
-            public Object[] getArgs() {
-                return new Object[] {value};
-            }
-        };
+        return new CriterionImpl(new Equals(new ColumnSpec(propertyName), new Param()), propertyName, value);
     }
 
     public static Criterion eq(Function function, Object value) {
-        return new Criterion() {
-            @Override
-            public Condition getCondition() {
-                return new Equals(function, new Param());
-            }
-
-            @Override
-            public Object[] getArgs() {
-                return new Object[] {value};
-            }
-        };
+        return new CriterionImpl(new Equals(function, new Param()), null, value);
     }
 
     public static Criterion ge(String propertyName, Object value) {
-        return new Criterion() {
-            @Override
-            public Condition getCondition() {
-                return new GreaterThanOrEquals(new ColumnSpec(propertyName), new Param());
-            }
-
-            @Override
-            public Object[] getArgs() {
-                return new Object[] {value};
-            }
-        };
+        return new CriterionImpl(new GreaterThanOrEquals(new ColumnSpec(propertyName), new Param()), propertyName, value);
     }
 
     public static Criterion ge(Function function, Object value) {
-        return new Criterion() {
-            @Override
-            public Condition getCondition() {
-                return new GreaterThanOrEquals(function, new Param());
-            }
-
-            @Override
-            public Object[] getArgs() {
-                return new Object[] {value};
-            }
-        };
+        return new CriterionImpl(new GreaterThanOrEquals(function, new Param()), null, value);
     }
 
     public static Criterion gt(String propertyName, Object value) {
-        return new Criterion() {
-            @Override
-            public Condition getCondition() {
-                return new GreaterThan(new ColumnSpec(propertyName), new Param());
-            }
-
-            @Override
-            public Object[] getArgs() {
-                return new Object[] {value};
-            }
-        };
+        return new CriterionImpl(new GreaterThan(new ColumnSpec(propertyName), new Param()), propertyName, value);
     }
 
     public static Criterion gt(Function function, Object value) {
-        return new Criterion() {
-            @Override
-            public Condition getCondition() {
-                return new GreaterThan(function, new Param());
-            }
-
-            @Override
-            public Object[] getArgs() {
-                return new Object[] {value};
-            }
-        };
+        return new CriterionImpl(new GreaterThan(function, new Param()), null, value);
     }
 
     public static Criterion le(String propertyName, Object value) {
-        return new Criterion() {
-            @Override
-            public Condition getCondition() {
-                return new LessThanOrEquals(new ColumnSpec(propertyName), new Param());
-            }
-
-            @Override
-            public Object[] getArgs() {
-                return new Object[] {value};
-            }
-        };
+        return new CriterionImpl(new LessThanOrEquals(new ColumnSpec(propertyName), new Param()), propertyName, value);
     }
 
     public static Criterion le(Function function, Object value) {
-        return new Criterion() {
-            @Override
-            public Condition getCondition() {
-                return new LessThanOrEquals(function, new Param());
-            }
-
-            @Override
-            public Object[] getArgs() {
-                return new Object[] {value};
-            }
-        };
+        return new CriterionImpl(new LessThanOrEquals(function, new Param()), null, value);
     }
 
     public static Criterion lt(String propertyName, Object value) {
-        return new Criterion() {
-            @Override
-            public Condition getCondition() {
-                return new LessThan(new ColumnSpec(propertyName), new Param());
-            }
-
-            @Override
-            public Object[] getArgs() {
-                return new Object[] {value};
-            }
-        };
+        return new CriterionImpl(new LessThan(new ColumnSpec(propertyName), new Param()), propertyName, value);
     }
 
     public static Criterion lt(Function function, Object value) {
-        return new Criterion() {
-            @Override
-            public Condition getCondition() {
-                return new LessThan(function, new Param());
-            }
-
-            @Override
-            public Object[] getArgs() {
-                return new Object[] {value};
-            }
-        };
+        return new CriterionImpl(new LessThan(function, new Param()), null, value);
     }
 
     public static Criterion isNull(String propertyName) {
@@ -177,8 +64,8 @@ public class Restrictions {
             }
 
             @Override
-            public Object[] getArgs() {
-                return new Object[] {};
+            public CriterionArgument getArg() {
+                return null;
             }
         };
     }
@@ -191,8 +78,8 @@ public class Restrictions {
             }
 
             @Override
-            public Object[] getArgs() {
-                return new Object[] {};
+            public CriterionArgument getArg() {
+                return null;
             }
         };
     }
@@ -205,79 +92,39 @@ public class Restrictions {
             }
 
             @Override
-            public Object[] getArgs() {
-                return new Object[] {};
+            public CriterionArgument getArg() {
+                return null;
             }
         };
     }
 
     public static Criterion between(String propertyName, Object low, Object high) {
-        return new Criterion() {
-            @Override
-            public Condition getCondition() {
-                return new Between(new ColumnSpec(propertyName), new Param(), new Param());
-            }
-
-            @Override
-            public Object[] getArgs() {
-                return new Object[] {low, high};
-            }
-        };
+        return new CriterionImpl(new Between(new ColumnSpec(propertyName), new Param(), new Param()), null, low, high);
     }
 
     public static Criterion not(Condition condition) {
-        return new Criterion() {
-            @Override
-            public Condition getCondition() {
-                return new Not(condition);
-            }
-
-            @Override
-            public Object[] getArgs() {
-                return new Object[] {};
-            }
-        };
+        return new CriterionImpl(new Not(condition), null, null);
     }
 
     @SuppressWarnings("PMD")
-    public static Criterion in(String propertyName, Object ... values) {
-        return new Criterion() {
-            @Override
-            public Condition getCondition() {
-                InValues inValues = new InValues(new ColumnSpec(propertyName));
+    public static Criterion in(String propertyName, Object... values) {
+        InValues inValues = new InValues(new ColumnSpec(propertyName));
 
-                for (Object ignored : values) {
-                    inValues.addValue(new Param());
-                }
+        for (Object ignored : values) {
+            inValues.addValue(new Param());
+        }
 
-                return inValues;
-            }
-
-            @Override
-            public Object[] getArgs() {
-                return values;
-            }
-        };
+        return new CriterionImpl(inValues, propertyName, values);
     }
 
     @SuppressWarnings("PMD")
-    public static Criterion notIn(String propertyName, Object ... values) {
-        return new Criterion() {
-            @Override
-            public Condition getCondition() {
-                NotInValues inValues = new NotInValues(new ColumnSpec(propertyName));
+    public static Criterion notIn(String propertyName, Object... values) {
+        NotInValues notInValues = new NotInValues(new ColumnSpec(propertyName));
 
-                for (Object ignored : values) {
-                    inValues.addValue(new Param());
-                }
+        for (Object ignored : values) {
+            notInValues.addValue(new Param());
+        }
 
-                return inValues;
-            }
-
-            @Override
-            public Object[] getArgs() {
-                return values;
-            }
-        };
+        return new CriterionImpl(notInValues, propertyName, values);
     }
 }

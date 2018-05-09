@@ -1,9 +1,10 @@
 package ru.saidgadjiev.ormnext.core.field.persister;
 
 import ru.saidgadjiev.ormnext.core.field.DataType;
-import ru.saidgadjiev.ormnext.core.field.fieldtype.IDatabaseColumnType;
-import ru.saidgadjiev.ormnext.core.query.core.literals.IntLiteral;
-import ru.saidgadjiev.ormnext.core.query.core.literals.Literal;
+import ru.saidgadjiev.ormnext.core.support.DatabaseResultSet;
+
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 public class IntegerDataPersister extends BaseDataPersister {
 
@@ -12,28 +13,23 @@ public class IntegerDataPersister extends BaseDataPersister {
     }
 
     @Override
-    public Class<?>[] getAssociatedClasses() {
-        return classes;
-    }
-
-    @Override
-    public Literal<Integer> getLiteral(IDatabaseColumnType fieldType, Object object) {
-        return new IntLiteral((Integer) object);
-    }
-
-    @Override
     public int getDataType() {
         return DataType.INTEGER;
     }
 
     @Override
-    public Object parseDefaultTo(IDatabaseColumnType fieldType, String value) throws IllegalArgumentException {
-        return Integer.valueOf(value);
+    public Object readValue(DatabaseResultSet databaseResultSet, int column) throws SQLException {
+        return databaseResultSet.getInt(column);
     }
 
     @Override
-    public Object convertIdNumber(Number value) {
-        return value.intValue();
+    public Object readValue(DatabaseResultSet databaseResultSet, String columnLabel) throws SQLException {
+        return databaseResultSet.getInt(columnLabel);
+    }
+
+    @Override
+    public void setObject(PreparedStatement preparedStatement, int index, Object value) throws SQLException {
+        preparedStatement.setInt(index, (Integer) value);
     }
 
     @Override

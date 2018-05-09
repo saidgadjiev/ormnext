@@ -1,10 +1,7 @@
 package ru.saidgadjiev.ormnext.core.stamentexecutor.object.collection;
 
-import ru.saidgadjiev.ormnext.core.dao.Dao;
-import ru.saidgadjiev.ormnext.core.logger.Log;
-import ru.saidgadjiev.ormnext.core.logger.LoggerFactory;
-import ru.saidgadjiev.ormnext.core.stamentexecutor.rowreader.entityinitializer.CollectionLoader;
-import ru.saidgadjiev.ormnext.core.dao.Dao;
+import ru.saidgadjiev.ormnext.core.dao.Session;
+import ru.saidgadjiev.ormnext.core.dao.SessionManager;
 import ru.saidgadjiev.ormnext.core.logger.Log;
 import ru.saidgadjiev.ormnext.core.logger.LoggerFactory;
 import ru.saidgadjiev.ormnext.core.stamentexecutor.rowreader.entityinitializer.CollectionLoader;
@@ -23,7 +20,7 @@ import java.util.stream.Stream;
  */
 public abstract class AbstractLazyCollection<T> implements Collection<T> {
 
-    private Dao dao;
+    private SessionManager sessionManager;
 
     private Object ownerId;
 
@@ -37,9 +34,9 @@ public abstract class AbstractLazyCollection<T> implements Collection<T> {
 
     private static final Log LOG = LoggerFactory.getLogger(AbstractLazyCollection.class);
 
-    public AbstractLazyCollection(CollectionLoader collectionLoader, Dao dao, Object ownerId, Collection<T> collection) {
+    public AbstractLazyCollection(CollectionLoader collectionLoader, SessionManager sessionManager, Object ownerId, Collection<T> collection) {
         this.collectionLoader = collectionLoader;
-        this.dao = dao;
+        this.sessionManager = sessionManager;
         this.ownerId = ownerId;
         this.collection = collection;
     }
@@ -49,13 +46,15 @@ public abstract class AbstractLazyCollection<T> implements Collection<T> {
             return;
         }
         try {
-            Collection<?> loadedObjects = collectionLoader.loadCollection(dao, ownerId);
+            Session session = sessionManager.createSession();
+            Collection<?> loadedObjects = collectionLoader.loadCollection(session, ownerId);
 
             collection.addAll((Collection<? extends T>) loadedObjects);
             Field field = collectionLoader.getGoreignCollectionColumnType().getField();
 
-            LOG.debug("Lazy collection " + field.getDeclaringClass().getName() + " " + field.getName() + " lazy initialized");
-            LOG.debug("Loaded objects " + loadedObjects.toString());
+            session.close();
+            //LOG.debug("Lazy collection " + field.getDeclaringClass().getName() + " " + field.getName() + " lazy initialized");
+            //LOG.debug("Loaded objects " + loadedObjects.toString());
         } catch (SQLException ex) {
             throw new RuntimeException(ex);
         }
@@ -68,10 +67,13 @@ public abstract class AbstractLazyCollection<T> implements Collection<T> {
             return false;
         }
         try {
-            cachedSize = collectionLoader.loadSize(dao, ownerId);
+            Session session = sessionManager.createSession();
+
+            cachedSize = collectionLoader.loadSize(session, ownerId);
             Field field = collectionLoader.getGoreignCollectionColumnType().getField();
 
-            LOG.debug("Lazy collection " + field.getDeclaringClass().getName() + " " + field.getName() + " read size " + cachedSize);
+            session.close();
+            //LOG.debug("Lazy collection " + field.getDeclaringClass().getName() + " " + field.getName() + " read size " + cachedSize);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

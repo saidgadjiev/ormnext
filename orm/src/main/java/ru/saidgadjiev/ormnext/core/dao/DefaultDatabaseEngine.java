@@ -4,153 +4,78 @@ import ru.saidgadjiev.ormnext.core.db.DatabaseType;
 import ru.saidgadjiev.ormnext.core.query.core.*;
 import ru.saidgadjiev.ormnext.core.query.visitor.DefaultVisitor;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryElement;
+import ru.saidgadjiev.ormnext.core.stamentexecutor.Argument;
 import ru.saidgadjiev.ormnext.core.support.DatabaseConnection;
-import ru.saidgadjiev.ormnext.core.support.OrmNextResultSet;
-import ru.saidgadjiev.ormnext.core.db.DatabaseType;
-import ru.saidgadjiev.ormnext.core.query.core.*;
-import ru.saidgadjiev.ormnext.core.query.visitor.DefaultVisitor;
-import ru.saidgadjiev.ormnext.core.query.visitor.QueryElement;
+import ru.saidgadjiev.ormnext.core.support.DatabaseResultSetImpl;
 
 import java.sql.*;
+import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class DefaultDatabaseEngine implements DatabaseEngine {
 
     private final DatabaseType databaseType;
 
-    private static final Integer GENERATED_CLUMN_INDEX = 1;
-
     public DefaultDatabaseEngine(DatabaseType databaseType) {
         this.databaseType = databaseType;
     }
 
     @Override
-    public void select(DatabaseConnection connection, Select select, List<Object> args, ResultSetProcessor resultSetProcessor) throws SQLException {
+    public void select(DatabaseConnection<?> databaseConnection, Select select, Collection<Argument> args, ResultSetProcessor resultSetProcessor) throws SQLException {
         String query = getQuery(select);
-        Connection originialConnection = (Connection) connection.getConnection();
+        Connection connection = databaseConnection.getWrappedConnection();
 
-        try (PreparedStatement preparedStatement = originialConnection.prepareStatement(query)) {
-            setArgs(preparedStatement, args);
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            processArgs(preparedStatement, args);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                resultSetProcessor.process(new OrmNextResultSet() {
-                    @Override
-                    public boolean next() throws SQLException {
-                        return resultSet.next();
-                    }
-
-                    @Override
-                    public Object getObject(String columnName) throws SQLException {
-                        return resultSet.getObject(columnName);
-                    }
-
-                    @Override
-                    public Object getObject(int columnId) throws SQLException {
-                        return resultSet.getObject(columnId);
-                    }
-
-                    @Override
-                    public OrmNextMetaData getMetaData() {
-                        return null;
-                    }
-
-                    @Override
-                    public GeneratedKeys generatedKeys() {
-                        return null;
-                    }
-                });
+                resultSetProcessor.process(new DatabaseResultSetImpl(resultSet, resultSet.getMetaData()));
             }
         }
     }
 
     @Override
-    public int create(DatabaseConnection databaseConnection, CreateQuery createQuery, List<Object> args, ResultSetProcessor resultSetProcessor) throws SQLException {
-        Connection connection = (Connection) databaseConnection.getConnection();
+    public void create(DatabaseConnection<?> databaseConnection, CreateQuery createQuery, Collection<Argument> args, ResultSetProcessor resultSetProcessor) throws SQLException {
         String query = getQuery(createQuery);
+        Connection connection = databaseConnection.getWrappedConnection();
 
         try (PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
-            setArgs(statement, args);
-            int result = statement.executeUpdate();
+            processArgs(statement, args);
+            statement.executeUpdate();
 
             try (ResultSet resultSet = statement.getGeneratedKeys()) {
-                ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
-
-                resultSetProcessor.process(new OrmNextResultSet() {
-                    @Override
-                    public boolean next() throws SQLException {
-                        return false;
-                    }
-
-                    @Override
-                    public Object getObject(String columnName) throws SQLException {
-                        return null;
-                    }
-
-                    @Override
-                    public Object getObject(int columnId) throws SQLException {
-                        return null;
-                    }
-
-                    @Override
-                    public OrmNextMetaData getMetaData() {
-                        return null;
-                    }
-
-                    @Override
-                    public GeneratedKeys generatedKeys() {
-                        return new GeneratedKeys() {
-
-                            @Override
-                            public boolean next() throws SQLException {
-                                return resultSet.next();
-                            }
-
-                            @Override
-                            public Object getGeneratedKey() throws SQLException {
-                                return resultSet.getObject(GENERATED_CLUMN_INDEX);
-                            }
-
-                            @Override
-                            public int getType() throws SQLException {
-                                return resultSetMetaData.getColumnType(GENERATED_CLUMN_INDEX);
-                            }
-                        };
-                    }
-                });
+                resultSetProcessor.process(new DatabaseResultSetImpl(resultSet, resultSet.getMetaData()));
             }
-
-            return result;
         }
     }
 
     @Override
-    public int delete(DatabaseConnection connection, DeleteQuery deleteQuery, List<Object> args) throws SQLException {
-        Connection originialConnection = (Connection) connection.getConnection();
+    public void delete(DatabaseConnection<?> databaseConnection, DeleteQuery deleteQuery, Collection<Argument> args) throws SQLException {
         String query = getQuery(deleteQuery);
+        Connection originialConnection = databaseConnection.getWrappedConnection();
 
         try (PreparedStatement preparedQuery = originialConnection.prepareStatement(query)) {
-            setArgs(preparedQuery, args);
+            processArgs(preparedQuery, args);
 
-            return preparedQuery.executeUpdate();
+            preparedQuery.executeUpdate();
         }
     }
 
     @Override
-    public int update(DatabaseConnection connection, UpdateQuery updateQuery, List<Object> args) throws SQLException {
-        Connection originialConnection = (Connection) connection.getConnection();
+    public void update(DatabaseConnection<?> databaseConnection, UpdateQuery updateQuery, Collection<Argument> args) throws SQLException {
         String query = getQuery(updateQuery);
+        Connection originialConnection = databaseConnection.getWrappedConnection();
 
         try (PreparedStatement preparedQuery = originialConnection.prepareStatement(query)) {
-            setArgs(preparedQuery, args);
+            processArgs(preparedQuery, args);
 
-            return preparedQuery.executeUpdate();
+            preparedQuery.executeUpdate();
         }
     }
 
     @Override
-    public boolean createTable(DatabaseConnection databaseConnection, CreateTableQuery createTableQuery) throws SQLException {
-        Connection connection = (Connection) databaseConnection.getConnection();
+    public boolean createTable(DatabaseConnection<?> databaseConnection, CreateTableQuery createTableQuery) throws SQLException {
+        Connection connection = databaseConnection.getWrappedConnection();
 
         try (Statement statement = connection.createStatement()) {
             statement.execute(getQuery(createTableQuery));
@@ -160,8 +85,8 @@ public class DefaultDatabaseEngine implements DatabaseEngine {
     }
 
     @Override
-    public boolean dropTable(DatabaseConnection databaseConnection, DropTableQuery dropTableQuery) throws SQLException {
-        Connection connection = (Connection) databaseConnection.getConnection();
+    public boolean dropTable(DatabaseConnection<?> databaseConnection, DropTableQuery dropTableQuery) throws SQLException {
+        Connection connection = databaseConnection.getWrappedConnection();
 
         try (Statement statement = connection.createStatement()) {
             statement.execute(getQuery(dropTableQuery));
@@ -171,8 +96,8 @@ public class DefaultDatabaseEngine implements DatabaseEngine {
     }
 
     @Override
-    public void createIndexes(DatabaseConnection databaseConnection, Iterator<CreateIndexQuery> indexQueryIterator) throws SQLException {
-        Connection connection = (Connection) databaseConnection.getConnection();
+    public void createIndexes(DatabaseConnection<?> databaseConnection, Iterator<CreateIndexQuery> indexQueryIterator) throws SQLException {
+        Connection connection = databaseConnection.getWrappedConnection();
 
         while (indexQueryIterator.hasNext()) {
             CreateIndexQuery createIndexQuery = indexQueryIterator.next();
@@ -186,8 +111,8 @@ public class DefaultDatabaseEngine implements DatabaseEngine {
     }
 
     @Override
-    public void dropIndexes(DatabaseConnection databaseConnection, Iterator<DropIndexQuery> dropIndexQueryIterator) throws SQLException {
-        Connection connection = (Connection) databaseConnection.getConnection();
+    public void dropIndexes(DatabaseConnection<?> databaseConnection, Iterator<DropIndexQuery> dropIndexQueryIterator) throws SQLException {
+        Connection connection = databaseConnection.getWrappedConnection();
 
         while (dropIndexQueryIterator.hasNext()) {
             DropIndexQuery dropIndexQuery = dropIndexQueryIterator.next();
@@ -200,14 +125,18 @@ public class DefaultDatabaseEngine implements DatabaseEngine {
         }
     }
 
-    private void setArgs(PreparedStatement preparedStatement, List<Object> args) throws SQLException {
-        if (args == null) {
-            return;
-        }
-        AtomicInteger integer = new AtomicInteger();
+    private void processArgs(PreparedStatement preparedStatement, Collection<Argument> args) throws SQLException {
+        AtomicInteger index = new AtomicInteger();
 
-        for (Object arg: args) {
-            preparedStatement.setObject(integer.incrementAndGet(), arg);
+        for (Argument argument: args) {
+            Object value = argument.getValue();
+
+            if (argument.getConverter().isPresent()) {
+                ru.saidgadjiev.ormnext.core.field.persister.Converter converter = argument.getConverter().get();
+
+                value = converter.javaToSql(value);
+            }
+            argument.getDataPersister().setObject(preparedStatement, index.incrementAndGet(), value);
         }
     }
 

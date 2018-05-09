@@ -1,9 +1,10 @@
 package ru.saidgadjiev.ormnext.core.field.persister;
 
 import ru.saidgadjiev.ormnext.core.field.DataType;
-import ru.saidgadjiev.ormnext.core.field.fieldtype.IDatabaseColumnType;
-import ru.saidgadjiev.ormnext.core.query.core.literals.BooleanLiteral;
-import ru.saidgadjiev.ormnext.core.query.core.literals.Literal;
+import ru.saidgadjiev.ormnext.core.support.DatabaseResultSet;
+
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 public class BooleanPersister extends BaseDataPersister {
 
@@ -12,22 +13,23 @@ public class BooleanPersister extends BaseDataPersister {
     }
 
     @Override
-    public Class<?>[] getAssociatedClasses() {
-        return classes;
-    }
-
-    @Override
-    public Literal<Boolean> getLiteral(IDatabaseColumnType fieldType, Object object) {
-        return new BooleanLiteral((Boolean) object);
-    }
-
-    @Override
     public int getDataType() {
         return DataType.BOOLEAN;
     }
 
     @Override
-    public Boolean parseDefaultTo(IDatabaseColumnType fieldType, String value) {
-        return Boolean.valueOf(value);
+    public Object readValue(DatabaseResultSet databaseResultSet, int column) throws SQLException {
+        return databaseResultSet.getBoolean(column);
     }
+
+    @Override
+    public Object readValue(DatabaseResultSet databaseResultSet, String columnLabel) throws SQLException {
+        return databaseResultSet.getBoolean(columnLabel);
+    }
+
+    @Override
+    public void setObject(PreparedStatement preparedStatement, int index, Object value) throws SQLException {
+        preparedStatement.setBoolean(index, (Boolean) value);
+    }
+
 }

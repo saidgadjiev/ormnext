@@ -26,23 +26,9 @@ import ru.saidgadjiev.ormnext.core.query.core.join.JoinExpression;
 import ru.saidgadjiev.ormnext.core.query.core.join.JoinInfo;
 import ru.saidgadjiev.ormnext.core.query.core.join.LeftJoin;
 import ru.saidgadjiev.ormnext.core.query.core.literals.*;
-import ru.saidgadjiev.ormnext.core.db.DatabaseType;
-import ru.saidgadjiev.ormnext.core.query.core.*;
-import ru.saidgadjiev.ormnext.core.query.core.clause.*;
-import ru.saidgadjiev.ormnext.core.query.core.clause.from.FromJoinedTables;
-import ru.saidgadjiev.ormnext.core.query.core.clause.from.FromTable;
-import ru.saidgadjiev.ormnext.core.query.core.columnspec.ColumnSpec;
-import ru.saidgadjiev.ormnext.core.query.core.columnspec.DisplayedColumn;
-import ru.saidgadjiev.ormnext.core.query.core.columnspec.DisplayedOperand;
-import ru.saidgadjiev.ormnext.core.query.core.common.TableRef;
-import ru.saidgadjiev.ormnext.core.query.core.common.UpdateValue;
 import ru.saidgadjiev.ormnext.core.query.core.condition.Equals;
 import ru.saidgadjiev.ormnext.core.query.core.condition.Expression;
 import ru.saidgadjiev.ormnext.core.query.core.condition.InSelect;
-import ru.saidgadjiev.ormnext.core.query.core.constraints.attribute.*;
-import ru.saidgadjiev.ormnext.core.query.core.constraints.table.UniqueConstraint;
-import ru.saidgadjiev.ormnext.core.query.core.join.JoinExpression;
-import ru.saidgadjiev.ormnext.core.query.core.join.JoinInfo;
 
 import java.util.Iterator;
 
@@ -74,7 +60,7 @@ public class DefaultVisitor extends NoActionVisitor {
         sql.append("INSERT INTO ").append(escapeEntity).append(tCreateQuery.getTypeName()).append(escapeEntity);
 
         if (tCreateQuery.getColumnNames().isEmpty()) {
-            sql.append(" ").append(databaseType.appendNoColumn());
+            sql.append(" ").append(databaseType.getNoArgsInsertDefinition());
         } else {
             sql.append(" (");
 
@@ -298,7 +284,7 @@ public class DefaultVisitor extends NoActionVisitor {
 
     @Override
     public void visit(PrimaryKeyConstraint primaryKeyConstraint) {
-        sql.append(databaseType.appendPrimaryKey(primaryKeyConstraint.isGenerated()));
+        sql.append(databaseType.getPrimaryKeyDefinition(primaryKeyConstraint.isGenerated()));
     }
 
     @Override
@@ -516,10 +502,8 @@ public class DefaultVisitor extends NoActionVisitor {
     }
 
     @Override
-    public boolean visit(Default aDefault) {
-        sql.append("DEFAULT ");
-
-        return false;
+    public void visit(Default aDefault) {
+        sql.append("DEFAULT ").append(aDefault.getDefaultValue());
     }
 
     @Override

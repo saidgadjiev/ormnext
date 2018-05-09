@@ -13,18 +13,18 @@ public class BeginState implements TransactionState {
     }
 
     @Override
-    public void begin(DatabaseConnection<?> connection) throws SQLException {
+    public void begin(DatabaseConnection connection) throws SQLException {
         connection.setAutoCommit(false);
         transaction.changeState(new BeginnedState(transaction));
     }
 
     @Override
-    public void commit(DatabaseConnection<?> connection) throws SQLException {
-        throw new SQLException("Transaction not begin");
+    public void commit(DatabaseConnection connection) throws SQLException {
+        throw new SQLException("Transaction not beginTransaction");
     }
 
     @Override
-    public void rollback(DatabaseConnection<?> connection) throws SQLException {
-        throw new SQLException("Transaction not begin");
+    public void rollback(DatabaseConnection connection) throws SQLException {
+        throw new SQLException("Transaction not beginTransaction");
     }
 }

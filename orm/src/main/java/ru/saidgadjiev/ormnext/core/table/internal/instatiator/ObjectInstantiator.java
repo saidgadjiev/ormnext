@@ -6,14 +6,14 @@ import ru.saidgadjiev.ormnext.core.exception.InstantiationException;
 import java.lang.reflect.Constructor;
 import java.util.Optional;
 
-public class EntityInstantiator implements Instantiator {
+public class ObjectInstantiator implements Instantiator {
 
     private Class<?> entityClass;
 
     private Constructor<?> constructor;
 
-    public EntityInstantiator(Class<?> entityClass) {
-        this.entityClass = entityClass;
+    public ObjectInstantiator(Class<?> objectClass) {
+        this.entityClass = objectClass;
     }
 
     @Override

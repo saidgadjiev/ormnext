@@ -3,9 +3,9 @@ package ru.saidgadjiev.ormnext.core.support;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class SqlConnectionImpl extends DatabaseConnection<Connection> {
+public class DatabaseConnectionImpl extends DatabaseConnection<Connection> {
 
-    public SqlConnectionImpl(Connection connection) {
+    public DatabaseConnectionImpl(Connection connection) {
         super(connection);
     }
 

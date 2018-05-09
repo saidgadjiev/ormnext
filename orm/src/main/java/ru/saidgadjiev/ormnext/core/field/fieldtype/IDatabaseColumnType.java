@@ -1,5 +1,7 @@
 package ru.saidgadjiev.ormnext.core.field.fieldtype;
 
+import ru.saidgadjiev.ormnext.core.field.persister.BaseDataPersister;
+import ru.saidgadjiev.ormnext.core.field.persister.Converter;
 import ru.saidgadjiev.ormnext.core.field.persister.DataPersister;
 import ru.saidgadjiev.ormnext.core.table.internal.visitor.EntityElement;
 import ru.saidgadjiev.ormnext.core.field.persister.DataPersister;
@@ -7,13 +9,15 @@ import ru.saidgadjiev.ormnext.core.table.internal.visitor.EntityElement;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.sql.SQLException;
+import java.util.Optional;
 
 /**
  * Created by said on 14.01.2018.
  */
 public interface IDatabaseColumnType extends EntityElement {
 
-    default Object getDefaultValue() {
+    default String getDefaultDefinition() {
         return null;
     }
 
@@ -37,24 +41,20 @@ public interface IDatabaseColumnType extends EntityElement {
         throw new UnsupportedOperationException();
     }
 
-    Object access(Object object) throws InvocationTargetException, IllegalAccessException;
+    Object access(Object object) throws SQLException;
 
     DataPersister getDataPersister();
 
-    default void assignId(Object object, Number value) throws IllegalAccessException, InvocationTargetException {
+    default void assignId(Object object, Number value) throws SQLException {
         throw new UnsupportedOperationException();
     }
 
-    void assign(Object object, Object value);
+    void assign(Object object, Object value) throws SQLException;
 
     Field getField();
 
     default String getFieldName() {
         return getField().getName();
-    }
-
-    default String getFormat() {
-        throw new UnsupportedOperationException();
     }
 
     default int getLength() {
@@ -80,4 +80,9 @@ public interface IDatabaseColumnType extends EntityElement {
     String getOwnerTableName();
 
     void setOwnerTableName(String ownerTableName);
+
+    default Optional<Converter<?, ?>> getConverter() {
+        return Optional.empty();
+    }
+
 }

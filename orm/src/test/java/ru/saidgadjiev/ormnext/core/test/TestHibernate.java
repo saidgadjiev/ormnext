@@ -1,15 +1,10 @@
 package ru.saidgadjiev.ormnext.core.test;
 
-import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
-import ru.saidgadjiev.ormnext.core.test.model.hibernate.A;
-import ru.saidgadjiev.ormnext.core.test.model.hibernate.B;
-import ru.saidgadjiev.ormnext.core.test.model.hibernate.C;
-import ru.saidgadjiev.ormnext.core.test.model.hibernate.D;
 import ru.saidgadjiev.ormnext.core.test.model.hibernate.A;
 import ru.saidgadjiev.ormnext.core.test.model.hibernate.B;
 import ru.saidgadjiev.ormnext.core.test.model.hibernate.C;
@@ -34,10 +29,13 @@ public class TestHibernate {
 
         SessionFactory sessionFactory = createSessionFactory(configuration);
         Session session = sessionFactory.openSession();
+        org.hibernate.Transaction transaction = session.beginTransaction();
 
-        B b = session.get(B.class, 1);
+        C c = new C();
 
-        Hibernate.initialize(b.getC());
+        session.save(c);
+        
+        transaction.commit();
         session.close();
         sessionFactory.close();
     }

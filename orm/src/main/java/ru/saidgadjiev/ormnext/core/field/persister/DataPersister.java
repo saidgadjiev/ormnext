@@ -1,31 +1,24 @@
 package ru.saidgadjiev.ormnext.core.field.persister;
 
-import ru.saidgadjiev.ormnext.core.field.fieldtype.IDatabaseColumnType;
-import ru.saidgadjiev.ormnext.core.query.core.AttributeDefinition;
-import ru.saidgadjiev.ormnext.core.query.core.literals.Literal;
-import ru.saidgadjiev.ormnext.core.query.core.AttributeDefinition;
+import ru.saidgadjiev.ormnext.core.support.DatabaseResultSet;
 
 import java.lang.reflect.Field;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
-public interface DataPersister<T> extends FieldConverter<T> {
+public interface DataPersister<T> {
 
-    default boolean isValidForGenerated() {
-        return false;
-    }
+    Object parseDefaultTo(String value) throws Exception;
 
-    boolean isValidForField(Field field);
+    boolean isValidForGenerated();
 
     Class<?>[] getAssociatedClasses();
 
-    Literal<T> getLiteral(IDatabaseColumnType fieldType, Object object);
-
     int getDataType();
 
-    default Object convertIdNumber(Number value) {
-        return null;
-    }
+    Object readValue(DatabaseResultSet databaseResultSet, int column) throws SQLException;
 
-    default String typeToSql(int type, AttributeDefinition attributeDefinition) {
-        return null;
-    }
+    Object readValue(DatabaseResultSet databaseResultSet, String columnLabel) throws SQLException;
+
+    void setObject(PreparedStatement preparedStatement, int index, Object value) throws SQLException;
 }

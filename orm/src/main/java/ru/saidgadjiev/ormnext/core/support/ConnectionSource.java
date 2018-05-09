@@ -1,12 +1,13 @@
 package ru.saidgadjiev.ormnext.core.support;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 
-public interface ConnectionSource extends AutoCloseable {
+public interface ConnectionSource<T> extends AutoCloseable {
 
-    DatabaseConnection getConnection() throws SQLException;
+    DatabaseConnection<T> getConnection() throws SQLException;
 
-    default void releaseConnection(DatabaseConnection connection) throws SQLException {
+    default void releaseConnection(DatabaseConnection<T> connection) throws SQLException {
         connection.close();
     }
 

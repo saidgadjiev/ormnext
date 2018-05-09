@@ -1,8 +1,7 @@
 package ru.saidgadjiev.ormnext.core.stamentexecutor.object.collection;
 
-import ru.saidgadjiev.ormnext.core.dao.Dao;
-import ru.saidgadjiev.ormnext.core.stamentexecutor.rowreader.entityinitializer.CollectionLoader;
-import ru.saidgadjiev.ormnext.core.dao.Dao;
+import ru.saidgadjiev.ormnext.core.dao.Session;
+import ru.saidgadjiev.ormnext.core.dao.SessionManager;
 import ru.saidgadjiev.ormnext.core.stamentexecutor.rowreader.entityinitializer.CollectionLoader;
 
 import java.util.Set;
@@ -12,7 +11,7 @@ import java.util.Set;
  */
 public class LazySet<T> extends AbstractLazyCollection<T> implements Set<T> {
 
-    public LazySet(CollectionLoader collectionLoader, Dao dao, Object ownerId, Set<T> set) {
-        super(collectionLoader, dao, ownerId, set);
+    public LazySet(CollectionLoader collectionLoader, SessionManager sessionManager, Object ownerId, Set<T> set) {
+        super(collectionLoader, sessionManager, ownerId, set);
     }
 }

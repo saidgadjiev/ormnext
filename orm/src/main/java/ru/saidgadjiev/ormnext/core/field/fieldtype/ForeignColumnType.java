@@ -15,6 +15,7 @@ import ru.saidgadjiev.ormnext.core.utils.DatabaseMetaDataUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.sql.SQLException;
 
 /**
  * Created by said on 30.10.17.
@@ -56,7 +57,7 @@ public class ForeignColumnType implements IForeignDatabaseColumnType {
         return foreignAutoCreate;
     }
 
-    public Class<?> getForeignFieldClass() {
+    public Class<?> getCollectionObjectClass() {
         return foreignFieldClass;
     }
 
@@ -80,18 +81,20 @@ public class ForeignColumnType implements IForeignDatabaseColumnType {
     }
 
     @Override
-    public Object access(Object object) throws InvocationTargetException, IllegalAccessException {
-        return fieldAccessor.access(object);
+    public Object access(Object object) throws SQLException {
+        try {
+            return fieldAccessor.access(object);
+        } catch (Throwable ex) {
+            throw new SQLException(ex);
+        }
     }
 
     @Override
-    public void assign(Object object, Object value) {
+    public void assign(Object object, Object value) throws SQLException {
         try {
             fieldAccessor.assign(object, value);
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
+        } catch (Throwable ex) {
+            throw new SQLException(ex);
         }
     }
 

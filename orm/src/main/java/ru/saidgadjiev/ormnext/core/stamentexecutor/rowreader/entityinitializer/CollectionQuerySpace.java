@@ -5,9 +5,15 @@ import ru.saidgadjiev.ormnext.core.criteria.impl.CriteriaQuery;
 import ru.saidgadjiev.ormnext.core.criteria.impl.Restrictions;
 import ru.saidgadjiev.ormnext.core.criteria.impl.SimpleCriteriaQuery;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignCollectionColumnType;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.IDatabaseColumnType;
+import ru.saidgadjiev.ormnext.core.table.internal.alias.CollectionEntityAliases;
 
 
 public class CollectionQuerySpace {
+
+    private final CollectionEntityAliases collectionEntityAliases;
+
+    private IDatabaseColumnType ownerPrimaryKey;
 
     private final ForeignCollectionColumnType foreignCollectionColumnType;
 
@@ -15,14 +21,17 @@ public class CollectionQuerySpace {
 
     private SimpleCriteriaQuery countOffCriteria;
 
-    public CollectionQuerySpace(ForeignCollectionColumnType foreignCollectionColumnType) {
+    public CollectionQuerySpace(CollectionEntityAliases collectionEntityAliases, IDatabaseColumnType ownerPrimaryKey, ForeignCollectionColumnType foreignCollectionColumnType) {
+        this.collectionEntityAliases = collectionEntityAliases;
+        this.ownerPrimaryKey = ownerPrimaryKey;
         this.foreignCollectionColumnType = foreignCollectionColumnType;
+
         loadCollectionQuery =
-                new CriteriaQuery<>(foreignCollectionColumnType.getForeignFieldClass())
+                new CriteriaQuery<>(foreignCollectionColumnType.getCollectionObjectClass())
                         .where(new Criteria()
                                 .add(Restrictions.eq(foreignCollectionColumnType.getForeignField().getName())));
         countOffCriteria =
-                new SimpleCriteriaQuery(foreignCollectionColumnType.getForeignFieldClass())
+                new SimpleCriteriaQuery(foreignCollectionColumnType.getCollectionObjectClass())
                         .countAll()
                         .where(new Criteria()
                                 .add(Restrictions.eq(foreignCollectionColumnType.getForeignField().getName())));
@@ -38,5 +47,13 @@ public class CollectionQuerySpace {
 
     public ForeignCollectionColumnType getForeignCollectionColumnType() {
         return foreignCollectionColumnType;
+    }
+
+    public CollectionEntityAliases getCollectionEntityAliases() {
+        return collectionEntityAliases;
+    }
+
+    public IDatabaseColumnType getOwnerPrimaryKey() {
+        return ownerPrimaryKey;
     }
 }

@@ -8,7 +8,7 @@ import java.util.List;
 
 public class UserProfile {
 
-    @DatabaseColumn(id = true, generated = true, dataType = 8)
+    @DatabaseColumn(id = true, generated = true, dataType = 12)
     private int id;
 
     @DatabaseColumn

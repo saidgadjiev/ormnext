@@ -2,7 +2,6 @@ package ru.saidgadjiev.ormnext.core.table.internal.queryspace;
 
 import ru.saidgadjiev.ormnext.core.criteria.impl.CriteriaQuery;
 import ru.saidgadjiev.ormnext.core.criteria.impl.SimpleCriteriaQuery;
-import ru.saidgadjiev.ormnext.core.field.DataPersisterManager;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.*;
 import ru.saidgadjiev.ormnext.core.query.core.*;
 import ru.saidgadjiev.ormnext.core.query.core.clause.from.FromJoinedTables;
@@ -23,22 +22,18 @@ import ru.saidgadjiev.ormnext.core.query.core.constraints.table.ForeignKeyConstr
 import ru.saidgadjiev.ormnext.core.query.core.constraints.table.UniqueConstraint;
 import ru.saidgadjiev.ormnext.core.query.core.function.CountAll;
 import ru.saidgadjiev.ormnext.core.query.core.join.LeftJoin;
-import ru.saidgadjiev.ormnext.core.query.core.literals.Literal;
 import ru.saidgadjiev.ormnext.core.query.core.literals.Param;
+import ru.saidgadjiev.ormnext.core.stamentexecutor.Argument;
 import ru.saidgadjiev.ormnext.core.table.internal.alias.EntityAliases;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetadata;
-import ru.saidgadjiev.ormnext.core.query.core.InsertValues;
-import ru.saidgadjiev.ormnext.core.query.core.condition.Equals;
-import ru.saidgadjiev.ormnext.core.query.core.condition.Expression;
-import ru.saidgadjiev.ormnext.core.query.core.constraints.table.UniqueConstraint;
-import ru.saidgadjiev.ormnext.core.table.internal.alias.EntityAliases;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class EntityQuerySpace  {
+public class EntityQuerySpace {
 
     private SelectColumnsList selectColumnsList = new SelectColumnsList();
 
@@ -134,11 +129,11 @@ public class EntityQuerySpace  {
         return selectAll;
     }
 
-    public CreateQuery getCreateQuery() {
+    public CreateQuery getCreateQuery(Collection<IDatabaseColumnType> resultColumnTypes) {
         CreateQuery createQuery = new CreateQuery(rootEntityMetaData.getTableName());
         InsertValues insertValues = new InsertValues();
 
-        for (IDatabaseColumnType columnType : rootEntityMetaData.getFieldTypes()) {
+        for (IDatabaseColumnType columnType : resultColumnTypes) {
             if (columnType.isId() && columnType.isGenerated()) {
                 continue;
             }
@@ -156,10 +151,10 @@ public class EntityQuerySpace  {
         return createQuery;
     }
 
-    public CreateQuery getCreateQuery(int objectCount) {
+    public CreateQuery getCreateQuery(int objectCount, List<IDatabaseColumnType> resultColumnTypes) {
         CreateQuery createQuery = new CreateQuery(rootEntityMetaData.getTableName());
 
-        for (int i = 0; i <  objectCount; ++i) {
+        for (int i = 0; i < objectCount; ++i) {
             InsertValues insertValues = new InsertValues();
 
             for (IDatabaseColumnType columnType : rootEntityMetaData.getFieldTypes()) {
@@ -195,11 +190,8 @@ public class EntityQuerySpace  {
             if (dbFieldType.isNotNull()) {
                 attributeDefinition.getAttributeConstraints().add(new NotNullConstraint());
             }
-            if (dbFieldType.getDefaultValue() != null) {
-                Literal<?> literal = DataPersisterManager
-                        .lookup(dbFieldType.getDefaultValue().getClass())
-                        .getLiteral(dbFieldType, dbFieldType.getDefaultValue());
-                attributeDefinition.getAttributeConstraints().add(new Default<>(literal));
+            if (dbFieldType.getDefaultDefinition() != null) {
+                attributeDefinition.getAttributeConstraints().add(new Default(dbFieldType.getDefaultDefinition()));
             }
             attributeDefinitions.add(attributeDefinition);
         }

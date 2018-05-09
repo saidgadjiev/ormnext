@@ -1,28 +1,26 @@
 package ru.saidgadjiev.ormnext.core.table.internal.alias;
 
+import ru.saidgadjiev.ormnext.core.field.persister.DataPersister;
+import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetadata;
+
 public class CollectionEntityAliases {
 
     private final String collectionColumnKeyAlias;
 
     private final String collectionOwnerAlias;
 
-    private final Class<?> collectionObjectClass;
-
     private final EntityAliases ownerAliases;
 
-    public CollectionEntityAliases(String collectionColumnKeyAlias, String collectionOwnerAlias, Class<?> collectionObjectClass, EntityAliases ownerAliases) {
+    public CollectionEntityAliases(String collectionColumnKeyAlias,
+                                   String collectionOwnerAlias,
+                                   EntityAliases ownerAliases) {
         this.collectionColumnKeyAlias = collectionColumnKeyAlias;
         this.collectionOwnerAlias = collectionOwnerAlias;
-        this.collectionObjectClass = collectionObjectClass;
         this.ownerAliases = ownerAliases;
     }
 
     public String getCollectionColumnKeyAlias() {
         return collectionColumnKeyAlias;
-    }
-
-    public Class<?> getCollectionObjectClass() {
-        return collectionObjectClass;
     }
 
     public String getCollectionOwnerAlias() {

@@ -39,7 +39,7 @@ public class EntityAliasResolverContext {
 
         columnAliases.put(primaryKey.getColumnName(), keyAlias);
         propertyNameAliases.put(primaryKey.getFieldName(), keyAlias);
-        EntityAliases entityAliases = new EntityAliases(tableAlias, columnAliases, propertyNameAliases, keyAlias);
+        EntityAliases entityAliases = new EntityAliases(tableAlias, columnAliases, propertyNameAliases, keyAlias, primaryKey.getDataPersister());
 
         resolvedEntityAliases.putIfAbsent(uid, entityAliases);
 

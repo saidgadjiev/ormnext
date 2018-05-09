@@ -10,7 +10,7 @@ import java.lang.reflect.Method;
 
 public class A {
 
-    @DatabaseColumn(id = true, generated = true, dataType = 8)
+    @DatabaseColumn(id = true, generated = true, dataType = 12)
     private int id;
 
     @DatabaseColumn(notNull = true)
@@ -33,6 +33,10 @@ public class A {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void setC(C c) {
+        this.c = c;
     }
 
     @Override

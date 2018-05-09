@@ -12,13 +12,13 @@ import java.util.Set;
 
 public class B {
 
-    @DatabaseColumn(id = true, generated = true, dataType = 8)
+    @DatabaseColumn(id = true, generated = true, dataType = 12)
     private int id;
 
     @DatabaseColumn(notNull = true)
     private String name;
 
-    @ForeignColumn
+    @ForeignColumn(fetchType = FetchType.LAZY)
     private C c;
 
     @ForeignColumn

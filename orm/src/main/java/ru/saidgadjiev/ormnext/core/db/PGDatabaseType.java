@@ -1,20 +1,16 @@
 package ru.saidgadjiev.ormnext.core.db;
 
-import ru.saidgadjiev.ormnext.core.query.core.AttributeDefinition;
+import ru.saidgadjiev.ormnext.core.field.persister.SerialTypeDataPersister;
 import ru.saidgadjiev.ormnext.core.query.core.AttributeDefinition;
 
-public class PGDatabaseType implements DatabaseType {
+public class PGDatabaseType extends BaseDatabaseType {
     @Override
-    public String appendPrimaryKey(boolean generated) {
-        StringBuilder builder = new StringBuilder();
-
-        builder.append(" PRIMARY KEY");
-
-        return builder.toString();
+    public String getPrimaryKeyDefinition(boolean generated) {
+        return " PRIMARY KEY";
     }
 
     @Override
-    public String appendNoColumn() {
+    public String getNoArgsInsertDefinition() {
         return " DEFAULT VALUES";
     }
 
@@ -25,10 +21,10 @@ public class PGDatabaseType implements DatabaseType {
 
     @Override
     public String getTypeSqlPresent(AttributeDefinition attributeDefinition) {
-        if (attributeDefinition.getDataType() == 8) {
+        if (attributeDefinition.getDataType() == SerialTypeDataPersister.TYPE) {
             return "SERIAL";
         }
 
-        return DatabaseType.super.getTypeSqlPresent(attributeDefinition);
+        return super.getTypeSqlPresent(attributeDefinition);
     }
 }

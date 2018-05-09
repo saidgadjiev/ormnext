@@ -1,17 +1,17 @@
 package ru.saidgadjiev.ormnext.core.field.fieldtype;
 
 import ru.saidgadjiev.ormnext.core.field.*;
+import ru.saidgadjiev.ormnext.core.field.persister.Converter;
 import ru.saidgadjiev.ormnext.core.field.persister.DataPersister;
+import ru.saidgadjiev.ormnext.core.table.internal.instatiator.ObjectInstantiator;
 import ru.saidgadjiev.ormnext.core.table.internal.visitor.EntityMetadataVisitor;
 import ru.saidgadjiev.ormnext.core.validator.datapersister.GeneratedTypeValidator;
-import ru.saidgadjiev.ormnext.core.field.ForeignColumn;
-import ru.saidgadjiev.ormnext.core.field.persister.DataPersister;
-import ru.saidgadjiev.ormnext.core.table.internal.visitor.EntityMetadataVisitor;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class DatabaseColumnType implements IDatabaseColumnType {
 
@@ -33,17 +33,17 @@ public class DatabaseColumnType implements IDatabaseColumnType {
 
     private boolean generated;
 
-    private Object defaultValue;
-
-    private String format;
+    private String defaultDefinition;
 
     private String tableName;
 
     private static final Map<Field, DatabaseColumnType> CACHE = new HashMap<>();
 
+    private Converter<?, ?> converter;
+
     @Override
-    public Object getDefaultValue() {
-        return defaultValue;
+    public String getDefaultDefinition() {
+        return defaultDefinition;
     }
 
     @Override
@@ -72,8 +72,12 @@ public class DatabaseColumnType implements IDatabaseColumnType {
     }
 
     @Override
-    public Object access(Object object) throws InvocationTargetException, IllegalAccessException {
-        return fieldAccessor.access(object);
+    public Object access(Object object) throws SQLException {
+        try {
+            return fieldAccessor.access(object);
+        } catch (Throwable ex) {
+            throw new SQLException(ex);
+        }
     }
 
     @Override
@@ -82,33 +86,26 @@ public class DatabaseColumnType implements IDatabaseColumnType {
     }
 
     @Override
-    public void assignId(Object object, Number value) throws IllegalAccessException, InvocationTargetException {
-        Object id = dataPersister.convertIdNumber(value);
-
-        fieldAccessor.assign(object, id);
+    public void assignId(Object object, Number value) throws SQLException {
+        try {
+            fieldAccessor.assign(object, value);
+        } catch (Throwable ex) {
+            throw new SQLException(ex);
+        }
     }
 
     @Override
-    public void assign(Object object, Object value) {
+    public void assign(Object object, Object value) throws SQLException {
         try {
             fieldAccessor.assign(object, value);
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
+        } catch (Throwable ex) {
+            throw new SQLException(ex);
         }
     }
 
     @Override
     public Field getField() {
         return field;
-    }
-
-    @Override
-    public String getFormat() {
-        return format;
-    }
-
-    public void setFormat(String format) {
-        this.format = format;
     }
 
     public void setColumnName(String columnName) {
@@ -147,8 +144,8 @@ public class DatabaseColumnType implements IDatabaseColumnType {
         this.generated = generated;
     }
 
-    public void setDefaultValue(Object defaultValue) {
-        this.defaultValue = defaultValue;
+    public void setDefaultDefinition(String defaultDefinition) {
+        this.defaultDefinition = defaultDefinition;
     }
 
     @Override
@@ -170,6 +167,11 @@ public class DatabaseColumnType implements IDatabaseColumnType {
         this.tableName = ownerTableName;
     }
 
+    @Override
+    public Optional<Converter<?, ?>> getConverter() {
+        return Optional.ofNullable(converter);
+    }
+
     public static DatabaseColumnType build(Field field) {
         if (!field.isAnnotationPresent(DatabaseColumn.class)) {
             return null;
@@ -184,9 +186,7 @@ public class DatabaseColumnType implements IDatabaseColumnType {
         fieldType.setColumnName(databaseColumn.columnName().isEmpty() ? field.getName().toLowerCase() : databaseColumn.columnName());
         fieldType.setLength(databaseColumn.length());
         fieldType.setFieldAccessor(new FieldAccessor(field));
-        String format = databaseColumn.format();
 
-        fieldType.setFormat(format);
         if (!field.isAnnotationPresent(ForeignColumn.class)) {
             Integer dataType = databaseColumn.dataType();
             DataPersister<?> dataPersister = dataType.equals(DataType.UNKNOWN) ? DataPersisterManager.lookup(field.getType()) : DataPersisterManager.lookup(dataType);
@@ -194,11 +194,17 @@ public class DatabaseColumnType implements IDatabaseColumnType {
             new GeneratedTypeValidator(field, databaseColumn.generated()).validate(dataPersister);
             fieldType.setDataPersister(dataPersister);
             fieldType.setDataType(dataType.equals(DataType.UNKNOWN) ? dataPersister.getDataType() : dataType);
-            String defaultValue = databaseColumn.defaultValue();
+            String defaultDefinition = databaseColumn.defaultDefinition();
 
-            if (!defaultValue.equals(DatabaseColumn.DEFAULT_STR)) {
-                fieldType.setDefaultValue(dataPersister.parseDefaultTo(fieldType, databaseColumn.defaultValue()));
+            if (!defaultDefinition.equals(DatabaseColumn.DEFAULT_STR)) {
+                fieldType.setDefaultDefinition(defaultDefinition);
             }
+        }
+        if (field.isAnnotationPresent(ru.saidgadjiev.ormnext.core.field.Converter.class)) {
+            ru.saidgadjiev.ormnext.core.field.Converter converterAnnotation = field.getAnnotation(ru.saidgadjiev.ormnext.core.field.Converter.class);
+            Class<?> converterClass = converterAnnotation.value();
+
+            fieldType.converter = (Converter<?, ?>) new ObjectInstantiator(converterClass).instantiate();
         }
         fieldType.setNotNull(databaseColumn.notNull());
         fieldType.setId(databaseColumn.id());

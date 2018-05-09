@@ -1,20 +1,23 @@
 package ru.saidgadjiev.ormnext.benchmark.domain;
 
+import ru.saidgadjiev.ormnext.core.field.Converter;
 import ru.saidgadjiev.ormnext.core.field.DataType;
 import ru.saidgadjiev.ormnext.core.field.DatabaseColumn;
 import ru.saidgadjiev.ormnext.core.field.ForeignColumn;
+import ru.saidgadjiev.ormnext.core.field.persister.TimestampToDate;
 
 import java.util.Date;
 
 public class Order {
 
-    @DatabaseColumn(id = true, generated = true, dataType = 8)
+    @DatabaseColumn(id = true, generated = true, dataType = 12)
     private int id;
 
     @DatabaseColumn
     private String description;
 
-    @DatabaseColumn(dataType = DataType.DATE)
+    @Converter(TimestampToDate.class)
+    @DatabaseColumn(dataType = DataType.TIMESTAMP)
     private Date date = new Date();
 
     @ForeignColumn

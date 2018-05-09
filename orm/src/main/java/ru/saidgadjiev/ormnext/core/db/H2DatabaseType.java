@@ -1,9 +1,9 @@
 package ru.saidgadjiev.ormnext.core.db;
 
-public class H2DatabaseType implements DatabaseType {
+public class H2DatabaseType extends BaseDatabaseType {
 
     @Override
-    public String appendPrimaryKey(boolean generated) {
+    public String getPrimaryKeyDefinition(boolean generated) {
         StringBuilder builder = new StringBuilder();
 
         if (generated) {
@@ -15,7 +15,7 @@ public class H2DatabaseType implements DatabaseType {
     }
 
     @Override
-    public String appendNoColumn() {
+    public String getNoArgsInsertDefinition() {
         return "() VALUES ()";
     }
 }

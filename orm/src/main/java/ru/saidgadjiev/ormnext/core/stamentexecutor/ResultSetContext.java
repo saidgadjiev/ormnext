@@ -1,53 +1,52 @@
 package ru.saidgadjiev.ormnext.core.stamentexecutor;
 
-import ru.saidgadjiev.ormnext.core.dao.Dao;
-import ru.saidgadjiev.ormnext.core.dao.InternalDao;
-import ru.saidgadjiev.ormnext.core.support.OrmNextResultSet;
-import ru.saidgadjiev.ormnext.core.dao.InternalDao;
+import ru.saidgadjiev.ormnext.core.dao.InternalSession;
+import ru.saidgadjiev.ormnext.core.support.DatabaseResultSet;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class ResultSetContext {
 
-    private InternalDao dao;
+    private InternalSession dao;
 
-    private OrmNextResultSet databaseResults;
+    private DatabaseResultSet databaseResults;
 
     private Map<String, Map<Object, EntityProcessingState>> processingStateMap = new HashMap<>();
 
-    private Map<Class<?>, Map<Object, Object>> cache = new HashMap<>();
-
-    public ResultSetContext(InternalDao dao, OrmNextResultSet databaseResults) {
+    public ResultSetContext(InternalSession dao, DatabaseResultSet databaseResults) {
         this.dao = dao;
         this.databaseResults = databaseResults;
     }
 
-    public InternalDao getDao() {
+    public InternalSession getDao() {
         return dao;
     }
 
-    public OrmNextResultSet getDatabaseResults() {
+    public DatabaseResultSet getDatabaseResults() {
         return databaseResults;
     }
 
     public EntityProcessingState getProcessingState(String uid, Object id) {
-        processingStateMap.putIfAbsent(uid, new HashMap<>());
-        processingStateMap.get(uid).putIfAbsent(id, new EntityProcessingState());
+        Map<Object, EntityProcessingState> entityProcessingStateMap = putIfAbsent(processingStateMap, uid, new HashMap<>());
 
-        return processingStateMap.get(uid).get(id);
+        return putIfAbsent(entityProcessingStateMap, id, new EntityProcessingState());
     }
 
-    public void addEntry(Object id, Object data) {
-        cache.putIfAbsent(data.getClass(), new HashMap<>());
-        Map<Object, Object> objectCache = cache.get(data.getClass());
-
-        objectCache.put(id, data);
+    public Map<Object, EntityProcessingState> getProcessingStates(String uid) {
+        return processingStateMap.get(uid);
     }
 
-    public Object getEntry(Class<?> tClass, Object id) {
-        return cache.get(tClass).get(id);
+    private<K, V> V putIfAbsent(Map<K, V> map, K key, V value) {
+        V putted = map.putIfAbsent(key, value);
+
+        if (putted == null) {
+            return value;
+        }
+
+        return putted;
     }
 
     public static class EntityProcessingState {
@@ -57,6 +56,8 @@ public class ResultSetContext {
         private Object entityInstance;
 
         private List<Object> values;
+
+        private List<Object> collectionObjectIds = new ArrayList<>();
 
         public void setEntityInstance(Object instance) {
             this.entityInstance = instance;
@@ -80,6 +81,14 @@ public class ResultSetContext {
 
         public void setNew(boolean aNew) {
             isNew = aNew;
+        }
+
+        public void addCollectionObjectId(Object id) {
+            collectionObjectIds.add(id);
+        }
+
+        public List<Object> getCollectionObjectIds() {
+            return collectionObjectIds;
         }
     }
 }

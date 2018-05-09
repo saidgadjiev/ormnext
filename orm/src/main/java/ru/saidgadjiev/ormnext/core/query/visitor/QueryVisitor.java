@@ -142,7 +142,7 @@ public interface QueryVisitor {
 
     void visit(DateLiteral dateLiteral);
 
-    boolean visit(Default aDefault);
+    void visit(Default aDefault);
 
     boolean visit(DisplayedOperand displayedOperand);
 
