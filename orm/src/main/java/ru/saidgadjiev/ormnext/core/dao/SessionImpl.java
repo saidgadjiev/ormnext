@@ -18,9 +18,7 @@ import ru.saidgadjiev.proxymaker.ProxyMaker;
 import javax.transaction.TransactionRolledbackException;
 import java.sql.SQLException;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by said on 19.02.2018.
@@ -51,10 +49,7 @@ public class SessionImpl implements InternalSession {
         this.sessionManager = sessionManager;
         this.connection = connection;
         this.databaseEngine = databaseEngine;
-        ObjectCache objectCache = new SessionObjectCache();
-
-        metaModel.getPersistentClasses().forEach(objectCache::registerClass);
-        this.cacheHelper = new CacheHelper(cacheContext, new CacheContext().objectCache(objectCache));
+        this.cacheHelper = new CacheHelper(cacheContext);
         this.statementExecutor = new DefaultEntityLoader(this, metaModel, databaseEngine);
     }
 
@@ -173,90 +168,5 @@ public class SessionImpl implements InternalSession {
     @Override
     public SessionManager getSessionManager() {
         return sessionManager;
-    }
-
-
-    private static final class SessionObjectCache implements ObjectCache {
-
-        private Map<Class<?>, Map<Object, Object>> cache = new HashMap<>();
-
-        @Override
-        public void registerClass(Class<?> tClass) {
-            cache.computeIfAbsent(tClass, aClass -> new HashMap<>());
-        }
-
-        @Override
-        public void put(Class<?> tClass, Object id, Object data) {
-            Map<Object, Object> objectCache = cache.get(tClass);
-
-            if (objectCache != null) {
-                objectCache.put(id, data);
-            }
-        }
-
-        @Override
-        public Object get(Class<?> tClass, Object id) {
-            Map<Object, Object> objectCache = cache.get(tClass);
-
-            if (objectCache == null) {
-                return null;
-            }
-
-            return objectCache.get(id);
-        }
-
-        @Override
-        public boolean contains(Class<?> tClass, Object id) {
-            Map<Object, Object> objectCache = cache.get(tClass);
-
-            return objectCache != null && objectCache.containsKey(id);
-        }
-
-        @Override
-        public void invalidate(Class<?> tClass, Object id) {
-            Map<Object, Object> objectCache = cache.get(tClass);
-
-            if (objectCache == null) {
-                return;
-            }
-            objectCache.remove(id);
-        }
-
-        @Override
-        public void invalidateAll(Class<?> tClass) {
-            Map<Object, Object> objectCache = cache.get(tClass);
-
-            if (objectCache == null) {
-                return;
-            }
-            objectCache.clear();
-        }
-
-        @Override
-        public void invalidateAll() {
-            cache.forEach((key, value) -> value.clear());
-        }
-
-        @Override
-        public long size(Class<?> tClass) {
-            Map<Object, Object> objectCache = cache.get(tClass);
-
-            if (objectCache == null) {
-                return 0;
-            }
-
-            return objectCache.size();
-        }
-
-        @Override
-        public long sizeAll() {
-            long count = 0;
-
-            for (Map<Object, Object> cache : cache.values()) {
-                count += cache.size();
-            }
-
-            return count;
-        }
     }
 }

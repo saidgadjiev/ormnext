@@ -16,6 +16,8 @@ public class ResultSetContext {
 
     private Map<String, Map<Object, EntityProcessingState>> processingStateMap = new HashMap<>();
 
+    private Map<Class<?>, Map<Object, Object>> cache = new HashMap<>();
+
     public ResultSetContext(InternalSession dao, DatabaseResultSet databaseResults) {
         this.dao = dao;
         this.databaseResults = databaseResults;
@@ -37,6 +39,16 @@ public class ResultSetContext {
 
     public Map<Object, EntityProcessingState> getProcessingStates(String uid) {
         return processingStateMap.get(uid);
+    }
+
+    public void addEntry(Object id, Object data) {
+        Map<Object, Object> objectCache = putIfAbsent(cache, data.getClass(), new HashMap<>());
+
+        objectCache.put(id, data);
+    }
+
+    public Object getEntry(Class<?> tClass, Object id) {
+        return cache.get(tClass).get(id);
     }
 
     private<K, V> V putIfAbsent(Map<K, V> map, K key, V value) {

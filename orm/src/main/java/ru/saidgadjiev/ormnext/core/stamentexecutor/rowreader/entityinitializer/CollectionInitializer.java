@@ -62,7 +62,7 @@ public class CollectionInitializer {
 
         if (foreignCollectionColumnType.getFetchType().equals(FetchType.EAGER)) {
             for (Object collectionObjectId : processingState.getCollectionObjectIds()) {
-                foreignCollectionColumnType.add(instance, resultSetContext.getDao().queryForId(foreignCollectionColumnType.getCollectionObjectClass(), collectionObjectId));
+                foreignCollectionColumnType.add(instance, resultSetContext.getEntry(foreignCollectionColumnType.getCollectionObjectClass(), collectionObjectId));
             }
         } else {
             Field field = foreignCollectionColumnType.getField();

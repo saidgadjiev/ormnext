@@ -59,7 +59,7 @@ public class EntityInitializer {
 
         primaryKey.assign(entityInstance, id);
 
-        context.getDao().cacheHelper().saveToCache(id, entityInstance);
+        addToCache(context, id, entityInstance);
         List<Object> values = new ArrayList<>();
 
         List<String> columnAliases = entityAliases.getColumnAliases();
@@ -126,11 +126,16 @@ public class EntityInitializer {
                         columnType.assign(entityInstance, proxy);
                         break;
                     case EAGER:
-                        columnType.assign(entityInstance, context.getDao().queryForId(foreignColumnType.getCollectionObjectClass(), values.get(i++)));
+                        columnType.assign(entityInstance, context.getEntry(foreignColumnType.getCollectionObjectClass(), values.get(i++)));
                         break;
                 }
             }
         }
+    }
+
+    private void addToCache(ResultSetContext context, Object id, Object entityInstance) {
+        context.addEntry(id, entityInstance);
+        context.getDao().cacheHelper().saveToCache(id, entityInstance);
     }
 
     public String getUid() {
