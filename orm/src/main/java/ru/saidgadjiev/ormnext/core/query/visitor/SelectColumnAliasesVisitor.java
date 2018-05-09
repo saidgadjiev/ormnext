@@ -2,8 +2,6 @@ package ru.saidgadjiev.ormnext.core.query.visitor;
 
 import ru.saidgadjiev.ormnext.core.query.core.columnspec.ColumnSpec;
 import ru.saidgadjiev.ormnext.core.query.core.columnspec.DisplayedColumn;
-import ru.saidgadjiev.ormnext.core.query.core.columnspec.ColumnSpec;
-import ru.saidgadjiev.ormnext.core.query.core.columnspec.DisplayedColumn;
 
 import java.util.HashMap;
 import java.util.Map;

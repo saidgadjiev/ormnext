@@ -6,8 +6,6 @@ import ru.saidgadjiev.ormnext.core.query.core.common.TableRef;
 import ru.saidgadjiev.ormnext.core.query.visitor.NoActionVisitor;
 import ru.saidgadjiev.ormnext.core.table.internal.alias.EntityAliases;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetadata;
-import ru.saidgadjiev.ormnext.core.table.internal.alias.EntityAliases;
-import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetadata;
 
 public class QuerySpaceVisitor extends NoActionVisitor {
 

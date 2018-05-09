@@ -3,9 +3,6 @@ package ru.saidgadjiev.ormnext.core.query.core.join;
 import ru.saidgadjiev.ormnext.core.query.core.common.TableRef;
 import ru.saidgadjiev.ormnext.core.query.core.condition.Expression;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
-import ru.saidgadjiev.ormnext.core.query.core.common.TableRef;
-import ru.saidgadjiev.ormnext.core.query.core.condition.Expression;
-import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 
 public class LeftJoin implements JoinExpression {
 

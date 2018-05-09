@@ -36,7 +36,7 @@ public class OrmNextMethodHandler implements MethodHandler {
                 target = session.queryForId(entityClass, id);
                 initialized = true;
                 session.close();
-                //LOG.debug("Entity " + entityClass + " with id " + id + " lazy initialized");
+                LOG.debug("Entity %s with id %s lazy initialized", entityClass.getName(), id);
             }
 
             return method.invoke(target, args);

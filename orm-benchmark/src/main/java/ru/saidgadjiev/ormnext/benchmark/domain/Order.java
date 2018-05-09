@@ -1,9 +1,6 @@
 package ru.saidgadjiev.ormnext.benchmark.domain;
 
-import ru.saidgadjiev.ormnext.core.field.Converter;
-import ru.saidgadjiev.ormnext.core.field.DataType;
-import ru.saidgadjiev.ormnext.core.field.DatabaseColumn;
-import ru.saidgadjiev.ormnext.core.field.ForeignColumn;
+import ru.saidgadjiev.ormnext.core.field.*;
 import ru.saidgadjiev.ormnext.core.field.persister.TimestampToDate;
 
 import java.util.Date;
@@ -16,7 +13,9 @@ public class Order {
     @DatabaseColumn
     private String description;
 
-    @Converter(TimestampToDate.class)
+    @ConverterGroup(converters = {
+            @Converter(TimestampToDate.class)
+    })
     @DatabaseColumn(dataType = DataType.TIMESTAMP)
     private Date date = new Date();
 

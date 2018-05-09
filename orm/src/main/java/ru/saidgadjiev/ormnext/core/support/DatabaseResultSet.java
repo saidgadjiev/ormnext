@@ -1,6 +1,5 @@
 package ru.saidgadjiev.ormnext.core.support;
 
-import java.io.Closeable;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.sql.Time;

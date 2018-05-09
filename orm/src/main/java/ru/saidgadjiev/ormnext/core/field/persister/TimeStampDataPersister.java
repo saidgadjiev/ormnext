@@ -31,6 +31,6 @@ public class TimeStampDataPersister extends BaseDataPersister<Byte> {
 
     @Override
     public void setObject(PreparedStatement preparedStatement, int index, Object value) throws SQLException {
-        preparedStatement.setTimestamp(index, (java.sql.Timestamp) value);
+        preparedStatement.setTimestamp(index, (Timestamp) value);
     }
 }

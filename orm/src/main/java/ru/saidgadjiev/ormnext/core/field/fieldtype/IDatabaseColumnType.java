@@ -1,15 +1,12 @@
 package ru.saidgadjiev.ormnext.core.field.fieldtype;
 
-import ru.saidgadjiev.ormnext.core.field.persister.BaseDataPersister;
 import ru.saidgadjiev.ormnext.core.field.persister.Converter;
-import ru.saidgadjiev.ormnext.core.field.persister.DataPersister;
-import ru.saidgadjiev.ormnext.core.table.internal.visitor.EntityElement;
 import ru.saidgadjiev.ormnext.core.field.persister.DataPersister;
 import ru.saidgadjiev.ormnext.core.table.internal.visitor.EntityElement;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -45,11 +42,11 @@ public interface IDatabaseColumnType extends EntityElement {
 
     DataPersister getDataPersister();
 
-    default void assignId(Object object, Number value) throws SQLException {
+    default void assignId(Object object, Number value) {
         throw new UnsupportedOperationException();
     }
 
-    void assign(Object object, Object value) throws SQLException;
+    void assign(Object object, Object value);
 
     Field getField();
 
@@ -79,9 +76,7 @@ public interface IDatabaseColumnType extends EntityElement {
 
     String getOwnerTableName();
 
-    void setOwnerTableName(String ownerTableName);
-
-    default Optional<Converter<?, ?>> getConverter() {
+    default Optional<List<Converter<?, Object>>> getConverters() {
         return Optional.empty();
     }
 

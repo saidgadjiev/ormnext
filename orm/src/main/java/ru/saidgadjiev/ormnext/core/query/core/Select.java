@@ -12,14 +12,6 @@ import ru.saidgadjiev.ormnext.core.query.core.condition.Expression;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryElement;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetadata;
-import ru.saidgadjiev.ormnext.core.query.core.clause.GroupBy;
-import ru.saidgadjiev.ormnext.core.query.core.clause.Having;
-import ru.saidgadjiev.ormnext.core.query.core.clause.OrderBy;
-import ru.saidgadjiev.ormnext.core.query.core.clause.from.FromExpression;
-import ru.saidgadjiev.ormnext.core.query.core.clause.from.FromTable;
-import ru.saidgadjiev.ormnext.core.query.core.clause.select.SelectColumnsStrategy;
-import ru.saidgadjiev.ormnext.core.query.core.condition.Expression;
-import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetadata;
 
 /**
  * Класс SELECT запроса

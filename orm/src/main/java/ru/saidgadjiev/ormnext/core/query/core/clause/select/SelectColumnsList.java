@@ -2,8 +2,6 @@ package ru.saidgadjiev.ormnext.core.query.core.clause.select;
 
 import ru.saidgadjiev.ormnext.core.query.core.columnspec.DisplayedColumnSpec;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
-import ru.saidgadjiev.ormnext.core.query.core.columnspec.DisplayedColumnSpec;
-import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 
 import java.util.ArrayList;
 import java.util.Collection;

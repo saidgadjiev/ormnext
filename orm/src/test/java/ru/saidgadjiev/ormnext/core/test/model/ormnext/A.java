@@ -2,10 +2,6 @@ package ru.saidgadjiev.ormnext.core.test.model.ormnext;
 
 import ru.saidgadjiev.ormnext.core.field.DatabaseColumn;
 import ru.saidgadjiev.ormnext.core.field.ForeignColumn;
-import ru.saidgadjiev.ormnext.core.field.ForeignColumn;
-
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
 
 
 public class A {

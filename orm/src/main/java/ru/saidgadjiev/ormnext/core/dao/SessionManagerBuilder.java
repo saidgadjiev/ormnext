@@ -18,8 +18,6 @@ public class SessionManagerBuilder {
 
     private DatabaseEngine databaseEngine;
 
-    private String timeZoneID;
-
     public SessionManagerBuilder addEntityClasses(Class<?> ... classes) {
         entityClasses.addAll(Arrays.asList(classes));
 
@@ -40,12 +38,6 @@ public class SessionManagerBuilder {
 
     public SessionManagerBuilder databaseEngine(DatabaseEngine databaseEngine) {
         this.databaseEngine = databaseEngine;
-
-        return this;
-    }
-
-    public SessionManagerBuilder tymeZone(String ID) {
-        timeZoneID = ID;
 
         return this;
     }

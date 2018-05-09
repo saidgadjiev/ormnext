@@ -1,8 +1,5 @@
 package ru.saidgadjiev.ormnext.core.table.internal.alias;
 
-import ru.saidgadjiev.ormnext.core.field.persister.DataPersister;
-import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetadata;
-
 public class CollectionEntityAliases {
 
     private final String collectionColumnKeyAlias;

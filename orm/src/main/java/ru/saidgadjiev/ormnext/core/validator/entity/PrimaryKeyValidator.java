@@ -2,7 +2,6 @@ package ru.saidgadjiev.ormnext.core.validator.entity;
 
 import ru.saidgadjiev.ormnext.core.exception.PrimaryKeyMissException;
 import ru.saidgadjiev.ormnext.core.field.DatabaseColumn;
-import ru.saidgadjiev.ormnext.core.field.DatabaseColumn;
 
 import java.lang.reflect.Field;
 

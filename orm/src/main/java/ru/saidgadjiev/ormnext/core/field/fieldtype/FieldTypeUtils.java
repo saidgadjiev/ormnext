@@ -3,7 +3,6 @@ package ru.saidgadjiev.ormnext.core.field.fieldtype;
 import ru.saidgadjiev.ormnext.core.field.DatabaseColumn;
 import ru.saidgadjiev.ormnext.core.field.ForeignCollectionField;
 import ru.saidgadjiev.ormnext.core.field.ForeignColumn;
-import ru.saidgadjiev.ormnext.core.field.ForeignColumn;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;

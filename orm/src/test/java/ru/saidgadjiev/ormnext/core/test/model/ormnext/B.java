@@ -4,7 +4,6 @@ import ru.saidgadjiev.ormnext.core.field.DatabaseColumn;
 import ru.saidgadjiev.ormnext.core.field.FetchType;
 import ru.saidgadjiev.ormnext.core.field.ForeignCollectionField;
 import ru.saidgadjiev.ormnext.core.field.ForeignColumn;
-import ru.saidgadjiev.ormnext.core.field.ForeignColumn;
 
 import java.util.HashSet;
 import java.util.Set;

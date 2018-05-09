@@ -1,6 +1,5 @@
 package ru.saidgadjiev.ormnext.core.query.core.constraints.attribute;
 
-import ru.saidgadjiev.ormnext.core.query.core.literals.Literal;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 
 /**

@@ -1,6 +1,5 @@
 package ru.saidgadjiev.ormnext.core.support;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 
 /**

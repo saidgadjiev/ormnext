@@ -43,6 +43,24 @@
                     </excludeRoots>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>findbugs-maven-plugin</artifactId>
+                <version>2.5.3</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <id>findbugs-check</id>
+                        <phase>test</phase>
+                        <configuration>
+                            <sourceEncoding>UTF-8</sourceEncoding>
+                            <failOnError>true</failOnError>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
     <modules>

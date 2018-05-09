@@ -1,17 +1,21 @@
 package ru.saidgadjiev.ormnext.core.field.fieldtype;
 
-import ru.saidgadjiev.ormnext.core.field.*;
-import ru.saidgadjiev.ormnext.core.field.persister.Converter;
+import ru.saidgadjiev.ormnext.core.exception.ConverterInstantiateException;
+import ru.saidgadjiev.ormnext.core.field.ConverterGroup;
+import ru.saidgadjiev.ormnext.core.field.DataPersisterManager;
+import ru.saidgadjiev.ormnext.core.field.DataType;
+import ru.saidgadjiev.ormnext.core.field.DatabaseColumn;
+import ru.saidgadjiev.ormnext.core.field.FieldAccessor;
+import ru.saidgadjiev.ormnext.core.field.ForeignColumn;
 import ru.saidgadjiev.ormnext.core.field.persister.DataPersister;
-import ru.saidgadjiev.ormnext.core.table.internal.instatiator.ObjectInstantiator;
 import ru.saidgadjiev.ormnext.core.table.internal.visitor.EntityMetadataVisitor;
+import ru.saidgadjiev.ormnext.core.utils.DatabaseEntityMetadataUtils;
 import ru.saidgadjiev.ormnext.core.validator.datapersister.GeneratedTypeValidator;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public class DatabaseColumnType implements IDatabaseColumnType {
 
@@ -39,7 +43,7 @@ public class DatabaseColumnType implements IDatabaseColumnType {
 
     private static final Map<Field, DatabaseColumnType> CACHE = new HashMap<>();
 
-    private Converter<?, ?> converter;
+    private List<ru.saidgadjiev.ormnext.core.field.persister.Converter<?, Object>> converters;
 
     @Override
     public String getDefaultDefinition() {
@@ -86,66 +90,18 @@ public class DatabaseColumnType implements IDatabaseColumnType {
     }
 
     @Override
-    public void assignId(Object object, Number value) throws SQLException {
-        try {
-            fieldAccessor.assign(object, value);
-        } catch (Throwable ex) {
-            throw new SQLException(ex);
-        }
+    public void assignId(Object object, Number value) {
+        fieldAccessor.assign(object, value);
     }
 
     @Override
-    public void assign(Object object, Object value) throws SQLException {
-        try {
-            fieldAccessor.assign(object, value);
-        } catch (Throwable ex) {
-            throw new SQLException(ex);
-        }
+    public void assign(Object object, Object value) {
+        fieldAccessor.assign(object, value);
     }
 
     @Override
     public Field getField() {
         return field;
-    }
-
-    public void setColumnName(String columnName) {
-        this.columnName = columnName;
-    }
-
-    public void setDataType(int dataType) {
-        this.dataType = dataType;
-    }
-
-    public void setField(Field field) {
-        this.field = field;
-    }
-
-    public void setLength(int length) {
-        this.length = length;
-    }
-
-    public void setDataPersister(DataPersister<?> dataPersister) {
-        this.dataPersister = dataPersister;
-    }
-
-    public void setFieldAccessor(FieldAccessor fieldAccessor) {
-        this.fieldAccessor = fieldAccessor;
-    }
-
-    public void setNotNull(boolean notNull) {
-        this.notNull = notNull;
-    }
-
-    public void setId(boolean id) {
-        this.id = id;
-    }
-
-    public void setGenerated(boolean generated) {
-        this.generated = generated;
-    }
-
-    public void setDefaultDefinition(String defaultDefinition) {
-        this.defaultDefinition = defaultDefinition;
     }
 
     @Override
@@ -163,13 +119,9 @@ public class DatabaseColumnType implements IDatabaseColumnType {
         return tableName;
     }
 
-    public void setOwnerTableName(String ownerTableName) {
-        this.tableName = ownerTableName;
-    }
-
     @Override
-    public Optional<Converter<?, ?>> getConverter() {
-        return Optional.ofNullable(converter);
+    public Optional<List<ru.saidgadjiev.ormnext.core.field.persister.Converter<?, Object>>> getConverters() {
+        return Optional.ofNullable(converters);
     }
 
     public static DatabaseColumnType build(Field field) {
@@ -182,37 +134,60 @@ public class DatabaseColumnType implements IDatabaseColumnType {
         DatabaseColumn databaseColumn = field.getAnnotation(DatabaseColumn.class);
         DatabaseColumnType fieldType = new DatabaseColumnType();
 
-        fieldType.setField(field);
-        fieldType.setColumnName(databaseColumn.columnName().isEmpty() ? field.getName().toLowerCase() : databaseColumn.columnName());
-        fieldType.setLength(databaseColumn.length());
-        fieldType.setFieldAccessor(new FieldAccessor(field));
+        fieldType.field = field;
+        fieldType.columnName = databaseColumn.columnName().isEmpty() ? field.getName().toLowerCase() : databaseColumn.columnName();
+        fieldType.length = databaseColumn.length();
+        fieldType.fieldAccessor = new FieldAccessor(field);
 
         if (!field.isAnnotationPresent(ForeignColumn.class)) {
             Integer dataType = databaseColumn.dataType();
             DataPersister<?> dataPersister = dataType.equals(DataType.UNKNOWN) ? DataPersisterManager.lookup(field.getType()) : DataPersisterManager.lookup(dataType);
 
             new GeneratedTypeValidator(field, databaseColumn.generated()).validate(dataPersister);
-            fieldType.setDataPersister(dataPersister);
-            fieldType.setDataType(dataType.equals(DataType.UNKNOWN) ? dataPersister.getDataType() : dataType);
+            fieldType.tableName = DatabaseEntityMetadataUtils.resolveTableName(field.getDeclaringClass());
+            fieldType.dataPersister = dataPersister;
+            fieldType.dataType = dataType.equals(DataType.UNKNOWN) ? dataPersister.getDataType() : dataType;
             String defaultDefinition = databaseColumn.defaultDefinition();
 
             if (!defaultDefinition.equals(DatabaseColumn.DEFAULT_STR)) {
-                fieldType.setDefaultDefinition(defaultDefinition);
+                fieldType.defaultDefinition = defaultDefinition;
             }
         }
-        if (field.isAnnotationPresent(ru.saidgadjiev.ormnext.core.field.Converter.class)) {
-            ru.saidgadjiev.ormnext.core.field.Converter converterAnnotation = field.getAnnotation(ru.saidgadjiev.ormnext.core.field.Converter.class);
-            Class<?> converterClass = converterAnnotation.value();
+        if (field.isAnnotationPresent(ConverterGroup.class)) {
+            ConverterGroup converterGroupAnnotation = field.getAnnotation(ConverterGroup.class);
 
-            fieldType.converter = (Converter<?, ?>) new ObjectInstantiator(converterClass).instantiate();
+            fieldType.converters = new ArrayList<>();
+            for (ru.saidgadjiev.ormnext.core.field.Converter converter: converterGroupAnnotation.converters()) {
+                fieldType.converters.add(toConverter(converter));
+            }
+        } else if (field.isAnnotationPresent(ru.saidgadjiev.ormnext.core.field.Converter.class)) {
+            ru.saidgadjiev.ormnext.core.field.Converter converterAnnotation = field.getAnnotation(ru.saidgadjiev.ormnext.core.field.Converter.class);
+
+            fieldType.converters = new ArrayList<>();
+            fieldType.converters.add(toConverter(converterAnnotation));
         }
-        fieldType.setNotNull(databaseColumn.notNull());
-        fieldType.setId(databaseColumn.id());
-        fieldType.setGenerated(databaseColumn.generated());
+        fieldType.notNull = databaseColumn.notNull();
+        fieldType.id = databaseColumn.id();
+        fieldType.generated = databaseColumn.generated();
 
         CACHE.put(field, fieldType);
 
         return fieldType;
+    }
+
+    private static ru.saidgadjiev.ormnext.core.field.persister.Converter<?, Object> toConverter(ru.saidgadjiev.ormnext.core.field.Converter converter) {
+        try {
+            List<Class<?>> parametrTypes = new ArrayList<>();
+
+            for (int i = 0; i < converter.args().length; ++i) {
+                parametrTypes.add(String.class);
+            }
+            Constructor<? extends ru.saidgadjiev.ormnext.core.field.persister.Converter> constructor = converter.value().getDeclaredConstructor(parametrTypes.toArray(new Class[parametrTypes.size()]));
+
+            return constructor.newInstance(converter.args());
+        } catch (Exception ex) {
+            throw new ConverterInstantiateException(converter.value(), ex);
+        }
     }
 
     @Override

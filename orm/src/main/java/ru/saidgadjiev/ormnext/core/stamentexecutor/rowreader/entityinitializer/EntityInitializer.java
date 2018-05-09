@@ -43,13 +43,13 @@ public class EntityInitializer {
         EntityProcessingState processingState = context.getProcessingState(uid, id);
         Object entityInstance;
 
-        ////LOG.debug("Processing " + persister.getMetadata().getTableClass().getName() + " id " + id);
+        LOG.debug("Processing %s id %s", persister.getMetadata().getTableClass().getName(), id);
         if (processingState.getEntityInstance() == null) {
             entityInstance = persister.instance();
 
             processingState.setNew(true);
             processingState.setEntityInstance(entityInstance);
-            ////LOG.debug("Create new instance " + persister.getMetadata().getTableClass().getName());
+            LOG.debug("Create new instance %s", persister.getMetadata().getTableClass().getName());
         } else {
             processingState.setNew(false);
             entityInstance = processingState.getEntityInstance();
@@ -77,7 +77,7 @@ public class EntityInitializer {
             values.add(value);
         }
         processingState.setValuesFromResultSet(values);
-        ////LOG.debug("Values read from resultset " + values);
+        LOG.debug("Values read from resultset %s", values);
 
         return id;
     }
@@ -108,10 +108,12 @@ public class EntityInitializer {
             if (columnType.isDbFieldType()) {
                 Object value = values.get(i++);
 
-                if (columnType.getConverter().isPresent()) {
-                    Converter converter = columnType.getConverter().get();
+                if (columnType.getConverters().isPresent()) {
+                    List<Converter<?, Object>> converters = columnType.getConverters().get();
 
-                    value = converter.sqlToJava(value);
+                    for (Converter converter: converters) {
+                        value = converter.sqlToJava(value);
+                    }
                 }
                 columnType.assign(entityInstance, value);
             }
@@ -120,7 +122,7 @@ public class EntityInitializer {
 
                 switch (foreignColumnType.getFetchType()) {
                     case LAZY:
-                        //LOG.debug("Found lazy entity " + foreignColumnType.getField().getDeclaringClass().getName() + " " + foreignColumnType.getField().getName());
+                        LOG.debug("Found lazy entity %s %s", foreignColumnType.getField().getDeclaringClass().getName(), foreignColumnType.getField().getName());
                         Object proxy = persister.createProxy(foreignColumnType.getCollectionObjectClass(), values.get(i++));
 
                         columnType.assign(entityInstance, proxy);

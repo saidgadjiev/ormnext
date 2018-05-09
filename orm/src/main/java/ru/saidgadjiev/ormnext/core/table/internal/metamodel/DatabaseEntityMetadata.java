@@ -7,14 +7,8 @@ import ru.saidgadjiev.ormnext.core.table.Index;
 import ru.saidgadjiev.ormnext.core.table.Unique;
 import ru.saidgadjiev.ormnext.core.table.internal.visitor.EntityElement;
 import ru.saidgadjiev.ormnext.core.table.internal.visitor.EntityMetadataVisitor;
-import ru.saidgadjiev.ormnext.core.utils.DatabaseMetaDataUtils;
+import ru.saidgadjiev.ormnext.core.utils.DatabaseEntityMetadataUtils;
 import ru.saidgadjiev.ormnext.core.validator.entity.EntityValidator;
-import ru.saidgadjiev.ormnext.core.table.DatabaseEntity;
-import ru.saidgadjiev.ormnext.core.table.Index;
-import ru.saidgadjiev.ormnext.core.table.Unique;
-import ru.saidgadjiev.ormnext.core.table.internal.visitor.EntityElement;
-import ru.saidgadjiev.ormnext.core.table.internal.visitor.EntityMetadataVisitor;
-import ru.saidgadjiev.ormnext.core.utils.DatabaseMetaDataUtils;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -113,21 +107,18 @@ public final class DatabaseEntityMetadata<T> implements EntityElement {
 
     public static <T> DatabaseEntityMetadata<T> build(Class<T> clazz) {
         new EntityValidator().validate(clazz);
-        String tableName = DatabaseMetaDataUtils.resolveTableName(clazz);
+        String tableName = DatabaseEntityMetadataUtils.resolveTableName(clazz);
 
         List<IDatabaseColumnType> fieldTypes = new ArrayList<>();
         for (Field field : clazz.getDeclaredFields()) {
-            FieldTypeUtils.create(field).ifPresent(type -> {
-                type.setOwnerTableName(tableName);
-                fieldTypes.add(type);
-            });
+            FieldTypeUtils.create(field).ifPresent(fieldTypes::add);
         }
 
         return new DatabaseEntityMetadata<>(
                 clazz,
                 resolveUniques(fieldTypes, clazz),
                 resolveIndexes(fieldTypes, tableName, clazz),
-                DatabaseMetaDataUtils.resolveTableName(clazz),
+                DatabaseEntityMetadataUtils.resolveTableName(clazz),
                 fieldTypes
         );
     }

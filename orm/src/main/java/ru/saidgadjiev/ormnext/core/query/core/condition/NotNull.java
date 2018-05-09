@@ -2,8 +2,6 @@ package ru.saidgadjiev.ormnext.core.query.core.condition;
 
 import ru.saidgadjiev.ormnext.core.query.core.Operand;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
-import ru.saidgadjiev.ormnext.core.query.core.Operand;
-import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 
 public class NotNull implements Condition {
 

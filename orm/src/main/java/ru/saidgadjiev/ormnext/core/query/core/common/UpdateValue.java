@@ -3,7 +3,6 @@ package ru.saidgadjiev.ormnext.core.query.core.common;
 import ru.saidgadjiev.ormnext.core.query.core.literals.RValue;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryElement;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
-import ru.saidgadjiev.ormnext.core.query.visitor.QueryElement;
 
 /**
  * Класс для обновляемого значения

@@ -10,11 +10,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-public class DatabaseMetaDataUtils {
+public class DatabaseEntityMetadataUtils {
 
     private final static Map<Class<?>, String> resolvedTableNames = new HashMap<>();
 
-    private DatabaseMetaDataUtils() {}
+    private DatabaseEntityMetadataUtils() {}
 
     public static Optional<IDatabaseColumnType> resolvePrimaryKey(Class<?> foreignFieldClass) {
         for (Field field : foreignFieldClass.getDeclaredFields()) {

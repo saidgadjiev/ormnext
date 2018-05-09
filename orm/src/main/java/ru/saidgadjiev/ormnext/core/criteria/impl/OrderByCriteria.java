@@ -3,9 +3,6 @@ package ru.saidgadjiev.ormnext.core.criteria.impl;
 import ru.saidgadjiev.ormnext.core.query.core.clause.OrderBy;
 import ru.saidgadjiev.ormnext.core.query.core.clause.OrderByItem;
 import ru.saidgadjiev.ormnext.core.query.core.columnspec.ColumnSpec;
-import ru.saidgadjiev.ormnext.core.query.core.clause.OrderBy;
-import ru.saidgadjiev.ormnext.core.query.core.clause.OrderByItem;
-import ru.saidgadjiev.ormnext.core.query.core.columnspec.ColumnSpec;
 
 import java.util.ArrayList;
 import java.util.List;

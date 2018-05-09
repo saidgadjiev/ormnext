@@ -3,8 +3,6 @@ package ru.saidgadjiev.ormnext.core.criteria.impl;
 import ru.saidgadjiev.ormnext.core.criteria.api.Criterion;
 import ru.saidgadjiev.ormnext.core.query.core.condition.Condition;
 
-import java.util.AbstractMap;
-
 public class CriterionImpl implements Criterion {
 
     private Condition condition;

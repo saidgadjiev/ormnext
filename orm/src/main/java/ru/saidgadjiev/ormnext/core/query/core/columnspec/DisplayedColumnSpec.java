@@ -2,8 +2,6 @@ package ru.saidgadjiev.ormnext.core.query.core.columnspec;
 
 import ru.saidgadjiev.ormnext.core.query.core.Alias;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryElement;
-import ru.saidgadjiev.ormnext.core.query.core.Alias;
-import ru.saidgadjiev.ormnext.core.query.visitor.QueryElement;
 
 public abstract class DisplayedColumnSpec implements QueryElement {
 

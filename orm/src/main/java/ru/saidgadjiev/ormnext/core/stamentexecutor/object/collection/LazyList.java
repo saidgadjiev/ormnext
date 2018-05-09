@@ -1,6 +1,5 @@
 package ru.saidgadjiev.ormnext.core.stamentexecutor.object.collection;
 
-import ru.saidgadjiev.ormnext.core.dao.Session;
 import ru.saidgadjiev.ormnext.core.dao.SessionManager;
 import ru.saidgadjiev.ormnext.core.stamentexecutor.rowreader.entityinitializer.CollectionLoader;
 

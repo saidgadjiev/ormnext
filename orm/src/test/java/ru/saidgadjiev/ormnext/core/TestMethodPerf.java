@@ -1,15 +1,11 @@
 package ru.saidgadjiev.ormnext.core;
 
-import ru.saidgadjiev.ormnext.core.test.model.ormnext.C;
-
 import java.lang.invoke.LambdaMetafactory;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.function.Function;
-import java.util.function.IntBinaryOperator;
 
 public class TestMethodPerf
 {

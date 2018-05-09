@@ -12,18 +12,11 @@ import ru.saidgadjiev.ormnext.core.query.core.function.CountColumn;
 import ru.saidgadjiev.ormnext.core.query.core.function.Function;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryElement;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
-import ru.saidgadjiev.ormnext.core.query.core.Limit;
-import ru.saidgadjiev.ormnext.core.query.core.Offset;
-import ru.saidgadjiev.ormnext.core.query.core.clause.GroupBy;
-import ru.saidgadjiev.ormnext.core.query.core.clause.Having;
-import ru.saidgadjiev.ormnext.core.query.core.clause.OrderBy;
-import ru.saidgadjiev.ormnext.core.query.core.columnspec.ColumnSpec;
-import ru.saidgadjiev.ormnext.core.query.core.condition.Expression;
-import ru.saidgadjiev.ormnext.core.query.core.function.CountColumn;
-import ru.saidgadjiev.ormnext.core.query.visitor.QueryElement;
-import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 //TODO: добавление groupBy для других таблиц
 public class SimpleCriteriaQuery implements QueryElement {

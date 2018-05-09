@@ -6,7 +6,6 @@ import ru.saidgadjiev.ormnext.core.stamentexecutor.rowreader.entityinitializer.E
 
 import java.sql.SQLException;
 import java.util.Collection;
-import java.util.Map;
 
 public class RowReaderImpl implements RowReader {
 

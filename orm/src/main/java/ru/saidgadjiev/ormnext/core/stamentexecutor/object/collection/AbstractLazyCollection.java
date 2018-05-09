@@ -53,8 +53,8 @@ public abstract class AbstractLazyCollection<T> implements Collection<T> {
             Field field = collectionLoader.getGoreignCollectionColumnType().getField();
 
             session.close();
-            //LOG.debug("Lazy collection " + field.getDeclaringClass().getName() + " " + field.getName() + " lazy initialized");
-            //LOG.debug("Loaded objects " + loadedObjects.toString());
+            LOG.debug("Lazy collection %s %s lazy initialized", field.getDeclaringClass().getName(), field.getName());
+            LOG.debug("Loaded objects %s", loadedObjects);
         } catch (SQLException ex) {
             throw new RuntimeException(ex);
         }
@@ -73,7 +73,7 @@ public abstract class AbstractLazyCollection<T> implements Collection<T> {
             Field field = collectionLoader.getGoreignCollectionColumnType().getField();
 
             session.close();
-            //LOG.debug("Lazy collection " + field.getDeclaringClass().getName() + " " + field.getName() + " read size " + cachedSize);
+            LOG.debug("Lazy collection %s %s read size %s", field.getDeclaringClass().getName(), field.getName(), cachedSize);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

@@ -4,7 +4,6 @@ import ru.saidgadjiev.ormnext.core.exception.UnknownTypeException;
 import ru.saidgadjiev.ormnext.core.query.core.AttributeDefinition;
 
 import static ru.saidgadjiev.ormnext.core.field.DataType.*;
-import static ru.saidgadjiev.ormnext.core.field.DataType.UNKNOWN;
 
 public abstract class BaseDatabaseType implements DatabaseType {
 

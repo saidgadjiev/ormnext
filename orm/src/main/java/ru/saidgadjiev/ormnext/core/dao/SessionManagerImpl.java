@@ -11,7 +11,7 @@ import java.sql.SQLException;
 
 public class SessionManagerImpl implements SessionManager {
 
-    private final ConnectionSource dataSource;
+    private final ConnectionSource<?> dataSource;
 
     private CacheContext cacheContext = new CacheContext();
 
@@ -19,7 +19,7 @@ public class SessionManagerImpl implements SessionManager {
 
     private DatabaseEngine databaseEngine;
 
-    public SessionManagerImpl(ConnectionSource dataSource, MetaModel metaModel, DatabaseEngine databaseEngine) {
+    public SessionManagerImpl(ConnectionSource<?> dataSource, MetaModel metaModel, DatabaseEngine databaseEngine) {
         this.dataSource = dataSource;
         this.metaModel = metaModel;
         this.databaseEngine = databaseEngine;
@@ -29,9 +29,9 @@ public class SessionManagerImpl implements SessionManager {
 
     @Override
     public Session createSession() throws SQLException {
-        DatabaseConnection databaseConnection = dataSource.getConnection();
+        DatabaseConnection<?> databaseConnection = dataSource.getConnection();
 
-        return new SessionImpl(dataSource,databaseConnection, databaseEngine, metaModel, cacheContext,this);
+        return new SessionImpl(dataSource, databaseConnection, cacheContext,this);
     }
 
     @Override
@@ -63,6 +63,11 @@ public class SessionManagerImpl implements SessionManager {
             cacheContext.caching(clazz, true);
             objectCache.registerClass(clazz);
         }
+    }
+
+    @Override
+    public DatabaseEngine getDatabaseEngine() {
+        return databaseEngine;
     }
 
     @Override

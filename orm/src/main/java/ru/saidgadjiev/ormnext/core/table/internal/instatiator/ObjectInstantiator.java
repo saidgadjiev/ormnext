@@ -1,7 +1,6 @@
 package ru.saidgadjiev.ormnext.core.table.internal.instatiator;
 
 import ru.saidgadjiev.ormnext.core.exception.InstantiationException;
-import ru.saidgadjiev.ormnext.core.exception.InstantiationException;
 
 import java.lang.reflect.Constructor;
 import java.util.Optional;

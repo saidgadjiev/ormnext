@@ -7,7 +7,5 @@ public interface InternalSession extends Session, InternalTransaction {
 
     CacheHelper cacheHelper();
 
-    DatabaseEngine getDatabaseEngine();
-
     SessionManager getSessionManager();
 }

@@ -1,81 +1,52 @@
 package ru.saidgadjiev.ormnext.core.field;
 
-import ru.saidgadjiev.ormnext.core.logger.Log;
-import ru.saidgadjiev.ormnext.core.logger.LoggerFactory;
+import ru.saidgadjiev.ormnext.core.exception.FieldAccessException;
 import ru.saidgadjiev.ormnext.core.logger.Log;
 import ru.saidgadjiev.ormnext.core.logger.LoggerFactory;
 
-import java.lang.invoke.*;
+import java.lang.invoke.LambdaMetafactory;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 public class FieldAccessor {
 
-    private Log log = LoggerFactory.getLogger(FieldAccessor.class);
-
-    private Field field;
+    private static final Log LOG = LoggerFactory.getLogger(FieldAccessor.class);
 
     private BiConsumer setter;
 
     private Function getter;
 
     public FieldAccessor(Field field) {
-        this.field = field;
-        resolveGetter(field);
-        resoveSetter(field);
-    }
-
-    public void assign(Object object, Object value) throws Throwable {
-        if (setter != null) {
-            assignBySetter(object, value);
-        } else {
-            assignByField(object, value);
+        if (!resolveGetter(field)) {
+            resolveFieldGetter(field);
+        }
+        if (!resoveSetter(field)) {
+            resolveFieldSetter(field);
         }
     }
 
-    private void assignByField(Object object, Object value) throws IllegalAccessException {
-        if (!field.isAccessible()) {
-            field.setAccessible(true);
-            field.set(object, value);
-            field.setAccessible(false);
-        } else {
-            field.set(object, value);
-        }
+    public void assign(Object object, Object value) {
+        assignBySetter(object, value);
     }
 
     private void assignBySetter(Object object, Object value) {
         setter.accept(object, value);
     }
 
-    public Object access(Object object) throws Throwable {
-        if (getter != null) {
-            return accessByGetter(object);
-        } else {
-            return accessByField(object);
-        }
-    }
-
-    private Object accessByField(Object object) throws IllegalAccessException {
-        if (!field.isAccessible()) {
-            field.setAccessible(true);
-            Object result = field.get(object);
-
-            field.setAccessible(false);
-
-            return result;
-        }
-
-        return field.get(object);
+    public Object access(Object object) {
+        return accessByGetter(object);
     }
 
     private Object accessByGetter(Object object) {
         return getter.apply(object);
     }
 
-    private void resolveGetter(Field field) {
+    private boolean resolveGetter(Field field) {
         String getterName;
 
         if (field.isAnnotationPresent(Getter.class)) {
@@ -83,7 +54,7 @@ public class FieldAccessor {
         } else {
             getterName = "get" + field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1);
         }
-        ////LOG.debug("Try find method " + getterName + " in " + field.getDeclaringClass().getName());
+        LOG.debug("Try find method %s in %s", getterName, field.getDeclaringClass().getName());
 
         try {
             Method getter = field.getDeclaringClass().getDeclaredMethod(getterName);
@@ -99,13 +70,15 @@ public class FieldAccessor {
                     getterHandle.type()
             ).getTarget().invokeExact();
 
-            ////LOG.debug("Resolved getter " + getterName + " for " + field.getDeclaringClass().getName() + " " + field.getName());
+            LOG.debug("Resolved getter %s for %s %s", getterName, field.getDeclaringClass().getName(), field.getName());
+            return true;
         } catch (Throwable ex) {
-           // //LOG.error("Method " + getterName + " not found in " + field.getDeclaringClass().getName() + " use right access to field");
+            LOG.error("Method %s not found in %s use right access to field", getterName, field.getDeclaringClass().getName());
+            return false;
         }
     }
 
-    private void resoveSetter(Field field) {
+    private boolean resoveSetter(Field field) {
         String setterName;
 
         if (field.isAnnotationPresent(Setter.class)) {
@@ -114,7 +87,7 @@ public class FieldAccessor {
             setterName = "set" + field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1);
         }
         try {
-            //LOG.debug("Try find method " + setterName + " in " + field.getDeclaringClass().getName());
+            LOG.debug("Try find method %s in %s", setterName, field.getDeclaringClass().getName());
             Method setter = field.getDeclaringClass().getDeclaredMethod(setterName, field.getType());
             MethodHandles.Lookup lookup = MethodHandles.lookup();
             MethodHandle setterHandle = lookup.unreflect(setter);
@@ -128,9 +101,53 @@ public class FieldAccessor {
                     setterHandle.type()
             ).getTarget().invokeExact();
 
-            //LOG.debug("Resolved setter " + setterName + " for " + field.getDeclaringClass().getName() + " " + field.getName());
+            LOG.debug("Resolved setter %s for %s %s", setterName, field.getDeclaringClass().getName(), field.getName());
+            return true;
         } catch (Throwable ex) {
-            //LOG.error("Method " + setterName + " not found in " + field.getDeclaringClass().getName() + " use right access to field");
+            LOG.error("Method %s not found in %s use right access to field", setterName, field.getDeclaringClass().getName());
+            return false;
+        }
+    }
+
+    private void resolveFieldSetter(Field field) {
+        try {
+            LOG.debug("Try field direct assign %s %s", field.getDeclaringClass().getName(), field.getName());
+
+            MethodHandles.Lookup lookup = MethodHandles.lookup();
+            MethodHandle fieldSetterHandle = lookup.unreflectSetter(field);
+
+            this.setter = (BiConsumer) LambdaMetafactory.metafactory(
+                    lookup,
+                    "accept",
+                    MethodType.methodType(BiConsumer.class),
+                    MethodType.methodType(void.class, Object.class, Object.class),
+                    fieldSetterHandle,
+                    fieldSetterHandle.type()
+            ).getTarget().invokeExact();
+        } catch (Throwable ex) {
+            LOG.error(ex.getMessage(), ex);
+            throw new FieldAccessException(ex);
+        }
+    }
+
+    private void resolveFieldGetter(Field field) {
+        try {
+            LOG.debug("Try field direct access %s %s", field.getDeclaringClass().getName(), field.getName());
+
+            MethodHandles.Lookup lookup = MethodHandles.lookup();
+            MethodHandle fieldGetterHandle = lookup.unreflectGetter(field);
+
+            this.getter = (Function) LambdaMetafactory.metafactory(
+                    lookup,
+                    "apply",
+                    MethodType.methodType(Function.class),
+                    MethodType.methodType(Object.class, Object.class),
+                    fieldGetterHandle,
+                    fieldGetterHandle.type()
+            ).getTarget().invokeExact();
+        } catch (Throwable ex) {
+            LOG.error(ex.getMessage(), ex);
+            throw new FieldAccessException(ex);
         }
     }
 }

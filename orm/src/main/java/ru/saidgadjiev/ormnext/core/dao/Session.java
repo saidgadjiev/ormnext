@@ -1,8 +1,5 @@
 package ru.saidgadjiev.ormnext.core.dao;
 
-import ru.saidgadjiev.ormnext.core.cache.ObjectCache;
-import ru.saidgadjiev.ormnext.core.support.ConnectionSource;
-
 import java.sql.SQLException;
 
 /**

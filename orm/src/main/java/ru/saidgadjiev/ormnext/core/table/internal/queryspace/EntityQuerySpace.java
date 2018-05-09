@@ -23,7 +23,6 @@ import ru.saidgadjiev.ormnext.core.query.core.constraints.table.UniqueConstraint
 import ru.saidgadjiev.ormnext.core.query.core.function.CountAll;
 import ru.saidgadjiev.ormnext.core.query.core.join.LeftJoin;
 import ru.saidgadjiev.ormnext.core.query.core.literals.Param;
-import ru.saidgadjiev.ormnext.core.stamentexecutor.Argument;
 import ru.saidgadjiev.ormnext.core.table.internal.alias.EntityAliases;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetadata;
 
@@ -147,30 +146,6 @@ public class EntityQuerySpace {
             );
         }
         createQuery.add(insertValues);
-
-        return createQuery;
-    }
-
-    public CreateQuery getCreateQuery(int objectCount, List<IDatabaseColumnType> resultColumnTypes) {
-        CreateQuery createQuery = new CreateQuery(rootEntityMetaData.getTableName());
-
-        for (int i = 0; i < objectCount; ++i) {
-            InsertValues insertValues = new InsertValues();
-
-            for (IDatabaseColumnType columnType : rootEntityMetaData.getFieldTypes()) {
-                if (columnType.isId() && columnType.isGenerated()) {
-                    continue;
-                }
-                if (columnType.isForeignCollectionFieldType()) {
-                    continue;
-                }
-                insertValues.add(new UpdateValue(
-                        columnType.getColumnName(),
-                        new Param())
-                );
-            }
-            createQuery.add(insertValues);
-        }
 
         return createQuery;
     }

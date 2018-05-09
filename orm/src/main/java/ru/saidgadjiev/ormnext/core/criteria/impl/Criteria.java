@@ -4,7 +4,8 @@ import ru.saidgadjiev.ormnext.core.criteria.api.Criterion;
 import ru.saidgadjiev.ormnext.core.query.core.AndCondition;
 import ru.saidgadjiev.ormnext.core.query.core.condition.Expression;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Criteria {
 

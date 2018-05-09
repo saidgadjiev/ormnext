@@ -23,23 +23,6 @@ import ru.saidgadjiev.ormnext.core.query.core.function.*;
 import ru.saidgadjiev.ormnext.core.query.core.join.JoinInfo;
 import ru.saidgadjiev.ormnext.core.query.core.join.LeftJoin;
 import ru.saidgadjiev.ormnext.core.query.core.literals.*;
-import ru.saidgadjiev.ormnext.core.query.core.*;
-import ru.saidgadjiev.ormnext.core.query.core.clause.*;
-import ru.saidgadjiev.ormnext.core.query.core.clause.from.FromJoinedTables;
-import ru.saidgadjiev.ormnext.core.query.core.clause.from.FromSubQuery;
-import ru.saidgadjiev.ormnext.core.query.core.clause.from.FromTable;
-import ru.saidgadjiev.ormnext.core.query.core.columnspec.ColumnSpec;
-import ru.saidgadjiev.ormnext.core.query.core.columnspec.DisplayedColumn;
-import ru.saidgadjiev.ormnext.core.query.core.columnspec.DisplayedOperand;
-import ru.saidgadjiev.ormnext.core.query.core.common.TableRef;
-import ru.saidgadjiev.ormnext.core.query.core.common.UpdateValue;
-import ru.saidgadjiev.ormnext.core.query.core.condition.*;
-import ru.saidgadjiev.ormnext.core.query.core.constraints.attribute.Default;
-import ru.saidgadjiev.ormnext.core.query.core.constraints.attribute.NotNullConstraint;
-import ru.saidgadjiev.ormnext.core.query.core.constraints.attribute.PrimaryKeyConstraint;
-import ru.saidgadjiev.ormnext.core.query.core.constraints.attribute.ReferencesConstraint;
-import ru.saidgadjiev.ormnext.core.query.core.constraints.table.UniqueConstraint;
-import ru.saidgadjiev.ormnext.core.query.core.join.JoinInfo;
 
 /**
  * Паттерн Visitor

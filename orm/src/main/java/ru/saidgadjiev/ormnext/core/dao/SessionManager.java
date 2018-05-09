@@ -15,5 +15,7 @@ public interface SessionManager extends AutoCloseable {
 
     void enableDefaultCache();
 
+    DatabaseEngine getDatabaseEngine();
+
     void close() throws SQLException;
 }

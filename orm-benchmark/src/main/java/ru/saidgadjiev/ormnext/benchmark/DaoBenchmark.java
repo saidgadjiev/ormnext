@@ -37,9 +37,9 @@ import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 import org.postgresql.ds.PGPoolingDataSource;
-import ru.saidgadjiev.ormnext.benchmark.domain.*;
+import ru.saidgadjiev.ormnext.benchmark.domain.Order;
+import ru.saidgadjiev.ormnext.benchmark.domain.UserProfile;
 import ru.saidgadjiev.ormnext.core.dao.Session;
-import ru.saidgadjiev.ormnext.core.dao.SessionManager;
 import ru.saidgadjiev.ormnext.core.dao.SessionManagerBuilder;
 import ru.saidgadjiev.ormnext.core.db.PGDatabaseType;
 import ru.saidgadjiev.ormnext.core.field.DataPersisterManager;
@@ -51,7 +51,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -122,13 +121,13 @@ public class DaoBenchmark {
     public Object testQueryForAll(DaoState daoState) throws SQLException {
         return daoState.getSession().queryForAll(UserProfile.class);
     }
-/*
-    @Benchmark
+
+    /*@Benchmark
     @Warmup(iterations = 0)
     @Measurement(iterations = 5)
     @BenchmarkMode(value = Mode.AverageTime)
     @OutputTimeUnit(value = TimeUnit.MILLISECONDS)
-    @Fork(0)
+    @Fork(0)*/
     public Object testQueryForAllDirectAccess(DirectAccessState directAccessState) throws Exception {
         List<UserProfile> userProfiles = new ArrayList<>();
         String sql = "select u.id as uid, u.firstname as first, u.lastname as last, u.middlename as mid, o.id as oid, o.description as odes, o.date as odate, o.userprofile_id as ous from userprofile u LEFT JOIN \"order\" o ON u.id = o.userprofile_id";
@@ -160,7 +159,7 @@ public class DaoBenchmark {
         System.out.println(userProfiles.size());
         return userProfiles;
     }
-*/
+
     public static void main(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder()
                 .include(DaoBenchmark.class.getSimpleName())

@@ -3,7 +3,6 @@ package ru.saidgadjiev.ormnext.core.query.core.clause;
 import ru.saidgadjiev.ormnext.core.query.core.condition.Expression;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryElement;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
-import ru.saidgadjiev.ormnext.core.query.core.condition.Expression;
 
 public class Having implements QueryElement {
 

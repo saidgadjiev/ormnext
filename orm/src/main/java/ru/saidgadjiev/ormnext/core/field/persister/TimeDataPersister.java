@@ -31,6 +31,6 @@ public class TimeDataPersister extends BaseDataPersister<Byte> {
 
     @Override
     public void setObject(PreparedStatement preparedStatement, int index, Object value) throws SQLException {
-        preparedStatement.setTime(index, (java.sql.Time) value);
+        preparedStatement.setTime(index, (Time) value);
     }
 }

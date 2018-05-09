@@ -7,12 +7,6 @@ import ru.saidgadjiev.ormnext.core.query.core.condition.OperandCondition;
 import ru.saidgadjiev.ormnext.core.query.core.function.CountExpression;
 import ru.saidgadjiev.ormnext.core.query.core.function.Function;
 import ru.saidgadjiev.ormnext.core.query.core.function.SUM;
-import ru.saidgadjiev.ormnext.core.query.core.AndCondition;
-import ru.saidgadjiev.ormnext.core.query.core.columnspec.ColumnSpec;
-import ru.saidgadjiev.ormnext.core.query.core.condition.Expression;
-import ru.saidgadjiev.ormnext.core.query.core.condition.OperandCondition;
-import ru.saidgadjiev.ormnext.core.query.core.function.CountExpression;
-import ru.saidgadjiev.ormnext.core.query.core.function.SUM;
 
 public class Projections {
 

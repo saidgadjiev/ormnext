@@ -6,42 +6,42 @@ package ru.saidgadjiev.ormnext.core.logger;
 public class DummyLog implements Log {
 
     @Override
-    public void error(Object message, Throwable t) {
+    public void error(String message, Throwable t, Object ... args) {
 
     }
 
     @Override
-    public void info(Object message) {
+    public void info(String message, Object ... args) {
 
     }
 
     @Override
-    public void debug(Object message) {
+    public void debug(String message, Object ... args) {
 
     }
 
     @Override
-    public void debug(Object message, Throwable t) {
+    public void debug(String message, Throwable t, Object ... args) {
 
     }
 
     @Override
-    public void error(Object message) {
+    public void error(String message, Object ... args) {
 
     }
 
     @Override
-    public void info(Object message, Throwable t) {
+    public void info(String message, Throwable t, Object ... args) {
 
     }
 
     @Override
-    public void warn(Object message) {
+    public void warn(String message, Object ... args) {
 
     }
 
     @Override
-    public void warn(Object message, Throwable t) {
+    public void warn(String message, Throwable t, Object ... args) {
 
     }
 }

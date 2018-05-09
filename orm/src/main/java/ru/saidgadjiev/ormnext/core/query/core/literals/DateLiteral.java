@@ -1,7 +1,6 @@
 package ru.saidgadjiev.ormnext.core.query.core.literals;
 
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
-import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

@@ -1,6 +1,7 @@
 package ru.saidgadjiev.ormnext.core.dao;
 
 import ru.saidgadjiev.ormnext.core.db.DatabaseType;
+import ru.saidgadjiev.ormnext.core.field.persister.Converter;
 import ru.saidgadjiev.ormnext.core.query.core.*;
 import ru.saidgadjiev.ormnext.core.query.visitor.DefaultVisitor;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryElement;
@@ -11,6 +12,7 @@ import ru.saidgadjiev.ormnext.core.support.DatabaseResultSetImpl;
 import java.sql.*;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class DefaultDatabaseEngine implements DatabaseEngine {
@@ -132,9 +134,11 @@ public class DefaultDatabaseEngine implements DatabaseEngine {
             Object value = argument.getValue();
 
             if (argument.getConverter().isPresent()) {
-                ru.saidgadjiev.ormnext.core.field.persister.Converter converter = argument.getConverter().get();
+                List<Converter<?, Object>> converters = argument.getConverter().get();
 
-                value = converter.javaToSql(value);
+                for (Converter converter: converters) {
+                    value = converter.javaToSql(value);
+                }
             }
             argument.getDataPersister().setObject(preparedStatement, index.incrementAndGet(), value);
         }

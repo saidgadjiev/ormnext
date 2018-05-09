@@ -4,7 +4,8 @@ import ru.saidgadjiev.proxymaker.bytecode.common.ByteCodeUtils;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class ConstantPool {
 

@@ -2,7 +2,6 @@ package ru.saidgadjiev.ormnext.core.field.persister;
 
 import ru.saidgadjiev.ormnext.core.support.DatabaseResultSet;
 
-import java.lang.reflect.Field;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 

@@ -67,31 +67,26 @@ public class CollectionInitializer {
         } else {
             Field field = foreignCollectionColumnType.getField();
 
-            //LOG.debug("Found lazy collection " + field.getDeclaringClass().getName() + " " + field.getName());
-
-            try {
-                switch (foreignCollectionColumnType.getCollectionType()) {
-                    case LIST:
-                        foreignCollectionColumnType.assign(instance, new LazyList(
-                                collectionLoader,
-                                resultSetContext.getDao().getSessionManager(),
-                                id,
-                                (List) foreignCollectionColumnType.access(instance))
-                        );
-                        break;
-                    case SET:
-                        foreignCollectionColumnType.assign(instance, new LazySet(
-                                collectionLoader,
-                                resultSetContext.getDao().getSessionManager(),
-                                id,
-                                (Set) foreignCollectionColumnType.access(instance))
-                        );
-                        break;
-                    case UNDEFINED:
-                        throw new RuntimeException("Unknown collection type " + foreignCollectionColumnType.getField().getType());
-                }
-            } catch (Exception ex) {
-                throw new SQLException(ex);
+            LOG.debug("Found lazy collection %s %s", field.getDeclaringClass().getName(), field.getName());
+            switch (foreignCollectionColumnType.getCollectionType()) {
+                case LIST:
+                    foreignCollectionColumnType.assign(instance, new LazyList(
+                            collectionLoader,
+                            resultSetContext.getDao().getSessionManager(),
+                            id,
+                            (List) foreignCollectionColumnType.access(instance))
+                    );
+                    break;
+                case SET:
+                    foreignCollectionColumnType.assign(instance, new LazySet(
+                            collectionLoader,
+                            resultSetContext.getDao().getSessionManager(),
+                            id,
+                            (Set) foreignCollectionColumnType.access(instance))
+                    );
+                    break;
+                case UNDEFINED:
+                    throw new RuntimeException("Unknown collection type " + foreignCollectionColumnType.getField().getType());
             }
         }
     }

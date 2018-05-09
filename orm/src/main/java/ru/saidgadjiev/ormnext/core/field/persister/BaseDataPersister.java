@@ -1,6 +1,5 @@
 package ru.saidgadjiev.ormnext.core.field.persister;
 
-import java.sql.SQLException;
 import java.util.Arrays;
 
 /**

@@ -1,7 +1,6 @@
 package ru.saidgadjiev.ormnext.core.query.core.constraints.table;
 
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
-import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 
 public class ForeignKeyConstraint implements TableConstraint {
 

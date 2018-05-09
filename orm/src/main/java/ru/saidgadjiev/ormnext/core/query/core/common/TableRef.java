@@ -3,8 +3,6 @@ package ru.saidgadjiev.ormnext.core.query.core.common;
 import ru.saidgadjiev.ormnext.core.query.core.Alias;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryElement;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
-import ru.saidgadjiev.ormnext.core.query.core.Alias;
-import ru.saidgadjiev.ormnext.core.query.visitor.QueryElement;
 
 /**
  * Created by said on 09.09.17.

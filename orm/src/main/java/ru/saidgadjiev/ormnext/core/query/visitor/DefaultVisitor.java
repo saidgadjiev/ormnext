@@ -26,9 +26,6 @@ import ru.saidgadjiev.ormnext.core.query.core.join.JoinExpression;
 import ru.saidgadjiev.ormnext.core.query.core.join.JoinInfo;
 import ru.saidgadjiev.ormnext.core.query.core.join.LeftJoin;
 import ru.saidgadjiev.ormnext.core.query.core.literals.*;
-import ru.saidgadjiev.ormnext.core.query.core.condition.Equals;
-import ru.saidgadjiev.ormnext.core.query.core.condition.Expression;
-import ru.saidgadjiev.ormnext.core.query.core.condition.InSelect;
 
 import java.util.Iterator;
 

@@ -37,9 +37,8 @@ public class DefaultEntityLoader {
 
     public DefaultEntityLoader(InternalSession dao, MetaModel metaModel, DatabaseEngine databaseEngine) {
         this.dao = dao;
-        this.databaseEngine = dao.getDatabaseEngine();
-        this.metaModel = metaModel;
         this.databaseEngine = databaseEngine;
+        this.metaModel = metaModel;
     }
 
     /**
@@ -100,9 +99,9 @@ public class DefaultEntityLoader {
             for (IDatabaseColumnType databaseColumnType : entityPersister.getMetadata().toDBFieldTypes()) {
                 Object value = databaseColumnType.access(object);
 
-                args.add(new Argument(databaseColumnType.getConverter().orElse(null), databaseColumnType.getDataPersister(), value));
+                args.add(new Argument(databaseColumnType.getConverters().orElse(null), databaseColumnType.getDataPersister(), value));
             }
-            args.add(new Argument(idFieldType.getConverter().orElse(null), idFieldType.getDataPersister(), idFieldType.access(object)));
+            args.add(new Argument(idFieldType.getConverters().orElse(null), idFieldType.getDataPersister(), idFieldType.access(object)));
 
             databaseEngine.update(connection, updateQuery, args);
         } catch (Exception ex) {
@@ -122,7 +121,7 @@ public class DefaultEntityLoader {
             DeleteQuery deleteQuery = entityPersister.getEntityQuerySpace().getDeleteQuery();
 
             databaseEngine.delete(connection, deleteQuery, new ArrayList<Argument>() {{
-                add(new Argument(primaryKeyType.getConverter().orElse(null), primaryKeyType.getDataPersister(), id));
+                add(new Argument(primaryKeyType.getConverters().orElse(null), primaryKeyType.getDataPersister(), id));
             }});
         } catch (Exception ex) {
             throw new SQLException(ex);
@@ -139,7 +138,7 @@ public class DefaultEntityLoader {
         IDatabaseColumnType primaryKeyType = entityPersister.getMetadata().getPrimaryKey();
 
         databaseEngine.delete(connection, deleteQuery, new ArrayList<Argument>() {{
-            add(new Argument(primaryKeyType.getConverter().orElse(null), primaryKeyType.getDataPersister(), id));
+            add(new Argument(primaryKeyType.getConverters().orElse(null), primaryKeyType.getDataPersister(), id));
         }});
     }
 
@@ -159,7 +158,7 @@ public class DefaultEntityLoader {
         IDatabaseColumnType primaryKeyType = entityPersister.getMetadata().getPrimaryKey();
 
         databaseEngine.select(connection, entityPersister.getEntityQuerySpace().getSelectById(), new ArrayList<Argument>() {{
-            add(new Argument(primaryKeyType.getConverter().orElse(null), primaryKeyType.getDataPersister(), id));
+            add(new Argument(primaryKeyType.getConverters().orElse(null), primaryKeyType.getDataPersister(), id));
         }}, resultSetObject -> results.addAll(load(entityPersister.getRowReader(), dao, resultSetObject)));
 
         if (results.isEmpty()) {
@@ -261,11 +260,11 @@ public class DefaultEntityLoader {
         for (CriterionArgument criterionArgument: arguments) {
             if (criterionArgument.getPropertyName() != null) {
                 IDatabaseColumnType columnType = metadata.getDataTypeByPropertyName(criterionArgument.getPropertyName());
-                Converter converter = columnType.getConverter().isPresent() ? columnType.getConverter().get() : null;
+                List<Converter<?, Object>> converters = columnType.getConverters().isPresent() ? columnType.getConverters().get() : null;
                 DataPersister<?> dataPersister = columnType.getDataPersister();
 
                 for (Object arg: criterionArgument.getValues()) {
-                    args.add(new Argument(converter, dataPersister, arg));
+                    args.add(new Argument(converters, dataPersister, arg));
                 }
             } else {
                 DataPersister<?> dataPersister = DataPersisterManager.lookup(criterionArgument.getValues().getClass());

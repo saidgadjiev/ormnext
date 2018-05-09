@@ -1,9 +1,12 @@
 package ru.saidgadjiev.ormnext.core.field.fieldtype;
 
-import ru.saidgadjiev.ormnext.core.field.*;
+import ru.saidgadjiev.ormnext.core.field.CollectionType;
+import ru.saidgadjiev.ormnext.core.field.FetchType;
+import ru.saidgadjiev.ormnext.core.field.FieldAccessor;
+import ru.saidgadjiev.ormnext.core.field.ForeignCollectionField;
 import ru.saidgadjiev.ormnext.core.field.persister.DataPersister;
 import ru.saidgadjiev.ormnext.core.table.internal.visitor.EntityMetadataVisitor;
-import ru.saidgadjiev.ormnext.core.utils.DatabaseMetaDataUtils;
+import ru.saidgadjiev.ormnext.core.utils.DatabaseEntityMetadataUtils;
 
 import java.lang.reflect.Field;
 import java.sql.SQLException;
@@ -48,12 +51,8 @@ public class ForeignCollectionColumnType implements IForeignDatabaseColumnType {
     }
 
     @Override
-    public void assign(Object object, Object value) throws SQLException {
-        try {
-            fieldAccessor.assign(object, value);
-        } catch (Throwable ex) {
-            throw new SQLException(ex);
-        }
+    public void assign(Object object, Object value) {
+        fieldAccessor.assign(object, value);
     }
 
     @Override
@@ -69,10 +68,6 @@ public class ForeignCollectionColumnType implements IForeignDatabaseColumnType {
     @Override
     public String getOwnerTableName() {
         return ownerTableName;
-    }
-
-    public void setOwnerTableName(String ownerTableName) {
-        this.ownerTableName = ownerTableName;
     }
 
     public void add(Object object, Object value) {
@@ -99,14 +94,6 @@ public class ForeignCollectionColumnType implements IForeignDatabaseColumnType {
         }
     }
 
-    public void setField(Field field) {
-        this.field = field;
-    }
-
-    public void setCollectionObjectClass(Class<?> collectionObjectClass) {
-        this.collectionObjectClass = collectionObjectClass;
-    }
-
     @Override
     public Class<?> getCollectionObjectClass() {
         return collectionObjectClass;
@@ -116,20 +103,8 @@ public class ForeignCollectionColumnType implements IForeignDatabaseColumnType {
         return fetchType;
     }
 
-    public void setFetchType(FetchType fetchType) {
-        this.fetchType = fetchType;
-    }
-
     public CollectionType getCollectionType() {
         return collectionType;
-    }
-
-    public void setCollectionType(CollectionType collectionType) {
-        this.collectionType = collectionType;
-    }
-
-    public void setFieldAccessor(FieldAccessor fieldAccessor) {
-        this.fieldAccessor = fieldAccessor;
     }
 
     @Override
@@ -146,24 +121,12 @@ public class ForeignCollectionColumnType implements IForeignDatabaseColumnType {
         return foreignTableName;
     }
 
-    public void setForeignColumnName(String foreignColumnName) {
-        this.foreignColumnName = foreignColumnName;
-    }
-
-    public void setForeignTableName(String foreignTableName) {
-        this.foreignTableName = foreignTableName;
-    }
-
     public String getForeignColumnName() {
         return foreignColumnName;
     }
 
     public Field getForeignField() {
         return foreignField;
-    }
-
-    public void setForeignField(Field foreignField) {
-        this.foreignField = foreignField;
     }
 
     @Override
@@ -181,11 +144,11 @@ public class ForeignCollectionColumnType implements IForeignDatabaseColumnType {
         String foreignFieldName = foreignCollectionField.foreignFieldName();
         Class<?> collectionObjectClass = FieldTypeUtils.getCollectionGenericClass(field);
 
-        fieldType.setFetchType(foreignCollectionField.fetchType());
-        fieldType.setCollectionType(resolveCollectionType(field.getType()));
-        fieldType.setField(field);
-        fieldType.setCollectionObjectClass(collectionObjectClass);
-        fieldType.setFieldAccessor(new FieldAccessor(field));
+        fieldType.fetchType = foreignCollectionField.fetchType();
+        fieldType.collectionType = resolveCollectionType(field.getType());
+        fieldType.field = field;
+        fieldType.collectionObjectClass = collectionObjectClass;
+        fieldType.fieldAccessor = new FieldAccessor(field);
 
         Field foreignField;
 
@@ -197,9 +160,10 @@ public class ForeignCollectionColumnType implements IForeignDatabaseColumnType {
         } else {
             foreignField = FieldTypeUtils.findFieldByName(foreignFieldName, collectionObjectClass);
         }
-        fieldType.setForeignField(foreignField);
-        fieldType.setForeignColumnName(FieldTypeUtils.resolveForeignColumnTypeName(foreignField));
-        fieldType.setForeignTableName(DatabaseMetaDataUtils.resolveTableName(foreignField.getDeclaringClass()));
+        fieldType.ownerTableName = DatabaseEntityMetadataUtils.resolveTableName(field.getDeclaringClass());
+        fieldType.foreignField = foreignField;
+        fieldType.foreignColumnName = FieldTypeUtils.resolveForeignColumnTypeName(foreignField);
+        fieldType.foreignTableName = DatabaseEntityMetadataUtils.resolveTableName(foreignField.getDeclaringClass());
 
         return fieldType;
     }

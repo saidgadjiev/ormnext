@@ -4,7 +4,6 @@ import ru.saidgadjiev.ormnext.core.query.core.common.UpdateValue;
 import ru.saidgadjiev.ormnext.core.query.core.condition.Expression;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryElement;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
-import ru.saidgadjiev.ormnext.core.query.core.condition.Expression;
 
 import java.util.ArrayList;
 import java.util.List;

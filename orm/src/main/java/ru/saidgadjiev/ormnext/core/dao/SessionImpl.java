@@ -1,21 +1,15 @@
 package ru.saidgadjiev.ormnext.core.dao;
 
 import ru.saidgadjiev.ormnext.core.cache.CacheContext;
-import ru.saidgadjiev.ormnext.core.cache.ObjectCache;
-import ru.saidgadjiev.ormnext.core.cache.ReferenceObjectCache;
 import ru.saidgadjiev.ormnext.core.criteria.impl.CriteriaQuery;
 import ru.saidgadjiev.ormnext.core.criteria.impl.SimpleCriteriaQuery;
 import ru.saidgadjiev.ormnext.core.dao.transaction.BeginState;
 import ru.saidgadjiev.ormnext.core.dao.transaction.TransactionState;
 import ru.saidgadjiev.ormnext.core.stamentexecutor.CacheHelper;
 import ru.saidgadjiev.ormnext.core.stamentexecutor.DefaultEntityLoader;
-import ru.saidgadjiev.ormnext.core.stamentexecutor.object.OrmNextMethodHandler;
 import ru.saidgadjiev.ormnext.core.support.ConnectionSource;
 import ru.saidgadjiev.ormnext.core.support.DatabaseConnection;
-import ru.saidgadjiev.ormnext.core.table.internal.metamodel.MetaModel;
-import ru.saidgadjiev.proxymaker.ProxyMaker;
 
-import javax.transaction.TransactionRolledbackException;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
@@ -29,28 +23,23 @@ public class SessionImpl implements InternalSession {
 
     private CacheHelper cacheHelper;
 
-    private final ConnectionSource<Object> dataSource;
+    private final ConnectionSource<?> dataSource;
 
     private SessionManager sessionManager;
 
-    private DatabaseConnection<Object> connection;
-
-    private DatabaseEngine databaseEngine;
+    private DatabaseConnection<?> connection;
 
     private TransactionState transactionState;
 
-    SessionImpl(ConnectionSource<Object> dataSource,
-                DatabaseConnection<Object> connection,
-                DatabaseEngine databaseEngine,
-                MetaModel metaModel,
+    SessionImpl(ConnectionSource<?> dataSource,
+                DatabaseConnection<?> connection,
                 CacheContext cacheContext,
                 SessionManager sessionManager) {
         this.dataSource = dataSource;
         this.sessionManager = sessionManager;
         this.connection = connection;
-        this.databaseEngine = databaseEngine;
         this.cacheHelper = new CacheHelper(cacheContext);
-        this.statementExecutor = new DefaultEntityLoader(this, metaModel, databaseEngine);
+        this.statementExecutor = new DefaultEntityLoader(this, sessionManager.getMetaModel(), sessionManager.getDatabaseEngine());
     }
 
     @Override
@@ -142,7 +131,7 @@ public class SessionImpl implements InternalSession {
 
     @Override
     public void close() throws SQLException {
-        dataSource.releaseConnection(connection);
+        dataSource.releaseConnection((DatabaseConnection) connection);
     }
 
     @Override
@@ -158,11 +147,6 @@ public class SessionImpl implements InternalSession {
     @Override
     public long queryForLong(SimpleCriteriaQuery simpleCriteriaQuery) throws SQLException {
         return statementExecutor.queryForLong(connection, simpleCriteriaQuery);
-    }
-
-    @Override
-    public DatabaseEngine getDatabaseEngine() {
-        return databaseEngine;
     }
 
     @Override
