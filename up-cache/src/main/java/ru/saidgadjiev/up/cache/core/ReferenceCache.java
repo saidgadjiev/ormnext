@@ -4,11 +4,19 @@ import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.util.concurrent.ConcurrentHashMap;
 
-
-@SuppressWarnings("PMD")
+/**
+ * Cache which stores objects with {@link SoftReference} to them.
+ * @param <K> the type of keys maintained by this cache
+ * @param <V> the type of mapped values
+ *
+ * @author Said Gadjiev
+ */
 public class ReferenceCache<K, V> implements Cache<K, V> {
 
-    private ConcurrentHashMap<Object, SoftReference<Object>> cache = new ConcurrentHashMap<>();
+    /**
+     * Map for save cached objects.
+     */
+    private ConcurrentHashMap<K, SoftReference<V>> cache = new ConcurrentHashMap<>();
 
     @Override
     public void invalidateAll() {
@@ -27,11 +35,11 @@ public class ReferenceCache<K, V> implements Cache<K, V> {
 
     @Override
     public V get(K key) {
-        Reference<Object> ref = cache.get(key);
+        Reference<V> ref = cache.get(key);
         if (ref == null) {
             return null;
         }
-        V obj = (V) ref.get();
+        V obj = ref.get();
         if (obj == null) {
             cache.remove(key);
             return null;

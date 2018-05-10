@@ -26,6 +26,5 @@ public class StringLiteral implements Literal<String> {
     @Override
     public void accept(QueryVisitor visitor) {
         visitor.visit(this);
-
     }
 }

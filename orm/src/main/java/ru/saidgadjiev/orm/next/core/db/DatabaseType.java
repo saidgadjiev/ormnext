@@ -1,27 +1,12 @@
 package ru.saidgadjiev.orm.next.core.db;
 
-import java.sql.SQLException;
+import ru.saidgadjiev.orm.next.core.query.core.AttributeDefinition;
+
+import static ru.saidgadjiev.orm.next.core.field.DataType.*;
 
 public interface DatabaseType {
 
     String appendPrimaryKey(boolean generated);
-
-    default void loadDriver() throws SQLException {
-        String className = getDriverClassName();
-
-        if (className != null) {
-            try {
-                Class.forName(className);
-            } catch (ClassNotFoundException e) {
-                throw new SQLException("Driver class was not found for " + getDatabaseName()
-                        + " database.  Missing jar with class " + className + ".", e);
-            }
-        }
-    }
-
-    String getDatabaseName();
-
-    String getDriverClassName();
 
     String appendNoColumn();
 
@@ -32,4 +17,34 @@ public interface DatabaseType {
     default String getValueEscape() {
         return "'";
     }
+
+    default String getTypeSqlPresent(AttributeDefinition def) {
+        int dataType = def.getDataType();
+        StringBuilder sql = new StringBuilder();
+
+        switch (dataType) {
+            case STRING:
+            case DATE:
+                sql.append("VARCHAR").append("(").append(def.getLength()).append(")");
+                break;
+            case INTEGER:
+            case LONG:
+                sql.append("INTEGER");
+                break;
+            case BOOLEAN:
+                sql.append("BOOLEAN");
+                break;
+            case FLOAT:
+                sql.append("FLOAT");
+                break;
+            case DOUBLE:
+                sql.append("DOUBLE");
+                break;
+            case UNKNOWN:
+                break;
+        }
+
+        return sql.toString();
+    }
+
 }

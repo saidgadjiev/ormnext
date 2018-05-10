@@ -32,6 +32,10 @@ public class Between implements Condition {
 
     @Override
     public void accept(QueryVisitor visitor) {
-        visitor.visit(this);
+        if (visitor.visit(this)) {
+            operand.accept(visitor);
+            low.accept(visitor);
+            high.accept(visitor);
+        }
     }
 }

@@ -1,6 +1,5 @@
 package ru.saidgadjiev.orm.next.core.query.core;
 
-import ru.saidgadjiev.orm.next.core.query.core.common.UpdateValue;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryElement;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryVisitor;
 
@@ -20,38 +19,28 @@ public class CreateQuery implements QueryElement {
     /**
      * Вставляемые значения
      */
-    private final List<UpdateValue> updateValues = new ArrayList<>();
+    private final List<InsertValues> updateValues = new ArrayList<>();
 
+    private List<String> columnNames = new ArrayList<>();
 
     public CreateQuery(String typeName) {
         this.typeName = typeName;
     }
 
-    /**
-     * Добавление нового значения
-     *
-     * @param updateValue добавляемое значение
-     */
-    public void add(UpdateValue updateValue) {
-        updateValues.add(updateValue);
+    public void add(InsertValues updateValues) {
+        this.updateValues.add(updateValues);
     }
 
-    /**
-     * Добавление коллекции значений
-     *
-     * @param values
-     */
-    public void addAll(List<UpdateValue> values) {
-        updateValues.addAll(values);
-    }
-
-    /**
-     * Получение списка значений
-     *
-     * @return
-     */
-    public List<UpdateValue> getUpdateValues() {
+    public List<InsertValues> getInsertValues() {
         return updateValues;
+    }
+
+    public void addColumnName(String columnName) {
+        columnNames.add(columnName);
+    }
+
+    public List<String> getColumnNames() {
+        return columnNames;
     }
 
     /**
@@ -65,6 +54,8 @@ public class CreateQuery implements QueryElement {
 
     @Override
     public void accept(QueryVisitor visitor) {
-        visitor.visit(this);
+        if (visitor.visit(this)) {
+            updateValues.forEach(updateValue -> updateValue.accept(visitor));
+        }
     }
 }

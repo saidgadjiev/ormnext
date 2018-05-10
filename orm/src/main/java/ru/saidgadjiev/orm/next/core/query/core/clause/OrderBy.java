@@ -26,9 +26,8 @@ public class OrderBy implements QueryElement {
 
     @Override
     public void accept(QueryVisitor visitor) {
-        visitor.visit(this);
-        for (OrderByItem item: orderByItems) {
-            item.accept(visitor);
+        if (visitor.visit(this)) {
+            orderByItems.forEach(orderByItem -> orderByItem.accept(visitor));
         }
     }
 }

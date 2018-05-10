@@ -16,6 +16,8 @@ public class IsNull implements Condition {
     }
 
     public void accept(QueryVisitor visitor) {
-        visitor.visit(this);
+        if (visitor.visit(this)) {
+            operand.accept(visitor);
+        }
     }
 }

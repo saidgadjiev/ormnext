@@ -1,24 +1,25 @@
 package ru.saidgadjiev.orm.next.core.query.visitor;
 
 import ru.saidgadjiev.orm.next.core.db.DatabaseType;
-import ru.saidgadjiev.orm.next.core.field.DataType;
 import ru.saidgadjiev.orm.next.core.query.core.*;
 import ru.saidgadjiev.orm.next.core.query.core.clause.*;
 import ru.saidgadjiev.orm.next.core.query.core.clause.from.FromJoinedTables;
 import ru.saidgadjiev.orm.next.core.query.core.clause.from.FromTable;
 import ru.saidgadjiev.orm.next.core.query.core.clause.select.SelectAll;
 import ru.saidgadjiev.orm.next.core.query.core.clause.select.SelectColumnsList;
-import ru.saidgadjiev.orm.next.core.query.core.column_spec.ColumnSpec;
-import ru.saidgadjiev.orm.next.core.query.core.column_spec.DisplayedColumn;
-import ru.saidgadjiev.orm.next.core.query.core.column_spec.DisplayedColumnSpec;
-import ru.saidgadjiev.orm.next.core.query.core.column_spec.DisplayedOperand;
+import ru.saidgadjiev.orm.next.core.query.core.columnspec.ColumnSpec;
+import ru.saidgadjiev.orm.next.core.query.core.columnspec.DisplayedColumn;
+import ru.saidgadjiev.orm.next.core.query.core.columnspec.DisplayedColumnSpec;
+import ru.saidgadjiev.orm.next.core.query.core.columnspec.DisplayedOperand;
 import ru.saidgadjiev.orm.next.core.query.core.common.TableRef;
 import ru.saidgadjiev.orm.next.core.query.core.common.UpdateValue;
 import ru.saidgadjiev.orm.next.core.query.core.condition.*;
 import ru.saidgadjiev.orm.next.core.query.core.constraints.attribute.*;
+import ru.saidgadjiev.orm.next.core.query.core.constraints.table.ForeignKeyConstraint;
+import ru.saidgadjiev.orm.next.core.query.core.constraints.table.TableConstraint;
 import ru.saidgadjiev.orm.next.core.query.core.constraints.table.UniqueConstraint;
-import ru.saidgadjiev.orm.next.core.query.core.function.AVG;
 import ru.saidgadjiev.orm.next.core.query.core.function.CountAll;
+import ru.saidgadjiev.orm.next.core.query.core.function.CountColumn;
 import ru.saidgadjiev.orm.next.core.query.core.function.CountExpression;
 import ru.saidgadjiev.orm.next.core.query.core.function.SUM;
 import ru.saidgadjiev.orm.next.core.query.core.join.JoinExpression;
@@ -52,37 +53,34 @@ public class DefaultVisitor extends NoActionVisitor {
     }
 
     @Override
-    public void visit(CreateQuery tCreateQuery) {
+    public boolean visit(CreateQuery tCreateQuery) {
         sql.append("INSERT INTO ").append(escapeEntity).append(tCreateQuery.getTypeName()).append(escapeEntity);
 
-        if (tCreateQuery.getUpdateValues().isEmpty()) {
+        if (tCreateQuery.getColumnNames().isEmpty()) {
             sql.append(" ").append(databaseType.appendNoColumn());
-
-            return;
         } else {
             sql.append(" (");
-        }
 
-        for (Iterator<UpdateValue> iterator = tCreateQuery.getUpdateValues().iterator(); iterator.hasNext(); ) {
-            UpdateValue updateValue = iterator.next();
-
-            sql.append(escapeEntity).append(updateValue.getName()).append(escapeEntity);
-            if (iterator.hasNext()) {
-                sql.append(",");
+            for (Iterator<String> iterator = tCreateQuery.getColumnNames().iterator(); iterator.hasNext(); ) {
+                sql.append(escapeEntity).append(iterator.next()).append(escapeEntity);
+                if (iterator.hasNext()) {
+                    sql.append(",");
+                }
             }
-        }
-        sql.append(")");
-        sql.append(" VALUES (");
-        for (Iterator<UpdateValue> iterator = tCreateQuery.getUpdateValues().iterator(); iterator.hasNext(); ) {
-            UpdateValue updateValue = iterator.next();
-            RValue value = updateValue.getValue();
+            sql.append(")");
+            sql.append(" VALUES (");
+            for (Iterator<InsertValues> iterator = tCreateQuery.getInsertValues().iterator(); iterator.hasNext(); ) {
+                InsertValues insertValues = iterator.next();
 
-            value.accept(this);
-            if (iterator.hasNext()) {
-                sql.append(",");
+                insertValues.accept(this);
+                if (iterator.hasNext()) {
+                    sql.append(", ");
+                }
             }
+            sql.append(")");
         }
-        sql.append(")");
+        
+        return false;
     }
 
     @Override
@@ -95,7 +93,7 @@ public class DefaultVisitor extends NoActionVisitor {
     }
 
     @Override
-    public void visit(Select tSelectQuery) {
+    public boolean visit(Select tSelectQuery) {
         sql.append("SELECT ");
         if (tSelectQuery.getSelectColumnsStrategy() != null) {
             tSelectQuery.getSelectColumnsStrategy().accept(this);
@@ -104,13 +102,34 @@ public class DefaultVisitor extends NoActionVisitor {
         if (tSelectQuery.getFrom() != null) {
             tSelectQuery.getFrom().accept(this);
         }
-        if (!tSelectQuery.getWhere().getConditions().isEmpty()) {
-            sql.append(" WHERE ");
+
+        if (tSelectQuery.getWhere() != null) {
+            if (!tSelectQuery.getWhere().getConditions().isEmpty()) {
+                sql.append(" WHERE ");
+            }
+            tSelectQuery.getWhere().accept(this);
         }
+        if (tSelectQuery.getGroupBy() != null) {
+            tSelectQuery.getGroupBy().accept(this);
+        }
+        if (tSelectQuery.getOrderBy() != null) {
+            tSelectQuery.getOrderBy().accept(this);
+        }
+        if (tSelectQuery.getHaving() != null) {
+            tSelectQuery.getHaving().accept(this);
+        }
+        if (tSelectQuery.getLimit() != null) {
+            tSelectQuery.getLimit().accept(this);
+        }
+        if (tSelectQuery.getOffset() != null) {
+            tSelectQuery.getOffset().accept(this);
+        }
+
+        return false;
     }
 
     @Override
-    public void visit(Expression expression) {
+    public boolean visit(Expression expression) {
         for (Iterator<AndCondition> iterator = expression.getConditions().iterator(); iterator.hasNext(); ) {
             AndCondition andCondition = iterator.next();
 
@@ -136,46 +155,54 @@ public class DefaultVisitor extends NoActionVisitor {
                 sql.append(" OR ");
             }
         }
+
+        return false;
     }
 
     @Override
-    public void visit(Equals equals) {
+    public boolean visit(Equals equals) {
         equals.getFirst().accept(this);
         sql.append(" = ");
         equals.getSecond().accept(this);
+
+        return false;
     }
 
     @Override
-    public void visit(ColumnSpec columnSpec) {
+    public boolean visit(ColumnSpec columnSpec) {
         if (columnSpec.getAlias() != null) {
             columnSpec.getAlias().accept(this);
             sql.append(".");
         }
         sql.append(escapeEntity).append(columnSpec.getName()).append(escapeEntity);
+
+        return false;
     }
 
     @Override
-    public void visit(TableRef tableRef) {
+    public boolean visit(TableRef tableRef) {
         sql.append(escapeEntity).append(tableRef.getTableName()).append(escapeEntity);
 
         if (tableRef.getAlias() != null) {
             sql.append(" AS ");
             tableRef.getAlias().accept(this);
         }
+
+        return false;
     }
 
     @Override
-    public void visit(CreateTableQuery tCreateTableQuery) {
+    public boolean visit(CreateTableQuery tCreateTableQuery) {
         sql.append("CREATE TABLE ");
         if (tCreateTableQuery.isIfNotExists()) {
             sql.append("IF NOT EXISTS ");
         }
-        sql.append(escapeEntity).append(tCreateTableQuery.getTypeName()).append("` (");
+        sql.append(escapeEntity).append(tCreateTableQuery.getTypeName()).append(escapeEntity).append(" (");
         for (Iterator<AttributeDefinition> iterator = tCreateTableQuery.getAttributeDefinitions().iterator(); iterator.hasNext(); ) {
             AttributeDefinition attributeDefinition = iterator.next();
 
-            sql.append(escapeEntity).append(attributeDefinition.getName()).append("` ");
-            appendAttributeDataType(attributeDefinition);
+            sql.append(escapeEntity).append(attributeDefinition.getName()).append(escapeEntity).append(" ");
+            sql.append(databaseType.getTypeSqlPresent(attributeDefinition));
             sql.append(" ");
             for (Iterator<AttributeConstraint> constraintIterator = attributeDefinition.getAttributeConstraints().iterator(); constraintIterator.hasNext(); ) {
                 AttributeConstraint constraint = constraintIterator.next();
@@ -190,43 +217,30 @@ public class DefaultVisitor extends NoActionVisitor {
                 sql.append(", ");
             }
         }
-        sql.append(")");
-    }
+        if (!tCreateTableQuery.getTableConstraints().isEmpty()) {
+            sql.append(", ");
+            for (Iterator<TableConstraint> iterator = tCreateTableQuery.getTableConstraints().iterator(); iterator.hasNext(); ) {
+                TableConstraint tableConstraint = iterator.next();
 
-    private void appendAttributeDataType(AttributeDefinition def) {
-        DataType dataType = def.getDataType();
-
-        switch (dataType) {
-            case STRING:
-            case DATE:
-                sql.append("VARCHAR").append("(").append(def.getLength()).append(")");
-                break;
-            case INTEGER:
-            case LONG:
-                sql.append("INTEGER");
-                break;
-            case BOOLEAN:
-                sql.append("BOOLEAN");
-                break;
-            case FLOAT:
-                sql.append("FLOAT");
-                break;
-            case DOUBLE:
-                sql.append("DOUBLE");
-                break;
-            case UNKNOWN:
-                break;
+                tableConstraint.accept(this);
+                if (iterator.hasNext()) {
+                    sql.append(", ");
+                }
+            }
         }
+        sql.append(")");
 
-
+        return false;
     }
 
     @Override
-    public void visit(DeleteQuery deleteQuery) {
+    public boolean visit(DeleteQuery deleteQuery) {
         sql.append("DELETE FROM ").append(deleteQuery.getTypeName());
         if (!deleteQuery.getWhere().getConditions().isEmpty()) {
             sql.append(" WHERE ");
         }
+
+        return true;
     }
 
     @Override
@@ -235,7 +249,7 @@ public class DefaultVisitor extends NoActionVisitor {
     }
 
     @Override
-    public void visit(UpdateQuery updateQuery) {
+    public boolean visit(UpdateQuery updateQuery) {
         sql.append("UPDATE ").append(updateQuery.getTypeName()).append(" SET ");
 
         for (Iterator<UpdateValue> iterator = updateQuery.getUpdateValues().iterator(); iterator.hasNext(); ) {
@@ -252,6 +266,8 @@ public class DefaultVisitor extends NoActionVisitor {
             sql.append(" WHERE ");
             updateQuery.getWhere().accept(this);
         }
+
+        return false;
     }
 
     @Override
@@ -270,14 +286,14 @@ public class DefaultVisitor extends NoActionVisitor {
 
     @Override
     public void visit(UniqueConstraint uniqueConstraint) {
-        sql.append(", UNIQUE (`");
+        sql.append("UNIQUE (").append(escapeEntity);
         for (Iterator<String> iterator = uniqueConstraint.getUniqueColemns().iterator(); iterator.hasNext(); ) {
             sql.append(iterator.next());
             if (iterator.hasNext()) {
-                sql.append("`,`");
+                sql.append(escapeEntity).append(",").append(escapeEntity);
             }
         }
-        sql.append("`)");
+        sql.append(escapeEntity).append(")");
     }
 
     @Override
@@ -287,35 +303,43 @@ public class DefaultVisitor extends NoActionVisitor {
 
     @Override
     public void visit(ReferencesConstraint referencesConstraint) {
-        sql.append(" REFERENCES `")
+        sql.append(" REFERENCES ").append(escapeEntity)
                 .append(referencesConstraint.getTypeName())
-                .append("`(`")
+                .append(escapeEntity)
+                .append("(")
+                .append(escapeEntity)
                 .append(referencesConstraint.getColumnName())
-                .append("`)");
+                .append(escapeEntity)
+                .append(")");
     }
 
     @Override
     public void visit(CreateIndexQuery createIndexQuery) {
         sql.append("CREATE ")
                 .append(createIndexQuery.isUnique() ? "UNIQUE" : "INDEX")
-                .append(" `")
+                .append(" ")
+                .append(escapeEntity)
                 .append(createIndexQuery.getIndexName())
-                .append("` ON `")
+                .append(escapeEntity)
+                .append(" ON ")
+                .append(escapeEntity)
                 .append(createIndexQuery.getTableName())
-                .append("`(`");
+                .append(escapeEntity)
+                .append("(")
+                .append(escapeEntity);
         for (Iterator<String> iterator = createIndexQuery.getColumns().iterator(); iterator.hasNext(); ) {
             sql.append(iterator.next());
 
             if (iterator.hasNext()) {
-                sql.append("`,`");
+                sql.append(escapeEntity).append(",").append(escapeEntity);
             }
         }
-        sql.append("`)");
+        sql.append(escapeEntity).append(")");
     }
 
     @Override
     public void visit(DropIndexQuery dropIndexQuery) {
-        sql.append("DROP INDEX `").append(dropIndexQuery.getName()).append(escapeEntity);
+        sql.append(escapeEntity).append("DROP INDEX ").append(dropIndexQuery.getName()).append(escapeEntity);
     }
 
     @Override
@@ -329,7 +353,7 @@ public class DefaultVisitor extends NoActionVisitor {
     }
 
     @Override
-    public void visit(SelectColumnsList selectColumnsList) {
+    public boolean visit(SelectColumnsList selectColumnsList) {
         for (Iterator<DisplayedColumnSpec> columnIterator = selectColumnsList.getColumns().iterator(); columnIterator.hasNext(); ) {
             DisplayedColumnSpec columnSpec = columnIterator.next();
 
@@ -338,18 +362,22 @@ public class DefaultVisitor extends NoActionVisitor {
                 sql.append(", ");
             }
         }
+
+        return false;
     }
 
     @Override
-    public void visit(Having having) {
+    public boolean visit(Having having) {
         sql.append(" HAVING ");
         if (having.getExpression() != null) {
             having.getExpression().accept(this);
         }
+
+        return false;
     }
 
     @Override
-    public void visit(GroupBy groupBy) {
+    public boolean visit(GroupBy groupBy) {
         sql.append(" GROUP BY ");
 
         for (Iterator<GroupByItem> columnSpecIterator = groupBy.getGroupByItems().iterator(); columnSpecIterator.hasNext(); ) {
@@ -360,19 +388,25 @@ public class DefaultVisitor extends NoActionVisitor {
                 sql.append(",");
             }
         }
+
+        return false;
     }
 
     @Override
-    public void visit(FromTable fromTable) {
+    public boolean visit(FromTable fromTable) {
         fromTable.getTableRef().accept(this);
+
+        return false;
     }
 
     @Override
-    public void visit(LeftJoin leftJoin) {
+    public boolean visit(LeftJoin leftJoin) {
         sql.append(" LEFT JOIN ");
         leftJoin.getJoinedTableRef().accept(this);
         sql.append(" ON ");
         leftJoin.getExpression().accept(this);
+
+        return false;
     }
 
     @Override
@@ -381,9 +415,11 @@ public class DefaultVisitor extends NoActionVisitor {
     }
 
     @Override
-    public void visit(JoinInfo joinInfo) {
+    public boolean visit(JoinInfo joinInfo) {
         joinInfo.getTableRef().accept(this);
         sql.append(" ON ");
+
+        return false;
     }
 
     @Override
@@ -392,57 +428,64 @@ public class DefaultVisitor extends NoActionVisitor {
     }
 
     @Override
-    public void visit(FromJoinedTables fromJoinedTables) {
+    public boolean visit(FromJoinedTables fromJoinedTables) {
         fromJoinedTables.getTableRef().accept(this);
         for (JoinExpression joinExpression : fromJoinedTables.getJoinExpression()) {
             joinExpression.accept(this);
         }
+
+        return false;
     }
 
     @Override
-    public void visit(DisplayedColumn displayedColumn) {
+    public boolean visit(DisplayedColumn displayedColumn) {
         displayedColumn.getColumnSpec().accept(this);
         if (displayedColumn.getAlias() != null) {
             sql.append(" AS ");
             displayedColumn.getAlias().accept(this);
         }
+
+        return false;
     }
 
     @Override
-    public void visit(AVG avg) {
-
-    }
-
-    @Override
-    public void visit(CountExpression countExpression) {
+    public boolean visit(CountExpression countExpression) {
         sql.append("COUNT(");
         if (countExpression.getExpression() != null) {
             countExpression.getExpression().accept(this);
         }
 
         sql.append(")");
+
+        return false;
     }
 
     @Override
-    public void visit(InSelect inSelect) {
+    public boolean visit(InSelect inSelect) {
         inSelect.getOperand().accept(this);
         sql.append(" IN (");
         inSelect.getSelect().accept(this);
         sql.append(")");
+
+        return false;
     }
 
     @Override
-    public void visit(SUM sum) {
+    public boolean visit(SUM sum) {
         sql.append("SUM(");
         if (sum.getExpression() != null) {
             sum.getExpression().accept(this);
         }
         sql.append(")");
+
+        return false;
     }
 
     @Override
-    public void visit(OperandCondition operandCondition) {
+    public boolean visit(OperandCondition operandCondition) {
         operandCondition.getOperand().accept(this);
+
+        return false;
     }
 
     @Override
@@ -456,8 +499,10 @@ public class DefaultVisitor extends NoActionVisitor {
     }
 
     @Override
-    public void visit(Default aDefault) {
+    public boolean visit(Default aDefault) {
         sql.append("DEFAULT ");
+
+        return false;
     }
 
     @Override
@@ -472,12 +517,14 @@ public class DefaultVisitor extends NoActionVisitor {
     }
 
     @Override
-    public void visit(OrderBy orderBy) {
+    public boolean visit(OrderBy orderBy) {
         sql.append(" ORDER BY ");
+
+        return true;
     }
 
     @Override
-    public void visit(OrderByItem orderByItem, QueryVisitor visitor) {
+    public boolean visit(OrderByItem orderByItem) {
         for (Iterator<ColumnSpec> iterator = orderByItem.getColumns().iterator(); iterator.hasNext(); ) {
             iterator.next().accept(this);
 
@@ -485,9 +532,13 @@ public class DefaultVisitor extends NoActionVisitor {
                 sql.append(", ");
             }
         }
-        if (!orderByItem.getColumns().isEmpty()) {
+        if (orderByItem.isAsc()) {
             sql.append(" ASC ");
+        } else {
+            sql.append(" DESC ");
         }
+
+        return false;
     }
 
     @Override
@@ -501,11 +552,58 @@ public class DefaultVisitor extends NoActionVisitor {
     }
 
     @Override
-    public void visit(DisplayedOperand displayedOperand) {
+    public boolean visit(DisplayedOperand displayedOperand) {
         displayedOperand.getOperand().accept(this);
         if (displayedOperand.getAlias() != null) {
             sql.append(" AS ");
             displayedOperand.getAlias().accept(this);
         }
+
+        return false;
+    }
+
+    @Override
+    public void visit(InsertValues insertValues) {
+        for (Iterator<UpdateValue> iterator = insertValues.getUpdateValues().iterator(); iterator.hasNext(); ) {
+            UpdateValue updateValue = iterator.next();
+            RValue value = updateValue.getValue();
+
+            value.accept(this);
+            if (iterator.hasNext()) {
+                sql.append(",");
+            }
+        }
+    }
+
+    @Override
+    public boolean visit(ForeignKeyConstraint foreignKeyConstraint) {
+        sql
+                .append("FOREIGN KEY (")
+                .append(foreignKeyConstraint.getColumnName())
+                .append(")")
+                .append(" REFERENCES ")
+                .append(escapeEntity)
+                .append(foreignKeyConstraint.getTypeName())
+                .append(escapeEntity)
+                .append("(")
+                .append(escapeEntity)
+                .append(foreignKeyConstraint.getForeignColumnName())
+                .append(escapeEntity)
+                .append(")");
+
+        return false;
+    }
+
+    @Override
+    public boolean visit(CountColumn countColumn) {
+        sql.append("COUNT(");
+        countColumn.getColumnSpec().accept(this);
+        sql.append(")");
+
+        return false;
+    }
+
+    public void reset() {
+        sql = new StringBuilder();
     }
 }

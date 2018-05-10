@@ -10,6 +10,5 @@ public class SelectAll implements SelectColumnsStrategy {
     @Override
     public void accept(QueryVisitor visitor) {
         visitor.visit(this);
-
     }
 }

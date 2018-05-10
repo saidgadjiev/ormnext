@@ -1,6 +1,6 @@
 package ru.saidgadjiev.orm.next.core.query.core.clause;
 
-import ru.saidgadjiev.orm.next.core.query.core.column_spec.ColumnSpec;
+import ru.saidgadjiev.orm.next.core.query.core.columnspec.ColumnSpec;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryElement;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryVisitor;
 
@@ -10,7 +10,7 @@ import java.util.List;
 
 public class OrderByItem implements QueryElement {
 
-    private boolean asc = true;
+    private boolean asc;
 
     private final List<ColumnSpec> columns = new ArrayList<>();
 
@@ -33,7 +33,9 @@ public class OrderByItem implements QueryElement {
 
     @Override
     public void accept(QueryVisitor visitor) {
-        visitor.visit(this, visitor);
+        if (visitor.visit(this)) {
+            columns.forEach(columnSpec -> columnSpec.accept(visitor));
+        }
     }
 
 }

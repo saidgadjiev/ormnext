@@ -17,16 +17,6 @@ public class MySQLDatabaseType implements DatabaseType {
     }
 
     @Override
-    public String getDatabaseName() {
-        return "MySQL";
-    }
-
-    @Override
-    public String getDriverClassName() {
-        return "com.mysql.jdbc.Driver";
-    }
-
-    @Override
     public String appendNoColumn() {
         return "() VALUES ()";
     }

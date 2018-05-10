@@ -1,38 +1,36 @@
 package ru.saidgadjiev.orm.next.core.utils;
 
-import ru.saidgadjiev.orm.next.core.field.field_type.ForeignFieldType;
-import ru.saidgadjiev.orm.next.core.field.field_type.IDBFieldType;
-import ru.saidgadjiev.orm.next.core.table.TableInfo;
+import ru.saidgadjiev.orm.next.core.field.fieldtype.ForeignColumnType;
+import ru.saidgadjiev.orm.next.core.field.fieldtype.IDatabaseColumnType;
+import ru.saidgadjiev.orm.next.core.table.internal.metamodel.DatabaseEntityMetadata;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by said on 10.02.2018.
  */
 public class ArgumentUtils {
 
-    public static <T> Map<Integer, Object> eject(T object, TableInfo<T> tableInfo) throws Exception {
-        AtomicInteger index = new AtomicInteger();
-        Map<Integer, Object> args = new HashMap<>();
+    public static List<Object> eject(Object object, DatabaseEntityMetadata<?> databaseEntityMetadata) throws Exception {
+        List<Object> args = new ArrayList<>();
 
-        for (IDBFieldType fieldType : tableInfo.toDBFieldTypes()) {
-            if (!fieldType.isForeignCollectionFieldType() && !fieldType.isGenerated()) {
+        for (IDatabaseColumnType fieldType : databaseEntityMetadata.getFieldTypes()) {
+            if (!fieldType.isForeignCollectionFieldType() && !fieldType.isGenerated() && !fieldType.isForeignFieldType()) {
                 Object value = fieldType.access(object);
 
                 if (value != null) {
-                    args.put(index.incrementAndGet(), fieldType.getDataPersister().parseJavaToSql(fieldType, value));
+                    args.add(fieldType.getDataPersister().parseJavaToSql(fieldType, value));
                 } else {
-                    args.put(index.incrementAndGet(), fieldType.getDefaultValue());
+                    args.add(fieldType.getDefaultValue());
                 }
             }
         }
 
-        for (ForeignFieldType foreignFieldType : tableInfo.toForeignFieldTypes()) {
-            Object value = foreignFieldType.access(object);
+        for (ForeignColumnType foreignColumnType : databaseEntityMetadata.toForeignFieldTypes()) {
+            Object value = foreignColumnType.access(object);
 
-            args.put(index.incrementAndGet(), foreignFieldType.getForeignPrimaryKey().access(value));
+            args.add(foreignColumnType.getForeignPrimaryKey().access(value));
         }
 
         return args;

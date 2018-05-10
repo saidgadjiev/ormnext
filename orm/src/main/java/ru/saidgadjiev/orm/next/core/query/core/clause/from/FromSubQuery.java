@@ -17,6 +17,8 @@ public class FromSubQuery implements FromExpression {
 
     @Override
     public void accept(QueryVisitor visitor) {
-
+        if (visitor.visit(this)) {
+            select.accept(visitor);
+        }
     }
 }

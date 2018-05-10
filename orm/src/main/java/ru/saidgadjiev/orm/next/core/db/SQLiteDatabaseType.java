@@ -15,16 +15,6 @@ public class SQLiteDatabaseType implements DatabaseType {
     }
 
     @Override
-    public String getDatabaseName() {
-        return "sqlite";
-    }
-
-    @Override
-    public String getDriverClassName() {
-        return "org.sqlite.JDBC";
-    }
-
-    @Override
     public String appendNoColumn() {
         return "DEFAULT VALUES";
     }

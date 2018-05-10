@@ -7,7 +7,7 @@ public class DropIndexQuery implements QueryElement {
 
     private String name;
 
-    private DropIndexQuery(String name) {
+    public DropIndexQuery(String name) {
         this.name = name;
     }
 
@@ -18,11 +18,6 @@ public class DropIndexQuery implements QueryElement {
     @Override
     public void accept(QueryVisitor visitor) {
         visitor.visit(this);
-
-    }
-
-    public static DropIndexQuery build(String name) {
-        return new DropIndexQuery(name);
     }
 
 }

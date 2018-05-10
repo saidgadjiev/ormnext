@@ -1,6 +1,6 @@
 package ru.saidgadjiev.orm.next.core.query.core.constraints.table;
 
-import ru.saidgadjiev.orm.next.core.field.field_type.UniqueFieldType;
+import ru.saidgadjiev.orm.next.core.field.fieldtype.UniqueFieldType;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryVisitor;
 
 import java.util.List;
@@ -23,6 +23,5 @@ public class UniqueConstraint implements TableConstraint {
     @Override
     public void accept(QueryVisitor visitor) {
         visitor.visit(this);
-
     }
 }

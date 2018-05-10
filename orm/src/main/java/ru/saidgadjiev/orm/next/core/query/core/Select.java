@@ -1,6 +1,5 @@
 package ru.saidgadjiev.orm.next.core.query.core;
 
-import ru.saidgadjiev.orm.next.core.field.field_type.IDBFieldType;
 import ru.saidgadjiev.orm.next.core.query.core.clause.GroupBy;
 import ru.saidgadjiev.orm.next.core.query.core.clause.Having;
 import ru.saidgadjiev.orm.next.core.query.core.clause.OrderBy;
@@ -8,12 +7,11 @@ import ru.saidgadjiev.orm.next.core.query.core.clause.from.FromExpression;
 import ru.saidgadjiev.orm.next.core.query.core.clause.from.FromTable;
 import ru.saidgadjiev.orm.next.core.query.core.clause.select.SelectAll;
 import ru.saidgadjiev.orm.next.core.query.core.clause.select.SelectColumnsStrategy;
-import ru.saidgadjiev.orm.next.core.query.core.column_spec.ColumnSpec;
 import ru.saidgadjiev.orm.next.core.query.core.common.TableRef;
-import ru.saidgadjiev.orm.next.core.query.core.condition.Equals;
 import ru.saidgadjiev.orm.next.core.query.core.condition.Expression;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryElement;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryVisitor;
+import ru.saidgadjiev.orm.next.core.table.internal.metamodel.DatabaseEntityMetadata;
 
 /**
  * Класс SELECT запроса
@@ -102,17 +100,8 @@ public class Select implements QueryElement {
         this.offset = offset;
     }
 
-    public static <ID> Select buildQueryById(String typeName, IDBFieldType idField, ID id) {
-        Select selectQuery = new Select();
+    public void appendByIdClause(DatabaseEntityMetadata<?> entityMetadata, String tableAlias, Object id) {
 
-        selectQuery.setSelectColumnsStrategy(new SelectAll());
-        selectQuery.setFrom(new FromTable(new TableRef(typeName)));
-        AndCondition andCondition = new AndCondition();
-
-        andCondition.add(new Equals(new ColumnSpec(idField.getColumnName()).alias(new Alias(typeName)), idField.getDataPersister().getLiteral(idField, id)));
-        selectQuery.getWhere().getConditions().add(andCondition);
-
-        return selectQuery;
     }
 
     public static Select buildQueryForAll(String typeName) {
@@ -126,25 +115,36 @@ public class Select implements QueryElement {
 
     @Override
     public void accept(QueryVisitor visitor) {
-        visitor.visit(this);
-        if (where != null) {
-            where.accept(visitor);
+        if (visitor.visit(this)) {
+            selectColumnsStrategy.accept(visitor);
+            from.accept(visitor);
+            if (where != null) {
+                where.accept(visitor);
+            }
+            if (groupBy != null) {
+                groupBy.accept(visitor);
+            }
+            if (orderBy != null) {
+                orderBy.accept(visitor);
+            }
+            if (having != null) {
+                having.accept(visitor);
+            }
+            if (limit != null) {
+                limit.accept(visitor);
+            }
+            if (offset != null) {
+                offset.accept(visitor);
+            }
         }
-        if (groupBy != null) {
-            groupBy.accept(visitor);
-        }
-        if (orderBy != null) {
-            orderBy.accept(visitor);
-        }
-        if (having != null) {
-            having.accept(visitor);
-        }
-        if (limit != null) {
-            limit.accept(visitor);
-        }
-        if (offset != null) {
-            offset.accept(visitor);
-        }
+    }
+
+    public Limit getLimit() {
+        return limit;
+    }
+
+    public Offset getOffset() {
+        return offset;
     }
 
     enum SelectionMode {

@@ -6,7 +6,7 @@ import ru.saidgadjiev.orm.next.core.query.visitor.QueryVisitor;
 
 public class Having implements QueryElement {
 
-    private Expression expression = new Expression();
+    private Expression expression;
 
     public Having(Expression expression) {
         this.expression = expression;
@@ -22,7 +22,8 @@ public class Having implements QueryElement {
 
     @Override
     public void accept(QueryVisitor visitor) {
-        visitor.visit(this);
+        if (visitor.visit(this)) {
+            expression.accept(visitor);
+        }
     }
-
 }

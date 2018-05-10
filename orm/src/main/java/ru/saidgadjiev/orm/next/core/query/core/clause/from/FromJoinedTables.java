@@ -5,6 +5,7 @@ import ru.saidgadjiev.orm.next.core.query.core.join.JoinExpression;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryVisitor;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class FromJoinedTables implements FromExpression {
@@ -21,14 +22,23 @@ public class FromJoinedTables implements FromExpression {
         return tableRef;
     }
 
+    public void add(JoinExpression joinExpression) {
+        joinExpressions.add(joinExpression);
+    }
+
     public List<JoinExpression> getJoinExpression() {
         return joinExpressions;
     }
 
-    @Override
-    public void accept(QueryVisitor visitor) {
-        visitor.visit(this);
-
+    public void addAll(Collection<JoinExpression> joinExpressions) {
+        this.joinExpressions.addAll(joinExpressions);
     }
 
+    @Override
+    public void accept(QueryVisitor visitor) {
+        if (visitor.visit(this)) {
+            tableRef.accept(visitor);
+            joinExpressions.forEach(joinExpression -> joinExpression.accept(visitor));
+        }
+    }
 }

@@ -1,17 +1,15 @@
 package ru.saidgadjiev.orm.next.core.query.visitor;
 
 import ru.saidgadjiev.orm.next.core.query.core.*;
-import ru.saidgadjiev.orm.next.core.query.core.clause.GroupBy;
-import ru.saidgadjiev.orm.next.core.query.core.clause.Having;
-import ru.saidgadjiev.orm.next.core.query.core.clause.OrderBy;
-import ru.saidgadjiev.orm.next.core.query.core.clause.OrderByItem;
+import ru.saidgadjiev.orm.next.core.query.core.clause.*;
 import ru.saidgadjiev.orm.next.core.query.core.clause.from.FromJoinedTables;
+import ru.saidgadjiev.orm.next.core.query.core.clause.from.FromSubQuery;
 import ru.saidgadjiev.orm.next.core.query.core.clause.from.FromTable;
 import ru.saidgadjiev.orm.next.core.query.core.clause.select.SelectAll;
 import ru.saidgadjiev.orm.next.core.query.core.clause.select.SelectColumnsList;
-import ru.saidgadjiev.orm.next.core.query.core.column_spec.ColumnSpec;
-import ru.saidgadjiev.orm.next.core.query.core.column_spec.DisplayedColumn;
-import ru.saidgadjiev.orm.next.core.query.core.column_spec.DisplayedOperand;
+import ru.saidgadjiev.orm.next.core.query.core.columnspec.ColumnSpec;
+import ru.saidgadjiev.orm.next.core.query.core.columnspec.DisplayedColumn;
+import ru.saidgadjiev.orm.next.core.query.core.columnspec.DisplayedOperand;
 import ru.saidgadjiev.orm.next.core.query.core.common.TableRef;
 import ru.saidgadjiev.orm.next.core.query.core.common.UpdateValue;
 import ru.saidgadjiev.orm.next.core.query.core.condition.*;
@@ -19,6 +17,7 @@ import ru.saidgadjiev.orm.next.core.query.core.constraints.attribute.Default;
 import ru.saidgadjiev.orm.next.core.query.core.constraints.attribute.NotNullConstraint;
 import ru.saidgadjiev.orm.next.core.query.core.constraints.attribute.PrimaryKeyConstraint;
 import ru.saidgadjiev.orm.next.core.query.core.constraints.attribute.ReferencesConstraint;
+import ru.saidgadjiev.orm.next.core.query.core.constraints.table.ForeignKeyConstraint;
 import ru.saidgadjiev.orm.next.core.query.core.constraints.table.UniqueConstraint;
 import ru.saidgadjiev.orm.next.core.query.core.function.*;
 import ru.saidgadjiev.orm.next.core.query.core.join.JoinInfo;
@@ -31,321 +30,328 @@ import ru.saidgadjiev.orm.next.core.query.core.literals.*;
 public class NoActionVisitor implements QueryVisitor {
 
     @Override
-    public void visit(CreateQuery tCreateQuery) {
-
+    public boolean visit(CreateQuery tCreateQuery) {
+        return true;
     }
 
     @Override
-    public void visit(UpdateValue updateValue) {
-
+    public boolean visit(UpdateValue updateValue) {
+        return true;
     }
 
     @Override
     public void visit(StringLiteral stringLiteral) {
-
     }
 
     @Override
-    public void visit(Select tSelectQuery) {
-
+    public boolean visit(Select tSelectQuery) {
+        return true;
     }
 
     @Override
-    public void visit(Expression expression) {
-
+    public boolean visit(Expression expression) {
+        return true;
     }
 
     @Override
-    public void visit(AndCondition andCondition) {
-
+    public boolean visit(AndCondition andCondition) {
+        return true;
     }
 
     @Override
-    public void visit(Equals equals) {
-
+    public boolean visit(Equals equals) {
+        return true;
     }
 
     @Override
-    public void visit(ColumnSpec columnSpec) {
-
+    public boolean visit(ColumnSpec columnSpec) {
+        return true;
     }
 
     @Override
-    public void visit(TableRef tableRef) {
-
+    public boolean visit(TableRef tableRef) {
+        return true;
     }
 
     @Override
-    public void visit(AttributeDefinition attributeDefinition) {
-
+    public boolean visit(AttributeDefinition attributeDefinition) {
+        return true;
     }
 
     @Override
-    public void visit(CreateTableQuery tCreateTableQuery) {
-
+    public boolean visit(CreateTableQuery tCreateTableQuery) {
+        return true;
     }
 
     @Override
-    public void visit(DeleteQuery deleteQuery) {
-
+    public boolean visit(DeleteQuery deleteQuery) {
+        return true;
     }
 
     @Override
     public void visit(IntLiteral intLiteral) {
-
     }
 
     @Override
-    public void visit(UpdateQuery updateQuery) {
+    public boolean visit(UpdateQuery updateQuery) {
+        return true;
     }
 
     @Override
     public void visit(DropTableQuery dropTableQuery) {
-
     }
 
     @Override
     public void visit(PrimaryKeyConstraint primaryKeyConstraint) {
-
     }
 
     @Override
     public void visit(UniqueConstraint uniqueConstraint) {
-
     }
 
     @Override
     public void visit(NotNullConstraint notNullConstraint) {
-
     }
 
     @Override
     public void visit(ReferencesConstraint referencesConstraint) {
-
     }
 
     @Override
     public void visit(CreateIndexQuery createIndexQuery) {
-
     }
 
     @Override
     public void visit(DropIndexQuery dropIndexQuery) {
-
     }
 
     @Override
     public void visit(Param param) {
-
     }
 
     @Override
     public void visit(SelectAll selectAll) {
-
     }
 
     @Override
-    public void visit(SelectColumnsList selectColumnsList) {
-
+    public boolean visit(SelectColumnsList selectColumnsList) {
+        return true;
     }
 
     @Override
-    public void visit(Having having) {
-
+    public boolean visit(Having having) {
+        return true;
     }
 
     @Override
-    public void visit(GroupBy groupBy) {
-
+    public boolean visit(GroupBy groupBy) {
+        return true;
     }
 
     @Override
-    public void visit(FromTable fromTable) {
-
+    public boolean visit(FromTable fromTable) {
+        return true;
     }
 
     @Override
-    public void visit(LeftJoin leftJoin) {
-
+    public boolean visit(LeftJoin leftJoin) {
+        return true;
     }
 
     @Override
     public void visit(BooleanLiteral booleanLiteral) {
-
     }
 
     @Override
-    public void visit(JoinInfo joinInfo) {
-
+    public boolean visit(JoinInfo joinInfo) {
+        return true;
     }
 
     @Override
     public void visit(CountAll countAll) {
-
     }
 
     @Override
-    public void visit(FromJoinedTables fromJoinedTables) {
-
+    public boolean visit(FromJoinedTables fromJoinedTables) {
+        return true;
     }
 
     @Override
-    public void visit(DisplayedColumn displayedColumn) {
-
+    public boolean visit(DisplayedColumn displayedColumn) {
+        return true;
     }
 
     @Override
-    public void visit(AVG avg) {
-
+    public boolean visit(AVG avg) {
+        return true;
     }
 
     @Override
-    public void visit(CountExpression countExpression) {
-
+    public boolean visit(CountExpression countExpression) {
+        return true;
     }
 
     @Override
-    public void visit(MAX max) {
-
+    public boolean visit(MAX max) {
+        return true;
     }
 
     @Override
-    public void visit(MIN min) {
-
+    public boolean visit(MIN min) {
+        return true;
     }
 
     @Override
-    public void visit(Exists exists) {
-
+    public boolean visit(Exists exists) {
+        return true;
     }
 
     @Override
-    public void visit(InSelect inSelect) {
-
+    public boolean visit(InSelect inSelect) {
+        return true;
     }
 
     @Override
-    public void visit(NotInSelect notInSelect) {
-
+    public boolean visit(NotInSelect notInSelect) {
+        return true;
     }
 
     @Override
-    public void visit(GreaterThan greaterThan) {
-
+    public boolean visit(GreaterThan greaterThan) {
+        return true;
     }
 
     @Override
-    public void visit(GreaterThanOrEquals greaterThanOrEquals) {
-
+    public boolean visit(GreaterThanOrEquals greaterThanOrEquals) {
+        return true;
     }
 
     @Override
-    public void visit(LessThan lessThan) {
-
+    public boolean visit(LessThan lessThan) {
+        return true;
     }
 
     @Override
-    public void visit(LessThanOrEquals lessThanOrEquals) {
-
+    public boolean visit(LessThanOrEquals lessThanOrEquals) {
+        return true;
     }
 
     @Override
-    public void visit(SUM sum) {
-
+    public boolean visit(SUM sum) {
+        return true;
     }
 
     @Override
-    public void visit(OperandCondition operandCondition) {
-
+    public boolean visit(OperandCondition operandCondition) {
+        return true;
     }
 
     @Override
     public void visit(Alias alias) {
-
     }
 
     @Override
     public void visit(DateLiteral dateLiteral) {
-
     }
 
     @Override
-    public void visit(Default aDefault) {
-
+    public boolean visit(Default aDefault) {
+        return true;
     }
 
     @Override
-    public void visit(DisplayedOperand displayedOperand) {
-
+    public boolean visit(DisplayedOperand displayedOperand) {
+        return true;
     }
 
     @Override
     public void visit(FloatLiteral floatLiteral) {
-
     }
 
     @Override
     public void visit(DoubleLiteral doubleLiteral) {
-
     }
 
     @Override
-    public void visit(OrderBy orderBy) {
-
-    }
-
-    @Override
-    public void visit(OrderByItem orderByItem, QueryVisitor visitor) {
-
+    public boolean visit(OrderBy orderBy) {
+        return true;
     }
 
     @Override
     public void visit(Limit limit) {
-
     }
 
     @Override
     public void visit(Offset offset) {
+    }
+
+    @Override
+    public boolean visit(NotNull notNull) {
+        return true;
+    }
+
+    @Override
+    public boolean visit(IsNull isNull) {
+        return true;
+    }
+
+    @Override
+    public boolean visit(NotEquals notEquals) {
+        return true;
+    }
+
+    @Override
+    public boolean visit(Like like) {
+        return true;
+    }
+
+    @Override
+    public boolean visit(Between between) {
+        return true;
+    }
+
+    @Override
+    public boolean visit(Not not) {
+        return true;
+    }
+
+    @Override
+    public boolean visit(NotInValues notInValues) {
+        return true;
+    }
+
+    @Override
+    public boolean visit(InValues inValues) {
+        return true;
+    }
+
+    @Override
+    public boolean visit(ForeignKeyConstraint foreignKeyConstraint) {
+        return true;
+    }
+
+    @Override
+    public boolean visit(FromSubQuery fromSubQuery) {
+        return true;
+    }
+
+    @Override
+    public boolean visit(GroupByItem groupByItem) {
+        return true;
+    }
+
+    @Override
+    public boolean visit(OrderByItem orderByItem) {
+        return true;
+    }
+
+    @Override
+    public void visit(InsertValues insertValues) {
 
     }
 
     @Override
-    public void visit(NotNull notNull) {
-
-    }
-
-    @Override
-    public void visit(IsNull isNull) {
-
-    }
-
-    @Override
-    public void visit(NotEquals notEquals) {
-
-    }
-
-    @Override
-    public void visit(Like like) {
-
-    }
-
-    @Override
-    public void visit(Between between) {
-
-    }
-
-    @Override
-    public void visit(Not not) {
-
-    }
-
-    @Override
-    public void visit(NotInValues notInValues) {
-
-    }
-
-    @Override
-    public void visit(InValues inValues) {
-
+    public boolean visit(CountColumn countColumn) {
+        return false;
     }
 }

@@ -1,7 +1,5 @@
 package ru.saidgadjiev.orm.next.core.support;
 
-import ru.saidgadjiev.orm.next.core.db.DatabaseType;
-
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -15,24 +13,21 @@ public class PolledConnectionSource implements ConnectionSource {
 
     private DataSource dataSource;
 
-    private DatabaseType databaseType;
+    private Set<DatabaseConnection> available = new HashSet<>();
 
-    private Set<Connection> available = new HashSet<>();
+    private Set<DatabaseConnection> inUse = new HashSet<>();
 
-    private Set<Connection> inUse = new HashSet<>();
-
-    public PolledConnectionSource(DataSource dataSource, DatabaseType databaseType) {
+    public PolledConnectionSource(DataSource dataSource) {
         this.dataSource = dataSource;
-        this.databaseType = databaseType;
     }
 
     @Override
-    public synchronized Connection getConnection() throws SQLException {
+    public synchronized DatabaseConnection getConnection() throws SQLException {
         if (available.isEmpty()) {
-            available.add(createNew());
+            available.add(new SqlConnectionImpl(createNew()));
         }
 
-        Connection connection = available.iterator().next();
+        DatabaseConnection connection = available.iterator().next();
 
         available.remove(connection);
         inUse.add(connection);
@@ -41,14 +36,9 @@ public class PolledConnectionSource implements ConnectionSource {
     }
 
     @Override
-    public synchronized void releaseConnection(Connection connection) throws SQLException {
+    public synchronized void releaseConnection(DatabaseConnection connection) throws SQLException {
         inUse.remove(connection);
         available.add(connection);
-    }
-
-    @Override
-    public DatabaseType getDatabaseType() {
-        return databaseType;
     }
 
     private Connection createNew() throws SQLException {
@@ -56,11 +46,11 @@ public class PolledConnectionSource implements ConnectionSource {
     }
 
     @Override
-    public void close() throws Exception {
-        for (Connection connection: inUse) {
+    public void close() throws SQLException {
+        for (DatabaseConnection connection: inUse) {
             connection.close();
         }
-        for (Connection connection: available) {
+        for (DatabaseConnection connection: available) {
             connection.close();
         }
     }

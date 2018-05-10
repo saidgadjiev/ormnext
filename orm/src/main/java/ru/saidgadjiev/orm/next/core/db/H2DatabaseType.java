@@ -15,16 +15,6 @@ public class H2DatabaseType implements DatabaseType {
     }
 
     @Override
-    public String getDatabaseName() {
-        return "h2";
-    }
-
-    @Override
-    public String getDriverClassName() {
-        return "org.h2.Driver";
-    }
-
-    @Override
     public String appendNoColumn() {
         return "() VALUES ()";
     }

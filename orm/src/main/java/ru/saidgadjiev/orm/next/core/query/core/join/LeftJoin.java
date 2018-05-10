@@ -23,6 +23,10 @@ public class LeftJoin implements JoinExpression {
         return expression;
     }
 
+    public void setExpression(Expression expression) {
+        this.expression = expression;
+    }
+
     public TableRef getJoinedTableRef() {
         return joinedTableRef;
     }
@@ -33,9 +37,9 @@ public class LeftJoin implements JoinExpression {
 
     @Override
     public void accept(QueryVisitor visitor) {
-        visitor.visit(this);
-        expression.accept(visitor);
-
+        if (visitor.visit(this)) {
+            joinedTableRef.accept(visitor);
+            expression.accept(visitor);
+        }
     }
-
 }

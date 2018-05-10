@@ -24,6 +24,5 @@ public class ReferencesConstraint implements AttributeConstraint {
     @Override
     public void accept(QueryVisitor visitor) {
         visitor.visit(this);
-
     }
 }

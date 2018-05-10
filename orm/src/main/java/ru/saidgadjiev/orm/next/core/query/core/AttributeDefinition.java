@@ -1,6 +1,5 @@
 package ru.saidgadjiev.orm.next.core.query.core;
 
-import ru.saidgadjiev.orm.next.core.field.DataType;
 import ru.saidgadjiev.orm.next.core.query.core.constraints.attribute.AttributeConstraint;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryElement;
 import ru.saidgadjiev.orm.next.core.query.visitor.QueryVisitor;
@@ -11,11 +10,11 @@ import java.util.List;
 public class AttributeDefinition implements QueryElement {
 
     private final String columnName;
-    private final DataType dataType;
+    private final int dataType;
     private final int length;
     private List<AttributeConstraint> attributeConstraints = new ArrayList<>();
 
-    public AttributeDefinition(String columnName, DataType dataType, int length) {
+    public AttributeDefinition(String columnName, int dataType, int length) {
         this.columnName = columnName;
         this.dataType = dataType;
         this.length = length;
@@ -25,7 +24,7 @@ public class AttributeDefinition implements QueryElement {
         return columnName;
     }
 
-    public DataType getDataType() {
+    public int getDataType() {
         return dataType;
     }
 
@@ -39,7 +38,8 @@ public class AttributeDefinition implements QueryElement {
 
     @Override
     public void accept(QueryVisitor visitor) {
-        visitor.visit(this);
-
+        if (visitor.visit(this)) {
+            attributeConstraints.forEach(attributeConstraint -> attributeConstraint.accept(visitor));
+        }
     }
 }
