@@ -1,7 +1,7 @@
 package ru.saidgadjiev.ormnext.core.field.persister;
 
 import ru.saidgadjiev.ormnext.core.field.DataType;
-import ru.saidgadjiev.ormnext.core.support.DatabaseResultSet;
+import ru.saidgadjiev.ormnext.core.support.DatabaseResults;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -18,13 +18,13 @@ public class StringDataPersister extends BaseDataPersister {
     }
 
     @Override
-    public Object readValue(DatabaseResultSet databaseResultSet, int column) throws SQLException {
-        return databaseResultSet.getString(column);
+    public Object readValue(DatabaseResults databaseResults, int column) throws SQLException {
+        return databaseResults.getString(column);
     }
 
     @Override
-    public Object readValue(DatabaseResultSet databaseResultSet, String columnLabel) throws SQLException {
-        return databaseResultSet.getString(columnLabel);
+    public Object readValue(DatabaseResults databaseResults, String columnLabel) throws SQLException {
+        return databaseResults.getString(columnLabel);
     }
 
     @Override

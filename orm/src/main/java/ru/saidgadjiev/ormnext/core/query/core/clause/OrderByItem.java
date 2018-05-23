@@ -4,29 +4,54 @@ import ru.saidgadjiev.ormnext.core.query.core.columnspec.ColumnSpec;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryElement;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
+/**
+ * This class represent order by item clause.
+ */
 public class OrderByItem implements QueryElement {
 
-    private boolean asc;
+    /**
+     * Order asc. Default use ASC order. Provide false for DESC order.
+     */
+    private boolean asc = true;
 
-    private final List<ColumnSpec> columns = new ArrayList<>();
+    /**
+     * Order by column list.
+     * @see ColumnSpec
+     */
+    private final List<ColumnSpec> columns;
 
-    public OrderByItem(boolean asc, Collection<ColumnSpec> columns) {
+    /**
+     * Create new order by with provided order direction and columns. If asc is true sort will be ASC else DESC.
+     * @param asc target sort direction
+     * @param columns target order by columns
+     */
+    public OrderByItem(boolean asc, ColumnSpec ... columns) {
+        this(columns);
         this.asc = asc;
-        this.columns.addAll(columns);
+    }
+
+    /**
+     * Create new order by with provided columns. Use sort direction ASC by default.
+     * @param columns target order by columns
+     */
+    public OrderByItem(ColumnSpec ... columns) {
+        this.columns = Arrays.asList(columns);
     }
 
     public List<ColumnSpec> getColumns() {
-        return columns;
+        return Collections.unmodifiableList(columns);
     }
 
-    public void add(ColumnSpec column) {
+    public void addColumn(ColumnSpec column) {
         columns.add(column);
     }
 
+    /**
+     * Return is sort order ASC.
+     * @return asc
+     */
     public boolean isAsc() {
         return asc;
     }

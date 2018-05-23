@@ -1,41 +1,48 @@
 package ru.saidgadjiev.ormnext.core.query.core;
 
-import ru.saidgadjiev.ormnext.core.query.core.common.UpdateValue;
+import ru.saidgadjiev.ormnext.core.query.core.literals.RValue;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryElement;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class represent insert values.
+ */
 public class InsertValues implements QueryElement {
 
-    private final List<UpdateValue> updateValues = new ArrayList<>();
+    /**
+     * Values.
+     * @see RValue
+     */
+    private final List<RValue> values = new ArrayList<>();
+
 
     /**
-     * Добавление нового значения
-     *
-     * @param updateValue добавляемое значение
+     * Add new value.
+     * @param value target value
+     * @see RValue
      */
-    public void add(UpdateValue updateValue) {
-        updateValues.add(updateValue);
+    public void add(RValue value) {
+        values.add(value);
     }
 
     /**
-     * Добавление коллекции значений
-     *
-     * @param values
+     * Add all new values.
+     * @param values target values
+     * @see RValue
      */
-    public void addAll(List<UpdateValue> values) {
-        updateValues.addAll(values);
+    public void addAll(List<RValue> values) {
+        this.values.addAll(values);
     }
 
     /**
-     * Получение списка значений
-     *
-     * @return
+     * Return current insert values.
+     * @return current insert values
      */
-    public List<UpdateValue> getUpdateValues() {
-        return updateValues;
+    public List<RValue> getValues() {
+        return values;
     }
 
     @Override

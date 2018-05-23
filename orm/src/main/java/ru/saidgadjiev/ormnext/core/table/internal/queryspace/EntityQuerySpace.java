@@ -1,8 +1,9 @@
 package ru.saidgadjiev.ormnext.core.table.internal.queryspace;
 
 import ru.saidgadjiev.ormnext.core.criteria.impl.CriteriaQuery;
-import ru.saidgadjiev.ormnext.core.criteria.impl.SimpleCriteriaQuery;
-import ru.saidgadjiev.ormnext.core.field.fieldtype.*;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignCollectionColumnType;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignColumnType;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.IDatabaseColumnType;
 import ru.saidgadjiev.ormnext.core.query.core.*;
 import ru.saidgadjiev.ormnext.core.query.core.clause.from.FromJoinedTables;
 import ru.saidgadjiev.ormnext.core.query.core.clause.from.FromTable;
@@ -28,7 +29,6 @@ import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetada
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -140,10 +140,7 @@ public class EntityQuerySpace {
                 continue;
             }
             createQuery.addColumnName(columnType.getColumnName());
-            insertValues.add(new UpdateValue(
-                    columnType.getColumnName(),
-                    new Param())
-            );
+            insertValues.add(new Param());
         }
         createQuery.add(insertValues);
 
@@ -201,10 +198,10 @@ public class EntityQuerySpace {
         );
     }
 
-    public UpdateQuery getUpdateQuery() {
+    public UpdateQuery getUpdateQuery(Collection<IDatabaseColumnType> updateColumnTypes) {
         UpdateQuery updateQuery = new UpdateQuery(rootEntityMetaData.getTableName());
 
-        for (DatabaseColumnType fieldType : rootEntityMetaData.toDBFieldTypes()) {
+        for (IDatabaseColumnType fieldType : updateColumnTypes) {
             updateQuery.add(
                     new UpdateValue(
                             fieldType.getColumnName(),
@@ -229,36 +226,12 @@ public class EntityQuerySpace {
         return deleteQuery;
     }
 
-    public Iterator<CreateIndexQuery> getCreateIndexQuery() {
-        Iterator<IndexFieldType> indexFieldTypeIterator = rootEntityMetaData.getIndexFieldTypes().iterator();
-
-        return new Iterator<CreateIndexQuery>() {
-            @Override
-            public boolean hasNext() {
-                return indexFieldTypeIterator.hasNext();
-            }
-
-            @Override
-            public CreateIndexQuery next() {
-                return new CreateIndexQuery(indexFieldTypeIterator.next());
-            }
-        };
+    public Collection<CreateIndexQuery> getCreateIndexQuery() {
+        return rootEntityMetaData.getIndexFieldTypes().stream().map(CreateIndexQuery::new).collect(Collectors.toList());
     }
 
-    public Iterator<DropIndexQuery> getDropIndexQuery() {
-        Iterator<IndexFieldType> indexFieldTypeIterator = rootEntityMetaData.getIndexFieldTypes().iterator();
-
-        return new Iterator<DropIndexQuery>() {
-            @Override
-            public boolean hasNext() {
-                return indexFieldTypeIterator.hasNext();
-            }
-
-            @Override
-            public DropIndexQuery next() {
-                return new DropIndexQuery(indexFieldTypeIterator.next().getName());
-            }
-        };
+    public Collection<DropIndexQuery> getDropIndexQuery() {
+        return rootEntityMetaData.getIndexFieldTypes().stream().map(indexFieldType -> new DropIndexQuery(indexFieldType.getName())).collect(Collectors.toList());
     }
 
     public Select countOff() {
@@ -287,7 +260,7 @@ public class EntityQuerySpace {
         return select;
     }
 
-    public Select getByCriteria(SimpleCriteriaQuery criteria) {
+    public Select getByCriteriaForLongResult(CriteriaQuery criteria) {
         Select select = new Select();
 
         select.setFrom(new FromTable(new TableRef(rootEntityMetaData.getTableName())));
@@ -299,7 +272,7 @@ public class EntityQuerySpace {
         select.setOffset(criteria.getOffset());
         SelectColumnsList selectColumnsList = new SelectColumnsList();
 
-        selectColumnsList.addColumn(new DisplayedOperand(criteria.getFunction()));
+        selectColumnsList.addColumn(criteria.getSelectOperand());
         select.setSelectColumnsStrategy(selectColumnsList);
         select.accept(new QuerySpaceVisitor(rootEntityMetaData, rootEntityAliases));
 

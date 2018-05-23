@@ -7,21 +7,39 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * This class represent order by clause.
+ */
 public class OrderBy implements QueryElement {
 
+    /**
+     * Contains order by items.
+     * @see OrderByItem
+     */
     private final List<OrderByItem> orderByItems = new ArrayList<>();
 
+    /**
+     * Return current order by items.
+     * @return orderByItems
+     */
     public List<OrderByItem> getOrderByItems() {
         return orderByItems;
     }
 
-
-    public void addAll(Collection<OrderByItem> collection) {
-        orderByItems.addAll(collection);
+    /**
+     * Add new order by item.
+     * @param orderByItem target order by item
+     */
+    public void add(OrderByItem orderByItem) {
+        orderByItems.add(orderByItem);
     }
 
-    public void add(OrderByItem item) {
-        orderByItems.add(item);
+    /**
+     * Add all order by items.
+     * @param orderByItems target order by items
+     */
+    public void addAll(Collection<OrderByItem> orderByItems) {
+        this.orderByItems.addAll(orderByItems);
     }
 
     @Override

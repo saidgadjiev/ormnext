@@ -1,6 +1,7 @@
 package ru.saidgadjiev.ormnext.core.table.internal.metamodel;
 
 import ru.saidgadjiev.ormnext.core.dao.SessionManager;
+import ru.saidgadjiev.ormnext.core.exception.NotRegisteredEntityFoundException;
 import ru.saidgadjiev.ormnext.core.table.internal.persister.DatabaseEntityPersister;
 
 import java.util.Collection;
@@ -27,6 +28,10 @@ public class MetaModel {
     }
 
     public DatabaseEntityPersister getPersister(Class<?> metaDataClass) {
+        if (!metadataMap.containsKey(metaDataClass)) {
+            throw new NotRegisteredEntityFoundException(metaDataClass);
+        }
+        
         return metadataMap.get(metaDataClass);
     }
 

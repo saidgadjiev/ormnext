@@ -5,27 +5,33 @@ import ru.saidgadjiev.ormnext.core.query.visitor.QueryElement;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 
 /**
- * Класс для обновляемого значения
+ * This class present update value eg. name = 'test'.
  */
 public class UpdateValue implements QueryElement {
 
     /**
-     * Название в таблице обновляемого поля
+     * Update column name.
      */
     private final String name;
 
     /**
-     * Значение обновляемого поля
+     * Value.
+     * @see RValue
      */
     private RValue value;
 
+    /**
+     * Create new instance with requested {@code name} and {@code value}.
+     * @param name target column name
+     * @param value target value
+     */
     public UpdateValue(String name, RValue value) {
         this.name = name;
         this.value = value;
     }
 
     /**
-     * Метод возвращает имя поля
+     * Return current column name.
      * @return name
      */
     public String getName() {
@@ -33,7 +39,7 @@ public class UpdateValue implements QueryElement {
     }
 
     /**
-     * Метод возвращает значение переменной
+     * Return current value.
      * @return value
      */
     public RValue getValue() {
@@ -41,8 +47,9 @@ public class UpdateValue implements QueryElement {
     }
 
     /**
-     * Устанавливает значение
+     * Provide update value.
      * @param value значение
+     * @see RValue
      */
     public void setValue(RValue value) {
         this.value = value;

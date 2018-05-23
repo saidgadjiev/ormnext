@@ -7,20 +7,39 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * Represent group by clause.
+ */
 public class GroupBy implements QueryElement {
 
-    private List<GroupByItem> groupByItems = new ArrayList<>();
+    /**
+     * Group by items.
+     * @see GroupByItem
+     */
+    private final List<GroupByItem> groupByItems = new ArrayList<>();
 
-    public void add(GroupByItem columnSpec) {
-        groupByItems.add(columnSpec);
+    /**
+     * Add new group by item.
+     * @param groupByItem target group by item
+     */
+    public void add(GroupByItem groupByItem) {
+        groupByItems.add(groupByItem);
     }
 
+    /**
+     * Add all group by items.
+     * @param columnSpecs target group by items
+     */
     public GroupBy addAll(Collection<GroupByItem> columnSpecs) {
         groupByItems.addAll(columnSpecs);
 
         return this;
     }
 
+    /**
+     * Return all group by items.
+     * @return  groupByItems
+     */
     public List<GroupByItem> getGroupByItems() {
         return groupByItems;
     }

@@ -41,11 +41,9 @@ import ru.saidgadjiev.ormnext.benchmark.domain.Order;
 import ru.saidgadjiev.ormnext.benchmark.domain.UserProfile;
 import ru.saidgadjiev.ormnext.core.dao.Session;
 import ru.saidgadjiev.ormnext.core.dao.SessionManagerBuilder;
-import ru.saidgadjiev.ormnext.core.db.PGDatabaseType;
 import ru.saidgadjiev.ormnext.core.field.DataPersisterManager;
 import ru.saidgadjiev.ormnext.core.field.persister.SerialTypeDataPersister;
 import ru.saidgadjiev.ormnext.core.support.ConnectionSource;
-import ru.saidgadjiev.ormnext.core.support.PolledConnectionSource;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -82,7 +80,7 @@ public class DaoBenchmark {
         @Setup(Level.Trial)
         public void doSetUp() throws SQLException {
             session = new SessionManagerBuilder()
-                    .addEntityClasses(UserProfile.class, Order.class)
+                    .entities(UserProfile.class, Order.class)
                     .databaseType(new PGDatabaseType())
                     .connectionSource(postgreConnectionSource())
                     .build()

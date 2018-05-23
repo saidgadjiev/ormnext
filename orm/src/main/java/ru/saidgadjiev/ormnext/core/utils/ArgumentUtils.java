@@ -16,8 +16,8 @@ public class ArgumentUtils {
     public static Map<IDatabaseColumnType, Argument> eject(Object object, DatabaseEntityMetadata<?> databaseEntityMetadata) throws Exception {
         Map<IDatabaseColumnType, Argument> args = new LinkedHashMap<>();
 
-        for (IDatabaseColumnType fieldType : databaseEntityMetadata.getFieldTypes()) {
-            if (!fieldType.isForeignCollectionFieldType() && !fieldType.isGenerated() && !fieldType.isForeignFieldType()) {
+        for (IDatabaseColumnType fieldType : databaseEntityMetadata.toDBFieldTypes()) {
+            if (!fieldType.isGenerated() && fieldType.insertable()) {
                 Object value = fieldType.access(object);
 
                 if (value != null || fieldType.getDefaultDefinition() == null) {

@@ -17,6 +17,7 @@ public abstract class BaseDatabaseType implements DatabaseType {
                 break;
             case INTEGER:
                 sql.append("INTEGER");
+                break;
             case BOOLEAN:
                 sql.append("BOOLEAN");
                 break;

@@ -1,6 +1,6 @@
 package ru.saidgadjiev.ormnext.core.dao;
 
-import ru.saidgadjiev.ormnext.core.cache.CacheContext;
+import ru.saidgadjiev.ormnext.core.cache.CacheAccess;
 import ru.saidgadjiev.ormnext.core.cache.ObjectCache;
 import ru.saidgadjiev.ormnext.core.cache.ReferenceObjectCache;
 import ru.saidgadjiev.ormnext.core.support.ConnectionSource;
@@ -9,18 +9,42 @@ import ru.saidgadjiev.ormnext.core.table.internal.metamodel.MetaModel;
 
 import java.sql.SQLException;
 
+/**
+ * Implementation of {@link SessionManager}.
+ */
 public class SessionManagerImpl implements SessionManager {
 
+    /**
+     * Connection source. Use for obtain new database connection.
+     */
     private final ConnectionSource<?> dataSource;
 
-    private CacheContext cacheContext = new CacheContext();
+    /**
+     * Cache access helper. It hold object cache.
+     * @see CacheAccess
+     */
+    private final CacheAccess cacheAccess = new CacheAccess();
 
+    /**
+     * Meta model.
+     * @see MetaModel
+     */
     private MetaModel metaModel;
 
+    /**
+     * Database engine.
+     * @see DatabaseEngine
+     */
     private DatabaseEngine databaseEngine;
 
-    public SessionManagerImpl(ConnectionSource<?> dataSource, MetaModel metaModel, DatabaseEngine databaseEngine) {
-        this.dataSource = dataSource;
+    /**
+     * Create new instance from requested options. It can be create only from {@link SessionManagerBuilder}.
+     * @param connectionSource target connection source
+     * @param metaModel target meta model
+     * @param databaseEngine target database engine
+     */
+    SessionManagerImpl(ConnectionSource<?> connectionSource, MetaModel metaModel, DatabaseEngine databaseEngine) {
+        this.dataSource = connectionSource;
         this.metaModel = metaModel;
         this.databaseEngine = databaseEngine;
 
@@ -31,7 +55,7 @@ public class SessionManagerImpl implements SessionManager {
     public Session createSession() throws SQLException {
         DatabaseConnection<?> databaseConnection = dataSource.getConnection();
 
-        return new SessionImpl(dataSource, databaseConnection, cacheContext,this);
+        return new SessionImpl(dataSource, databaseConnection, cacheAccess, this);
     }
 
     @Override
@@ -42,11 +66,11 @@ public class SessionManagerImpl implements SessionManager {
     @Override
     public void setObjectCache(ObjectCache objectCache) {
         if (objectCache != null) {
-            cacheContext
+            cacheAccess
                     .objectCache(objectCache);
 
             for (Class<?> clazz : metaModel.getPersistentClasses()) {
-                cacheContext.caching(clazz, true);
+                cacheAccess.caching(clazz, true);
                 objectCache.registerClass(clazz);
             }
         }
@@ -56,11 +80,11 @@ public class SessionManagerImpl implements SessionManager {
     public void enableDefaultCache() {
         ObjectCache objectCache = new ReferenceObjectCache();
 
-        cacheContext
+        cacheAccess
                 .objectCache(objectCache);
 
         for (Class<?> clazz : metaModel.getPersistentClasses()) {
-            cacheContext.caching(clazz, true);
+            cacheAccess.caching(clazz, true);
             objectCache.registerClass(clazz);
         }
     }
@@ -72,6 +96,7 @@ public class SessionManagerImpl implements SessionManager {
 
     @Override
     public void close() throws SQLException {
+        cacheAccess.close();
         dataSource.close();
     }
 }

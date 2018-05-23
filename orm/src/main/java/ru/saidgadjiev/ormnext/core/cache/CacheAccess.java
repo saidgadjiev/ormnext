@@ -7,7 +7,7 @@ import java.util.Map;
  * This class represent context for cache. It holds objectcache instance {@link ObjectCache}
  * and can give answer some problems: is entity class caching, enable caching for entity class.
  */
-public class CacheContext {
+public class CacheAccess implements AutoCloseable {
 
     /**
      * ObjectCache.
@@ -55,5 +55,11 @@ public class CacheContext {
      */
     public void caching(Class<?> clazz, boolean caching) {
         this.caching.put(clazz, caching);
+    }
+
+    public void close() {
+        if (objectCache != null) {
+            objectCache.clear();
+        }
     }
 }

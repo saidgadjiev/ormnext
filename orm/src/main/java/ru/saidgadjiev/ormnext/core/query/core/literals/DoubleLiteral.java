@@ -3,12 +3,19 @@ package ru.saidgadjiev.ormnext.core.query.core.literals;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 
 /**
- * Created by said on 03.02.2018.
+ * Double literal.
  */
 public class DoubleLiteral implements Literal<Double> {
 
+    /**
+     * Current value.
+     */
     private final double value;
 
+    /**
+     * Create new instance.
+     * @param value target value
+     */
     public DoubleLiteral(double value) {
         this.value = value;
     }

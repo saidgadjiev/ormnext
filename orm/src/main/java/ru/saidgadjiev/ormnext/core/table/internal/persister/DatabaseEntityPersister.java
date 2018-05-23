@@ -1,11 +1,15 @@
 package ru.saidgadjiev.ormnext.core.table.internal.persister;
 
 import ru.saidgadjiev.ormnext.core.common.UIDGenerator;
+import ru.saidgadjiev.ormnext.core.dao.Session;
 import ru.saidgadjiev.ormnext.core.dao.SessionManager;
+import ru.saidgadjiev.ormnext.core.stamentexecutor.ResultSetContext;
 import ru.saidgadjiev.ormnext.core.stamentexecutor.object.OrmNextMethodHandler;
 import ru.saidgadjiev.ormnext.core.stamentexecutor.rowreader.RowReader;
 import ru.saidgadjiev.ormnext.core.stamentexecutor.rowreader.RowReaderImpl;
+import ru.saidgadjiev.ormnext.core.stamentexecutor.rowreader.RowResult;
 import ru.saidgadjiev.ormnext.core.stamentexecutor.rowreader.entityinitializer.EntityInitializer;
+import ru.saidgadjiev.ormnext.core.support.DatabaseResults;
 import ru.saidgadjiev.ormnext.core.table.internal.alias.EntityAliasResolverContext;
 import ru.saidgadjiev.ormnext.core.table.internal.alias.EntityAliases;
 import ru.saidgadjiev.ormnext.core.table.internal.instatiator.Instantiator;
@@ -15,6 +19,10 @@ import ru.saidgadjiev.ormnext.core.table.internal.metamodel.MetaModel;
 import ru.saidgadjiev.ormnext.core.table.internal.queryspace.EntityQuerySpace;
 import ru.saidgadjiev.ormnext.core.table.internal.visitor.DefaultEntityMetadataVisitor;
 import ru.saidgadjiev.proxymaker.ProxyMaker;
+
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DatabaseEntityPersister {
 
@@ -69,10 +77,26 @@ public class DatabaseEntityPersister {
         try {
             return proxyMaker
                     .superClass(entityClass)
-                    .make(new Class[0], new Object[0], new OrmNextMethodHandler(sessionManager, entityClass, id));
+                    .make(new OrmNextMethodHandler(sessionManager, entityClass, id));
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
+    }
+
+    public List<Object> load(Session dao, DatabaseResults databaseResults) throws SQLException {
+        ResultSetContext resultSetContext = new ResultSetContext(dao, databaseResults);
+        List<Object> results = new ArrayList<>();
+
+        while (databaseResults.next()) {
+            RowResult<Object> rowResult = rowReader.startRead(resultSetContext);
+
+            if (rowResult.isNew()) {
+                results.add(rowResult.getResult());
+            }
+        }
+        rowReader.finishRead(resultSetContext);
+
+        return results;
     }
 
     public DatabaseEntityMetadata<?> getMetadata() {

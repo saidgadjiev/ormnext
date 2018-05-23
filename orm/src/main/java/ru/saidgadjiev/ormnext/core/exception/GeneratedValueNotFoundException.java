@@ -1,8 +1,10 @@
 package ru.saidgadjiev.ormnext.core.exception;
 
-public class NotRegisteredEntityFoundException extends RuntimeException {
+import java.lang.reflect.Field;
 
-    public NotRegisteredEntityFoundException(Class<?> entityClass) {
-        super("Entity " + entityClass + " not registered");
+public class GeneratedValueNotFoundException extends RuntimeException {
+
+    public GeneratedValueNotFoundException(Field field) {
+        super("Generated value not found for " + field.getDeclaringClass().getName() + " " + field.getName());
     }
 }

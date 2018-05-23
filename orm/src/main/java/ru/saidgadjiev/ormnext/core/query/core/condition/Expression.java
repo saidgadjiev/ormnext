@@ -7,16 +7,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by said on 09.09.17.
+ * This class contains restriction groups separated by 'and' or 'or'.
  */
 public class Expression implements Condition {
 
+    /**
+     * Restriction groups list.
+     * @see AndCondition
+     */
     private final List<AndCondition> conditions = new ArrayList<>();
 
+    /**
+     * Add new restriction group.
+     * @param condition target restriction group
+     */
     public void add(AndCondition condition) {
         conditions.add(condition);
     }
 
+    /**
+     * Return all restriction groups.
+     * @return conditions
+     */
     public List<AndCondition> getConditions() {
         return conditions;
     }

@@ -3,12 +3,19 @@ package ru.saidgadjiev.ormnext.core.query.core.literals;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 
 /**
- * Created by said on 03.02.2018.
+ * Float literal.
  */
 public class FloatLiteral implements Literal<Float> {
 
+    /**
+     * Current value.
+     */
     private final float value;
 
+    /**
+     * Create new instance.
+     * @param value target value
+     */
     public FloatLiteral(float value) {
         this.value = value;
     }

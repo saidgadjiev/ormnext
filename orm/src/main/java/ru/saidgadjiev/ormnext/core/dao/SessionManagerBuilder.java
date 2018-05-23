@@ -18,7 +18,7 @@ public class SessionManagerBuilder {
 
     private DatabaseEngine databaseEngine;
 
-    public SessionManagerBuilder addEntityClasses(Class<?> ... classes) {
+    public SessionManagerBuilder entities(Class<?> ... classes) {
         entityClasses.addAll(Arrays.asList(classes));
 
         return this;

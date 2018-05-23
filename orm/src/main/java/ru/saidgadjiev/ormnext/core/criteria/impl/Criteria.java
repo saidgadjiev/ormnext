@@ -7,18 +7,41 @@ import ru.saidgadjiev.ormnext.core.query.core.condition.Expression;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class represent restrictions container.
+ */
 public class Criteria {
 
+    /**
+     * Current expression.
+     * @see Expression
+     */
     private Expression where = new Expression();
 
+    /**
+     * Current restrictions group.
+     * @see AndCondition
+     */
     private AndCondition andCondition = new AndCondition();
 
+    /**
+     * Current restrictions args.
+     * @see CriterionArgument
+     */
     private List<CriterionArgument> args = new ArrayList<>();
 
+    /**
+     * Create new instance.
+     */
     public Criteria() {
         where.add(andCondition);
     }
 
+    /**
+     * Add new restriction.
+     * @param criterion target restriction
+     * @return this for chain
+     */
     public Criteria add(Criterion criterion) {
         andCondition.add(criterion.getCondition());
         args.add(criterion.getArg());
@@ -26,6 +49,10 @@ public class Criteria {
         return this;
     }
 
+    /**
+     * Create new restrictions group which be separated by 'OR'.
+     * @return this for chain
+     */
     public Criteria or() {
         this.andCondition = new AndCondition();
         where.add(andCondition);
@@ -33,12 +60,19 @@ public class Criteria {
         return this;
     }
 
-
+    /**
+     * Return restrictions args.
+     * @return restrictions args
+     */
     public List<CriterionArgument> getArgs() {
         return args;
     }
 
-    public Expression getWhere() {
+    /**
+     * Return current expression.
+     * @return current expression
+     */
+    Expression expression() {
         return where;
     }
 

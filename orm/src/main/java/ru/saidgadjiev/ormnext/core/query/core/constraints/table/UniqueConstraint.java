@@ -6,18 +6,30 @@ import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 import java.util.List;
 
 /**
- * Created by said on 28.10.17.
+ * Unique table constraint.
  */
 public class UniqueConstraint implements TableConstraint {
 
+    /**
+     * Unique column type.
+     * @see UniqueFieldType
+     */
     private UniqueFieldType uniqueFieldType;
 
+    /**
+     * Create new instance.
+     * @param uniqueFieldType target unique column type
+     */
     public UniqueConstraint(UniqueFieldType uniqueFieldType) {
         this.uniqueFieldType = uniqueFieldType;
     }
 
-    public List<String> getUniqueColemns() {
-        return uniqueFieldType.getDbFieldTypes();
+    /**
+     * Return current unique column names from {@link UniqueFieldType#getColumnNames()}.
+     * @return {@link UniqueConstraint#uniqueFieldType#getColumnNames()}
+     */
+    public List<String> getUniqueColumnNames() {
+        return uniqueFieldType.getColumnNames();
     }
 
     @Override

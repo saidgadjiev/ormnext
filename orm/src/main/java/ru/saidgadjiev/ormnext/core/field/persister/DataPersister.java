@@ -1,6 +1,6 @@
 package ru.saidgadjiev.ormnext.core.field.persister;
 
-import ru.saidgadjiev.ormnext.core.support.DatabaseResultSet;
+import ru.saidgadjiev.ormnext.core.support.DatabaseResults;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -15,9 +15,9 @@ public interface DataPersister<T> {
 
     int getDataType();
 
-    Object readValue(DatabaseResultSet databaseResultSet, int column) throws SQLException;
+    Object readValue(DatabaseResults databaseResults, int column) throws SQLException;
 
-    Object readValue(DatabaseResultSet databaseResultSet, String columnLabel) throws SQLException;
+    Object readValue(DatabaseResults databaseResults, String columnLabel) throws SQLException;
 
     void setObject(PreparedStatement preparedStatement, int index, Object value) throws SQLException;
 }

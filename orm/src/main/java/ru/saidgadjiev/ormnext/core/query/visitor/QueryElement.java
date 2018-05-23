@@ -1,13 +1,13 @@
 package ru.saidgadjiev.ormnext.core.query.visitor;
 
 /**
- * Паттерн Visitor используется для генерации запроса
+ * Visitor pattern element. Use for visit implementation by visitor {@link QueryVisitor}.
  */
 public interface QueryElement {
 
     /**
-     * Метод используется для прохода по все нодам визитора
-     * @param visitor
+     * Method use for accept visitor.
+     * @param visitor target visitor
      */
     void accept(QueryVisitor visitor);
 }

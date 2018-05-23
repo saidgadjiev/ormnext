@@ -3,20 +3,30 @@ package ru.saidgadjiev.ormnext.core.query.core.constraints.attribute;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 
 /**
- * Created by said on 21.01.2018.
+ * Attribute default constraint. It will be represented like this DEFAULT {@link Default#defaultDefinition}.
  */
 public class Default implements AttributeConstraint {
 
-    private String value;
+    /**
+     * Default definition.
+     */
+    private String defaultDefinition;
 
-    public Default(String value) {
-        this.value = value;
+    /**
+     * Create new instance.
+     * @param defaultDefinition target default definition
+     */
+    public Default(String defaultDefinition) {
+        this.defaultDefinition = defaultDefinition;
     }
 
-    public String getDefaultValue() {
-        return value;
+    /**
+     * Return current default definition.
+     * @return defaultDefinition
+     */
+    public String getDefaultDefinition() {
+        return defaultDefinition;
     }
-
 
     @Override
     public void accept(QueryVisitor visitor) {

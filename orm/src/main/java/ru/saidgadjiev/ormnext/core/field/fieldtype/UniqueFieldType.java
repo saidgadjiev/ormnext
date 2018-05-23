@@ -13,7 +13,7 @@ public class UniqueFieldType {
         this.columns = columns;
     }
 
-    public List<String> getDbFieldTypes() {
+    public List<String> getColumnNames() {
         return columns;
     }
 

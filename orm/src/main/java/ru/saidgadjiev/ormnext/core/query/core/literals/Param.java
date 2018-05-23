@@ -4,10 +4,9 @@ import ru.saidgadjiev.ormnext.core.query.core.Operand;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 
 /**
- * Created by said on 04.11.17.
+ * This class use for prepared statement param '?' instead of r_value.
  */
 public class Param implements RValue, Operand {
-
 
     @Override
     public void accept(QueryVisitor visitor) {

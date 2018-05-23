@@ -2,10 +2,20 @@ package ru.saidgadjiev.ormnext.core.query.core.literals;
 
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 
+/**
+ * Boolean literal.
+ */
 public class BooleanLiteral implements Literal<Boolean> {
 
+    /**
+     * Current value.
+     */
     private final boolean value;
 
+    /**
+     * Create new instance.
+     * @param value target value
+     */
     public BooleanLiteral(boolean value) {
         this.value = value;
     }

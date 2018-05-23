@@ -1,16 +1,10 @@
 package ru.saidgadjiev.ormnext.core.field.fieldtype;
 
 import ru.saidgadjiev.ormnext.core.exception.ConverterInstantiateException;
-import ru.saidgadjiev.ormnext.core.field.ConverterGroup;
-import ru.saidgadjiev.ormnext.core.field.DataPersisterManager;
-import ru.saidgadjiev.ormnext.core.field.DataType;
-import ru.saidgadjiev.ormnext.core.field.DatabaseColumn;
-import ru.saidgadjiev.ormnext.core.field.FieldAccessor;
-import ru.saidgadjiev.ormnext.core.field.ForeignColumn;
+import ru.saidgadjiev.ormnext.core.field.*;
 import ru.saidgadjiev.ormnext.core.field.persister.DataPersister;
 import ru.saidgadjiev.ormnext.core.table.internal.visitor.EntityMetadataVisitor;
 import ru.saidgadjiev.ormnext.core.utils.DatabaseEntityMetadataUtils;
-import ru.saidgadjiev.ormnext.core.validator.datapersister.GeneratedTypeValidator;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -40,6 +34,10 @@ public class DatabaseColumnType implements IDatabaseColumnType {
     private String defaultDefinition;
 
     private String tableName;
+
+    private boolean insertable;
+
+    private boolean updatable;
 
     private static final Map<Field, DatabaseColumnType> CACHE = new HashMap<>();
 
@@ -90,11 +88,6 @@ public class DatabaseColumnType implements IDatabaseColumnType {
     }
 
     @Override
-    public void assignId(Object object, Number value) {
-        fieldAccessor.assign(object, value);
-    }
-
-    @Override
     public void assign(Object object, Object value) {
         fieldAccessor.assign(object, value);
     }
@@ -124,6 +117,16 @@ public class DatabaseColumnType implements IDatabaseColumnType {
         return Optional.ofNullable(converters);
     }
 
+    @Override
+    public boolean insertable() {
+        return insertable;
+    }
+
+    @Override
+    public boolean updatable() {
+        return updatable;
+    }
+
     public static DatabaseColumnType build(Field field) {
         if (!field.isAnnotationPresent(DatabaseColumn.class)) {
             return null;
@@ -143,7 +146,6 @@ public class DatabaseColumnType implements IDatabaseColumnType {
             Integer dataType = databaseColumn.dataType();
             DataPersister<?> dataPersister = dataType.equals(DataType.UNKNOWN) ? DataPersisterManager.lookup(field.getType()) : DataPersisterManager.lookup(dataType);
 
-            new GeneratedTypeValidator(field, databaseColumn.generated()).validate(dataPersister);
             fieldType.tableName = DatabaseEntityMetadataUtils.resolveTableName(field.getDeclaringClass());
             fieldType.dataPersister = dataPersister;
             fieldType.dataType = dataType.equals(DataType.UNKNOWN) ? dataPersister.getDataType() : dataType;
@@ -169,6 +171,8 @@ public class DatabaseColumnType implements IDatabaseColumnType {
         fieldType.notNull = databaseColumn.notNull();
         fieldType.id = databaseColumn.id();
         fieldType.generated = databaseColumn.generated();
+        fieldType.insertable = databaseColumn.insertable();
+        fieldType.updatable = databaseColumn.updatable();
 
         CACHE.put(field, fieldType);
 

@@ -3,23 +3,45 @@ package ru.saidgadjiev.ormnext.core.query.core;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryElement;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 
+/**
+ * This class represent DROP TABLE sql query.
+ */
 public class DropTableQuery implements QueryElement {
 
-    private String tableName;
+    /**
+     * Table name.
+     */
+    private final String tableName;
 
-    private boolean ifExists;
+    /**
+     * True if need append if exist.
+     */
+    private final boolean ifExist;
 
-    public DropTableQuery(String tableName, boolean ifExists) {
+    /**
+     * Create new instance.
+     * @param tableName target table name
+     * @param ifExist true if need append if exist
+     */
+    public DropTableQuery(String tableName, boolean ifExist) {
         this.tableName = tableName;
-        this.ifExists = ifExists;
+        this.ifExist = ifExist;
     }
 
+    /**
+     * Return current table name.
+     * @return current table name
+     */
     public String getTableName() {
         return tableName;
     }
 
-    public boolean isIfExists() {
-        return ifExists;
+    /**
+     * Return is need append if exist.
+     * @return is need append if exist
+     */
+    public boolean isIfExist() {
+        return ifExist;
     }
 
     @Override

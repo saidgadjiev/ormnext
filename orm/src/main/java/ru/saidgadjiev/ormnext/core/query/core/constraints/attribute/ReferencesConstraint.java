@@ -2,21 +2,43 @@ package ru.saidgadjiev.ormnext.core.query.core.constraints.attribute;
 
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 
+/**
+ * Attribute references constraint.
+ */
 public class ReferencesConstraint implements AttributeConstraint {
 
-    private String typeName;
+    /**
+     * Target table name.
+     */
+    private final String tableName;
 
-    private String columnName;
+    /**
+     * Target column name.
+     */
+    private final String columnName;
 
-    public ReferencesConstraint(String typeName, String columnName) {
-        this.typeName = typeName;
+    /**
+     * Create new instance.
+     * @param tableName target table name
+     * @param columnName target column name
+     */
+    public ReferencesConstraint(String tableName, String columnName) {
+        this.tableName = tableName;
         this.columnName = columnName;
     }
 
-    public String getTypeName() {
-        return typeName;
+    /**
+     * Return current table name.
+     * @return tableName
+     */
+    public String getTableName() {
+        return tableName;
     }
 
+    /**
+     * Return current column name.
+     * @return columnName
+     */
     public String getColumnName() {
         return columnName;
     }

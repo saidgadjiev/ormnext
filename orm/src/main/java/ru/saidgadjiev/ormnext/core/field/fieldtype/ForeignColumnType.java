@@ -6,7 +6,6 @@ import ru.saidgadjiev.ormnext.core.field.ForeignColumn;
 import ru.saidgadjiev.ormnext.core.field.persister.DataPersister;
 import ru.saidgadjiev.ormnext.core.table.internal.visitor.EntityMetadataVisitor;
 import ru.saidgadjiev.ormnext.core.utils.DatabaseEntityMetadataUtils;
-import ru.saidgadjiev.ormnext.core.validator.datapersister.GeneratedTypeValidator;
 import ru.saidgadjiev.ormnext.core.validator.entity.PrimaryKeyValidator;
 
 import java.lang.reflect.Field;
@@ -126,6 +125,16 @@ public class ForeignColumnType implements IForeignDatabaseColumnType {
         return tableName;
     }
 
+    @Override
+    public boolean insertable() {
+        return true;
+    }
+
+    @Override
+    public boolean updatable() {
+        return true;
+    }
+
     public FetchType getFetchType() {
         return fetchType;
     }
@@ -140,7 +149,6 @@ public class ForeignColumnType implements IForeignDatabaseColumnType {
         IDatabaseColumnType foreignPrimaryKey = DatabaseEntityMetadataUtils.resolvePrimaryKey(field.getType()).get();
         DataPersister<?> dataPersister = foreignPrimaryKey.getDataPersister();
 
-        new GeneratedTypeValidator(field, foreignPrimaryKey.isGenerated()).validate(dataPersister);
         foreignColumnType.foreignAutoCreate = foreignColumn.foreignAutoCreate();
         foreignColumnType.foreignPrimaryKey = foreignPrimaryKey;
         foreignColumnType.foreignTableName = DatabaseEntityMetadataUtils.resolveTableName(foreignPrimaryKey.getField().getDeclaringClass());

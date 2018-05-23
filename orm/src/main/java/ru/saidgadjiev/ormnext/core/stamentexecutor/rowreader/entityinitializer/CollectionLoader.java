@@ -17,11 +17,11 @@ public class CollectionLoader {
     }
 
     public List<Object> loadCollection(Session session, Object id) throws SQLException {
-        return session.list(collectionQuerySpace.getLoadCollectionQuery().addArg(1, id));
+        return session.list(collectionQuerySpace.getLoadCollectionQuery().setObject(1, id));
     }
 
     public long loadSize(Session session, Object id) throws SQLException {
-        return session.queryForLong(collectionQuerySpace.getCountOffCriteria().addArg(1, id));
+        return session.queryForLong(collectionQuerySpace.getCountOffCriteria().setObject(1, id));
     }
 
     public ForeignCollectionColumnType getGoreignCollectionColumnType() {

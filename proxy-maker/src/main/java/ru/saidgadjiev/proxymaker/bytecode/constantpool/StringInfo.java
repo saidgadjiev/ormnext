@@ -3,12 +3,26 @@ package ru.saidgadjiev.proxymaker.bytecode.constantpool;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+/**
+ * This class represent string constant in constant pool.
+ */
 public class StringInfo extends ConstantInfo {
 
+    /**
+     * String constant tag.
+     */
     private static final int TAG = 8;
 
+    /**
+     * String value index.
+     */
     private int strIndex;
 
+    /**
+     * Create new instance which represent string constant in constant pool.
+     * @param strIndex string value constant index
+     * @param index this instance index in {@link ConstantPool}
+     */
     public StringInfo(int strIndex, int index) {
         super(index);
         this.strIndex = strIndex;
@@ -21,8 +35,12 @@ public class StringInfo extends ConstantInfo {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         StringInfo that = (StringInfo) o;
 

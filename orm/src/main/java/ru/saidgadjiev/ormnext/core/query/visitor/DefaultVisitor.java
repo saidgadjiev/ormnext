@@ -28,40 +28,61 @@ import ru.saidgadjiev.ormnext.core.query.core.join.LeftJoin;
 import ru.saidgadjiev.ormnext.core.query.core.literals.*;
 
 import java.util.Iterator;
+import java.util.List;
 
 /**
- * Visitor по умолчанию
+ * This class use for create sql from visitor elements.
  */
-public class DefaultVisitor extends NoActionVisitor {
+public final class DefaultVisitor extends NoActionVisitor {
 
-    protected StringBuilder sql = new StringBuilder();
+    /**
+     * Use for build sql.
+     */
+    private StringBuilder sql = new StringBuilder();
 
+    /**
+     * Current database type(dialect).
+     */
     private DatabaseType databaseType;
 
+    /**
+     * Escape table name.
+     */
     private final String escapeEntity;
 
+    /**
+     * Escape query literal.
+     */
     private final String escapeLiteral;
 
+    /**
+     * Create new instance with provided database type.
+     * @param databaseType target database type
+     */
     public DefaultVisitor(DatabaseType databaseType) {
         this.databaseType = databaseType;
         escapeEntity = databaseType.getEntityNameEscape();
         escapeLiteral = databaseType.getValueEscape();
     }
 
+    /**
+     * Get builded sql query.
+     * @return query
+     */
     public String getQuery() {
         return sql.toString();
     }
 
     @Override
-    public boolean visit(CreateQuery tCreateQuery) {
-        sql.append("INSERT INTO ").append(escapeEntity).append(tCreateQuery.getTypeName()).append(escapeEntity);
+    public boolean visit(CreateQuery createQuery) {
+        sql.append("INSERT INTO ").append(escapeEntity).append(createQuery.getTableName()).append(escapeEntity);
 
-        if (tCreateQuery.getColumnNames().isEmpty()) {
+        if (createQuery.getColumnNames().isEmpty()) {
             sql.append(" ").append(databaseType.getNoArgsInsertDefinition());
         } else {
             sql.append(" (");
 
-            for (Iterator<String> iterator = tCreateQuery.getColumnNames().iterator(); iterator.hasNext(); ) {
+            for (Iterator<String> iterator = createQuery.getColumnNames().iterator(); iterator.hasNext();) {
                 sql.append(escapeEntity).append(iterator.next()).append(escapeEntity);
                 if (iterator.hasNext()) {
                     sql.append(",");
@@ -69,7 +90,7 @@ public class DefaultVisitor extends NoActionVisitor {
             }
             sql.append(")");
             sql.append(" VALUES (");
-            for (Iterator<InsertValues> iterator = tCreateQuery.getInsertValues().iterator(); iterator.hasNext(); ) {
+            for (Iterator<InsertValues> iterator = createQuery.getInsertValues().iterator(); iterator.hasNext();) {
                 InsertValues insertValues = iterator.next();
 
                 insertValues.accept(this);
@@ -79,7 +100,7 @@ public class DefaultVisitor extends NoActionVisitor {
             }
             sql.append(")");
         }
-        
+
         return false;
     }
 
@@ -93,36 +114,35 @@ public class DefaultVisitor extends NoActionVisitor {
     }
 
     @Override
-    public boolean visit(Select tSelectQuery) {
+    public boolean visit(Select selectQuery) {
         sql.append("SELECT ");
-        if (tSelectQuery.getSelectColumnsStrategy() != null) {
-            tSelectQuery.getSelectColumnsStrategy().accept(this);
+        if (selectQuery.getSelectColumnsStrategy() != null) {
+            selectQuery.getSelectColumnsStrategy().accept(this);
         }
         sql.append(" FROM ");
-        if (tSelectQuery.getFrom() != null) {
-            tSelectQuery.getFrom().accept(this);
+        if (selectQuery.getFrom() != null) {
+            selectQuery.getFrom().accept(this);
         }
-
-        if (tSelectQuery.getWhere() != null) {
-            if (!tSelectQuery.getWhere().getConditions().isEmpty()) {
+        if (selectQuery.getWhere() != null) {
+            if (!selectQuery.getWhere().getConditions().isEmpty()) {
                 sql.append(" WHERE ");
             }
-            tSelectQuery.getWhere().accept(this);
+            selectQuery.getWhere().accept(this);
         }
-        if (tSelectQuery.getGroupBy() != null) {
-            tSelectQuery.getGroupBy().accept(this);
+        if (selectQuery.getGroupBy() != null) {
+            selectQuery.getGroupBy().accept(this);
         }
-        if (tSelectQuery.getOrderBy() != null) {
-            tSelectQuery.getOrderBy().accept(this);
+        if (selectQuery.getOrderBy() != null) {
+            selectQuery.getOrderBy().accept(this);
         }
-        if (tSelectQuery.getHaving() != null) {
-            tSelectQuery.getHaving().accept(this);
+        if (selectQuery.getHaving() != null) {
+            selectQuery.getHaving().accept(this);
         }
-        if (tSelectQuery.getLimit() != null) {
-            tSelectQuery.getLimit().accept(this);
+        if (selectQuery.getLimit() != null) {
+            selectQuery.getLimit().accept(this);
         }
-        if (tSelectQuery.getOffset() != null) {
-            tSelectQuery.getOffset().accept(this);
+        if (selectQuery.getOffset() != null) {
+            selectQuery.getOffset().accept(this);
         }
 
         return false;
@@ -130,12 +150,12 @@ public class DefaultVisitor extends NoActionVisitor {
 
     @Override
     public boolean visit(Expression expression) {
-        for (Iterator<AndCondition> iterator = expression.getConditions().iterator(); iterator.hasNext(); ) {
+        for (Iterator<AndCondition> iterator = expression.getConditions().iterator(); iterator.hasNext();) {
             AndCondition andCondition = iterator.next();
 
             sql.append("(");
 
-            for (Iterator<Condition> iterator1 = andCondition.getConditions().iterator(); iterator1.hasNext(); ) {
+            for (Iterator<Condition> iterator1 = andCondition.getConditions().iterator(); iterator1.hasNext();) {
                 Condition condition = iterator1.next();
 
                 sql.append("(");
@@ -192,19 +212,23 @@ public class DefaultVisitor extends NoActionVisitor {
     }
 
     @Override
-    public boolean visit(CreateTableQuery tCreateTableQuery) {
+    public boolean visit(CreateTableQuery createTableQuery) {
         sql.append("CREATE TABLE ");
-        if (tCreateTableQuery.isIfNotExists()) {
+        if (createTableQuery.isIfNotExist()) {
             sql.append("IF NOT EXISTS ");
         }
-        sql.append(escapeEntity).append(tCreateTableQuery.getTypeName()).append(escapeEntity).append(" (");
-        for (Iterator<AttributeDefinition> iterator = tCreateTableQuery.getAttributeDefinitions().iterator(); iterator.hasNext(); ) {
+        sql.append(escapeEntity).append(createTableQuery.getTableName()).append(escapeEntity).append(" (");
+        for (Iterator<AttributeDefinition> iterator = createTableQuery.getAttributeDefinitions().iterator();
+             iterator.hasNext();) {
             AttributeDefinition attributeDefinition = iterator.next();
 
             sql.append(escapeEntity).append(attributeDefinition.getName()).append(escapeEntity).append(" ");
             sql.append(databaseType.getTypeSqlPresent(attributeDefinition));
             sql.append(" ");
-            for (Iterator<AttributeConstraint> constraintIterator = attributeDefinition.getAttributeConstraints().iterator(); constraintIterator.hasNext(); ) {
+            List<AttributeConstraint> attributeConstraints = attributeDefinition.getAttributeConstraints();
+
+            for (Iterator<AttributeConstraint> constraintIterator = attributeConstraints.iterator();
+                 constraintIterator.hasNext();) {
                 AttributeConstraint constraint = constraintIterator.next();
 
                 constraint.accept(this);
@@ -217,9 +241,10 @@ public class DefaultVisitor extends NoActionVisitor {
                 sql.append(", ");
             }
         }
-        if (!tCreateTableQuery.getTableConstraints().isEmpty()) {
+        if (!createTableQuery.getTableConstraints().isEmpty()) {
             sql.append(", ");
-            for (Iterator<TableConstraint> iterator = tCreateTableQuery.getTableConstraints().iterator(); iterator.hasNext(); ) {
+            for (Iterator<TableConstraint> iterator = createTableQuery.getTableConstraints().iterator();
+                 iterator.hasNext();) {
                 TableConstraint tableConstraint = iterator.next();
 
                 tableConstraint.accept(this);
@@ -235,7 +260,7 @@ public class DefaultVisitor extends NoActionVisitor {
 
     @Override
     public boolean visit(DeleteQuery deleteQuery) {
-        sql.append("DELETE FROM ").append(deleteQuery.getTypeName());
+        sql.append("DELETE FROM ").append(deleteQuery.getTableName());
         if (!deleteQuery.getWhere().getConditions().isEmpty()) {
             sql.append(" WHERE ");
         }
@@ -250,9 +275,9 @@ public class DefaultVisitor extends NoActionVisitor {
 
     @Override
     public boolean visit(UpdateQuery updateQuery) {
-        sql.append("UPDATE ").append(updateQuery.getTypeName()).append(" SET ");
+        sql.append("UPDATE ").append(updateQuery.getTableName()).append(" SET ");
 
-        for (Iterator<UpdateValue> iterator = updateQuery.getUpdateValues().iterator(); iterator.hasNext(); ) {
+        for (Iterator<UpdateValue> iterator = updateQuery.getUpdateValues().iterator(); iterator.hasNext();) {
             UpdateValue updateValue = iterator.next();
             RValue value = updateValue.getValue();
 
@@ -273,7 +298,7 @@ public class DefaultVisitor extends NoActionVisitor {
     @Override
     public void visit(DropTableQuery dropTableQuery) {
         sql.append("DROP TABLE ");
-        if (dropTableQuery.isIfExists()) {
+        if (dropTableQuery.isIfExist()) {
             sql.append("IF EXISTS ");
         }
         sql.append(escapeEntity).append(dropTableQuery.getTableName()).append(escapeEntity);
@@ -287,7 +312,7 @@ public class DefaultVisitor extends NoActionVisitor {
     @Override
     public void visit(UniqueConstraint uniqueConstraint) {
         sql.append("UNIQUE (").append(escapeEntity);
-        for (Iterator<String> iterator = uniqueConstraint.getUniqueColemns().iterator(); iterator.hasNext(); ) {
+        for (Iterator<String> iterator = uniqueConstraint.getUniqueColumnNames().iterator(); iterator.hasNext();) {
             sql.append(iterator.next());
             if (iterator.hasNext()) {
                 sql.append(escapeEntity).append(",").append(escapeEntity);
@@ -304,7 +329,7 @@ public class DefaultVisitor extends NoActionVisitor {
     @Override
     public void visit(ReferencesConstraint referencesConstraint) {
         sql.append(" REFERENCES ").append(escapeEntity)
-                .append(referencesConstraint.getTypeName())
+                .append(referencesConstraint.getTableName())
                 .append(escapeEntity)
                 .append("(")
                 .append(escapeEntity)
@@ -327,7 +352,7 @@ public class DefaultVisitor extends NoActionVisitor {
                 .append(escapeEntity)
                 .append("(")
                 .append(escapeEntity);
-        for (Iterator<String> iterator = createIndexQuery.getColumns().iterator(); iterator.hasNext(); ) {
+        for (Iterator<String> iterator = createIndexQuery.getColumns().iterator(); iterator.hasNext();) {
             sql.append(iterator.next());
 
             if (iterator.hasNext()) {
@@ -354,7 +379,8 @@ public class DefaultVisitor extends NoActionVisitor {
 
     @Override
     public boolean visit(SelectColumnsList selectColumnsList) {
-        for (Iterator<DisplayedColumnSpec> columnIterator = selectColumnsList.getColumns().iterator(); columnIterator.hasNext(); ) {
+        for (Iterator<DisplayedColumnSpec> columnIterator = selectColumnsList.getColumns().iterator();
+             columnIterator.hasNext();) {
             DisplayedColumnSpec columnSpec = columnIterator.next();
 
             columnSpec.accept(this);
@@ -380,7 +406,8 @@ public class DefaultVisitor extends NoActionVisitor {
     public boolean visit(GroupBy groupBy) {
         sql.append(" GROUP BY ");
 
-        for (Iterator<GroupByItem> columnSpecIterator = groupBy.getGroupByItems().iterator(); columnSpecIterator.hasNext(); ) {
+        for (Iterator<GroupByItem> columnSpecIterator = groupBy.getGroupByItems().iterator();
+             columnSpecIterator.hasNext();) {
             GroupByItem columnSpec = columnSpecIterator.next();
 
             columnSpec.accept(this);
@@ -500,7 +527,7 @@ public class DefaultVisitor extends NoActionVisitor {
 
     @Override
     public void visit(Default aDefault) {
-        sql.append("DEFAULT ").append(aDefault.getDefaultValue());
+        sql.append("DEFAULT ").append(aDefault.getDefaultDefinition());
     }
 
     @Override
@@ -517,7 +544,8 @@ public class DefaultVisitor extends NoActionVisitor {
     @Override
     public boolean visit(OrderBy orderBy) {
         sql.append(" ORDER BY ");
-        for (Iterator<OrderByItem> orderByItemIterator = orderBy.getOrderByItems().iterator(); orderByItemIterator.hasNext();) {
+        for (Iterator<OrderByItem> orderByItemIterator = orderBy.getOrderByItems().iterator();
+             orderByItemIterator.hasNext();) {
             OrderByItem orderByItem = orderByItemIterator.next();
 
             orderByItem.accept(this);
@@ -531,7 +559,7 @@ public class DefaultVisitor extends NoActionVisitor {
 
     @Override
     public boolean visit(OrderByItem orderByItem) {
-        for (Iterator<ColumnSpec> iterator = orderByItem.getColumns().iterator(); iterator.hasNext(); ) {
+        for (Iterator<ColumnSpec> iterator = orderByItem.getColumns().iterator(); iterator.hasNext();) {
             iterator.next().accept(this);
 
             if (iterator.hasNext()) {
@@ -570,9 +598,8 @@ public class DefaultVisitor extends NoActionVisitor {
 
     @Override
     public void visit(InsertValues insertValues) {
-        for (Iterator<UpdateValue> iterator = insertValues.getUpdateValues().iterator(); iterator.hasNext(); ) {
-            UpdateValue updateValue = iterator.next();
-            RValue value = updateValue.getValue();
+        for (Iterator<RValue> iterator = insertValues.getValues().iterator(); iterator.hasNext();) {
+            RValue value = iterator.next();
 
             value.accept(this);
             if (iterator.hasNext()) {
@@ -589,7 +616,7 @@ public class DefaultVisitor extends NoActionVisitor {
                 .append(")")
                 .append(" REFERENCES ")
                 .append(escapeEntity)
-                .append(foreignKeyConstraint.getTypeName())
+                .append(foreignKeyConstraint.getTableName())
                 .append(escapeEntity)
                 .append("(")
                 .append(escapeEntity)
@@ -607,9 +634,5 @@ public class DefaultVisitor extends NoActionVisitor {
         sql.append(")");
 
         return false;
-    }
-
-    public void reset() {
-        sql = new StringBuilder();
     }
 }

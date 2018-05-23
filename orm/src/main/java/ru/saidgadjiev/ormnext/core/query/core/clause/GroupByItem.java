@@ -5,16 +5,28 @@ import ru.saidgadjiev.ormnext.core.query.visitor.QueryElement;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 
 /**
- * Created by said on 18.11.17.
+ * This class represent group by item.
  */
 public class GroupByItem implements QueryElement {
 
-    private ColumnSpec columnSpec;
+    /**
+     * Group by column spec.
+     * @see ColumnSpec
+     */
+    private final ColumnSpec columnSpec;
 
+    /**
+     * Create group by item with provided column spec.
+     * @param columnSpec target column spec
+     */
     public GroupByItem(ColumnSpec columnSpec) {
         this.columnSpec = columnSpec;
     }
 
+    /**
+     * Return current column spec.
+     * @return columnSpec
+     */
     public ColumnSpec getColumnSpec() {
         return columnSpec;
     }

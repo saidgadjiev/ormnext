@@ -1,12 +1,8 @@
 package ru.saidgadjiev.ormnext.core.exception;
 
-public class PersisterNotFoundException extends RuntimeException {
+public class NotRegisteredEntityFoundException extends RuntimeException {
 
-    public PersisterNotFoundException(Class<?> persistedClass) {
-        super("Persister not found for class " + persistedClass.getName());
-    }
-
-    public PersisterNotFoundException(int type) {
-        super("Persister not found for type " + type);
+    public NotRegisteredEntityFoundException(Class<?> entityClass) {
+        super("Entity " + entityClass + " not registered");
     }
 }

@@ -5,7 +5,7 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
 
-public interface DatabaseResultSet extends AutoCloseable {
+public interface DatabaseResults extends AutoCloseable {
 
     boolean next() throws SQLException;
 

@@ -23,5 +23,9 @@ public @interface DatabaseColumn {
 
     boolean generated() default false;
 
+    boolean insertable() default true;
+
+    boolean updatable() default true;
+
    String defaultDefinition() default DEFAULT_STR;
 }

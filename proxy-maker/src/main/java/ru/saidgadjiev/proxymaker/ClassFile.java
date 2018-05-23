@@ -10,38 +10,78 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * This class represent all class bytecode.
+ */
 public class ClassFile {
 
+    /**
+     * COFEBABE magic.
+     */
     private static final int CAFEBABE = 0xCAFEBABE; //magic
 
+    /**
+     * JDK minor.
+     */
     private static final int MINOR_JAVA_VERSION = 0; //JDK 1.3 or later
 
+    /**
+     * JDK major.
+     */
     private static final int MAJOR_JAVA_VERSION = 52; //JDK 1.8
 
-    private final String superClassName;
-
+    /**
+     * Fully qualified target proxy class name.
+     */
     private final String className;
 
+    /**
+     * Access flags.
+     */
     private int accessFlags = AccessFlag.SUPER;
 
+    /**
+     * Current bytecode constant pool.
+     */
     private ConstantPool constantPool;
 
+    /**
+     * Target proxy class interfaces.
+     */
     private List<Integer> interfaces = new ArrayList<>();
 
+    /**
+     * Target proxy class fields.
+     */
     private List<FieldInfo> fieldInfos = new ArrayList<>();
 
+    /**
+     * Target proxy class methos.
+     */
     private List<MethodInfo> methodInfos = new ArrayList<>();
 
+    /**
+     * Create new instance with requested {@code className} and {@code superClassName}.
+     * @param className target proxy class name
+     * @param superClassName target super class name
+     */
     public ClassFile(String className, String superClassName) {
         this.className = className;
-        this.superClassName = superClassName;
         this.constantPool = new ConstantPool(className, superClassName);
     }
 
+    /**
+     * Provide class access flags.
+     * @param accessFlags target access flags
+     */
     public void setAccessFlags(int accessFlags) {
         this.accessFlags |= accessFlags;
     }
 
+    /**
+     * Provide proxy class interfaces.
+     * @param interfaceNames fully qualified interface class names.
+     */
     public void setInterfaces(Collection<String> interfaceNames) {
         interfaces.clear();
         for (String interfaceName: interfaceNames) {
@@ -49,27 +89,43 @@ public class ClassFile {
         }
     }
 
+    /**
+     * Field info in bytecode this proxy class.
+     * @param fieldInfo target field info
+     */
     public void addFieldInfo(FieldInfo fieldInfo) {
         fieldInfos.add(fieldInfo);
     }
 
+    /**
+     * Current bytecode constant pool.
+     * @return current constant pool
+     */
     public ConstantPool getConstantPool() {
         return constantPool;
     }
 
-
+    /**
+     * Method info in bytecode this proxy class.
+     * @param methodInfo target method info
+     */
     public void addMethodInfo(MethodInfo methodInfo) {
         methodInfos.add(methodInfo);
     }
 
-    public String getSuperClassName() {
-        return superClassName;
-    }
-
+    /**
+     * This proxy class fully qualified name.
+     * @return proxy class name
+     */
     public String getClassName() {
         return className;
     }
 
+    /**
+     * Wrtie class bytecode to {@link DataOutputStream}.
+     * @param outputStream target outputstream
+     * @throws IOException throws in {@link DataOutputStream}
+     */
     public void write(DataOutputStream outputStream) throws IOException {
         outputStream.writeInt(CAFEBABE);
         outputStream.writeShort(MINOR_JAVA_VERSION);

@@ -3,29 +3,43 @@ package ru.saidgadjiev.ormnext.core.criteria.impl;
 import ru.saidgadjiev.ormnext.core.query.core.clause.OrderByItem;
 import ru.saidgadjiev.ormnext.core.query.core.columnspec.ColumnSpec;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * Created by said on 18.03.2018.
+ * This class has static method for create order by item.
  */
-public class OrderBy {
+public final class Order {
 
-    public ru.saidgadjiev.ormnext.core.query.core.clause.OrderBy orderBy = new ru.saidgadjiev.ormnext.core.query.core.clause.OrderBy();
+    /**
+     * Can't be instantiated.
+     */
+    private Order() { }
 
-    public OrderBy add(boolean asc, String ... columns) {
-        List<ColumnSpec> columnSpecs = new ArrayList<>();
+    /**
+     * Create new order by item with sort order ASC.
+     * @param properties property names
+     * @return new order by item
+     */
+    public static OrderByItem asc(String ... properties) {
+        OrderByItem orderByItem = new OrderByItem();
 
-        for (String column: columns) {
-            columnSpecs.add(new ColumnSpec(column));
+        for (String property : properties) {
+            orderByItem.addColumn(new ColumnSpec(property));
         }
 
-        orderBy.add(new OrderByItem(asc, columnSpecs));
-
-        return this;
+        return orderByItem;
     }
 
-    public ru.saidgadjiev.ormnext.core.query.core.clause.OrderBy create() {
-        return orderBy;
+    /**
+     * Create new order by item with sort order DESC.
+     * @param properties property names
+     * @return new order by item
+     */
+    public static OrderByItem desc(String ... properties) {
+        OrderByItem orderByItem = new OrderByItem(false);
+
+        for (String property : properties) {
+            orderByItem.addColumn(new ColumnSpec(property));
+        }
+
+        return orderByItem;
     }
 }

@@ -9,67 +9,75 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Класс UPDATE запроса
+ * This class represent UPDATE query.
  */
-
 public class UpdateQuery implements QueryElement {
 
     /**
-     * Название типа
+     * Table name.
      */
-    private final String typeName;
+    private final String tableName;
 
     /**
-     * Вставляемые значения
+     * Update values list.
+     * @see UpdateValue
      */
     private final List<UpdateValue> updateValues = new ArrayList<>();
 
+    /**
+     * Where expression.
+     * @see Expression
+     */
     private Expression where = new Expression();
 
-    public UpdateQuery(String typeName) {
-        this.typeName = typeName;
+    public UpdateQuery(String tableName) {
+        this.tableName = tableName;
     }
 
     /**
-     * Добавление нового значения
-     *
-     * @param updateValue добавляемое значение
+     * Add new update value.
+     * @param updateValue target update value
      */
     public void add(UpdateValue updateValue) {
         updateValues.add(updateValue);
     }
 
     /**
-     * Добавление коллекции значений
-     *
-     * @param values
+     * Add new update values list.
+     * @param values target update values
      */
     public void addAll(List<UpdateValue> values) {
         updateValues.addAll(values);
     }
 
     /**
-     * Получение списка значений
-     *
-     * @return
+     * Return current update values.
+     * @return current update values
      */
     public List<UpdateValue> getUpdateValues() {
         return updateValues;
     }
 
     /**
-     * Получение имени типа
-     *
-     * @return
+     * Return current table name.
+     * @return current table name
      */
-    public String getTypeName() {
-        return typeName;
+    public String getTableName() {
+        return tableName;
     }
 
+    /**
+     * Return current where expression.
+     * @return current where expression
+     */
     public Expression getWhere() {
         return where;
     }
 
+    /**
+     * Provide where expression.
+     * @param where target expression
+     */
     public void setWhere(Expression where) {
         this.where = where;
     }

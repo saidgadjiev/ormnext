@@ -2,20 +2,30 @@ package ru.saidgadjiev.ormnext.core.query.core;
 
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 
+/**
+ * This class represent alias eg. 'test' as 'test1'.
+ */
 public class Alias implements Operand {
 
-    private String alias;
+    /**
+     * Alias.
+     */
+    private final String alias;
 
+    /**
+     * Create new instance.
+     * @param alias target alias
+     */
     public Alias(String alias) {
         this.alias = alias;
     }
 
+    /**
+     * Return current alias.
+     * @return current alias
+     */
     public String getAlias() {
         return alias;
-    }
-
-    public void setAlias(String alias) {
-        this.alias = alias;
     }
 
     @Override

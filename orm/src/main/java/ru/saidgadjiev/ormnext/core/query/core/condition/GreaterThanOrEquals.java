@@ -3,20 +3,45 @@ package ru.saidgadjiev.ormnext.core.query.core.condition;
 import ru.saidgadjiev.ormnext.core.query.core.Operand;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 
+/**
+ * This class represent >= restriction.
+ */
 public class GreaterThanOrEquals implements Condition {
 
+    /**
+     * Left checked value.
+     * @see Operand
+     */
     private final Operand first;
+
+    /**
+     * Right checked value.
+     * @see Operand
+     */
     private final Operand second;
 
+    /**
+     * Create new instance.
+     * @param first target left checked value.
+     * @param second taget right checked value.
+     */
     public GreaterThanOrEquals(Operand first, Operand second) {
         this.first = first;
         this.second = second;
     }
 
+    /**
+     * Return current left checked value.
+     * @return first
+     */
     public Operand getFirst() {
         return first;
     }
 
+    /**
+     * Return current right checked value.
+     * @return second
+     */
     public Operand getSecond() {
         return second;
     }

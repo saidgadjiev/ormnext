@@ -70,6 +70,16 @@ public class ForeignCollectionColumnType implements IForeignDatabaseColumnType {
         return ownerTableName;
     }
 
+    @Override
+    public boolean insertable() {
+        return false;
+    }
+
+    @Override
+    public boolean updatable() {
+        return false;
+    }
+
     public void add(Object object, Object value) {
         try {
             if (!field.isAccessible()) {

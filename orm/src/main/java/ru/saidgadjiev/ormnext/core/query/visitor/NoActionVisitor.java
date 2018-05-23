@@ -30,7 +30,7 @@ import ru.saidgadjiev.ormnext.core.query.core.literals.*;
 public class NoActionVisitor implements QueryVisitor {
 
     @Override
-    public boolean visit(CreateQuery tCreateQuery) {
+    public boolean visit(CreateQuery createQuery) {
         return true;
     }
 
@@ -44,7 +44,7 @@ public class NoActionVisitor implements QueryVisitor {
     }
 
     @Override
-    public boolean visit(Select tSelectQuery) {
+    public boolean visit(Select selectQuery) {
         return true;
     }
 
@@ -79,7 +79,7 @@ public class NoActionVisitor implements QueryVisitor {
     }
 
     @Override
-    public boolean visit(CreateTableQuery tCreateTableQuery) {
+    public boolean visit(CreateTableQuery createTableQuery) {
         return true;
     }
 

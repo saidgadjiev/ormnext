@@ -2,13 +2,13 @@ package ru.saidgadjiev.ormnext.core.support;
 
 import java.sql.*;
 
-public abstract class DatabaseResultSetImpl implements DatabaseResultSet {
+public abstract class DatabaseResultsImpl implements DatabaseResults {
 
     private ResultSet resultSet;
 
     private ResultSetMetaData resultSetMetaData;
 
-    public DatabaseResultSetImpl(ResultSet resultSet, ResultSetMetaData resultSetMetaData) {
+    public DatabaseResultsImpl(ResultSet resultSet, ResultSetMetaData resultSetMetaData) {
         this.resultSet = resultSet;
         this.resultSetMetaData = resultSetMetaData;
     }

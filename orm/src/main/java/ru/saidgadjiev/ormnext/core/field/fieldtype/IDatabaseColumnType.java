@@ -42,10 +42,6 @@ public interface IDatabaseColumnType extends EntityElement {
 
     DataPersister getDataPersister();
 
-    default void assignId(Object object, Number value) {
-        throw new UnsupportedOperationException();
-    }
-
     void assign(Object object, Object value);
 
     Field getField();
@@ -80,4 +76,7 @@ public interface IDatabaseColumnType extends EntityElement {
         return Optional.empty();
     }
 
+    boolean insertable();
+
+    boolean updatable();
 }

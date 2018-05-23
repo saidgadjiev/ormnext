@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>ru.saidgadjiev.orm.next</groupId>
+    <groupId>ru.saidgadjiev.ormnext</groupId>
     <artifactId>orm-next</artifactId>
     <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
@@ -139,7 +137,6 @@
 
                                         <!-- Checks for common coding problems               -->
                                         <!-- See http://checkstyle.sf.net/config_coding.html -->
-                                        <module name="AvoidInlineConditionals" />
                                         <module name="EmptyStatement" />
                                         <module name="EqualsHashCode" />
                                         <!--<module name="HiddenField" />-->
@@ -177,8 +174,9 @@
     </build>
     <modules>
         <module>orm</module>
-        <module>up-cache</module>
         <module>property-binder</module>
+        <module>orm-benchmark</module>
+        <module>proxy-maker</module>
     </modules>
 
 </project>

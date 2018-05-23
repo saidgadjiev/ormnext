@@ -1,4 +1,6 @@
-package ru.saidgadjiev.ormnext.support.database_type;
+package ru.saidgadjiev.ormnext.core.database_type;
+
+import ru.saidgadjiev.ormnext.core.db.BaseDatabaseType;
 
 public class H2DatabaseType extends BaseDatabaseType {
 

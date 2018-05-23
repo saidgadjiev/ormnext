@@ -1,20 +1,42 @@
 package ru.saidgadjiev.ormnext.core.criteria.impl;
 
+/**
+ * This class use for return restriction argument info.
+ */
 public class CriterionArgument {
 
-    private final String propertyName;
+    /**
+     * Property name.
+     */
+    private final String property;
 
+    /**
+     * Args values.
+     */
     private final Object[] values;
 
-    public CriterionArgument(String propertyName, Object ... values) {
-        this.propertyName = propertyName;
+    /**
+     * Create new instance.
+     * @param property target property name
+     * @param values args values
+     */
+    CriterionArgument(String property, Object... values) {
+        this.property = property;
         this.values = values;
     }
 
-    public String getPropertyName() {
-        return propertyName;
+    /**
+     * Return current property name.
+     * @return current property name
+     */
+    public String getProperty() {
+        return property;
     }
 
+    /**
+     * Return args.
+     * @return args.
+     */
     public Object[] getValues() {
         return values;
     }

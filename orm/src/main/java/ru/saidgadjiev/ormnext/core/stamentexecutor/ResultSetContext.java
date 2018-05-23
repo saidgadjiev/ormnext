@@ -1,7 +1,7 @@
 package ru.saidgadjiev.ormnext.core.stamentexecutor;
 
-import ru.saidgadjiev.ormnext.core.dao.InternalSession;
-import ru.saidgadjiev.ormnext.core.support.DatabaseResultSet;
+import ru.saidgadjiev.ormnext.core.dao.Session;
+import ru.saidgadjiev.ormnext.core.support.DatabaseResults;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,24 +10,24 @@ import java.util.Map;
 
 public class ResultSetContext {
 
-    private InternalSession dao;
+    private Session dao;
 
-    private DatabaseResultSet databaseResults;
+    private DatabaseResults databaseResults;
 
     private Map<String, Map<Object, EntityProcessingState>> processingStateMap = new HashMap<>();
 
     private Map<Class<?>, Map<Object, Object>> cache = new HashMap<>();
 
-    public ResultSetContext(InternalSession dao, DatabaseResultSet databaseResults) {
+    public ResultSetContext(Session dao, DatabaseResults databaseResults) {
         this.dao = dao;
         this.databaseResults = databaseResults;
     }
 
-    public InternalSession getDao() {
+    public Session getDao() {
         return dao;
     }
 
-    public DatabaseResultSet getDatabaseResults() {
+    public DatabaseResults getDatabaseResults() {
         return databaseResults;
     }
 

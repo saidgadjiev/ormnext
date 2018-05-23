@@ -1,80 +1,96 @@
 package ru.saidgadjiev.ormnext.core.cache;
 
-import ru.saidgadjiev.up.cache.core.Cache;
-import ru.saidgadjiev.up.cache.core.CacheBuilder;
-
+import java.lang.ref.Reference;
+import java.lang.ref.SoftReference;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ReferenceObjectCache implements ObjectCache {
+public class ReferenceObjectCache<ID, T> implements ObjectCache<ID, T> {
 
-    private Map<Class<?>, Cache<Object, Object>> cache = new ConcurrentHashMap<>();
+    private Map<Class<T>, Map<ID, SoftReference<T>>> cache = new ConcurrentHashMap<>();
 
     @Override
-    public void registerClass(Class<?> tClass) {
-        cache.computeIfAbsent(tClass, k -> CacheBuilder.newRefenceCacheBuilder().build());
+    public void registerClass(Class<T> tClass) {
+        cache.computeIfAbsent(tClass, k -> new HashMap<>());
     }
 
     @Override
-    public void put(Class<?> tClass, Object id, Object data) {
-        Cache<Object, Object> objectCache = cache.get(tClass);
+    public void put(Class<T> tClass, ID id, T data) {
+        Map<ID, SoftReference<T>> objectCache = cache.get(tClass);
 
         if (objectCache != null) {
-            objectCache.put(id, data);
+            objectCache.put(id, new SoftReference<>(data));
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public Object get(Class<?> tClass, Object id) {
-        Cache<Object, Object> objectCache = cache.get(tClass);
+    public T get(Class<T> tClass, ID id) {
+        Map<ID, SoftReference<T>> objectCache = cache.get(tClass);
 
         if (objectCache == null) {
             return null;
         }
-        Object data = objectCache.get(id);
+        Reference<T> ref = objectCache.get(id);
 
-        return data;
+        if (ref == null) {
+            return null;
+        }
+        T obj = ref.get();
+
+        if (obj == null) {
+            objectCache.remove(id);
+
+            return null;
+        } else {
+            return obj;
+        }
     }
 
     @Override
-    public boolean contains(Class<?> tClass, Object id) {
-        Cache<Object, Object> objectCache = cache.get(tClass);
+    public boolean contains(Class<T> tClass, ID id) {
+        Map<ID, SoftReference<T>> objectCache = cache.get(tClass);
 
         if (objectCache == null) {
             return false;
         }
-        return objectCache.contains(id);
+
+        return objectCache.containsKey(id);
     }
 
     @Override
-    public void invalidate(Class<?> tClass, Object id) {
-        Cache<Object, Object> objectCache = cache.get(tClass);
+    public void invalidate(Class<T> tClass, ID id) {
+        Map<ID, SoftReference<T>> objectCache = cache.get(tClass);
 
         if (objectCache == null) {
             return;
         }
-        objectCache.invalidate(id);
+        objectCache.remove(id);
     }
 
     @Override
-    public void invalidateAll(Class<?> tClass) {
-        Cache<Object, Object> objectCache = cache.get(tClass);
+    public void invalidateAll(Class<T> tClass) {
+        Map<ID, SoftReference<T>> objectCache = cache.get(tClass);
 
         if (objectCache == null) {
             return;
         }
-        objectCache.invalidateAll();
+        objectCache.clear();
     }
 
     @Override
     public void invalidateAll() {
-        cache.forEach((key, value) -> value.invalidateAll());
+        cache.forEach((key, value) -> value.clear());
     }
 
     @Override
-    public long size(Class<?> tClass) {
-        Cache<Object, Object> objectCache = cache.get(tClass);
+    public void clear() {
+        cache.clear();
+    }
+
+    @Override
+    public long size(Class<T> tClass) {
+        Map<ID, SoftReference<T>> objectCache = cache.get(tClass);
 
         if (objectCache == null) {
             return 0;
@@ -83,14 +99,4 @@ public class ReferenceObjectCache implements ObjectCache {
         return objectCache.size();
     }
 
-    @Override
-    public long sizeAll() {
-        long count = 0;
-
-        for (Cache<Object, Object> cache: cache.values()) {
-            count += cache.size();
-        }
-
-        return count;
-    }
 }

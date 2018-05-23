@@ -5,17 +5,35 @@ import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+/**
+ * Date literal.
+ */
 public class DateLiteral implements Literal<Date> {
 
+    /**
+     * Current date.
+     */
     private final Date time;
 
+    /**
+     * Date sql present.
+     */
     private final String original;
 
+    /**
+     * Create new instance.
+     * @param time target time
+     */
     public DateLiteral(Date time) {
         this.time = time;
         this.original = "DATE('" + new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(time) + "', 'yyyy.MM.dd G 'at' HH:mm:ss z')";
     }
 
+    /**
+     * Create new instance.
+     * @param time target time
+     * @param format target date format {@link SimpleDateFormat}
+     */
     public DateLiteral(Date time, SimpleDateFormat format) {
         this.time = time;
         this.original = "DATE('" + format.format(time) + "', 'yyyy.MM.dd G 'at' HH:mm:ss z')";
@@ -26,8 +44,9 @@ public class DateLiteral implements Literal<Date> {
         return original;
     }
 
+    @Override
     public Date get() {
-        return this.time;
+        return time;
     }
 
     @Override

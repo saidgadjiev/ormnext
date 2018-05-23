@@ -3,12 +3,19 @@ package ru.saidgadjiev.ormnext.core.query.core.literals;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 
 /**
- * Created by said on 08.09.17.
+ * String literal.
  */
 public class StringLiteral implements Literal<String> {
 
+    /**
+     * Current value.
+     */
     private final String value;
 
+    /**
+     * Create new instance.
+     * @param value target value
+     */
     public StringLiteral(String value) {
         this.value = value;
     }
