@@ -42,8 +42,7 @@ import ru.saidgadjiev.ormnext.benchmark.domain.UserProfile;
 import ru.saidgadjiev.ormnext.core.dao.Session;
 import ru.saidgadjiev.ormnext.core.dao.SessionManagerBuilder;
 import ru.saidgadjiev.ormnext.core.field.DataPersisterManager;
-import ru.saidgadjiev.ormnext.core.field.persister.SerialTypeDataPersister;
-import ru.saidgadjiev.ormnext.core.support.ConnectionSource;
+import ru.saidgadjiev.ormnext.core.connection_source.ConnectionSource;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

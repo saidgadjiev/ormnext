@@ -1,0 +1,70 @@
+package ru.saidgadjiev.ormnext.core.table.internal.alias;
+
+import ru.saidgadjiev.ormnext.core.field.field_type.IDatabaseColumnType;
+import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetadata;
+
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+/**
+ * Entity alias context.
+ */
+public class EntityAliasResolverContext {
+
+    /**
+     * Resolved aliases by uid generated from {@link UIDGenerator}.
+     * @see EntityAliases
+     */
+    private Map<String, EntityAliases> resolvedEntityAliases = new HashMap<>();
+
+    /**
+     * Unique alias creator.
+     * @see AliasCreator
+     */
+    private AliasCreator aliasCreator = new AliasCreator();
+
+    /**
+     * Create aliases for uid.
+     * @param uid target uid
+     * @param entityMetadata target entity metadata
+     * @return entity aliases
+     */
+    public EntityAliases resolveAliases(String uid, DatabaseEntityMetadata<?> entityMetadata) {
+        String tableAlias = aliasCreator.createAlias(entityMetadata.getTableName());
+        Map<String, String> columnAliases = new LinkedHashMap<>();
+        Map<String, String> propertyNameAliases = new HashMap<>();
+
+        for (IDatabaseColumnType columnType: entityMetadata.getColumnTypes()) {
+            if (columnType.isForeignCollectionColumnType()) {
+                continue;
+            }
+            if (columnType.isId()) {
+                continue;
+            }
+            String resolvedAlias = aliasCreator.createAlias(columnType.getColumnName());
+
+            columnAliases.put(columnType.getColumnName(), resolvedAlias);
+            propertyNameAliases.put(columnType.getField().getName(), resolvedAlias);
+        }
+        IDatabaseColumnType primaryKey = entityMetadata.getPrimaryKey();
+        String keyAlias = aliasCreator.createAlias(primaryKey.getColumnName());
+
+        columnAliases.put(primaryKey.getColumnName(), keyAlias);
+        propertyNameAliases.put(primaryKey.getField().getName(), keyAlias);
+        EntityAliases entityAliases = new EntityAliases(tableAlias, columnAliases, propertyNameAliases, keyAlias);
+
+        resolvedEntityAliases.putIfAbsent(uid, entityAliases);
+
+        return entityAliases;
+    }
+
+    /**
+     * Return resolved aliases by uid.
+     * @param uid target uid
+     * @return entity aliases
+     */
+    public EntityAliases getAliases(String uid) {
+        return resolvedEntityAliases.get(uid);
+    }
+}

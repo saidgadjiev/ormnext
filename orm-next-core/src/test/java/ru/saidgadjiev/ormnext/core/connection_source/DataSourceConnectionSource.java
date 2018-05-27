@@ -1,0 +1,18 @@
+package ru.saidgadjiev.ormnext.core.connection_source;
+
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
+
+public class DataSourceConnectionSource implements ConnectionSource<Connection> {
+
+    private DataSource dataSource;
+
+    public DataSourceConnectionSource(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
+    public DatabaseConnection<Connection> getConnection() throws SQLException {
+        return new DatabaseConnectionImpl(dataSource.getConnection());
+    }
+}

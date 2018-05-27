@@ -173,7 +173,7 @@
         </plugins>
     </build>
     <modules>
-        <module>orm</module>
+        <module>orm-next-core</module>
         <module>property-binder</module>
         <module>orm-benchmark</module>
         <module>proxy-maker</module>

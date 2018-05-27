@@ -1,7 +1,6 @@
 package ru.saidgadjiev.ormnext.benchmark.domain;
 
 import ru.saidgadjiev.ormnext.core.field.*;
-import ru.saidgadjiev.ormnext.core.field.persister.TimestampToDate;
 
 import java.util.Date;
 
