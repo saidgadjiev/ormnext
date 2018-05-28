@@ -122,7 +122,7 @@ public interface BaseDao {
     <T> long countOff(Class<T> tClass) throws SQLException;
 
     /**
-     * Query for the items in the object table which match the criteria query.
+     * Query for the items in the object table which match the select query.
      *
      * @param selectStatement target criteria query
      * @param <T>           object type

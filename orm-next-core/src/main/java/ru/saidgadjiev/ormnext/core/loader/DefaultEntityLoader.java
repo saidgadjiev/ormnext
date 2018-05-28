@@ -355,7 +355,7 @@ public class DefaultEntityLoader {
     }
 
     /**
-     * Return all objects by criteria query.
+     * Return all objects by select query.
      *
      * @param connection    target connection
      * @param selectStatement target query
@@ -377,7 +377,7 @@ public class DefaultEntityLoader {
     }
 
     /**
-     * Return long result by criteria query.
+     * Return long result by select query.
      *
      * @param connection    target connection
      * @param selectStatement target query
