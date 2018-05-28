@@ -2,6 +2,8 @@ package ru.saidgadjiev.ormnext.core.field.field_type;
 
 /**
  * Column key.
+ *
+ * @author said gadjiev
  */
 public class ColumnKey {
 

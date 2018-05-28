@@ -8,6 +8,8 @@ import java.lang.annotation.Target;
 
 /**
  * Use this annotation for One to One or One to Many relation.
+ *
+ * @author said gadjiev
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)

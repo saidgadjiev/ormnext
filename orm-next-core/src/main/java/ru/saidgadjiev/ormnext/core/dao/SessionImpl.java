@@ -18,6 +18,8 @@ import java.util.List;
 
 /**
  * Concrete session implementation {@link Session}.
+ *
+ * @author said gadjiev
  */
 public class SessionImpl implements Session, InternalTransaction {
 

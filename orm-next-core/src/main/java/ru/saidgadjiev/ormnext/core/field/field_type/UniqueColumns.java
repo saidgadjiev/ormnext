@@ -4,6 +4,8 @@ import java.util.List;
 
 /**
  * Holds unique columns.
+ *
+ * @author said gadjiev
  */
 public class UniqueColumns {
 

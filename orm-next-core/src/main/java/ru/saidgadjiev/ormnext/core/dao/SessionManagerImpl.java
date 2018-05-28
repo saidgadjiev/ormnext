@@ -11,6 +11,8 @@ import java.sql.SQLException;
 
 /**
  * Implementation of {@link SessionManager}.
+ *
+ * @author said gadjiev
  */
 public class SessionManagerImpl implements SessionManager {
 

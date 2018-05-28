@@ -28,6 +28,8 @@ import static ru.saidgadjiev.ormnext.core.utils.ArgumentUtils.*;
 
 /**
  * Executes SQL statements via {@link DatabaseEngine}.
+ *
+ * @author said gadjiev
  */
 public class DefaultEntityLoader {
 

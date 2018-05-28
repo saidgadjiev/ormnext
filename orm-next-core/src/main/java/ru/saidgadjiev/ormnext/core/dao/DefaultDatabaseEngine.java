@@ -18,6 +18,8 @@ import java.util.Map;
 
 /**
  * Default database engine.
+ *
+ * @author said gadjiev
  */
 public class DefaultDatabaseEngine implements DatabaseEngine<Connection> {
 

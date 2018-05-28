@@ -4,13 +4,16 @@ import java.sql.SQLException;
 
 /**
  * Convert java object to sql value and sql value to java value.
+ *
  * @param <S> sql value type
  * @param <J> java value type
+ * @author said gadjiev
  */
 public interface ColumnConverter<S, J> {
 
     /**
      * Java object value to sql value.
+     *
      * @param value target value
      * @return converted value
      * @throws SQLException any SQL exceptions
@@ -19,6 +22,7 @@ public interface ColumnConverter<S, J> {
 
     /**
      * SQL value to java.
+     *
      * @param value target value
      * @return converted value
      * @throws SQLException any SQL exceptions

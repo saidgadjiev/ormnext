@@ -3,6 +3,8 @@ package ru.saidgadjiev.ormnext.core.logger;
 /**
  * Log interface. Custom logger class should implement this interface
  * and has constructor with one argument logged class.
+ *
+ * @author said gadjiev
  */
 public interface Log {
 

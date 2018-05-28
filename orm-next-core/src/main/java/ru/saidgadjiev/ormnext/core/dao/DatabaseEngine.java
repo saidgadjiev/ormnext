@@ -15,6 +15,7 @@ import java.util.Map;
  * It must be use for execute statements.
  *
  * @param <T> connection type
+ * @author said gadjiev
  * @see ru.saidgadjiev.ormnext.core.loader.DefaultEntityLoader
  */
 public interface DatabaseEngine<T> {

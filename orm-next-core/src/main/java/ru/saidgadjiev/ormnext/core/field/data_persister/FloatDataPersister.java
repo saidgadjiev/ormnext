@@ -8,6 +8,8 @@ import java.sql.SQLException;
 
 /**
  * Type that persists a float type.
+ *
+ * @author said gadjiev
  */
 public class FloatDataPersister extends BaseDataPersister {
 

@@ -10,6 +10,8 @@ import java.lang.annotation.Target;
  * Annotation for provide getter method for field.
  * By default orm next thinks that the class is java bean, if you provide getter method
  * orm next use your provided method and don't try find java bean getter method.
+ *
+ * @author said gadjiev
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)

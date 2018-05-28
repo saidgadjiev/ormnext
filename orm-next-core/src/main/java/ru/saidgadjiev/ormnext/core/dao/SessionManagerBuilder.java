@@ -10,6 +10,8 @@ import java.util.Collection;
 
 /**
  * Builder for session manager.
+ *
+ * @author said gadjiev
  */
 public class SessionManagerBuilder {
 

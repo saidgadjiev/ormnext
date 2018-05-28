@@ -32,6 +32,8 @@ import java.util.List;
 
 /**
  * This class use for create sql from visitor elements.
+ *
+ * @author said gadjiev
  */
 public final class DefaultVisitor extends NoActionVisitor {
 

@@ -6,6 +6,8 @@ import java.sql.SQLException;
 
 /**
  * This interface provide methods for work with transaction.
+ *
+ * @author said gadjiev
  */
 public interface Session extends AutoCloseable, BaseDao {
 

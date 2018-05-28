@@ -35,6 +35,8 @@ import java.util.stream.Collectors;
 /**
  * Query space for entity. It contains prepared join expression, resolved aliases and select columns list
  * and methods for create statements for different operations eg. select by id, select all...
+ *
+ * @author said gadjiev
  */
 public class EntityQuerySpace {
 

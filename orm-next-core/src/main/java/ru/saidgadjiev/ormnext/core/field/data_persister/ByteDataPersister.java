@@ -8,6 +8,8 @@ import java.sql.SQLException;
 
 /**
  * Type that persists a byte type.
+ *
+ * @author said gadjiev
  */
 public class ByteDataPersister extends BaseDataPersister {
 

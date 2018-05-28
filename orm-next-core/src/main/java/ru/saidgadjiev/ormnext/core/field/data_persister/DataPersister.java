@@ -8,6 +8,8 @@ import java.util.List;
 
 /**
  * Column data persister.
+ *
+ * @author said gadjiev
  */
 public interface DataPersister {
 

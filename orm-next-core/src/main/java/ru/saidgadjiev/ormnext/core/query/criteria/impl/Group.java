@@ -5,6 +5,8 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.ColumnSpec;
 
 /**
  * This class has static method for create group by item.
+ *
+ * @author said gadjiev
  */
 public final class Group {
 

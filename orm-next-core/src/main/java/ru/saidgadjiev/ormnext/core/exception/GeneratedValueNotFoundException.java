@@ -4,6 +4,8 @@ import java.lang.reflect.Field;
 
 /**
  * Exception will be thrown if generated value not found in result set.
+ *
+ * @author said gadjiev
  */
 public class GeneratedValueNotFoundException extends RuntimeException {
 

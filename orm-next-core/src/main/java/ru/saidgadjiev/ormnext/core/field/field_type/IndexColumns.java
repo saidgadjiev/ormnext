@@ -4,6 +4,8 @@ import java.util.List;
 
 /**
  * Holds index info.
+ *
+ * @author said gadjiev
  */
 public class IndexColumns {
 

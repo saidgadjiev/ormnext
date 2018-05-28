@@ -7,6 +7,8 @@ import java.util.Date;
 
 /**
  * Timestamp to date converter / date to timestamp converter.
+ *
+ * @author said gadjiev
  */
 public class TimestampToDate implements ColumnConverter<Timestamp, Date> {
 

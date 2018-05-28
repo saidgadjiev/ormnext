@@ -5,6 +5,8 @@ import java.util.List;
 
 /**
  * This class use for return restriction argument info.
+ *
+ * @author said gadjiev
  */
 public class CriterionArgument {
 

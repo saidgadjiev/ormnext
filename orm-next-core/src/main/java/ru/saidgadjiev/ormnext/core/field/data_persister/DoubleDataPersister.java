@@ -8,6 +8,8 @@ import java.sql.SQLException;
 
 /**
  * Type that persists a double type.
+ *
+ * @author said gadjiev
  */
 public class DoubleDataPersister extends BaseDataPersister {
 

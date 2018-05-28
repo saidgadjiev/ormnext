@@ -10,6 +10,8 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.function.SUM;
 
 /**
  * This class has static method for create projections eg. aggregate functions.
+ *
+ * @author said gadjiev
  */
 public final class Projections {
 

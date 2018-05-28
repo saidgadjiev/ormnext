@@ -2,6 +2,8 @@ package ru.saidgadjiev.ormnext.core.exception;
 
 /**
  * Exception will be thrown if class does not have default constructor.
+ *
+ * @author said gadjiev
  */
 public class DefaultConstructorNotFoundException extends RuntimeException {
 

@@ -8,6 +8,8 @@ import static ru.saidgadjiev.ormnext.core.field.DataType.*;
 /**
  * Base class for all of the {@link DatabaseType} classes that provide the per-database type functionality to create
  * tables and build queries.
+ *
+ * @author said gadjiev
  */
 public abstract class BaseDatabaseType implements DatabaseType {
 

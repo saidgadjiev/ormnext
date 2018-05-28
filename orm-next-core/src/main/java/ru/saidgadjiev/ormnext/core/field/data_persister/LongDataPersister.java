@@ -8,6 +8,8 @@ import java.sql.SQLException;
 
 /**
  * Type that persists a long type.
+ *
+ * @author said gadjiev
  */
 public class LongDataPersister extends BaseDataPersister {
 

@@ -28,6 +28,8 @@ import static ru.saidgadjiev.ormnext.core.loader.ResultSetContext.EntityProcessi
  * Read all collection object ids.
  * Second phase:
  * Retrieve collection objects by them ids and add them to column type collection.
+ *
+ * @author said gadjiev
  */
 public class CollectionInitializer {
 

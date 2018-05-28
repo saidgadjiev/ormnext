@@ -5,6 +5,8 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.condition.Condition;
 
 /**
  * Implement this interface for create new criteria restriction.
+ *
+ * @author said gadjiev
  */
 public interface Criterion {
 

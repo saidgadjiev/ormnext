@@ -10,6 +10,8 @@ import static ru.saidgadjiev.ormnext.core.query.criteria.impl.Restrictions.eq;
 
 /**
  * Collection query space.
+ *
+ * @author said gadjiev
  */
 public class CollectionQuerySpace {
 

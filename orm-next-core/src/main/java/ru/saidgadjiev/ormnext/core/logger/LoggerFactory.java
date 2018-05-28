@@ -4,6 +4,8 @@ import java.lang.reflect.Constructor;
 
 /**
  * Logger factory. Create appropriate logger by log class property {@link #LOG_CLASS_PROPERTY}.
+ *
+ * @author said gadjiev
  */
 public final class LoggerFactory {
 

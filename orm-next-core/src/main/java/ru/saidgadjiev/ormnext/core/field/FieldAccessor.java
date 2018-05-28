@@ -17,6 +17,8 @@ import java.util.function.Function;
  * This class may be used for access to field.
  * It access to field by lambda expression.
  * Getter will be mapped to {@link Function}, setter will be mapped to {@link BiConsumer}.
+ *
+ * @author said gadjiev
  */
 public class FieldAccessor {
 

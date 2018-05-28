@@ -16,7 +16,9 @@ import java.util.stream.Stream;
 
 /**
  * Base class for implement lazy collection.
+ *
  * @param <T> value type
+ * @author said gadjiev
  */
 public abstract class AbstractLazyCollection<T> implements Collection<T> {
 
@@ -47,6 +49,7 @@ public abstract class AbstractLazyCollection<T> implements Collection<T> {
 
     /**
      * Collection loader.
+     *
      * @see CollectionLoader
      */
     private CollectionLoader collectionLoader;
@@ -58,10 +61,11 @@ public abstract class AbstractLazyCollection<T> implements Collection<T> {
 
     /**
      * Create a new lazy collection.
+     *
      * @param collectionLoader collection loader
-     * @param sessionManager session manager
-     * @param ownerId owner object id
-     * @param collection original collection
+     * @param sessionManager   session manager
+     * @param ownerId          owner object id
+     * @param collection       original collection
      */
     public AbstractLazyCollection(CollectionLoader collectionLoader,
                                   SessionManager sessionManager,
@@ -104,6 +108,7 @@ public abstract class AbstractLazyCollection<T> implements Collection<T> {
     /**
      * Read collection items size.
      * If already initialized return false, else select size and cache to {@link #cachedSize}.
+     *
      * @return false if already initialized
      */
     private boolean readSize() {
@@ -132,7 +137,7 @@ public abstract class AbstractLazyCollection<T> implements Collection<T> {
 
     @Override
     public int size() {
-        return  readSize() ? (int) cachedSize : collection.size();
+        return readSize() ? (int) cachedSize : collection.size();
     }
 
     @Override

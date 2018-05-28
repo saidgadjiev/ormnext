@@ -4,6 +4,8 @@ import java.sql.SQLException;
 
 /**
  * Interface for generated key holder.
+ *
+ * @author said gadjiev
  */
 public interface GeneratedKey {
 

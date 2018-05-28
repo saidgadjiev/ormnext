@@ -10,6 +10,8 @@ import java.util.Optional;
 
 /**
  * This interface represent database column type.
+ *
+ * @author said gadjiev
  */
 public interface IDatabaseColumnType extends EntityElement {
 

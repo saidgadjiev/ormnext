@@ -29,6 +29,8 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Orm next benchmarks.
+ *
+ * @author said gadjiev
  */
 @SuppressWarnings("magicnumber")
 public class DaoBenchmark {

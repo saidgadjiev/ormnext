@@ -2,6 +2,8 @@ package ru.saidgadjiev.ormnext.core.exception;
 
 /**
  * Exception will be thrown if impossible access to field.
+ *
+ * @author said gadjiev
  */
 public class FieldAccessException extends RuntimeException {
 

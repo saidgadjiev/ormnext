@@ -8,6 +8,8 @@ import java.sql.SQLException;
 
 /**
  * Type that persists a string type.
+ *
+ * @author said gadjiev
  */
 public class StringDataPersister extends BaseDataPersister {
 

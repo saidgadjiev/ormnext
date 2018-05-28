@@ -9,6 +9,8 @@ import java.util.Collection;
 
 /**
  * Reader implementation.
+ *
+ * @author said gadjiev
  */
 public class RowReaderImpl implements RowReader {
 

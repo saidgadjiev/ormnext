@@ -5,6 +5,8 @@ import java.util.List;
 
 /**
  * Base database type that defines persistance methods for the various data types.
+ *
+ * @author said gadjiev
  */
 public abstract class BaseDataPersister implements DataPersister {
 

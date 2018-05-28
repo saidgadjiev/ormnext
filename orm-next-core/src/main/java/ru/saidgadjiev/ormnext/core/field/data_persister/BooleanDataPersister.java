@@ -8,6 +8,8 @@ import java.sql.SQLException;
 
 /**
  * Type that persists a boolean type.
+ *
+ * @author said gadjiev
  */
 public class BooleanDataPersister extends BaseDataPersister {
 

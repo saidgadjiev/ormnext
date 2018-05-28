@@ -6,6 +6,8 @@ import java.util.Date;
 
 /**
  * Benchmark model.
+ *
+ * @author said gadjiev
  */
 public class Order {
 
@@ -38,6 +40,7 @@ public class Order {
 
     /**
      * Return int field.
+     *
      * @return int field
      */
     public int getId() {
@@ -46,6 +49,7 @@ public class Order {
 
     /**
      * Set int.
+     *
      * @param id int
      */
     public void setId(int id) {
@@ -54,6 +58,7 @@ public class Order {
 
     /**
      * Return string field.
+     *
      * @return string field
      */
     public String getDescription() {
@@ -62,6 +67,7 @@ public class Order {
 
     /**
      * Set string.
+     *
      * @param description string
      */
     public void setDescription(String description) {
@@ -70,6 +76,7 @@ public class Order {
 
     /**
      * Return date field.
+     *
      * @return date field
      */
     public Date getDate() {
@@ -78,6 +85,7 @@ public class Order {
 
     /**
      * Set date.
+     *
      * @param date date
      */
     public void setDate(Date date) {
@@ -86,6 +94,7 @@ public class Order {
 
     /**
      * Return foreign field.
+     *
      * @return foreign field
      */
     public UserProfile getUserProfile() {
@@ -94,6 +103,7 @@ public class Order {
 
     /**
      * Set foreign field.
+     *
      * @param userProfile foreign field
      */
     public void setUserProfile(UserProfile userProfile) {

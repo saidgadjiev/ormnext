@@ -8,6 +8,8 @@ import java.util.List;
 
 /**
  * Benchmark model.
+ *
+ * @author said gadjiev
  */
 public class UserProfile {
 

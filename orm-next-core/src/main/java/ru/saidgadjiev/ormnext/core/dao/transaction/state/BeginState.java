@@ -6,6 +6,8 @@ import java.sql.SQLException;
 
 /**
  * Transaction prepared for begin state.
+ *
+ * @author said gadjiev
  */
 public class BeginState implements TransactionState {
 
