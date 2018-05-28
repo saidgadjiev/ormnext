@@ -365,7 +365,7 @@ public class DefaultEntityLoader {
      */
     public <T> List<T> list(DatabaseConnection connection, SelectStatement<?> selectStatement) throws SQLException {
         DatabaseEntityPersister entityPersister = metaModel.getPersister(selectStatement.getEntityClass());
-        Select select = entityPersister.getEntityQuerySpace().getByCriteria(selectStatement);
+        Select select = entityPersister.getEntityQuerySpace().getBySelectStatement(selectStatement);
 
         try (DatabaseResults databaseResults = databaseEngine.select(
                 connection,
@@ -388,7 +388,7 @@ public class DefaultEntityLoader {
     public <T> long queryForLong(DatabaseConnection connection, SelectStatement<T> selectStatement)
             throws SQLException {
         DatabaseEntityPersister entityPersister = metaModel.getPersister(selectStatement.getEntityClass());
-        Select select = entityPersister.getEntityQuerySpace().getByCriteriaForLongResult(selectStatement);
+        Select select = entityPersister.getEntityQuerySpace().getSelectForLongResult(selectStatement);
 
         try (DatabaseResults databaseResults = databaseEngine.select(
                 connection,

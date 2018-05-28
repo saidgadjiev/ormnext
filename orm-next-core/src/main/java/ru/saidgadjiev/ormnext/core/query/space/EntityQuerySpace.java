@@ -401,20 +401,20 @@ public class EntityQuerySpace {
     /**
      * Make and return select statement.
      *
-     * @param criteria target criteria query
+     * @param selectStatement target select query
      * @return select statement
      */
-    public Select getByCriteria(SelectStatement criteria) {
+    public Select getBySelectStatement(SelectStatement selectStatement) {
         Select select = new Select();
 
         select.setSelectColumnsStrategy(selectColumnsList);
         select.setFrom(fromJoinedTables);
-        select.setWhere(criteria.getWhere());
-        select.setGroupBy(criteria.getGroupBy());
-        select.setOrderBy(criteria.getOrderBy());
-        select.setHaving(criteria.getHaving());
-        select.setLimit(criteria.getLimit());
-        select.setOffset(criteria.getOffset());
+        select.setWhere(selectStatement.getWhere());
+        select.setGroupBy(selectStatement.getGroupBy());
+        select.setOrderBy(selectStatement.getOrderBy());
+        select.setHaving(selectStatement.getHaving());
+        select.setLimit(selectStatement.getLimit());
+        select.setOffset(selectStatement.getOffset());
         select.accept(new QuerySpaceVisitor(rootEntityMetaData, rootEntityAliases));
 
         return select;
@@ -423,22 +423,22 @@ public class EntityQuerySpace {
     /**
      * Make and return select with long result column statement.
      *
-     * @param criteria target criteria query
+     * @param selectStatement target select query
      * @return select with long result column statement
      */
-    public Select getByCriteriaForLongResult(SelectStatement criteria) {
+    public Select getSelectForLongResult(SelectStatement selectStatement) {
         Select select = new Select();
 
         select.setFrom(new FromTable(new TableRef(rootEntityMetaData.getTableName())));
-        select.setWhere(criteria.getWhere());
-        select.setGroupBy(criteria.getGroupBy());
-        select.setOrderBy(criteria.getOrderBy());
-        select.setHaving(criteria.getHaving());
-        select.setLimit(criteria.getLimit());
-        select.setOffset(criteria.getOffset());
+        select.setWhere(selectStatement.getWhere());
+        select.setGroupBy(selectStatement.getGroupBy());
+        select.setOrderBy(selectStatement.getOrderBy());
+        select.setHaving(selectStatement.getHaving());
+        select.setLimit(selectStatement.getLimit());
+        select.setOffset(selectStatement.getOffset());
         SelectColumnsList selectColumnsList = new SelectColumnsList();
 
-        selectColumnsList.addColumn(criteria.getSelectOperand());
+        selectColumnsList.addColumn(selectStatement.getSelectOperand());
         select.setSelectColumnsStrategy(selectColumnsList);
         select.accept(new QuerySpaceVisitor(rootEntityMetaData, rootEntityAliases));
 
