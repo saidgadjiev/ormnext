@@ -186,7 +186,7 @@ public final class DatabaseColumnType extends BaseDatabaseColumnType {
 
     @Override
     public boolean defaultIfNull() {
-        return super.defaultIfNull();
+        return defaultIfNull;
     }
 
     /**

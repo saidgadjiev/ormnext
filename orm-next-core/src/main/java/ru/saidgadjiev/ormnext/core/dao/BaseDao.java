@@ -1,7 +1,7 @@
 package ru.saidgadjiev.ormnext.core.dao;
 
 import ru.saidgadjiev.ormnext.core.connection_source.DatabaseResults;
-import ru.saidgadjiev.ormnext.core.query.criteria.impl.CriteriaQuery;
+import ru.saidgadjiev.ormnext.core.query.criteria.impl.SelectStatement;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -124,24 +124,24 @@ public interface BaseDao {
     /**
      * Query for the items in the object table which match the criteria query.
      *
-     * @param criteriaQuery target criteria query
+     * @param selectStatement target criteria query
      * @param <T>           object type
      * @return a list of all of the objects in the table that match the query.
      * @throws SQLException on any SQL problems
-     * @see CriteriaQuery
+     * @see SelectStatement
      */
-    <T> List<T> list(CriteriaQuery<T> criteriaQuery) throws SQLException;
+    <T> List<T> list(SelectStatement<T> selectStatement) throws SQLException;
 
     /**
      * Query for aggregate functions which retrieve one long value.
      *
-     * @param criteriaQuery target query
+     * @param selectStatement target query
      * @param <T>           object type
      * @return long value which return query
      * @throws SQLException on any SQL problems
-     * @see CriteriaQuery
+     * @see SelectStatement
      */
-    <T> long queryForLong(CriteriaQuery<T> criteriaQuery) throws SQLException;
+    <T> long queryForLong(SelectStatement<T> selectStatement) throws SQLException;
 
     /**
      * Execute query and return results.

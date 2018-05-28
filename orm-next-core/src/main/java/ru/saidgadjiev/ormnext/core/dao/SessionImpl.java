@@ -6,7 +6,7 @@ import ru.saidgadjiev.ormnext.core.cache.ReferenceObjectCache;
 import ru.saidgadjiev.ormnext.core.connection_source.ConnectionSource;
 import ru.saidgadjiev.ormnext.core.connection_source.DatabaseConnection;
 import ru.saidgadjiev.ormnext.core.connection_source.DatabaseResults;
-import ru.saidgadjiev.ormnext.core.query.criteria.impl.CriteriaQuery;
+import ru.saidgadjiev.ormnext.core.query.criteria.impl.SelectStatement;
 import ru.saidgadjiev.ormnext.core.dao.transaction.state.BeginState;
 import ru.saidgadjiev.ormnext.core.dao.transaction.state.InternalTransaction;
 import ru.saidgadjiev.ormnext.core.dao.transaction.state.TransactionState;
@@ -185,13 +185,13 @@ public class SessionImpl implements Session, InternalTransaction {
     }
 
     @Override
-    public <T> List<T> list(CriteriaQuery<T> criteria) throws SQLException {
+    public <T> List<T> list(SelectStatement<T> criteria) throws SQLException {
         return entityLoader.list(connection, criteria);
     }
 
     @Override
-    public <T> long queryForLong(CriteriaQuery<T> criteriaQuery) throws SQLException {
-        return entityLoader.queryForLong(connection, criteriaQuery);
+    public <T> long queryForLong(SelectStatement<T> selectStatement) throws SQLException {
+        return entityLoader.queryForLong(connection, selectStatement);
     }
 
     @Override

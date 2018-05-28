@@ -1,7 +1,7 @@
 package ru.saidgadjiev.ormnext.core.query.visitor;
 
-import ru.saidgadjiev.ormnext.core.query.core.*;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.*;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.clause.*;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.clause.from.FromJoinedTables;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.clause.from.FromSubQuery;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.clause.from.FromTable;
@@ -12,14 +12,17 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.DisplayedCol
 import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.DisplayedOperand;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.common.TableRef;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.common.UpdateValue;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.condition.*;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.constraints.attribute.Default;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.constraints.attribute.NotNullConstraint;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.constraints.attribute.PrimaryKeyConstraint;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.constraints.attribute.ReferencesConstraint;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.constraints.table.ForeignKeyConstraint;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.constraints.table.UniqueConstraint;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.function.*;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.join.JoinInfo;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.join.LeftJoin;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.literals.*;
 
 /**
  * Created by said on 23.02.2018.

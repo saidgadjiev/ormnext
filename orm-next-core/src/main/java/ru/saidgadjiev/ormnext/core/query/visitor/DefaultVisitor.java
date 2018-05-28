@@ -1,8 +1,8 @@
 package ru.saidgadjiev.ormnext.core.query.visitor;
 
 import ru.saidgadjiev.ormnext.core.database_type.DatabaseType;
-import ru.saidgadjiev.ormnext.core.query.core.*;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.*;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.clause.*;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.clause.from.FromJoinedTables;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.clause.from.FromTable;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.clause.select.SelectAll;
@@ -13,6 +13,7 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.DisplayedCol
 import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.DisplayedOperand;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.common.TableRef;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.common.UpdateValue;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.condition.*;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.constraints.attribute.*;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.constraints.table.ForeignKeyConstraint;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.constraints.table.TableConstraint;
@@ -24,6 +25,7 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.function.SUM;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.join.JoinExpression;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.join.JoinInfo;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.join.LeftJoin;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.literals.*;
 
 import java.util.Iterator;
 import java.util.List;
@@ -153,8 +155,9 @@ public final class DefaultVisitor extends NoActionVisitor {
 
             sql.append("(");
 
-            for (Iterator<Condition> iterator1 = andCondition.getConditions().iterator(); iterator1.hasNext();) {
-                Condition condition = iterator1.next();
+            for (Iterator<Condition> conditionIterator = andCondition.getConditions().iterator();
+                 conditionIterator.hasNext();) {
+                Condition condition = conditionIterator.next();
 
                 sql.append("(");
 
@@ -162,7 +165,7 @@ public final class DefaultVisitor extends NoActionVisitor {
 
                 sql.append(")");
 
-                if (iterator1.hasNext()) {
+                if (conditionIterator.hasNext()) {
                     sql.append(" AND ");
                 }
             }

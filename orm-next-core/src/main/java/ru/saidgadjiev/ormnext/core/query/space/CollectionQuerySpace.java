@@ -1,7 +1,7 @@
 package ru.saidgadjiev.ormnext.core.query.space;
 
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.Criteria;
-import ru.saidgadjiev.ormnext.core.query.criteria.impl.CriteriaQuery;
+import ru.saidgadjiev.ormnext.core.query.criteria.impl.SelectStatement;
 import ru.saidgadjiev.ormnext.core.field.field_type.ForeignCollectionColumnType;
 import ru.saidgadjiev.ormnext.core.field.field_type.IDatabaseColumnType;
 import ru.saidgadjiev.ormnext.core.table.internal.alias.CollectionEntityAliases;
@@ -34,12 +34,12 @@ public class CollectionQuerySpace {
     /**
      * Select collection items statement.
      */
-    private final CriteriaQuery loadCollectionQuery;
+    private final SelectStatement loadCollectionQuery;
 
     /**
      * Select collection items count statement.
      */
-    private final CriteriaQuery countOffCriteria;
+    private final SelectStatement countOffCriteria;
 
     /**
      * Create a new query space.
@@ -55,11 +55,11 @@ public class CollectionQuerySpace {
         this.foreignCollectionColumnType = foreignCollectionColumnType;
 
         this.loadCollectionQuery =
-                new CriteriaQuery<>(foreignCollectionColumnType.getCollectionObjectClass())
+                new SelectStatement<>(foreignCollectionColumnType.getCollectionObjectClass())
                         .where(new Criteria()
                                 .add(eq(foreignCollectionColumnType.getForeignField().getName(), null)));
         this.countOffCriteria =
-                new CriteriaQuery<>(foreignCollectionColumnType.getCollectionObjectClass())
+                new SelectStatement<>(foreignCollectionColumnType.getCollectionObjectClass())
                         .withoutJoins(true)
                         .countOff()
                         .where(new Criteria()
@@ -70,7 +70,7 @@ public class CollectionQuerySpace {
      * Return select collection items statement.
      * @return select collection items statement
      */
-    public CriteriaQuery getLoadCollectionQuery() {
+    public SelectStatement getLoadCollectionQuery() {
         return loadCollectionQuery;
     }
 
@@ -78,7 +78,7 @@ public class CollectionQuerySpace {
      * Return select collection items count statement.
      * @return select collection items count statement
      */
-    public CriteriaQuery getCountOffCriteria() {
+    public SelectStatement getCountOffCriteria() {
         return countOffCriteria;
     }
 

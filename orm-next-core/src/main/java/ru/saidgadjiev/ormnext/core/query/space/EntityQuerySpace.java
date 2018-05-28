@@ -1,10 +1,9 @@
 package ru.saidgadjiev.ormnext.core.query.space;
 
-import ru.saidgadjiev.ormnext.core.query.criteria.impl.CriteriaQuery;
 import ru.saidgadjiev.ormnext.core.field.field_type.ForeignCollectionColumnType;
 import ru.saidgadjiev.ormnext.core.field.field_type.ForeignColumnType;
 import ru.saidgadjiev.ormnext.core.field.field_type.IDatabaseColumnType;
-import ru.saidgadjiev.ormnext.core.query.core.*;
+import ru.saidgadjiev.ormnext.core.query.criteria.impl.SelectStatement;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.*;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.clause.from.FromJoinedTables;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.clause.from.FromTable;
@@ -405,7 +404,7 @@ public class EntityQuerySpace {
      * @param criteria target criteria query
      * @return select statement
      */
-    public Select getByCriteria(CriteriaQuery criteria) {
+    public Select getByCriteria(SelectStatement criteria) {
         Select select = new Select();
 
         select.setSelectColumnsStrategy(selectColumnsList);
@@ -427,7 +426,7 @@ public class EntityQuerySpace {
      * @param criteria target criteria query
      * @return select with long result column statement
      */
-    public Select getByCriteriaForLongResult(CriteriaQuery criteria) {
+    public Select getByCriteriaForLongResult(SelectStatement criteria) {
         Select select = new Select();
 
         select.setFrom(new FromTable(new TableRef(rootEntityMetaData.getTableName())));

@@ -2,8 +2,6 @@ package ru.saidgadjiev.ormnext.core.loader;
 
 import ru.saidgadjiev.ormnext.core.connection_source.DatabaseConnection;
 import ru.saidgadjiev.ormnext.core.connection_source.DatabaseResults;
-import ru.saidgadjiev.ormnext.core.query.criteria.impl.CriteriaQuery;
-import ru.saidgadjiev.ormnext.core.query.criteria.impl.CriterionArgument;
 import ru.saidgadjiev.ormnext.core.dao.DatabaseEngine;
 import ru.saidgadjiev.ormnext.core.dao.Session;
 import ru.saidgadjiev.ormnext.core.exception.GeneratedValueNotFoundException;
@@ -12,18 +10,21 @@ import ru.saidgadjiev.ormnext.core.field.DataPersisterManager;
 import ru.saidgadjiev.ormnext.core.field.data_persister.DataPersister;
 import ru.saidgadjiev.ormnext.core.field.field_type.ForeignColumnType;
 import ru.saidgadjiev.ormnext.core.field.field_type.IDatabaseColumnType;
+import ru.saidgadjiev.ormnext.core.query.criteria.impl.CriterionArgument;
+import ru.saidgadjiev.ormnext.core.query.criteria.impl.SelectStatement;
+import ru.saidgadjiev.ormnext.core.query.space.EntityQuerySpace;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.*;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetadata;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.MetaModel;
 import ru.saidgadjiev.ormnext.core.table.internal.persister.DatabaseEntityPersister;
-import ru.saidgadjiev.ormnext.core.query.space.EntityQuerySpace;
-import ru.saidgadjiev.ormnext.core.utils.ArgumentUtils;
 import ru.saidgadjiev.ormnext.core.utils.DatabaseEntityMetadataUtils;
 
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+
+import static ru.saidgadjiev.ormnext.core.utils.ArgumentUtils.*;
 
 /**
  * Executes SQL statements via {@link DatabaseEngine}.
@@ -71,7 +72,7 @@ public class DefaultEntityLoader {
     public <T> void create(DatabaseConnection connection, T object) throws SQLException {
         try {
             DatabaseEntityPersister entityPersister = metaModel.getPersister(object.getClass());
-            Map<IDatabaseColumnType, Argument> argumentMap = ArgumentUtils.ejectForCreate(object, entityPersister.getMetadata());
+            Map<IDatabaseColumnType, Argument> argumentMap = ejectForCreate(object, entityPersister.getMetadata());
             EntityQuerySpace entityQuerySpace = entityPersister.getEntityQuerySpace();
             CreateQuery createQuery = entityQuerySpace.getCreateQuery(argumentMap.keySet());
             IDatabaseColumnType idField = entityPersister.getMetadata().getPrimaryKeyColumnType();
@@ -176,7 +177,7 @@ public class DefaultEntityLoader {
                 .collect(Collectors.toList());
 
         UpdateQuery updateQuery = entityPersister.getEntityQuerySpace().getUpdateQuery(updatableColumnTypes);
-        Map<IDatabaseColumnType, Argument> arguments = ArgumentUtils.ejectForUpdate(object, entityMetadata);
+        Map<IDatabaseColumnType, Argument> arguments = ejectForUpdate(object, entityMetadata);
 
         try {
             databaseEngine.update(connection, updateQuery, new HashMap<Integer, Argument>() {{
@@ -200,7 +201,7 @@ public class DefaultEntityLoader {
     public <T> void delete(DatabaseConnection connection, T object) throws SQLException {
         try {
             DatabaseEntityPersister entityPersister = metaModel.getPersister(object.getClass());
-            Argument id = ArgumentUtils.eject(object, entityPersister.getMetadata().getPrimaryKeyColumnType());
+            Argument id = eject(object, entityPersister.getMetadata().getPrimaryKeyColumnType());
 
             DeleteQuery deleteQuery = entityPersister.getEntityQuerySpace().getDeleteQuery();
 
@@ -225,7 +226,7 @@ public class DefaultEntityLoader {
     public <T, ID> void deleteById(DatabaseConnection connection, Class<T> tClass, ID id) throws SQLException {
         DatabaseEntityPersister entityPersister = metaModel.getPersister(tClass);
         DeleteQuery deleteQuery = entityPersister.getEntityQuerySpace().getDeleteQuery();
-        Argument idArgument = ArgumentUtils.processConvertersToSqlValue(
+        Argument idArgument = processConvertersToSqlValue(
                 id,
                 entityPersister.getMetadata().getPrimaryKeyColumnType()
         );
@@ -255,7 +256,7 @@ public class DefaultEntityLoader {
 
         DatabaseEntityPersister entityPersister = metaModel.getPersister(tClass);
         EntityQuerySpace entityQuerySpace = entityPersister.getEntityQuerySpace();
-        Argument idArgument = ArgumentUtils.processConvertersToSqlValue(
+        Argument idArgument = processConvertersToSqlValue(
                 id,
                 entityPersister.getMetadata().getPrimaryKeyColumnType()
         );
@@ -357,19 +358,19 @@ public class DefaultEntityLoader {
      * Return all objects by criteria query.
      *
      * @param connection    target connection
-     * @param criteriaQuery target query
+     * @param selectStatement target query
      * @param <T>           table type
      * @return objects list
      * @throws SQLException any SQL exceptions
      */
-    public <T> List<T> list(DatabaseConnection connection, CriteriaQuery<?> criteriaQuery) throws SQLException {
-        DatabaseEntityPersister entityPersister = metaModel.getPersister(criteriaQuery.getEntityClass());
-        Select select = entityPersister.getEntityQuerySpace().getByCriteria(criteriaQuery);
+    public <T> List<T> list(DatabaseConnection connection, SelectStatement<?> selectStatement) throws SQLException {
+        DatabaseEntityPersister entityPersister = metaModel.getPersister(selectStatement.getEntityClass());
+        Select select = entityPersister.getEntityQuerySpace().getByCriteria(selectStatement);
 
         try (DatabaseResults databaseResults = databaseEngine.select(
                 connection,
                 select,
-                getArguments(entityPersister.getMetadata(), criteriaQuery)
+                getArguments(entityPersister.getMetadata(), selectStatement)
         )) {
             return (List<T>) entityPersister.load(session, databaseResults);
         }
@@ -379,19 +380,20 @@ public class DefaultEntityLoader {
      * Return long result by criteria query.
      *
      * @param connection    target connection
-     * @param criteriaQuery target query
+     * @param selectStatement target query
      * @param <T>           table type
      * @return result long value
      * @throws SQLException any SQL exceptions
      */
-    public <T> long queryForLong(DatabaseConnection connection, CriteriaQuery<T> criteriaQuery) throws SQLException {
-        DatabaseEntityPersister entityPersister = metaModel.getPersister(criteriaQuery.getEntityClass());
-        Select select = entityPersister.getEntityQuerySpace().getByCriteriaForLongResult(criteriaQuery);
+    public <T> long queryForLong(DatabaseConnection connection, SelectStatement<T> selectStatement)
+            throws SQLException {
+        DatabaseEntityPersister entityPersister = metaModel.getPersister(selectStatement.getEntityClass());
+        Select select = entityPersister.getEntityQuerySpace().getByCriteriaForLongResult(selectStatement);
 
         try (DatabaseResults databaseResults = databaseEngine.select(
                 connection,
                 select,
-                getArguments(entityPersister.getMetadata(), criteriaQuery)
+                getArguments(entityPersister.getMetadata(), selectStatement)
         )) {
             if (databaseResults.next()) {
                 return databaseResults.getLong(1);
@@ -417,14 +419,15 @@ public class DefaultEntityLoader {
      * Obtain arguments {@link Argument} from criteria query.
      *
      * @param metadata      target table meta data
-     * @param criteriaQuery target criteria query
+     * @param selectStatement target criteria query
      * @return argument index map
      */
-    private Map<Integer, Argument> getArguments(DatabaseEntityMetadata<?> metadata, CriteriaQuery<?> criteriaQuery) {
+    private Map<Integer, Argument> getArguments(DatabaseEntityMetadata<?> metadata,
+                                                SelectStatement<?> selectStatement) {
         Map<Integer, Argument> args = new HashMap<>();
         AtomicInteger index = new AtomicInteger();
 
-        for (CriterionArgument criterionArgument : criteriaQuery.getArgs()) {
+        for (CriterionArgument criterionArgument : selectStatement.getArgs()) {
             IDatabaseColumnType columnType = DatabaseEntityMetadataUtils
                     .getDataTypeByPropertyName(metadata.getColumnTypes(), criterionArgument.getProperty())
                     .orElseThrow(() -> new PropertyNotFoundException(
@@ -437,7 +440,7 @@ public class DefaultEntityLoader {
             }
         }
 
-        for (Map.Entry<Integer, Object> entry : criteriaQuery.getUserProvidedArgs().entrySet()) {
+        for (Map.Entry<Integer, Object> entry : selectStatement.getUserProvidedArgs().entrySet()) {
             DataPersister dataPersister = DataPersisterManager.lookup(entry.getValue().getClass());
 
             args.put(entry.getKey(), new Argument(dataPersister.getDataType(), entry.getValue()));
