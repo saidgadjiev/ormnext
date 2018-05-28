@@ -1,5 +1,7 @@
 package ru.saidgadjiev.ormnext.core.query.criteria.impl;
 
+import ru.saidgadjiev.ormnext.core.query.visitor.QueryElement;
+import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.Limit;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.Offset;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.clause.*;
@@ -9,8 +11,6 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.condition.Expression;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.function.CountAll;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.function.CountColumn;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.function.Function;
-import ru.saidgadjiev.ormnext.core.query.visitor.QueryElement;
-import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 
 import java.util.HashMap;
 import java.util.LinkedList;

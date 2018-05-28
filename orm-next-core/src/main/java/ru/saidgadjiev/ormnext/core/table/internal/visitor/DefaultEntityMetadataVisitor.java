@@ -1,22 +1,22 @@
 package ru.saidgadjiev.ormnext.core.table.internal.visitor;
 
-import ru.saidgadjiev.ormnext.core.table.internal.alias.UIDGenerator;
 import ru.saidgadjiev.ormnext.core.field.FetchType;
 import ru.saidgadjiev.ormnext.core.field.field_type.ColumnKey;
 import ru.saidgadjiev.ormnext.core.field.field_type.ForeignCollectionColumnType;
 import ru.saidgadjiev.ormnext.core.field.field_type.ForeignColumnType;
+import ru.saidgadjiev.ormnext.core.loader.object.collection.CollectionLoader;
+import ru.saidgadjiev.ormnext.core.loader.rowreader.entityinitializer.CollectionInitializer;
+import ru.saidgadjiev.ormnext.core.loader.rowreader.entityinitializer.EntityInitializer;
 import ru.saidgadjiev.ormnext.core.logger.Log;
 import ru.saidgadjiev.ormnext.core.logger.LoggerFactory;
-import ru.saidgadjiev.ormnext.core.loader.rowreader.entityinitializer.CollectionInitializer;
-import ru.saidgadjiev.ormnext.core.loader.object.collection.CollectionLoader;
 import ru.saidgadjiev.ormnext.core.query.space.CollectionQuerySpace;
-import ru.saidgadjiev.ormnext.core.loader.rowreader.entityinitializer.EntityInitializer;
+import ru.saidgadjiev.ormnext.core.query.space.EntityQuerySpace;
 import ru.saidgadjiev.ormnext.core.table.internal.alias.CollectionEntityAliases;
 import ru.saidgadjiev.ormnext.core.table.internal.alias.EntityAliasResolverContext;
 import ru.saidgadjiev.ormnext.core.table.internal.alias.EntityAliases;
+import ru.saidgadjiev.ormnext.core.table.internal.alias.UIDGenerator;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetadata;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.MetaModel;
-import ru.saidgadjiev.ormnext.core.query.space.EntityQuerySpace;
 
 import java.util.*;
 

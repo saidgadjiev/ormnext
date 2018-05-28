@@ -1,7 +1,7 @@
 package ru.saidgadjiev.ormnext.core.field.data_persister;
 
-import ru.saidgadjiev.ormnext.core.field.DataType;
 import ru.saidgadjiev.ormnext.core.connection_source.DatabaseResults;
+import ru.saidgadjiev.ormnext.core.field.DataType;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;

@@ -2,8 +2,8 @@ package ru.saidgadjiev.ormnext.core.query.criteria.impl;
 
 import ru.saidgadjiev.ormnext.core.query.criteria.api.Criterion;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.ColumnSpec;
-import ru.saidgadjiev.ormnext.core.query.visitor.element.function.Function;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.condition.*;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.function.Function;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.literals.Param;
 
 /**

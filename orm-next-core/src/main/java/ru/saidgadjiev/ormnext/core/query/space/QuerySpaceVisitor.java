@@ -1,9 +1,9 @@
 package ru.saidgadjiev.ormnext.core.query.space;
 
 import ru.saidgadjiev.ormnext.core.exception.PropertyNotFoundException;
+import ru.saidgadjiev.ormnext.core.query.visitor.NoActionVisitor;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.ColumnSpec;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.common.TableRef;
-import ru.saidgadjiev.ormnext.core.query.visitor.NoActionVisitor;
 import ru.saidgadjiev.ormnext.core.table.internal.alias.EntityAliases;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetadata;
 

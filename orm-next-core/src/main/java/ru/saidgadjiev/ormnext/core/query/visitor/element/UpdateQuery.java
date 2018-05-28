@@ -1,9 +1,9 @@
 package ru.saidgadjiev.ormnext.core.query.visitor.element;
 
-import ru.saidgadjiev.ormnext.core.query.visitor.element.common.UpdateValue;
-import ru.saidgadjiev.ormnext.core.query.visitor.element.condition.Expression;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryElement;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.common.UpdateValue;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.condition.Expression;
 
 import java.util.ArrayList;
 import java.util.List;

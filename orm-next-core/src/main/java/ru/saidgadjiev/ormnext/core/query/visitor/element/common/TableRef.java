@@ -1,8 +1,8 @@
 package ru.saidgadjiev.ormnext.core.query.visitor.element.common;
 
-import ru.saidgadjiev.ormnext.core.query.visitor.element.Alias;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryElement;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.Alias;
 
 /**
  * This class represent table name.

@@ -1,7 +1,7 @@
 package ru.saidgadjiev.ormnext.core.query.visitor.element.condition;
 
-import ru.saidgadjiev.ormnext.core.query.visitor.element.Operand;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.Operand;
 
 /**
  * Operand condition. It may be used for add aggregate function restriction eg. count(column_name) greater than 5.

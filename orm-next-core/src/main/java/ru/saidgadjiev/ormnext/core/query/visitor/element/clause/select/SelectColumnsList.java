@@ -1,7 +1,7 @@
 package ru.saidgadjiev.ormnext.core.query.visitor.element.clause.select;
 
-import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.DisplayedColumnSpec;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.DisplayedColumnSpec;
 
 import java.util.ArrayList;
 import java.util.Collection;

@@ -1,7 +1,7 @@
 package ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec;
 
-import ru.saidgadjiev.ormnext.core.query.visitor.element.Operand;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.Operand;
 
 /**
  * This class represent select operand eg. aggregate functions

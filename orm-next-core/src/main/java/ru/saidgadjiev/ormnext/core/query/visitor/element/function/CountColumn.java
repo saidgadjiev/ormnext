@@ -1,7 +1,7 @@
 package ru.saidgadjiev.ormnext.core.query.visitor.element.function;
 
-import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.ColumnSpec;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.ColumnSpec;
 
 /**
  * This class represent sql COUNT(column_name).

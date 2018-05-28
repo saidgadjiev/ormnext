@@ -1,7 +1,7 @@
 package ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec;
 
-import ru.saidgadjiev.ormnext.core.query.visitor.element.Alias;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryElement;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.Alias;
 
 /**
  * Base class for select column item.

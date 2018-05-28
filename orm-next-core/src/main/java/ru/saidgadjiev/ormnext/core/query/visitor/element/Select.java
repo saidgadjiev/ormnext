@@ -1,15 +1,15 @@
 package ru.saidgadjiev.ormnext.core.query.visitor.element;
 
+import ru.saidgadjiev.ormnext.core.query.visitor.QueryElement;
+import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.clause.GroupBy;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.clause.Having;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.clause.OrderBy;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.clause.from.FromExpression;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.clause.select.SelectAll;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.clause.select.SelectColumnsList;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.clause.select.SelectColumnsStrategy;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.condition.Expression;
-import ru.saidgadjiev.ormnext.core.query.visitor.element.clause.select.SelectColumnsList;
-import ru.saidgadjiev.ormnext.core.query.visitor.QueryElement;
-import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 
 /**
  * This class represent select query. For example it will be visited

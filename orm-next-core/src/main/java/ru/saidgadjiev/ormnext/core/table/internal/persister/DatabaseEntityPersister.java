@@ -1,6 +1,6 @@
 package ru.saidgadjiev.ormnext.core.table.internal.persister;
 
-import ru.saidgadjiev.ormnext.core.table.internal.alias.UIDGenerator;
+import ru.saidgadjiev.ormnext.core.connection_source.DatabaseResults;
 import ru.saidgadjiev.ormnext.core.dao.Session;
 import ru.saidgadjiev.ormnext.core.dao.SessionManager;
 import ru.saidgadjiev.ormnext.core.loader.ResultSetContext;
@@ -9,14 +9,14 @@ import ru.saidgadjiev.ormnext.core.loader.rowreader.RowReader;
 import ru.saidgadjiev.ormnext.core.loader.rowreader.RowReaderImpl;
 import ru.saidgadjiev.ormnext.core.loader.rowreader.RowResult;
 import ru.saidgadjiev.ormnext.core.loader.rowreader.entityinitializer.EntityInitializer;
-import ru.saidgadjiev.ormnext.core.connection_source.DatabaseResults;
+import ru.saidgadjiev.ormnext.core.query.space.EntityQuerySpace;
 import ru.saidgadjiev.ormnext.core.table.internal.alias.EntityAliasResolverContext;
 import ru.saidgadjiev.ormnext.core.table.internal.alias.EntityAliases;
+import ru.saidgadjiev.ormnext.core.table.internal.alias.UIDGenerator;
 import ru.saidgadjiev.ormnext.core.table.internal.instatiator.Instantiator;
 import ru.saidgadjiev.ormnext.core.table.internal.instatiator.ObjectInstantiator;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetadata;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.MetaModel;
-import ru.saidgadjiev.ormnext.core.query.space.EntityQuerySpace;
 import ru.saidgadjiev.ormnext.core.table.internal.visitor.DefaultEntityMetadataVisitor;
 import ru.saidgadjiev.proxymaker.ProxyMaker;
 

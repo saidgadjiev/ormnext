@@ -1,9 +1,9 @@
 package ru.saidgadjiev.ormnext.core.query.visitor.element.join;
 
-import ru.saidgadjiev.ormnext.core.query.visitor.element.common.TableRef;
-import ru.saidgadjiev.ormnext.core.query.visitor.element.condition.Expression;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryElement;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.common.TableRef;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.condition.Expression;
 
 /**
  * This class represent join info-table name and join expression.

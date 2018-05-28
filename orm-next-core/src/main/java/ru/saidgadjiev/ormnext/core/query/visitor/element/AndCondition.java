@@ -1,8 +1,8 @@
 package ru.saidgadjiev.ormnext.core.query.visitor.element;
 
-import ru.saidgadjiev.ormnext.core.query.visitor.element.condition.Condition;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryElement;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.condition.Condition;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,8 +1,8 @@
 package ru.saidgadjiev.ormnext.core.query.visitor.element.clause.from;
 
+import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.common.TableRef;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.join.JoinExpression;
-import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 
 import java.util.ArrayList;
 import java.util.Collection;

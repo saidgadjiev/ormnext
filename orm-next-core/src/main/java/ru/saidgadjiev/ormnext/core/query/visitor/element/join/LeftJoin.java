@@ -1,8 +1,8 @@
 package ru.saidgadjiev.ormnext.core.query.visitor.element.join;
 
+import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.common.TableRef;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.condition.Expression;
-import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 
 /**
  * This class represent LEF JOIN.

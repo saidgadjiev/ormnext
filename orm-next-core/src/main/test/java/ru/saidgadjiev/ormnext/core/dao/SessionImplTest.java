@@ -7,8 +7,6 @@ import ru.saidgadjiev.ormnext.core.model.SimpleEntity;
 
 import java.sql.SQLException;
 
-import static org.junit.Assert.*;
-
 public class SessionImplTest extends BaseCoreTest {
 
     @Test

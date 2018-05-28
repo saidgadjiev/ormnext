@@ -1,7 +1,7 @@
 package ru.saidgadjiev.ormnext.core.loader;
 
-import ru.saidgadjiev.ormnext.core.dao.Session;
 import ru.saidgadjiev.ormnext.core.connection_source.DatabaseResults;
+import ru.saidgadjiev.ormnext.core.dao.Session;
 
 import java.util.ArrayList;
 import java.util.HashMap;

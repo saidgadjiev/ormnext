@@ -1,8 +1,8 @@
 package ru.saidgadjiev.ormnext.core.query.visitor.element.clause;
 
-import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.ColumnSpec;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryElement;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.ColumnSpec;
 
 /**
  * This class represent group by item.

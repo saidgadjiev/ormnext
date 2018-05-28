@@ -1,8 +1,8 @@
 package ru.saidgadjiev.ormnext.core.query.visitor.element.common;
 
-import ru.saidgadjiev.ormnext.core.query.visitor.element.literals.RValue;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryElement;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.literals.RValue;
 
 /**
  * This class present update value eg. name = 'test'.
