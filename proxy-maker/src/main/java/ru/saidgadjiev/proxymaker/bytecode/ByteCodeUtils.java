@@ -15,7 +15,7 @@ public final class ByteCodeUtils {
     private ByteCodeUtils() { }
 
     /**
-     * Convert {@link List<Byte>} to byte array.
+     * Convert {@link List} to byte array.
      *
      * @param list target list
      * @return byte array

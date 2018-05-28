@@ -1,8 +1,8 @@
 package ru.saidgadjiev.ormnext.core.criteria.impl;
 
 import ru.saidgadjiev.ormnext.core.criteria.api.Criterion;
-import ru.saidgadjiev.ormnext.core.query.core.AndCondition;
-import ru.saidgadjiev.ormnext.core.query.core.condition.Expression;
+import ru.saidgadjiev.ormnext.core.query_element.AndCondition;
+import ru.saidgadjiev.ormnext.core.query_element.condition.Expression;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +31,7 @@ public class Criteria {
     private List<CriterionArgument> args = new ArrayList<>();
 
     /**
-     * Create new instance.
+     * Create a new instance.
      */
     public Criteria() {
         where.add(andCondition);

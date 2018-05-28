@@ -100,7 +100,7 @@ public final class ProxyFactoryHelper {
 
     /**
      * Return primitive type index from primitive type array by primitive type class {@link Class}.
-     * It will be use for associate this index in another info arrays {@link ProxyFactoryHelper#UNWARP_METHODS, ....}.
+     * It will be use for associate this index in another info arrays {@link ProxyFactoryHelper#UNWARP_METHODS} etc.
      *
      * @param type target type class
      * @return type index in {@link ProxyFactoryHelper#PRIMITIVE_TYPES}
@@ -120,7 +120,7 @@ public final class ProxyFactoryHelper {
 
     /**
      * Return primitive type index by type name from primitive type array.
-     * It will be use for associate this index in another info arrays {@link ProxyFactoryHelper#UNWARP_METHODS, ....}.
+     * It will be use for associate this index in another info arrays {@link ProxyFactoryHelper#UNWARP_METHODS} etc.
      *
      * @param typeName target type name
      * @return type index from {@link ProxyFactoryHelper#PRIMITIVE_TYPE_NAMES}

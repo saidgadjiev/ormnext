@@ -1,10 +1,10 @@
 package ru.saidgadjiev.ormnext.core.criteria.impl;
 
 import ru.saidgadjiev.ormnext.core.criteria.api.Criterion;
-import ru.saidgadjiev.ormnext.core.query.core.columnspec.ColumnSpec;
-import ru.saidgadjiev.ormnext.core.query.core.condition.*;
-import ru.saidgadjiev.ormnext.core.query.core.function.Function;
-import ru.saidgadjiev.ormnext.core.query.core.literals.Param;
+import ru.saidgadjiev.ormnext.core.query_element.columnspec.ColumnSpec;
+import ru.saidgadjiev.ormnext.core.query_element.condition.*;
+import ru.saidgadjiev.ormnext.core.query_element.function.Function;
+import ru.saidgadjiev.ormnext.core.query_element.literals.Param;
 
 /**
  * This class provide static functions for create restrictions.
@@ -17,7 +17,7 @@ public final class Restrictions {
     private Restrictions() { }
 
     /**
-     * Create "=" restriction from entity property.
+     * Create equals restriction from entity property.
      * @param property target property
      * @param value target value
      * @return Criterion
@@ -27,7 +27,7 @@ public final class Restrictions {
     }
 
     /**
-     * Create "=" restriction from requested function {@link Function}. For example will be use in having.
+     * Create equals restriction from requested function {@link Function}. For example will be use in having.
      * @param function target function
      * @param value target value
      * @return Criterion
@@ -37,7 +37,7 @@ public final class Restrictions {
     }
 
     /**
-     * Create ">=" restriction from requested property.
+     * Create greater than or equals restriction from requested property.
      * @param property target property
      * @param value target value
      * @return Criterion
@@ -47,7 +47,7 @@ public final class Restrictions {
     }
 
     /**
-     * Create ">=" restriction from requested function {@link Function}.
+     * Create greater than or equals restriction from requested function {@link Function}.
      * @param function target function
      * @param value target value
      * @return Criterion
@@ -57,7 +57,7 @@ public final class Restrictions {
     }
 
     /**
-     * Create ">" restriction from requested function property.
+     * Create greater than restriction from requested function property.
      * @param property target property
      * @param value target value
      * @return Criterion
@@ -67,7 +67,7 @@ public final class Restrictions {
     }
 
     /**
-     * Create ">" restriction from requested function {@link Function}.
+     * Create greater than restriction from requested function {@link Function}.
      * @param function target function
      * @param value target value
      * @return Criterion
@@ -77,7 +77,7 @@ public final class Restrictions {
     }
 
     /**
-     * Create "<=" restriction from requested property.
+     * Create less than or equals restriction from requested property.
      * @param property target property
      * @param value target value
      * @return Criterion
@@ -87,7 +87,7 @@ public final class Restrictions {
     }
 
     /**
-     * Create "<=" restriction from requested function {@link Function}.
+     * Create less than or equals restriction from requested function {@link Function}.
      * @param function target function
      * @param value target value
      * @return Criterion
@@ -96,7 +96,7 @@ public final class Restrictions {
         return new CriterionImpl(new LessThanOrEquals(function, new Param()), null, value);
     }
     /**
-     * Create "<" restriction from requested function {@link Function}.
+     * Create less than restriction from requested function {@link Function}.
      * @param property target property
      * @param value target value
      * @return Criterion
@@ -105,7 +105,7 @@ public final class Restrictions {
         return new CriterionImpl(new LessThan(new ColumnSpec(property), new Param()), property, value);
     }
     /**
-     * Create "<" restriction from requested function {@link Function}.
+     * Create less than restriction from requested function {@link Function}.
      * @param function target function
      * @param value target value
      * @return Criterion

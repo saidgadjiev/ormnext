@@ -1,13 +1,14 @@
 package ru.saidgadjiev.ormnext.core.dao;
 
 import ru.saidgadjiev.ormnext.core.cache.CacheHolder;
+import ru.saidgadjiev.ormnext.core.cache.ObjectCache;
 import ru.saidgadjiev.ormnext.core.cache.ReferenceObjectCache;
 import ru.saidgadjiev.ormnext.core.criteria.impl.CriteriaQuery;
 import ru.saidgadjiev.ormnext.core.dao.transaction.state.BeginState;
 import ru.saidgadjiev.ormnext.core.dao.transaction.state.InternalTransaction;
 import ru.saidgadjiev.ormnext.core.dao.transaction.state.TransactionState;
-import ru.saidgadjiev.ormnext.core.stament_executor.CacheHelper;
-import ru.saidgadjiev.ormnext.core.stament_executor.DefaultEntityLoader;
+import ru.saidgadjiev.ormnext.core.loader.CacheHelper;
+import ru.saidgadjiev.ormnext.core.loader.DefaultEntityLoader;
 import ru.saidgadjiev.ormnext.core.connection_source.ConnectionSource;
 import ru.saidgadjiev.ormnext.core.connection_source.DatabaseConnection;
 
@@ -73,7 +74,13 @@ public class SessionImpl implements Session, InternalTransaction {
         this.connectionSource = connectionSource;
         this.sessionManager = sessionManager;
         this.connection = connection;
-        this.cacheHolder = new CacheHolder().objectCache(new ReferenceObjectCache());
+        ObjectCache sessionCache = new ReferenceObjectCache<>();
+        this.cacheHolder = new CacheHolder().objectCache(sessionCache);
+
+        sessionManager.getMetaModel()
+                .getPersistentClasses()
+                .forEach(sessionCache::registerClass);
+
         this.cacheHelper = new CacheHelper(cacheHolder, this.cacheHolder);
         this.entityLoader = new DefaultEntityLoader(
                 this,

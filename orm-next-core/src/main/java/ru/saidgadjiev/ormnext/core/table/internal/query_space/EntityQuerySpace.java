@@ -5,25 +5,26 @@ import ru.saidgadjiev.ormnext.core.field.field_type.ForeignCollectionColumnType;
 import ru.saidgadjiev.ormnext.core.field.field_type.ForeignColumnType;
 import ru.saidgadjiev.ormnext.core.field.field_type.IDatabaseColumnType;
 import ru.saidgadjiev.ormnext.core.query.core.*;
-import ru.saidgadjiev.ormnext.core.query.core.clause.from.FromJoinedTables;
-import ru.saidgadjiev.ormnext.core.query.core.clause.from.FromTable;
-import ru.saidgadjiev.ormnext.core.query.core.clause.select.SelectColumnsList;
-import ru.saidgadjiev.ormnext.core.query.core.columnspec.ColumnSpec;
-import ru.saidgadjiev.ormnext.core.query.core.columnspec.DisplayedColumn;
-import ru.saidgadjiev.ormnext.core.query.core.columnspec.DisplayedColumnSpec;
-import ru.saidgadjiev.ormnext.core.query.core.columnspec.DisplayedOperand;
-import ru.saidgadjiev.ormnext.core.query.core.common.TableRef;
-import ru.saidgadjiev.ormnext.core.query.core.common.UpdateValue;
-import ru.saidgadjiev.ormnext.core.query.core.condition.Equals;
-import ru.saidgadjiev.ormnext.core.query.core.condition.Expression;
-import ru.saidgadjiev.ormnext.core.query.core.constraints.attribute.Default;
-import ru.saidgadjiev.ormnext.core.query.core.constraints.attribute.NotNullConstraint;
-import ru.saidgadjiev.ormnext.core.query.core.constraints.attribute.PrimaryKeyConstraint;
-import ru.saidgadjiev.ormnext.core.query.core.constraints.table.ForeignKeyConstraint;
-import ru.saidgadjiev.ormnext.core.query.core.constraints.table.UniqueConstraint;
-import ru.saidgadjiev.ormnext.core.query.core.function.CountAll;
-import ru.saidgadjiev.ormnext.core.query.core.join.LeftJoin;
-import ru.saidgadjiev.ormnext.core.query.core.literals.Param;
+import ru.saidgadjiev.ormnext.core.query_element.*;
+import ru.saidgadjiev.ormnext.core.query_element.clause.from.FromJoinedTables;
+import ru.saidgadjiev.ormnext.core.query_element.clause.from.FromTable;
+import ru.saidgadjiev.ormnext.core.query_element.clause.select.SelectColumnsList;
+import ru.saidgadjiev.ormnext.core.query_element.columnspec.ColumnSpec;
+import ru.saidgadjiev.ormnext.core.query_element.columnspec.DisplayedColumn;
+import ru.saidgadjiev.ormnext.core.query_element.columnspec.DisplayedColumnSpec;
+import ru.saidgadjiev.ormnext.core.query_element.columnspec.DisplayedOperand;
+import ru.saidgadjiev.ormnext.core.query_element.common.TableRef;
+import ru.saidgadjiev.ormnext.core.query_element.common.UpdateValue;
+import ru.saidgadjiev.ormnext.core.query_element.condition.Equals;
+import ru.saidgadjiev.ormnext.core.query_element.condition.Expression;
+import ru.saidgadjiev.ormnext.core.query_element.constraints.attribute.Default;
+import ru.saidgadjiev.ormnext.core.query_element.constraints.attribute.NotNullConstraint;
+import ru.saidgadjiev.ormnext.core.query_element.constraints.attribute.PrimaryKeyConstraint;
+import ru.saidgadjiev.ormnext.core.query_element.constraints.table.ForeignKeyConstraint;
+import ru.saidgadjiev.ormnext.core.query_element.constraints.table.UniqueConstraint;
+import ru.saidgadjiev.ormnext.core.query_element.function.CountAll;
+import ru.saidgadjiev.ormnext.core.query_element.join.LeftJoin;
+import ru.saidgadjiev.ormnext.core.query_element.literals.Param;
 import ru.saidgadjiev.ormnext.core.table.internal.alias.EntityAliases;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetadata;
 
@@ -67,7 +68,7 @@ public class EntityQuerySpace {
     private DatabaseEntityMetadata<?> rootEntityMetaData;
 
     /**
-     * Create new instance.
+     * Create a new instance.
      *
      * @param rootEntityMetaData root table meta data
      * @param rootEntityAliases  root table aliases
@@ -391,6 +392,7 @@ public class EntityQuerySpace {
         Select select = new Select();
         SelectColumnsList selectColumnsList = new SelectColumnsList();
 
+        select.setFrom(new FromTable(new TableRef(rootEntityMetaData.getTableName())));
         selectColumnsList.addColumn(new DisplayedOperand(new CountAll()));
         select.setSelectColumnsStrategy(selectColumnsList);
 

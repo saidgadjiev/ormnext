@@ -1,6 +1,6 @@
 package ru.saidgadjiev.ormnext.core.dao;
 
-import ru.saidgadjiev.ormnext.core.stament_executor.CacheHelper;
+import ru.saidgadjiev.ormnext.core.loader.CacheHelper;
 
 import java.sql.SQLException;
 

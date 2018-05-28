@@ -83,7 +83,7 @@ public final class DatabaseEntityMetadata<T> implements EntityElement {
     private String tableName;
 
     /**
-     * Create new instance. It may be only from {@link #build(Class)} method.
+     * Create a new instance. It may be only from {@link #build(Class)} method.
      *
      * @param tableClass    entity class
      * @param uniqueColumns resolved unique columns

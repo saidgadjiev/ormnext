@@ -1,12 +1,12 @@
 package ru.saidgadjiev.ormnext.core.field;
 
-import ru.saidgadjiev.ormnext.core.field.persister.BooleanDataPersister;
+import ru.saidgadjiev.ormnext.core.field.data_persister.BooleanDataPersister;
 
 /**
  * This class holds default orm next data types.
  * You can add new data type or override default types with associate any integer and register persister for him.
  * @see DataPersisterManager
- * @see ru.saidgadjiev.ormnext.core.field.persister.DataPersister
+ * @see ru.saidgadjiev.ormnext.core.field.data_persister.DataPersister
  */
 public final class DataType {
 
@@ -17,13 +17,13 @@ public final class DataType {
 
     /**
      * String type.
-     * @see ru.saidgadjiev.ormnext.core.field.persister.StringDataPersister
+     * @see ru.saidgadjiev.ormnext.core.field.data_persister.StringDataPersister
      */
     public static final int STRING = 0;
 
     /**
      * Integer type.
-     * @see ru.saidgadjiev.ormnext.core.field.persister.IntegerDataPersister
+     * @see ru.saidgadjiev.ormnext.core.field.data_persister.IntegerDataPersister
      */
     public static final int INTEGER = 1;
 
@@ -35,49 +35,49 @@ public final class DataType {
 
     /**
      * Long type.
-     * @see ru.saidgadjiev.ormnext.core.field.persister.LongDataPersister
+     * @see ru.saidgadjiev.ormnext.core.field.data_persister.LongDataPersister
      */
     public static final int LONG = 3;
 
     /**
      * Float type.
-     * @see ru.saidgadjiev.ormnext.core.field.persister.FloatDataPersister
+     * @see ru.saidgadjiev.ormnext.core.field.data_persister.FloatDataPersister
      */
     public static final int FLOAT = 4;
 
     /**
      * Double type.
-     * @see ru.saidgadjiev.ormnext.core.field.persister.DoubleDataPersister
+     * @see ru.saidgadjiev.ormnext.core.field.data_persister.DoubleDataPersister
      */
     public static final int DOUBLE = 5;
 
     /**
      * Byte type.
-     * @see ru.saidgadjiev.ormnext.core.field.persister.ByteDataPersister
+     * @see ru.saidgadjiev.ormnext.core.field.data_persister.ByteDataPersister
      */
     public static final int BYTE = 6;
 
     /**
      * Short type.
-     * @see ru.saidgadjiev.ormnext.core.field.persister.ShortDataPersister
+     * @see ru.saidgadjiev.ormnext.core.field.data_persister.ShortDataPersister
      */
     public static final int SHORT = 7;
 
     /**
      * Date type.
-     * @see ru.saidgadjiev.ormnext.core.field.persister.DateDataPersister
+     * @see ru.saidgadjiev.ormnext.core.field.data_persister.DateDataPersister
      */
     public static final int DATE = 8;
 
     /**
      * Time type.
-     * @see ru.saidgadjiev.ormnext.core.field.persister.TimeDataPersister
+     * @see ru.saidgadjiev.ormnext.core.field.data_persister.TimeDataPersister
      */
     public static final int TIME = 9;
 
     /**
      * Time stamp type.
-     * @see ru.saidgadjiev.ormnext.core.field.persister.TimeStampDataPersister
+     * @see ru.saidgadjiev.ormnext.core.field.data_persister.TimeStampDataPersister
      */
     public static final int TIMESTAMP = 10;
 

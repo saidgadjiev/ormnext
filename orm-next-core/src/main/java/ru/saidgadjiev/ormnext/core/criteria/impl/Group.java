@@ -1,7 +1,7 @@
 package ru.saidgadjiev.ormnext.core.criteria.impl;
 
-import ru.saidgadjiev.ormnext.core.query.core.clause.GroupByItem;
-import ru.saidgadjiev.ormnext.core.query.core.columnspec.ColumnSpec;
+import ru.saidgadjiev.ormnext.core.query_element.clause.GroupByItem;
+import ru.saidgadjiev.ormnext.core.query_element.columnspec.ColumnSpec;
 
 /**
  * This class has static method for create group by item.

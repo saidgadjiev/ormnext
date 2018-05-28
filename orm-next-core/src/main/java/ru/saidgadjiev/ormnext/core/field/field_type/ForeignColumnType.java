@@ -3,7 +3,7 @@ package ru.saidgadjiev.ormnext.core.field.field_type;
 import ru.saidgadjiev.ormnext.core.field.FetchType;
 import ru.saidgadjiev.ormnext.core.field.FieldAccessor;
 import ru.saidgadjiev.ormnext.core.field.ForeignColumn;
-import ru.saidgadjiev.ormnext.core.field.persister.DataPersister;
+import ru.saidgadjiev.ormnext.core.field.data_persister.DataPersister;
 import ru.saidgadjiev.ormnext.core.table.internal.visitor.EntityMetadataVisitor;
 import ru.saidgadjiev.ormnext.core.utils.DatabaseEntityMetadataUtils;
 import ru.saidgadjiev.ormnext.core.validator.entity.PrimaryKeyValidator;

@@ -316,7 +316,7 @@ public class CodeAttribute {
     }
 
     /**
-     * Appends {@link Opcode#ICONST_0, ...} or {@link Opcode#BI_PUSH}.
+     * Appends iconst_[0, 1, 2, 3, 4] or {@link Opcode#BI_PUSH}.
      *
      * @param n the pushed integer constant
      */

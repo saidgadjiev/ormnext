@@ -1,6 +1,6 @@
 package ru.saidgadjiev.ormnext.core.dao;
 
-import ru.saidgadjiev.ormnext.core.db.DatabaseType;
+import ru.saidgadjiev.ormnext.core.database_type.DatabaseType;
 import ru.saidgadjiev.ormnext.core.connection_source.ConnectionSource;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.MetaModel;
 

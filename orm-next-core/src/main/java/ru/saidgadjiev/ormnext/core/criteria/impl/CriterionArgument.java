@@ -19,7 +19,7 @@ public class CriterionArgument {
     private final Object[] values;
 
     /**
-     * Create new instance.
+     * Create a new instance.
      * @param property target property name
      * @param values args values
      */

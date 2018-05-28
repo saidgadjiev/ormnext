@@ -21,7 +21,7 @@ public class ColumnKey {
     private final String columnName;
 
     /**
-     * Create new instance.
+     * Create a new instance.
      * @param tableName target table name
      * @param columnName target column name
      */

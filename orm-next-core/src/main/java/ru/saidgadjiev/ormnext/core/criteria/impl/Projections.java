@@ -1,12 +1,12 @@
 package ru.saidgadjiev.ormnext.core.criteria.impl;
 
-import ru.saidgadjiev.ormnext.core.query.core.AndCondition;
-import ru.saidgadjiev.ormnext.core.query.core.columnspec.ColumnSpec;
-import ru.saidgadjiev.ormnext.core.query.core.condition.Expression;
-import ru.saidgadjiev.ormnext.core.query.core.condition.OperandCondition;
-import ru.saidgadjiev.ormnext.core.query.core.function.CountExpression;
-import ru.saidgadjiev.ormnext.core.query.core.function.Function;
-import ru.saidgadjiev.ormnext.core.query.core.function.SUM;
+import ru.saidgadjiev.ormnext.core.query_element.AndCondition;
+import ru.saidgadjiev.ormnext.core.query_element.columnspec.ColumnSpec;
+import ru.saidgadjiev.ormnext.core.query_element.condition.Expression;
+import ru.saidgadjiev.ormnext.core.query_element.condition.OperandCondition;
+import ru.saidgadjiev.ormnext.core.query_element.function.CountExpression;
+import ru.saidgadjiev.ormnext.core.query_element.function.Function;
+import ru.saidgadjiev.ormnext.core.query_element.function.SUM;
 
 /**
  * This class has static method for create projections eg. aggregate functions.

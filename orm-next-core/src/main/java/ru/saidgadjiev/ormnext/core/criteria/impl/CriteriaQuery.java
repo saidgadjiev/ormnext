@@ -1,15 +1,15 @@
 package ru.saidgadjiev.ormnext.core.criteria.impl;
 
-import ru.saidgadjiev.ormnext.core.query.core.Limit;
-import ru.saidgadjiev.ormnext.core.query.core.Offset;
-import ru.saidgadjiev.ormnext.core.query.core.clause.*;
-import ru.saidgadjiev.ormnext.core.query.core.columnspec.ColumnSpec;
-import ru.saidgadjiev.ormnext.core.query.core.columnspec.DisplayedOperand;
-import ru.saidgadjiev.ormnext.core.query.core.condition.Expression;
-import ru.saidgadjiev.ormnext.core.query.core.function.CountAll;
-import ru.saidgadjiev.ormnext.core.query.core.function.CountColumn;
-import ru.saidgadjiev.ormnext.core.query.visitor.QueryElement;
-import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
+import ru.saidgadjiev.ormnext.core.query_element.Limit;
+import ru.saidgadjiev.ormnext.core.query_element.Offset;
+import ru.saidgadjiev.ormnext.core.query_element.columnspec.ColumnSpec;
+import ru.saidgadjiev.ormnext.core.query_element.columnspec.DisplayedOperand;
+import ru.saidgadjiev.ormnext.core.query_element.condition.Expression;
+import ru.saidgadjiev.ormnext.core.query_element.function.CountAll;
+import ru.saidgadjiev.ormnext.core.query_element.function.CountColumn;
+import ru.saidgadjiev.ormnext.core.query_element.function.Function;
+import ru.saidgadjiev.ormnext.core.loader.visitor.QueryElement;
+import ru.saidgadjiev.ormnext.core.loader.visitor.QueryVisitor;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -64,7 +64,7 @@ public class CriteriaQuery<T> implements QueryElement {
     private Offset offset;
 
     /**
-     * Select operand. It may be only {@link ru.saidgadjiev.ormnext.core.query.core.function.Function}
+     * Select operand. It may be only {@link Function}
      * @see DisplayedOperand
      */
     private DisplayedOperand selectOperand;
@@ -80,7 +80,7 @@ public class CriteriaQuery<T> implements QueryElement {
     private boolean withoutJoins = false;
 
     /**
-     * Create new instance.
+     * Create a new instance.
      * @param entityClass target entity class
      */
     public CriteriaQuery(Class<T> entityClass) {

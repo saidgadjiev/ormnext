@@ -3,12 +3,12 @@ package ru.saidgadjiev.ormnext.core.table.internal.persister;
 import ru.saidgadjiev.ormnext.core.table.internal.alias.UIDGenerator;
 import ru.saidgadjiev.ormnext.core.dao.Session;
 import ru.saidgadjiev.ormnext.core.dao.SessionManager;
-import ru.saidgadjiev.ormnext.core.stament_executor.ResultSetContext;
-import ru.saidgadjiev.ormnext.core.stament_executor.object.OrmNextMethodHandler;
-import ru.saidgadjiev.ormnext.core.stament_executor.rowreader.RowReader;
-import ru.saidgadjiev.ormnext.core.stament_executor.rowreader.RowReaderImpl;
-import ru.saidgadjiev.ormnext.core.stament_executor.rowreader.RowResult;
-import ru.saidgadjiev.ormnext.core.stament_executor.rowreader.entityinitializer.EntityInitializer;
+import ru.saidgadjiev.ormnext.core.loader.ResultSetContext;
+import ru.saidgadjiev.ormnext.core.loader.object.OrmNextMethodHandler;
+import ru.saidgadjiev.ormnext.core.loader.rowreader.RowReader;
+import ru.saidgadjiev.ormnext.core.loader.rowreader.RowReaderImpl;
+import ru.saidgadjiev.ormnext.core.loader.rowreader.RowResult;
+import ru.saidgadjiev.ormnext.core.loader.rowreader.entityinitializer.EntityInitializer;
 import ru.saidgadjiev.ormnext.core.connection_source.DatabaseResults;
 import ru.saidgadjiev.ormnext.core.table.internal.alias.EntityAliasResolverContext;
 import ru.saidgadjiev.ormnext.core.table.internal.alias.EntityAliases;
@@ -85,7 +85,7 @@ public class DatabaseEntityPersister {
     private EntityQuerySpace entityQuerySpace;
 
     /**
-     * Create new instance.
+     * Create a new instance.
      *
      * @param databaseEntityMetadata entity metadata
      * @param sessionManager         session manager

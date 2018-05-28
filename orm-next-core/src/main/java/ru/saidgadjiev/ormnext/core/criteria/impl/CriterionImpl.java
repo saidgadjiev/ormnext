@@ -1,7 +1,7 @@
 package ru.saidgadjiev.ormnext.core.criteria.impl;
 
 import ru.saidgadjiev.ormnext.core.criteria.api.Criterion;
-import ru.saidgadjiev.ormnext.core.query.core.condition.Condition;
+import ru.saidgadjiev.ormnext.core.query_element.condition.Condition;
 
 /**
  * Criterion implement.
@@ -25,7 +25,7 @@ public class CriterionImpl implements Criterion {
     private final Object[] args;
 
     /**
-     * Create new instance.
+     * Create a new instance.
      * @param condition target condition
      * @param propertyName target property
      * @param args target args

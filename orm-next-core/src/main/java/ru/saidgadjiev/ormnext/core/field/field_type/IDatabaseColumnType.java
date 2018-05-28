@@ -1,7 +1,7 @@
 package ru.saidgadjiev.ormnext.core.field.field_type;
 
-import ru.saidgadjiev.ormnext.core.field.persister.ColumnConverter;
-import ru.saidgadjiev.ormnext.core.field.persister.DataPersister;
+import ru.saidgadjiev.ormnext.core.field.data_persister.ColumnConverter;
+import ru.saidgadjiev.ormnext.core.field.data_persister.DataPersister;
 import ru.saidgadjiev.ormnext.core.table.internal.visitor.EntityElement;
 
 import java.lang.reflect.Field;

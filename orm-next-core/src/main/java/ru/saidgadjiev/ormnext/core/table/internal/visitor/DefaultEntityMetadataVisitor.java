@@ -7,10 +7,10 @@ import ru.saidgadjiev.ormnext.core.field.field_type.ForeignCollectionColumnType;
 import ru.saidgadjiev.ormnext.core.field.field_type.ForeignColumnType;
 import ru.saidgadjiev.ormnext.core.logger.Log;
 import ru.saidgadjiev.ormnext.core.logger.LoggerFactory;
-import ru.saidgadjiev.ormnext.core.stament_executor.rowreader.entityinitializer.CollectionInitializer;
-import ru.saidgadjiev.ormnext.core.stament_executor.object.collection.CollectionLoader;
+import ru.saidgadjiev.ormnext.core.loader.rowreader.entityinitializer.CollectionInitializer;
+import ru.saidgadjiev.ormnext.core.loader.object.collection.CollectionLoader;
 import ru.saidgadjiev.ormnext.core.table.internal.query_space.CollectionQuerySpace;
-import ru.saidgadjiev.ormnext.core.stament_executor.rowreader.entityinitializer.EntityInitializer;
+import ru.saidgadjiev.ormnext.core.loader.rowreader.entityinitializer.EntityInitializer;
 import ru.saidgadjiev.ormnext.core.table.internal.alias.CollectionEntityAliases;
 import ru.saidgadjiev.ormnext.core.table.internal.alias.EntityAliasResolverContext;
 import ru.saidgadjiev.ormnext.core.table.internal.alias.EntityAliases;
@@ -85,7 +85,7 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
     private EntityQuerySpace entityQuerySpace;
 
     /**
-     * Create new instance.
+     * Create a new instance.
      *
      * @param rootEntityMetadata         target root entity meta data
      * @param metaModel                  target  meta model

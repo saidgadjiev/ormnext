@@ -14,7 +14,7 @@ public abstract class DatabaseResultsImpl implements DatabaseResults {
     private ResultSet resultSet;
 
     /**
-     * Create new instance.
+     * Create a new instance.
      * @param resultSet target result set
      */
     public DatabaseResultsImpl(ResultSet resultSet) {

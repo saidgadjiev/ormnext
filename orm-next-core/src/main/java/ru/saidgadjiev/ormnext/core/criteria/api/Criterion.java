@@ -1,7 +1,7 @@
 package ru.saidgadjiev.ormnext.core.criteria.api;
 
 import ru.saidgadjiev.ormnext.core.criteria.impl.CriterionArgument;
-import ru.saidgadjiev.ormnext.core.query.core.condition.Condition;
+import ru.saidgadjiev.ormnext.core.query_element.condition.Condition;
 
 /**
  * Implement this interface for create new criteria restriction.

@@ -4,8 +4,9 @@ import ru.saidgadjiev.ormnext.core.connection_source.DatabaseConnection;
 import ru.saidgadjiev.ormnext.core.connection_source.DatabaseResults;
 import ru.saidgadjiev.ormnext.core.field.field_type.IDatabaseColumnType;
 import ru.saidgadjiev.ormnext.core.query.core.*;
-import ru.saidgadjiev.ormnext.core.stament_executor.Argument;
-import ru.saidgadjiev.ormnext.core.stament_executor.GeneratedKey;
+import ru.saidgadjiev.ormnext.core.query_element.*;
+import ru.saidgadjiev.ormnext.core.loader.Argument;
+import ru.saidgadjiev.ormnext.core.loader.GeneratedKey;
 
 import java.sql.SQLException;
 import java.util.Map;
@@ -15,7 +16,7 @@ import java.util.Map;
  * It must be use for execute statements.
  *
  * @param <T> connection type
- * @see ru.saidgadjiev.ormnext.core.stament_executor.DefaultEntityLoader
+ * @see ru.saidgadjiev.ormnext.core.loader.DefaultEntityLoader
  */
 public interface DatabaseEngine<T> {
 

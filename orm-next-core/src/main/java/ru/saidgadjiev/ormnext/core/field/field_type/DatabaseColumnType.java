@@ -8,8 +8,8 @@ import ru.saidgadjiev.ormnext.core.field.DataType;
 import ru.saidgadjiev.ormnext.core.field.DatabaseColumn;
 import ru.saidgadjiev.ormnext.core.field.FieldAccessor;
 import ru.saidgadjiev.ormnext.core.field.ForeignColumn;
-import ru.saidgadjiev.ormnext.core.field.persister.ColumnConverter;
-import ru.saidgadjiev.ormnext.core.field.persister.DataPersister;
+import ru.saidgadjiev.ormnext.core.field.data_persister.ColumnConverter;
+import ru.saidgadjiev.ormnext.core.field.data_persister.DataPersister;
 import ru.saidgadjiev.ormnext.core.table.internal.visitor.EntityMetadataVisitor;
 import ru.saidgadjiev.ormnext.core.utils.DatabaseEntityMetadataUtils;
 

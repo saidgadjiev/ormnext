@@ -28,7 +28,7 @@ public interface ConnectionSource<T> extends AutoCloseable {
      * Release resources. By default it is an empty.
      * @throws SQLException any SQL exceptions
      */
-    default void close() {
+    default void close() throws SQLException {
 
     }
 }

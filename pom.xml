@@ -63,6 +63,11 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.0.0</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <version>3.0.0</version>
                 <executions>
@@ -174,8 +179,7 @@
     </build>
     <modules>
         <module>orm-next-core</module>
-        <module>property-binder</module>
-        <module>orm-benchmark</module>
+        <module>orm-next-benchmark</module>
         <module>proxy-maker</module>
     </modules>
 
