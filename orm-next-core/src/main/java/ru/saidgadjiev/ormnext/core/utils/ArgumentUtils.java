@@ -1,8 +1,8 @@
 package ru.saidgadjiev.ormnext.core.utils;
 
+import ru.saidgadjiev.ormnext.core.field.data_persister.ColumnConverter;
 import ru.saidgadjiev.ormnext.core.field.field_type.ForeignColumnType;
 import ru.saidgadjiev.ormnext.core.field.field_type.IDatabaseColumnType;
-import ru.saidgadjiev.ormnext.core.field.data_persister.ColumnConverter;
 import ru.saidgadjiev.ormnext.core.loader.Argument;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetadata;
 
@@ -21,15 +21,15 @@ public final class ArgumentUtils {
     private ArgumentUtils() { }
 
     /**
-     * Retrieve arguments with sql values from object {@code object}.
-     * If value has default definition and it is null and if it not insertable it will be ignored.
-     * @param object target object.
+     * Retrieve arguments with sql values from object {@code object} for insert statement.
+     *
+     * @param object                 target object.
      * @param databaseEntityMetadata target object entity metadata
      * @return retrieved arguments
      * @throws SQLException any exceptions
      */
-    public static Map<IDatabaseColumnType, Argument> eject(Object object,
-                                                           DatabaseEntityMetadata<?> databaseEntityMetadata
+    public static Map<IDatabaseColumnType, Argument> ejectForCreate(Object object,
+                                                                    DatabaseEntityMetadata<?> databaseEntityMetadata
     ) throws SQLException {
         Map<IDatabaseColumnType, Argument> args = new LinkedHashMap<>();
 
@@ -37,8 +37,13 @@ public final class ArgumentUtils {
             if (!columnType.isGenerated() && columnType.insertable()) {
                 Object value = columnType.access(object);
 
-                if (value != null || columnType.getDefaultDefinition() == null) {
-                    args.put(columnType, eject(object, columnType));
+                if (value != null) {
+                    args.put(columnType, processConvertersToSqlValue(
+                            value,
+                            columnType
+                    ));
+                } else if (!columnType.defaultIfNull()) {
+                    args.put(columnType, new Argument(columnType.getDataType(), null));
                 }
             }
         }
@@ -54,8 +59,43 @@ public final class ArgumentUtils {
     }
 
     /**
+     * Retrieve arguments with sql values from object {@code object} for update statement.
+     *
+     * @param object                 target object.
+     * @param databaseEntityMetadata target object entity metadata
+     * @return retrieved arguments
+     * @throws SQLException any exceptions
+     */
+    public static Map<IDatabaseColumnType, Argument> ejectForUpdate(Object object,
+                                                                    DatabaseEntityMetadata<?> databaseEntityMetadata
+    ) throws SQLException {
+        Map<IDatabaseColumnType, Argument> args = new LinkedHashMap<>();
+
+        for (IDatabaseColumnType columnType : databaseEntityMetadata.toDatabaseColumnTypes()) {
+            if (!columnType.isId() && !columnType.isGenerated() && columnType.updatable()) {
+                Object value = columnType.access(object);
+
+                if (value != null) {
+                    args.put(columnType, processConvertersToSqlValue(
+                            value,
+                            columnType
+                    ));
+                } else if (!columnType.defaultIfNull()) {
+                    args.put(columnType, new Argument(columnType.getDataType(), null));
+                }
+            }
+        }
+        IDatabaseColumnType primaryKeyColumnType = databaseEntityMetadata.getPrimaryKeyColumnType();
+
+        args.put(primaryKeyColumnType, eject(object, primaryKeyColumnType));
+
+        return args;
+    }
+
+    /**
      * Retrieve argument from requested column type in object.
-     * @param object target object
+     *
+     * @param object             target object
      * @param databaseColumnType target column type
      * @return argument
      * @throws SQLException any exceptions
@@ -71,7 +111,7 @@ public final class ArgumentUtils {
      * Convert java value to SQL with converters in requested column type
      * {@link IDatabaseColumnType#getColumnConverters()}.
      *
-     * @param javaValue target java value
+     * @param javaValue          target java value
      * @param databaseColumnType column type
      * @return argument with sql value
      * @throws SQLException any exceptions

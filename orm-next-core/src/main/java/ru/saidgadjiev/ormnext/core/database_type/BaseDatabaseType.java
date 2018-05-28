@@ -1,7 +1,7 @@
 package ru.saidgadjiev.ormnext.core.database_type;
 
 import ru.saidgadjiev.ormnext.core.exception.UnknownTypeException;
-import ru.saidgadjiev.ormnext.core.query_element.AttributeDefinition;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.AttributeDefinition;
 
 import static ru.saidgadjiev.ormnext.core.field.DataType.*;
 

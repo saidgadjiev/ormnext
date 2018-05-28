@@ -7,12 +7,11 @@ import ru.saidgadjiev.ormnext.core.database_type.DatabaseType;
 import ru.saidgadjiev.ormnext.core.field.DataPersisterManager;
 import ru.saidgadjiev.ormnext.core.field.field_type.IDatabaseColumnType;
 import ru.saidgadjiev.ormnext.core.field.data_persister.DataPersister;
-import ru.saidgadjiev.ormnext.core.query.core.*;
-import ru.saidgadjiev.ormnext.core.query_element.*;
-import ru.saidgadjiev.ormnext.core.loader.visitor.DefaultVisitor;
-import ru.saidgadjiev.ormnext.core.loader.visitor.QueryElement;
+import ru.saidgadjiev.ormnext.core.query.visitor.DefaultVisitor;
+import ru.saidgadjiev.ormnext.core.query.visitor.QueryElement;
 import ru.saidgadjiev.ormnext.core.loader.Argument;
 import ru.saidgadjiev.ormnext.core.loader.GeneratedKey;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.*;
 
 import java.sql.*;
 import java.util.Map;
@@ -59,11 +58,8 @@ public class DefaultDatabaseEngine implements DatabaseEngine<Connection> {
             return new DatabaseResultsImpl(resultSet) {
                 @Override
                 public void close() throws SQLException {
-                    try {
-                        resultSet.close();
-                    } finally {
-                        preparedStatement.close();
-                    }
+                    resultSet.close();
+                    preparedStatement.close();
                 }
             };
         } catch (SQLException ex) {
@@ -191,6 +187,28 @@ public class DefaultDatabaseEngine implements DatabaseEngine<Connection> {
             statement.execute(getQuery(dropIndexQuery));
         } catch (Exception ex) {
             throw new SQLException(ex);
+        }
+    }
+
+    @Override
+    public DatabaseResults query(DatabaseConnection<Connection> databaseConnection, String query) throws SQLException {
+        Connection connection = databaseConnection.getConnection();
+
+        Statement statement = connection.createStatement();
+
+        try {
+            ResultSet resultSet = statement.executeQuery(query);
+
+            return new DatabaseResultsImpl(resultSet) {
+                @Override
+                public void close() throws SQLException {
+                    resultSet.close();
+                    statement.close();
+                }
+            };
+        } catch (SQLException e) {
+            statement.close();
+            throw e;
         }
     }
 

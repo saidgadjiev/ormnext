@@ -16,7 +16,7 @@ import ru.saidgadjiev.ormnext.core.table.internal.instatiator.Instantiator;
 import ru.saidgadjiev.ormnext.core.table.internal.instatiator.ObjectInstantiator;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetadata;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.MetaModel;
-import ru.saidgadjiev.ormnext.core.table.internal.query_space.EntityQuerySpace;
+import ru.saidgadjiev.ormnext.core.query.space.EntityQuerySpace;
 import ru.saidgadjiev.ormnext.core.table.internal.visitor.DefaultEntityMetadataVisitor;
 import ru.saidgadjiev.proxymaker.ProxyMaker;
 

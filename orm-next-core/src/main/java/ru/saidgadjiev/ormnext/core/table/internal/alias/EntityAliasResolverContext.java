@@ -47,7 +47,7 @@ public class EntityAliasResolverContext {
             columnAliases.put(columnType.getColumnName(), resolvedAlias);
             propertyNameAliases.put(columnType.getField().getName(), resolvedAlias);
         }
-        IDatabaseColumnType primaryKey = entityMetadata.getPrimaryKey();
+        IDatabaseColumnType primaryKey = entityMetadata.getPrimaryKeyColumnType();
         String keyAlias = aliasCreator.createAlias(primaryKey.getColumnName());
 
         columnAliases.put(primaryKey.getColumnName(), keyAlias);

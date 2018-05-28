@@ -64,4 +64,9 @@ public abstract class BaseDatabaseColumnType implements IDatabaseColumnType {
     public Optional<List<ColumnConverter<?, Object>>> getColumnConverters() {
         return Optional.empty();
     }
+
+    @Override
+    public boolean defaultIfNull() {
+        return false;
+    }
 }

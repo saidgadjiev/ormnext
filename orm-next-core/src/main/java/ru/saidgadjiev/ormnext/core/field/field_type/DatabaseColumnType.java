@@ -90,6 +90,11 @@ public final class DatabaseColumnType extends BaseDatabaseColumnType {
     private boolean updatable;
 
     /**
+     * Default if null.
+     */
+    private boolean defaultIfNull;
+
+    /**
      * Field column converters. It use for convert java to sql value and sql to java.
      */
     private List<ColumnConverter<?, Object>> columnConverters;
@@ -179,6 +184,11 @@ public final class DatabaseColumnType extends BaseDatabaseColumnType {
         return updatable;
     }
 
+    @Override
+    public boolean defaultIfNull() {
+        return super.defaultIfNull();
+    }
+
     /**
      * Method for build new instance by field.
      * @param field target field
@@ -229,6 +239,7 @@ public final class DatabaseColumnType extends BaseDatabaseColumnType {
         fieldType.generated = databaseColumn.generated();
         fieldType.insertable = databaseColumn.insertable();
         fieldType.updatable = databaseColumn.updatable();
+        fieldType.defaultIfNull = databaseColumn.defaultIfNull();
 
         return fieldType;
     }

@@ -3,14 +3,15 @@ package ru.saidgadjiev.ormnext.core.dao;
 import ru.saidgadjiev.ormnext.core.cache.CacheHolder;
 import ru.saidgadjiev.ormnext.core.cache.ObjectCache;
 import ru.saidgadjiev.ormnext.core.cache.ReferenceObjectCache;
-import ru.saidgadjiev.ormnext.core.criteria.impl.CriteriaQuery;
+import ru.saidgadjiev.ormnext.core.connection_source.ConnectionSource;
+import ru.saidgadjiev.ormnext.core.connection_source.DatabaseConnection;
+import ru.saidgadjiev.ormnext.core.connection_source.DatabaseResults;
+import ru.saidgadjiev.ormnext.core.query.criteria.impl.CriteriaQuery;
 import ru.saidgadjiev.ormnext.core.dao.transaction.state.BeginState;
 import ru.saidgadjiev.ormnext.core.dao.transaction.state.InternalTransaction;
 import ru.saidgadjiev.ormnext.core.dao.transaction.state.TransactionState;
 import ru.saidgadjiev.ormnext.core.loader.CacheHelper;
 import ru.saidgadjiev.ormnext.core.loader.DefaultEntityLoader;
-import ru.saidgadjiev.ormnext.core.connection_source.ConnectionSource;
-import ru.saidgadjiev.ormnext.core.connection_source.DatabaseConnection;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -22,18 +23,21 @@ public class SessionImpl implements Session, InternalTransaction {
 
     /**
      * Entity loader.
+     *
      * @see DefaultEntityLoader
      */
     private final DefaultEntityLoader entityLoader;
 
     /**
      * Cache helper.
+     *
      * @see CacheHelper
      */
     private final CacheHelper cacheHelper;
 
     /**
      * Connection source.
+     *
      * @see ConnectionSource
      */
     private final ConnectionSource<?> connectionSource;
@@ -50,22 +54,25 @@ public class SessionImpl implements Session, InternalTransaction {
 
     /**
      * Session cache.
+     *
      * @see CacheHolder
      */
     private final CacheHolder cacheHolder;
 
     /**
      * Transaction state.
+     *
      * @see TransactionState
      */
     private TransactionState transactionState;
 
     /**
      * Create new session instance.
+     *
      * @param connectionSource target connection source
-     * @param connection target database connection
-     * @param cacheHolder object cache
-     * @param sessionManager session manager which create this instance
+     * @param connection       target database connection
+     * @param cacheHolder      object cache
+     * @param sessionManager   session manager which create this instance
      */
     SessionImpl(ConnectionSource<?> connectionSource,
                 DatabaseConnection<?> connection,
@@ -183,8 +190,13 @@ public class SessionImpl implements Session, InternalTransaction {
     }
 
     @Override
-    public<T> long queryForLong(CriteriaQuery<T> criteriaQuery) throws SQLException {
+    public <T> long queryForLong(CriteriaQuery<T> criteriaQuery) throws SQLException {
         return entityLoader.queryForLong(connection, criteriaQuery);
+    }
+
+    @Override
+    public DatabaseResults query(String query) throws SQLException {
+        return entityLoader.query(connection, query);
     }
 
     @Override

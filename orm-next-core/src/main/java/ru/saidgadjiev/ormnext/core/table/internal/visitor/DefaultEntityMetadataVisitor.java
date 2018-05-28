@@ -9,14 +9,14 @@ import ru.saidgadjiev.ormnext.core.logger.Log;
 import ru.saidgadjiev.ormnext.core.logger.LoggerFactory;
 import ru.saidgadjiev.ormnext.core.loader.rowreader.entityinitializer.CollectionInitializer;
 import ru.saidgadjiev.ormnext.core.loader.object.collection.CollectionLoader;
-import ru.saidgadjiev.ormnext.core.table.internal.query_space.CollectionQuerySpace;
+import ru.saidgadjiev.ormnext.core.query.space.CollectionQuerySpace;
 import ru.saidgadjiev.ormnext.core.loader.rowreader.entityinitializer.EntityInitializer;
 import ru.saidgadjiev.ormnext.core.table.internal.alias.CollectionEntityAliases;
 import ru.saidgadjiev.ormnext.core.table.internal.alias.EntityAliasResolverContext;
 import ru.saidgadjiev.ormnext.core.table.internal.alias.EntityAliases;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetadata;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.MetaModel;
-import ru.saidgadjiev.ormnext.core.table.internal.query_space.EntityQuerySpace;
+import ru.saidgadjiev.ormnext.core.query.space.EntityQuerySpace;
 
 import java.util.*;
 
@@ -154,7 +154,7 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
 
         if (collectionColumnType.getFetchType().equals(FetchType.EAGER)) {
             entityQuerySpace.appendCollectionJoin(
-                    ownerMetaData.getPrimaryKey().getColumnName(),
+                    ownerMetaData.getPrimaryKeyColumnType().getColumnName(),
                     collectionColumnType,
                     ownerAliases,
                     foreignEntityAliases
@@ -169,7 +169,7 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
         CollectionLoader collectionLoader = new CollectionLoader(
                 new CollectionQuerySpace(
                         new CollectionEntityAliases(ownerAliases.getKeyAlias()),
-                        ownerMetaData.getPrimaryKey(),
+                        ownerMetaData.getPrimaryKeyColumnType(),
                         collectionColumnType
                 )
         );

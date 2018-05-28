@@ -72,7 +72,7 @@ public class EntityInitializer {
      * @throws SQLException any SQL exceptions
      */
     public Object startRead(ResultSetContext context) throws SQLException {
-        IDatabaseColumnType idColumnType = persister.getMetadata().getPrimaryKey();
+        IDatabaseColumnType idColumnType = persister.getMetadata().getPrimaryKeyColumnType();
         Object id = idColumnType.getDataPersister().readValue(
                 context.getDatabaseResults(),
                 entityAliases.getKeyAlias()
@@ -96,7 +96,7 @@ public class EntityInitializer {
             entityInstance = processingState.getEntityInstance();
         }
         DatabaseEntityMetadata<?> entityMetadata = persister.getMetadata();
-        IDatabaseColumnType primaryKey = entityMetadata.getPrimaryKey();
+        IDatabaseColumnType primaryKey = entityMetadata.getPrimaryKeyColumnType();
 
         primaryKey.assign(entityInstance, id);
 

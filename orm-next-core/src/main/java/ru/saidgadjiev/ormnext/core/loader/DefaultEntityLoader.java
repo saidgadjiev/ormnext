@@ -1,23 +1,22 @@
 package ru.saidgadjiev.ormnext.core.loader;
 
-import ru.saidgadjiev.ormnext.core.criteria.impl.CriteriaQuery;
-import ru.saidgadjiev.ormnext.core.criteria.impl.CriterionArgument;
+import ru.saidgadjiev.ormnext.core.connection_source.DatabaseConnection;
+import ru.saidgadjiev.ormnext.core.connection_source.DatabaseResults;
+import ru.saidgadjiev.ormnext.core.query.criteria.impl.CriteriaQuery;
+import ru.saidgadjiev.ormnext.core.query.criteria.impl.CriterionArgument;
 import ru.saidgadjiev.ormnext.core.dao.DatabaseEngine;
 import ru.saidgadjiev.ormnext.core.dao.Session;
 import ru.saidgadjiev.ormnext.core.exception.GeneratedValueNotFoundException;
 import ru.saidgadjiev.ormnext.core.exception.PropertyNotFoundException;
 import ru.saidgadjiev.ormnext.core.field.DataPersisterManager;
+import ru.saidgadjiev.ormnext.core.field.data_persister.DataPersister;
 import ru.saidgadjiev.ormnext.core.field.field_type.ForeignColumnType;
 import ru.saidgadjiev.ormnext.core.field.field_type.IDatabaseColumnType;
-import ru.saidgadjiev.ormnext.core.field.data_persister.DataPersister;
-import ru.saidgadjiev.ormnext.core.query.core.*;
-import ru.saidgadjiev.ormnext.core.connection_source.DatabaseConnection;
-import ru.saidgadjiev.ormnext.core.connection_source.DatabaseResults;
-import ru.saidgadjiev.ormnext.core.query_element.*;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.*;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetadata;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.MetaModel;
 import ru.saidgadjiev.ormnext.core.table.internal.persister.DatabaseEntityPersister;
-import ru.saidgadjiev.ormnext.core.table.internal.query_space.EntityQuerySpace;
+import ru.saidgadjiev.ormnext.core.query.space.EntityQuerySpace;
 import ru.saidgadjiev.ormnext.core.utils.ArgumentUtils;
 import ru.saidgadjiev.ormnext.core.utils.DatabaseEntityMetadataUtils;
 
@@ -72,10 +71,10 @@ public class DefaultEntityLoader {
     public <T> void create(DatabaseConnection connection, T object) throws SQLException {
         try {
             DatabaseEntityPersister entityPersister = metaModel.getPersister(object.getClass());
-            Map<IDatabaseColumnType, Argument> argumentMap = ArgumentUtils.eject(object, entityPersister.getMetadata());
+            Map<IDatabaseColumnType, Argument> argumentMap = ArgumentUtils.ejectForCreate(object, entityPersister.getMetadata());
             EntityQuerySpace entityQuerySpace = entityPersister.getEntityQuerySpace();
             CreateQuery createQuery = entityQuerySpace.getCreateQuery(argumentMap.keySet());
-            IDatabaseColumnType idField = entityPersister.getMetadata().getPrimaryKey();
+            IDatabaseColumnType idField = entityPersister.getMetadata().getPrimaryKeyColumnType();
 
             for (ForeignColumnType fieldType : entityPersister.getMetadata().toForeignColumnTypes()) {
                 Object foreignObject = fieldType.access(object);
@@ -176,19 +175,15 @@ public class DefaultEntityLoader {
                 .filter(IDatabaseColumnType::updatable)
                 .collect(Collectors.toList());
 
-        IDatabaseColumnType idFieldType = entityPersister.getMetadata().getPrimaryKey();
         UpdateQuery updateQuery = entityPersister.getEntityQuerySpace().getUpdateQuery(updatableColumnTypes);
+        Map<IDatabaseColumnType, Argument> arguments = ArgumentUtils.ejectForUpdate(object, entityMetadata);
 
         try {
-            Map<Integer, Argument> args = new HashMap<>();
-            AtomicInteger index = new AtomicInteger();
+            databaseEngine.update(connection, updateQuery, new HashMap<Integer, Argument>() {{
+                AtomicInteger index = new AtomicInteger();
 
-            for (IDatabaseColumnType databaseColumnType : entityPersister.getMetadata().toDatabaseColumnTypes()) {
-                args.put(index.incrementAndGet(), ArgumentUtils.eject(object, databaseColumnType));
-            }
-            args.put(index.incrementAndGet(), new Argument(idFieldType.getDataType(), idFieldType.access(object)));
-
-            databaseEngine.update(connection, updateQuery, args);
+                arguments.forEach((key, value) -> put(index.incrementAndGet(), value));
+            }});
         } catch (Exception ex) {
             throw new SQLException(ex);
         }
@@ -205,7 +200,7 @@ public class DefaultEntityLoader {
     public <T> void delete(DatabaseConnection connection, T object) throws SQLException {
         try {
             DatabaseEntityPersister entityPersister = metaModel.getPersister(object.getClass());
-            Argument id = ArgumentUtils.eject(object, entityPersister.getMetadata().getPrimaryKey());
+            Argument id = ArgumentUtils.eject(object, entityPersister.getMetadata().getPrimaryKeyColumnType());
 
             DeleteQuery deleteQuery = entityPersister.getEntityQuerySpace().getDeleteQuery();
 
@@ -232,7 +227,7 @@ public class DefaultEntityLoader {
         DeleteQuery deleteQuery = entityPersister.getEntityQuerySpace().getDeleteQuery();
         Argument idArgument = ArgumentUtils.processConvertersToSqlValue(
                 id,
-                entityPersister.getMetadata().getPrimaryKey()
+                entityPersister.getMetadata().getPrimaryKeyColumnType()
         );
 
         databaseEngine.delete(connection, deleteQuery, new HashMap<Integer, Argument>() {{
@@ -262,7 +257,7 @@ public class DefaultEntityLoader {
         EntityQuerySpace entityQuerySpace = entityPersister.getEntityQuerySpace();
         Argument idArgument = ArgumentUtils.processConvertersToSqlValue(
                 id,
-                entityPersister.getMetadata().getPrimaryKey()
+                entityPersister.getMetadata().getPrimaryKeyColumnType()
         );
 
         try (DatabaseResults databaseResults = databaseEngine.select(
@@ -404,6 +399,18 @@ public class DefaultEntityLoader {
         }
 
         return 0;
+    }
+
+    /**
+     * Execute query by database engine and return results.
+     *
+     * @param databaseConnection target connection
+     * @param query              target query
+     * @return database results
+     * @throws SQLException any SQL exceptions
+     */
+    public DatabaseResults query(DatabaseConnection databaseConnection, String query) throws SQLException {
+        return databaseEngine.query(databaseConnection, query);
     }
 
     /**

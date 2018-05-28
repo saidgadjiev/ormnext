@@ -146,7 +146,7 @@ public final class DatabaseEntityMetadata<T> implements EntityElement {
      *
      * @return primary key column type
      */
-    public IDatabaseColumnType getPrimaryKey() {
+    public IDatabaseColumnType getPrimaryKeyColumnType() {
         return primaryKeyFieldType;
     }
 

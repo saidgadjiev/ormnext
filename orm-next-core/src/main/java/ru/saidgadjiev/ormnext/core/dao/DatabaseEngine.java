@@ -3,10 +3,9 @@ package ru.saidgadjiev.ormnext.core.dao;
 import ru.saidgadjiev.ormnext.core.connection_source.DatabaseConnection;
 import ru.saidgadjiev.ormnext.core.connection_source.DatabaseResults;
 import ru.saidgadjiev.ormnext.core.field.field_type.IDatabaseColumnType;
-import ru.saidgadjiev.ormnext.core.query.core.*;
-import ru.saidgadjiev.ormnext.core.query_element.*;
 import ru.saidgadjiev.ormnext.core.loader.Argument;
 import ru.saidgadjiev.ormnext.core.loader.GeneratedKey;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.*;
 
 import java.sql.SQLException;
 import java.util.Map;
@@ -111,5 +110,15 @@ public interface DatabaseEngine<T> {
      */
     void dropIndex(DatabaseConnection<T> connection, DropIndexQuery dropIndexQuery)
             throws SQLException;
+
+    /**
+     * Execute query and return results.
+     *
+     * @param databaseConnection target connection
+     * @param query              target query
+     * @return database results
+     * @throws SQLException any SQL exceptions
+     */
+    DatabaseResults query(DatabaseConnection<T> databaseConnection, String query) throws SQLException;
 }
 

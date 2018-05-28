@@ -122,6 +122,14 @@ public interface IDatabaseColumnType extends EntityElement {
      */
     boolean updatable();
 
+
+    /**
+     * True for set NULL instead of default definition value.
+     *
+     * @return true for set NULL instead of default definition value
+     */
+    boolean defaultIfNull();
+
     /**
      * True if this instance {@link DatabaseColumnType}.
      *
