@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>ru.saidgadjiev.orm.next</groupId>
+    <groupId>ru.saidgadjiev.ormnext</groupId>
     <artifactId>orm-next</artifactId>
     <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
@@ -62,6 +60,11 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.0.0</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -139,7 +142,6 @@
 
                                         <!-- Checks for common coding problems               -->
                                         <!-- See http://checkstyle.sf.net/config_coding.html -->
-                                        <module name="AvoidInlineConditionals" />
                                         <module name="EmptyStatement" />
                                         <module name="EqualsHashCode" />
                                         <!--<module name="HiddenField" />-->
@@ -176,9 +178,8 @@
         </plugins>
     </build>
     <modules>
-        <module>orm</module>
-        <module>up-cache</module>
-        <module>property-binder</module>
+        <module>orm-next-core</module>
+        <module>proxy-maker</module>
     </modules>
 
 </project>
