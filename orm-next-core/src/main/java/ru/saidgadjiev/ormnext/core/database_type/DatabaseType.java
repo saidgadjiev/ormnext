@@ -4,6 +4,8 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.AttributeDefinition;
 
 /**
  * Definition of the per-database functionality needed to isolate the differences between the various databases.
+ *
+ * @author said gadjiev
  */
 public interface DatabaseType {
 

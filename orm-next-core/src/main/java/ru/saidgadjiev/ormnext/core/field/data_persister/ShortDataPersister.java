@@ -8,6 +8,8 @@ import java.sql.SQLException;
 
 /**
  * Type that persists a short type.
+ *
+ * @author said gadjiev
  */
 public class ShortDataPersister extends BaseDataPersister {
 

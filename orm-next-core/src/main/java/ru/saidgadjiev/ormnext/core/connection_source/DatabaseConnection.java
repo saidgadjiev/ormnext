@@ -4,7 +4,9 @@ import java.sql.SQLException;
 
 /**
  * Database connection.
+ *
  * @param <T> connection type
+ * @author said gadjiev
  */
 public abstract class DatabaseConnection<T> {
 
@@ -15,6 +17,7 @@ public abstract class DatabaseConnection<T> {
 
     /**
      * Create a new instance.
+     *
      * @param connection target connection
      */
     public DatabaseConnection(T connection) {
@@ -23,6 +26,7 @@ public abstract class DatabaseConnection<T> {
 
     /**
      * Return original connection {@link #connection}.
+     *
      * @return connection
      */
     public final T getConnection() {
@@ -31,6 +35,7 @@ public abstract class DatabaseConnection<T> {
 
     /**
      * Set connection auto commit.
+     *
      * @param autoCommit true for disable auto commit
      * @throws SQLException any SQL exceptions
      */
@@ -38,18 +43,21 @@ public abstract class DatabaseConnection<T> {
 
     /**
      * Commit.
+     *
      * @throws SQLException any SQL exceptions
      */
     public abstract void commit() throws SQLException;
 
     /**
      * Rollback.
+     *
      * @throws SQLException any SQL exceptions
      */
     public abstract void rollback() throws SQLException;
 
     /**
      * Check connection is closed.
+     *
      * @return true if connection is closed
      * @throws SQLException any SQL exceptions
      */
@@ -57,6 +65,7 @@ public abstract class DatabaseConnection<T> {
 
     /**
      * Close connection.
+     *
      * @throws SQLException any SQL exceptions
      */
     public abstract void close() throws SQLException;

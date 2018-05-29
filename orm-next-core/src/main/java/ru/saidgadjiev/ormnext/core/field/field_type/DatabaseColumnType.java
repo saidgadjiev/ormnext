@@ -15,6 +15,8 @@ import java.util.Optional;
 
 /**
  * This class represent simple database column annotated by {@link DatabaseColumn}.
+ *
+ * @author said gadjiev
  */
 public final class DatabaseColumnType extends BaseDatabaseColumnType {
 

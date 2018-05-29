@@ -8,6 +8,8 @@ import java.sql.SQLException;
 
 /**
  * Type that persists a integer type.
+ *
+ * @author said gadjiev
  */
 public class IntegerDataPersister extends BaseDataPersister {
 

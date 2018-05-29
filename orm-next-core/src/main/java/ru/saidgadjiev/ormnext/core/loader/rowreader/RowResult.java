@@ -2,7 +2,9 @@ package ru.saidgadjiev.ormnext.core.loader.rowreader;
 
 /**
  * Read database row result.
+ *
  * @param <T> result type
+ * @author said gadjiev
  */
 public class RowResult<T> {
 
@@ -18,8 +20,9 @@ public class RowResult<T> {
 
     /**
      * Create a new result.
+     *
      * @param result result
-     * @param isNew true if a new result
+     * @param isNew  true if a new result
      */
     public RowResult(T result, boolean isNew) {
         this.result = result;
@@ -28,6 +31,7 @@ public class RowResult<T> {
 
     /**
      * Return result.
+     *
      * @return result
      */
     public T getResult() {
@@ -36,6 +40,7 @@ public class RowResult<T> {
 
     /**
      * Return true if a new result.
+     *
      * @return true if a new result
      */
     public boolean isNew() {

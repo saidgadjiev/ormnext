@@ -24,6 +24,8 @@ import static ru.saidgadjiev.ormnext.core.loader.ResultSetContext.EntityProcessi
  * It mean we read all retrieved entity column values from result set object and save them to
  * temporary context {@link ResultSetContext} it is a first phase.
  * Then we set read values from first phase to entity object it is a second phase.
+ *
+ * @author said gadjiev
  */
 public class EntityInitializer {
 

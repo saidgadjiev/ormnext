@@ -2,6 +2,8 @@ package ru.saidgadjiev.ormnext.core.exception;
 
 /**
  * Exception will be thrown when impossible resolve persister for type.
+ *
+ * @author said gadjiev
  */
 public class PersisterNotFoundException extends RuntimeException {
 

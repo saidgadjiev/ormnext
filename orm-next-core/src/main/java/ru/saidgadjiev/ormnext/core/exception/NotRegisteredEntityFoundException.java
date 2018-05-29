@@ -2,6 +2,8 @@ package ru.saidgadjiev.ormnext.core.exception;
 
 /**
  * Exception will be thrown when found unregistered entity class.
+ *
+ * @author said gadjiev
  */
 public class NotRegisteredEntityFoundException extends RuntimeException {
 

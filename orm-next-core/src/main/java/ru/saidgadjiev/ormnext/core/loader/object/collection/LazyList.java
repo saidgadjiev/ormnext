@@ -8,7 +8,9 @@ import java.util.ListIterator;
 
 /**
  * Lazy list.
+ *
  * @param <T> value type
+ * @author said gadjiev
  */
 public class LazyList<T> extends AbstractLazyCollection<T> implements List<T> {
 
@@ -19,10 +21,11 @@ public class LazyList<T> extends AbstractLazyCollection<T> implements List<T> {
 
     /**
      * Create a new lazy list.
+     *
      * @param collectionLoader collection loader
-     * @param sessionManager session manager
-     * @param ownerId owner id
-     * @param list original collection
+     * @param sessionManager   session manager
+     * @param ownerId          owner id
+     * @param list             original collection
      */
     public LazyList(CollectionLoader collectionLoader,
                     SessionManager sessionManager,

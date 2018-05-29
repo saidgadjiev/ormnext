@@ -8,6 +8,8 @@ import java.sql.SQLException;
 /**
  * The main contract here is the creation of {@link Session} instances.
  * Usually an application has one instance of {@link SessionManager}.
+ *
+ * @author said gadjiev
  */
 public interface SessionManager extends AutoCloseable {
 

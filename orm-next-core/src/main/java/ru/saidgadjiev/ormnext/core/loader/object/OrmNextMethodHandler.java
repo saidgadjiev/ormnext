@@ -11,6 +11,8 @@ import java.lang.reflect.Method;
 /**
  * This implementation {@link MethodHandler}
  * use for lazy fetch for {@link ru.saidgadjiev.ormnext.core.field.ForeignColumn}.
+ *
+ * @author said gadjiev
  */
 public class OrmNextMethodHandler implements MethodHandler {
 

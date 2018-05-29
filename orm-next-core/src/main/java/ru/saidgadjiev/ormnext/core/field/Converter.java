@@ -9,6 +9,8 @@ import java.lang.annotation.Target;
 
 /**
  * Field value converter.
+ *
+ * @author said gadjiev
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)

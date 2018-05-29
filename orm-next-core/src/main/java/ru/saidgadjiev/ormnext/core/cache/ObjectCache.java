@@ -5,6 +5,7 @@ package ru.saidgadjiev.ormnext.core.cache;
  *
  * @param <ID> cached id type
  * @param <T>  cached object type
+ * @author said gadjiev
  */
 public interface ObjectCache<ID, T> {
 

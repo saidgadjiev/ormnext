@@ -8,8 +8,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This cache implementation use {@link SoftReference} for cached values.
+ *
  * @param <ID> id type
- * @param <T> value type
+ * @param <T>  value type
+ * @author said gadjiev
  */
 public class ReferenceObjectCache<ID, T> implements ObjectCache<ID, T> {
 

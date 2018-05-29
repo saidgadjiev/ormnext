@@ -7,6 +7,8 @@ import java.util.Optional;
 
 /**
  * Cache helper.
+ *
+ * @author said gadjiev
  */
 public class CacheHelper {
 

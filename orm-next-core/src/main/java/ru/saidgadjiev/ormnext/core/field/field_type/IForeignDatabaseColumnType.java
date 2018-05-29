@@ -6,6 +6,8 @@ import ru.saidgadjiev.ormnext.core.field.FetchType;
  * This interface represent foreign database column type.
  * Which annotated with {@link ru.saidgadjiev.ormnext.core.field.ForeignColumn}
  * or {@link ru.saidgadjiev.ormnext.core.field.ForeignCollectionField}
+ *
+ * @author said gadjiev
  */
 public interface IForeignDatabaseColumnType extends IDatabaseColumnType {
 

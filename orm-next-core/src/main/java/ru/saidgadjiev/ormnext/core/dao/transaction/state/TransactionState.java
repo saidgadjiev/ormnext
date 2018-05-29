@@ -9,6 +9,8 @@ import java.sql.SQLException;
  * Transaction will be in two states. Fisrt: transaction begin, second: beginned.
  * First state maen transaction was prepared for begin.
  * Second state mean transaction was prepared for commit or rollback.
+ *
+ * @author said gadjiev
  */
 public interface TransactionState {
 

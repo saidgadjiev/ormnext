@@ -11,6 +11,8 @@ import java.util.Map;
 /**
  * Temporary result set context.
  * Use for holds read values and created entity objects.
+ *
+ * @author said gadjiev
  */
 public class ResultSetContext {
 

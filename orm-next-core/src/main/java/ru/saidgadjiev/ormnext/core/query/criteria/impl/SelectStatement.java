@@ -19,7 +19,9 @@ import java.util.Map;
 
 /**
  * This class represent select query.
+ *
  * @param <T> entity type
+ * @author said gadjiev
  */
 public class SelectStatement<T> implements QueryElement {
 
@@ -30,42 +32,49 @@ public class SelectStatement<T> implements QueryElement {
 
     /**
      * Where expression.
+     *
      * @see Criteria
      */
     private Criteria where;
 
     /**
      * Order by.
+     *
      * @see OrderBy
      */
     private OrderBy orderBy;
 
     /**
      * Group by.
+     *
      * @see GroupBy
      */
     private GroupBy groupBy;
 
     /**
      * Having expression.
+     *
      * @see Criteria
      */
     private Criteria having;
 
     /**
      * Limit.
+     *
      * @see Limit
      */
     private Limit limit;
 
     /**
      * Offset.
+     *
      * @see Offset
      */
     private Offset offset;
 
     /**
      * Select operand. It may be only {@link Function}
+     *
      * @see DisplayedOperand
      */
     private DisplayedOperand selectOperand;
@@ -82,6 +91,7 @@ public class SelectStatement<T> implements QueryElement {
 
     /**
      * Create a new instance.
+     *
      * @param entityClass target entity class
      */
     public SelectStatement(Class<T> entityClass) {
@@ -90,6 +100,7 @@ public class SelectStatement<T> implements QueryElement {
 
     /**
      * Provide where expression.
+     *
      * @param where target where expression
      * @return this for chain
      */
@@ -101,6 +112,7 @@ public class SelectStatement<T> implements QueryElement {
 
     /**
      * Provide having expression.
+     *
      * @param having target having expression
      * @return this for chain
      */
@@ -112,6 +124,7 @@ public class SelectStatement<T> implements QueryElement {
 
     /**
      * Add new order by item.
+     *
      * @param order target order by item
      * @return this for chain
      */
@@ -126,6 +139,7 @@ public class SelectStatement<T> implements QueryElement {
 
     /**
      * Add new group by item.
+     *
      * @param group target group by item
      * @return this for chain
      */
@@ -140,6 +154,7 @@ public class SelectStatement<T> implements QueryElement {
 
     /**
      * Provide limit value.
+     *
      * @param limit target limit
      * @return this for chain
      */
@@ -151,6 +166,7 @@ public class SelectStatement<T> implements QueryElement {
 
     /**
      * Provide offset value.
+     *
      * @param offset target offset
      * @return this for chain
      */
@@ -162,6 +178,7 @@ public class SelectStatement<T> implements QueryElement {
 
     /**
      * Set select count star.
+     *
      * @return this for chain
      */
     public SelectStatement<T> countOff() {
@@ -172,6 +189,7 @@ public class SelectStatement<T> implements QueryElement {
 
     /**
      * Set select count(column_name).
+     *
      * @param property target property
      * @return this for chain
      */
@@ -183,6 +201,7 @@ public class SelectStatement<T> implements QueryElement {
 
     /**
      * Set true if need select without joins.
+     *
      * @param withoutJoins true if need select without joins
      * @return this for chain
      */
@@ -194,8 +213,9 @@ public class SelectStatement<T> implements QueryElement {
 
     /**
      * Set arg for prepared statement.
+     *
      * @param index target index
-     * @param arg target arg
+     * @param arg   target arg
      * @return this for chain
      */
     public SelectStatement<T> setObject(int index, Object arg) {
@@ -206,6 +226,7 @@ public class SelectStatement<T> implements QueryElement {
 
     /**
      * Return user provided args.
+     *
      * @return user provided args
      */
     public Map<Integer, Object> getUserProvidedArgs() {
@@ -214,6 +235,7 @@ public class SelectStatement<T> implements QueryElement {
 
     /**
      * Return entity class.
+     *
      * @return entity class
      */
     public Class<?> getEntityClass() {
@@ -222,6 +244,7 @@ public class SelectStatement<T> implements QueryElement {
 
     /**
      * Return where expression.
+     *
      * @return where expression
      */
     public Expression getWhere() {
@@ -230,6 +253,7 @@ public class SelectStatement<T> implements QueryElement {
 
     /**
      * Return order by.
+     *
      * @return order by
      */
 
@@ -239,6 +263,7 @@ public class SelectStatement<T> implements QueryElement {
 
     /**
      * Return group by.
+     *
      * @return group by
      */
     public GroupBy getGroupBy() {
@@ -247,6 +272,7 @@ public class SelectStatement<T> implements QueryElement {
 
     /**
      * Return having expression.
+     *
      * @return having expression
      */
     public Having getHaving() {
@@ -255,6 +281,7 @@ public class SelectStatement<T> implements QueryElement {
 
     /**
      * Return limit.
+     *
      * @return limit
      */
     public Limit getLimit() {
@@ -263,6 +290,7 @@ public class SelectStatement<T> implements QueryElement {
 
     /**
      * Return offset.
+     *
      * @return offset
      */
     public Offset getOffset() {
@@ -271,6 +299,7 @@ public class SelectStatement<T> implements QueryElement {
 
     /**
      * Return select operand. It can be only aggregate function
+     *
      * @return select operand
      */
     public DisplayedOperand getSelectOperand() {
@@ -279,6 +308,7 @@ public class SelectStatement<T> implements QueryElement {
 
     /**
      * Return true if select without joins.
+     *
      * @return true if select without joins
      */
     public boolean isWithoutJoins() {
@@ -287,6 +317,7 @@ public class SelectStatement<T> implements QueryElement {
 
     /**
      * Return args for prepared statement.
+     *
      * @return args for prepared statement
      */
     public List<CriterionArgument> getArgs() {

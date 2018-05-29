@@ -15,6 +15,8 @@ import java.util.Set;
 
 /**
  * This class represent column type annotated with {@link ForeignCollectionField}.
+ *
+ * @author said gadjiev
  */
 public class ForeignCollectionColumnType extends BaseDatabaseColumnType implements IForeignDatabaseColumnType {
 

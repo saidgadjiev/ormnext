@@ -8,6 +8,8 @@ import java.util.List;
 
 /**
  * The definition of the Database Access Objects that handle the reading and writing a class from a database.
+ *
+ * @author said gadjiev
  */
 public interface BaseDao {
 
@@ -125,7 +127,7 @@ public interface BaseDao {
      * Query for the items in the object table which match the select query.
      *
      * @param selectStatement target criteria query
-     * @param <T>           object type
+     * @param <T>             object type
      * @return a list of all of the objects in the table that match the query.
      * @throws SQLException on any SQL problems
      * @see SelectStatement
@@ -136,7 +138,7 @@ public interface BaseDao {
      * Query for aggregate functions which retrieve one long value.
      *
      * @param selectStatement target query
-     * @param <T>           object type
+     * @param <T>             object type
      * @return long value which return query
      * @throws SQLException on any SQL problems
      * @see SelectStatement

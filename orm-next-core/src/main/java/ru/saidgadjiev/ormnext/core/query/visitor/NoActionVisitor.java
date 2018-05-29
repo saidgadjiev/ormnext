@@ -25,7 +25,9 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.join.LeftJoin;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.literals.*;
 
 /**
- * Created by said on 23.02.2018.
+ * No action visitor.
+ *
+ * @author said gadjiev
  */
 public class NoActionVisitor implements QueryVisitor {
 

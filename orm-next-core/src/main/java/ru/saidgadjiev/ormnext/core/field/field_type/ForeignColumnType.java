@@ -12,6 +12,8 @@ import java.lang.reflect.Field;
 
 /**
  * This class represent column type annotated with {@link ForeignColumn}.
+ *
+ * @author said gadjiev
  */
 public class ForeignColumnType extends BaseDatabaseColumnType implements IForeignDatabaseColumnType {
 

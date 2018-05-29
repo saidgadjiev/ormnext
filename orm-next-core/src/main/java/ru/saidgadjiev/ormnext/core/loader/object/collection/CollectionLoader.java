@@ -11,6 +11,8 @@ import java.util.List;
 
 /**
  * Collection loader.
+ *
+ * @author said gadjiev
  */
 public class CollectionLoader {
 

@@ -28,12 +28,15 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.literals.*;
  * Interface to make use of the Visitor pattern programming style.
  * I.e. a class that implements this interface can traverse the contents of
  * a Java class just by calling the `accept' method which all classes have.
+ *
+ * @author said gadjiev
  * @see QueryElement
  */
 public interface QueryVisitor {
 
     /**
      * Visit {@link CreateQuery} element.
+     *
      * @param createQuery taget visitor element
      * @return true if need visit another visitor elements that contained in createQuery else false
      * @see CreateQuery
@@ -42,6 +45,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link UpdateValue} element.
+     *
      * @param updateValue taget visitor element
      * @return true if need visit another visitor elements that contained in {@code updateValue} else false
      * @see UpdateValue
@@ -50,6 +54,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link StringLiteral} element.
+     *
      * @param stringLiteral target visitor element
      * @see UpdateValue
      */
@@ -57,6 +62,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link UpdateValue} element.
+     *
      * @param selectQuery target visitor element
      * @return true if need visit another visitor elements that contained in {@code updateValue} else false
      * @see UpdateValue
@@ -65,6 +71,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link Expression} element.
+     *
      * @param expression target visitor element
      * @return true if need visit another visitor elements that contained in {@code expression} else false
      * @see Expression
@@ -73,6 +80,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link AndCondition} element.
+     *
      * @param andCondition target visitor element
      * @return true if need visit another visitor elements that contained in {@code andCondition} else false
      * @see AndCondition
@@ -81,6 +89,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link Equals} element.
+     *
      * @param equals target visitor element
      * @return true if need visit another visitor elements that contained in {@code equals} else false
      * @see Equals
@@ -89,6 +98,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link ColumnSpec} element.
+     *
      * @param columnSpec target visitor element
      * @return true if need visit another visitor elements that contained in {@code columnSpec} else false
      * @see ColumnSpec
@@ -97,6 +107,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link TableRef} element.
+     *
      * @param tableRef target visitor element
      * @return true if need visit another visitor elements that contained in {@code tableRef} else false
      * @see TableRef
@@ -105,6 +116,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link AttributeDefinition} element.
+     *
      * @param attributeDefinition target visitor element
      * @return true if need visit another visitor elements that contained in {@code attributeDefinition} else false
      * @see AttributeDefinition
@@ -113,6 +125,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link CreateTableQuery} element.
+     *
      * @param createTableQuery target visitor element
      * @return true if need visit another visitor elements that contained in {@code createTableQuery} else false
      * @see CreateTableQuery
@@ -121,6 +134,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link DeleteQuery}.
+     *
      * @param deleteQuery target visitor element
      * @return true if need visit another visitor elements that contained in {@code countExpression} else false
      * @see UpdateValue
@@ -129,6 +143,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link IntLiteral} element.
+     *
      * @param intLiteral target visitor element
      * @see IntLiteral
      */
@@ -136,6 +151,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link UpdateQuery} element.
+     *
      * @param updateQuery target visitor element
      * @return true if need visit another visitor elements that contained in {@code updateQuery} else false
      * @see UpdateQuery
@@ -144,6 +160,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link DropTableQuery} element.
+     *
      * @param dropTableQuery target visitor element
      * @see DropTableQuery
      */
@@ -151,6 +168,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link PrimaryKeyConstraint} element.
+     *
      * @param primaryKeyConstraint target visitor element
      * @see PrimaryKeyConstraint
      */
@@ -158,6 +176,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link UniqueConstraint} element.
+     *
      * @param uniqueConstraint target visitor element
      * @see UniqueConstraint
      */
@@ -165,6 +184,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link NotNullConstraint} element.
+     *
      * @param notNullConstraint target visitor element
      * @see NotNullConstraint
      */
@@ -172,6 +192,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link ReferencesConstraint} element.
+     *
      * @param referencesConstraint target visitor element
      * @see ReferencesConstraint
      */
@@ -179,6 +200,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link CreateIndexQuery} element.
+     *
      * @param createIndexQuery target visitor element
      * @see CreateIndexQuery
      */
@@ -186,6 +208,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link DropIndexQuery} element.
+     *
      * @param dropIndexQuery target visitor element
      * @see DropIndexQuery
      */
@@ -193,6 +216,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link Param} element.
+     *
      * @param param target visitor element
      * @see Param
      */
@@ -200,6 +224,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link SelectAll} element.
+     *
      * @param selectAll target visitor element
      * @see SelectAll
      */
@@ -207,6 +232,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link SelectColumnsList} element.
+     *
      * @param selectColumnsList target visitor element
      * @return true if need visit another visitor elements that contained in {@code selectColumnsList} else false
      * @see SelectColumnsList
@@ -215,6 +241,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link Having} element.
+     *
      * @param having target visitor element
      * @return true if need visit another visitor elements that contained in {@code having} else false
      * @see Having
@@ -223,6 +250,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link GroupBy} element.
+     *
      * @param groupBy target visitor element
      * @return true if need visit another visitor elements that contained in {@code addGroupBy} else false
      * @see GroupBy
@@ -231,6 +259,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link FromTable} element.
+     *
      * @param fromTable target visitor element
      * @return true if need visit another visitor elements that contained in {@code fromTable} else false
      * @see FromTable
@@ -239,6 +268,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link LeftJoin} element.
+     *
      * @param leftJoin target visitor element
      * @return true if need visit another visitor elements that contained in {@code leftJoin} else false
      * @see LeftJoin
@@ -247,6 +277,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link BooleanLiteral} element.
+     *
      * @param booleanLiteral target visitor element
      * @see BooleanLiteral
      */
@@ -254,6 +285,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link JoinInfo} element.
+     *
      * @param joinInfo target visitor element
      * @return true if need visit another visitor elements that contained in {@code joinInfo} else false
      * @see JoinInfo
@@ -262,6 +294,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link CountAll} element.
+     *
      * @param countAll target visitor element
      * @see CountAll
      */
@@ -269,6 +302,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link FromJoinedTables} element.
+     *
      * @param fromJoinedTables target visitor element
      * @return true if need visit another visitor elements that contained in {@code fromJoinedTables} else false
      * @see FromJoinedTables
@@ -277,6 +311,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link DisplayedColumn} element.
+     *
      * @param displayedColumn target visitor element
      * @return true if need visit another visitor elements that contained in {@code displayedColumn} else false
      * @see DisplayedColumn
@@ -285,6 +320,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link AVG} element.
+     *
      * @param avg target visitor element
      * @return true if need visit another visitor elements that contained in {@code avg} else false
      * @see AVG
@@ -293,6 +329,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link CountExpression} element.
+     *
      * @param countExpression target visitor element
      * @return true if need visit another visitor elements that contained in {@code countExpression} else false
      * @see CountExpression
@@ -301,6 +338,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link MAX} element.
+     *
      * @param max target visitor element
      * @return true if need visit another visitor elements that contained in {@code max} else false
      * @see MAX
@@ -309,6 +347,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link MIN} element.
+     *
      * @param min target visitor element
      * @return true if need visit another visitor elements that contained in {@code min} else false
      * @see MIN
@@ -317,6 +356,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link Exists} element.
+     *
      * @param exists target visitor element
      * @return true if need visit another visitor elements that contained in {@code exists} else false
      * @see Exists
@@ -325,6 +365,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link InSelect} element.
+     *
      * @param inSelect target visitor element
      * @return true if need visit another visitor elements that contained in {@code inSelect} else false
      * @see InSelect
@@ -333,6 +374,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link NotInSelect} element.
+     *
      * @param notInSelect target visitor element
      * @return true if need visit another visitor elements that contained in {@code notInSelect} else false
      * @see NotInSelect
@@ -341,6 +383,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link GreaterThan} element.
+     *
      * @param greaterThan target visitor element
      * @return true if need visit another visitor elements that contained in {@code greaterThan} else false
      * @see GreaterThan
@@ -349,6 +392,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link GreaterThanOrEquals} element.
+     *
      * @param greaterThanOrEquals target visitor element
      * @return true if need visit another visitor elements that contained in {@code greaterThanOrEquals} else false
      * @see GreaterThanOrEquals
@@ -357,6 +401,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link LessThan} element.
+     *
      * @param lessThan target visitor element
      * @return true if need visit another visitor elements that contained in {@code lessThan} else false
      * @see LessThan
@@ -365,6 +410,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link LessThanOrEquals} element.
+     *
      * @param lessThanOrEquals target visitor element
      * @return true if need visit another visitor elements that contained in {@code lessThanOrEquals} else false
      * @see LessThanOrEquals
@@ -373,6 +419,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link SUM} element.
+     *
      * @param sum target visitor element
      * @return true if need visit another visitor elements that contained in {@code sum} else false
      * @see SUM
@@ -381,6 +428,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link OperandCondition} element.
+     *
      * @param operandCondition target visitor element
      * @return true if need visit another visitor elements that contained in {@code operandCondition} else false
      * @see OperandCondition
@@ -389,6 +437,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link Alias} element.
+     *
      * @param alias target visitor element
      * @see Alias
      */
@@ -396,6 +445,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link DateLiteral} element.
+     *
      * @param dateLiteral target visitor element
      * @see DateLiteral
      */
@@ -403,6 +453,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link Default} element.
+     *
      * @param aDefault target visitor element
      * @see Default
      */
@@ -410,6 +461,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link DisplayedOperand} element.
+     *
      * @param displayedOperand target visitor element
      * @return true if need visit another visitor elements that contained in {@code displayedOperand} else false
      * @see DisplayedOperand
@@ -418,6 +470,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link FloatLiteral} element.
+     *
      * @param floatLiteral target visitor element
      * @see FloatLiteral
      */
@@ -425,6 +478,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link DoubleLiteral} element.
+     *
      * @param doubleLiteral target visitor element
      * @see DoubleLiteral
      */
@@ -432,6 +486,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link OrderBy} element.
+     *
      * @param orderBy target visitor element
      * @return true if need visit another visitor elements that contained in {@code orderBy} else false
      * @see OrderBy
@@ -440,6 +495,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link Limit} element.
+     *
      * @param limit target visitor element
      * @see Limit
      */
@@ -447,6 +503,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link Offset} element.
+     *
      * @param offset target visitor element
      * @see Offset
      */
@@ -454,6 +511,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link NotNull} element.
+     *
      * @param notNull target visitor element
      * @return true if need visit another visitor elements that contained in {@code notNull} else false
      * @see NotNull
@@ -462,6 +520,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link IsNull} element.
+     *
      * @param isNull target visitor element
      * @return true if need visit another visitor elements that contained in {@code isNull} else false
      * @see IsNull
@@ -470,6 +529,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link NotEquals} element.
+     *
      * @param notEquals target visitor element
      * @return true if need visit another visitor elements that contained in {@code notEquals} else false
      * @see NotEquals
@@ -478,6 +538,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link Like} element.
+     *
      * @param like target visitor element
      * @return true if need visit another visitor elements that contained in {@code like} else false
      * @see Like
@@ -486,6 +547,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link Between} element.
+     *
      * @param between target visitor element
      * @return true if need visit another visitor elements that contained in {@code between} else false
      * @see Between
@@ -494,6 +556,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link Not} element.
+     *
      * @param not target visitor element
      * @return true if need visit another visitor elements that contained in {@code not} else false
      * @see Not
@@ -502,6 +565,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link NotInValues} element.
+     *
      * @param notInValues target visitor element
      * @return true if need visit another visitor elements that contained in {@code notInValues} else false
      * @see NotInValues
@@ -510,6 +574,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link InValues} element.
+     *
      * @param inValues target visitor element
      * @return true if need visit another visitor elements that contained in {@code inValues} else false
      * @see InValues
@@ -518,6 +583,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link ForeignKeyConstraint} element.
+     *
      * @param foreignKeyConstraint target visitor element
      * @return true if need visit another visitor elements that contained in {@code foreignKeyConstraint} else false
      * @see ForeignKeyConstraint
@@ -526,6 +592,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link FromSubQuery} element.
+     *
      * @param fromSubQuery target visitor element
      * @return true if need visit another visitor elements that contained in {@code fromSubQuery} else false
      * @see FromSubQuery
@@ -534,6 +601,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link GroupByItem} element.
+     *
      * @param groupByItem target visitor element
      * @return true if need visit another visitor elements that contained in {@code groupByItem} else false
      * @see GroupByItem
@@ -542,6 +610,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link OrderByItem} element.
+     *
      * @param orderByItem target visitor element
      * @return true if need visit another visitor elements that contained in {@code orderByItem} else false
      * @see OrderByItem
@@ -550,6 +619,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link InsertValues} element.
+     *
      * @param insertValues target visitor element
      * @see InsertValues
      */
@@ -557,6 +627,7 @@ public interface QueryVisitor {
 
     /**
      * Visit {@link CountColumn} element.
+     *
      * @param countColumn target visitor element
      * @return true if need visit another visitor elements that contained in {@code countColumn} else false
      * @see CountColumn
