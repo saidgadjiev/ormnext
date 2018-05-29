@@ -179,7 +179,6 @@
     </build>
     <modules>
         <module>orm-next-core</module>
-        <module>orm-next-benchmark</module>
         <module>proxy-maker</module>
     </modules>
 
