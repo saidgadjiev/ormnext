@@ -37,7 +37,7 @@ public interface QueryVisitor {
     /**
      * Visit {@link CreateQuery} element.
      *
-     * @param createQuery taget visitor element
+     * @param createQuery target visitor element
      * @return true if need visit another visitor elements that contained in createQuery else false
      * @see CreateQuery
      */
