@@ -1,13 +1,68 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>ru.saidgadjiev.ormnext</groupId>
     <artifactId>orm-next</artifactId>
     <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
+
+    <name>orm-next</name>
+    <description>OrmNext is a flexible, easy, lightweight orm library</description>
+    <url>https://github.com/saidgadjiev/orm-next</url>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:git:https://github.com/saidgadjiev/orm-next.git</connection>
+        <developerConnection>scm:git:https://github.com/saidgadjiev/orm-next.git</developerConnection>
+        <url>https://github.com/saidgadjiev/orm-next.git</url>
+        <tag>HEAD</tag>
+    </scm>
+
+    <developers>
+        <developer>
+            <id>saidgadjiev</id>
+            <name>Said Gadjiev</name>
+            <email>saidgadjiev@saidgadjiev.ru</email>
+            <timezone>Europe/Moscow</timezone>
+        </developer>
+    </developers>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <name>Sonatype Nexus Snapshots</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <name>Nexus Release Repository</name>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
+
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.5.3</version>
+                <configuration>
+                    <autoVersionSubmodules>true</autoVersionSubmodules>
+                    <useReleaseProfile>false</useReleaseProfile>
+                    <releaseProfiles>release</releaseProfiles>
+                    <goals>deploy</goals>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -63,11 +118,6 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.0.0</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <version>3.0.0</version>
                 <executions>
@@ -81,91 +131,91 @@
                             <checkstyleRules>
                                 <module name="Checker">
                                     <module name="JavadocPackage">
-                                        <property name="allowLegacy" value="true" />
+                                        <property name="allowLegacy" value="true"/>
                                     </module>
-                                    <module name="NewlineAtEndOfFile" />
-                                    <module name="Translation" />
-                                    <module name="FileLength" />
+                                    <module name="NewlineAtEndOfFile"/>
+                                    <module name="Translation"/>
+                                    <module name="FileLength"/>
                                     <module name="RegexpSingleline">
-                                        <property name="format" value="\s+$" />
-                                        <property name="message" value="Line has trailing spaces." />
+                                        <property name="format" value="\s+$"/>
+                                        <property name="message" value="Line has trailing spaces."/>
                                     </module>
 
                                     <module name="TreeWalker">
-                                        <module name="SuppressWarningsHolder" />
-                                        <module name="JavadocMethod" />
+                                        <module name="SuppressWarningsHolder"/>
+                                        <module name="JavadocMethod"/>
                                         <module name="JavadocType">
-                                            <property name="allowMissingParamTags" value="true" />
-                                            <property name="allowUnknownTags" value="true" />
+                                            <property name="allowMissingParamTags" value="true"/>
+                                            <property name="allowUnknownTags" value="true"/>
                                         </module>
-                                        <module name="JavadocVariable" />
-                                        <module name="JavadocStyle" />
+                                        <module name="JavadocVariable"/>
+                                        <module name="JavadocStyle"/>
 
-                                        <module name="ConstantName" />
-                                        <module name="LocalFinalVariableName" />
-                                        <module name="LocalVariableName" />
-                                        <module name="MemberName" />
-                                        <module name="MethodName" />
-                                        <module name="PackageName" />
-                                        <module name="ParameterName" />
-                                        <module name="StaticVariableName" />
-                                        <module name="TypeName" />
+                                        <module name="ConstantName"/>
+                                        <module name="LocalFinalVariableName"/>
+                                        <module name="LocalVariableName"/>
+                                        <module name="MemberName"/>
+                                        <module name="MethodName"/>
+                                        <module name="PackageName"/>
+                                        <module name="ParameterName"/>
+                                        <module name="StaticVariableName"/>
+                                        <module name="TypeName"/>
 
-                                        <module name="IllegalImport" />
-                                        <module name="RedundantImport" />
-                                        <module name="UnusedImports" />
+                                        <module name="IllegalImport"/>
+                                        <module name="RedundantImport"/>
+                                        <module name="UnusedImports"/>
                                         <module name="LineLength">
-                                            <property name="max" value="120" />
+                                            <property name="max" value="120"/>
                                         </module>
-                                        <module name="MethodLength" />
-                                        <module name="ParameterNumber" />
+                                        <module name="MethodLength"/>
+                                        <module name="ParameterNumber"/>
 
-                                        <module name="EmptyForIteratorPad" />
-                                        <module name="MethodParamPad" />
-                                        <module name="NoWhitespaceAfter" />
-                                        <module name="NoWhitespaceBefore" />
-                                        <module name="OperatorWrap" />
-                                        <module name="ParenPad" />
-                                        <module name="TypecastParenPad" />
-                                        <module name="WhitespaceAfter" />
-                                        <module name="WhitespaceAround" />
+                                        <module name="EmptyForIteratorPad"/>
+                                        <module name="MethodParamPad"/>
+                                        <module name="NoWhitespaceAfter"/>
+                                        <module name="NoWhitespaceBefore"/>
+                                        <module name="OperatorWrap"/>
+                                        <module name="ParenPad"/>
+                                        <module name="TypecastParenPad"/>
+                                        <module name="WhitespaceAfter"/>
+                                        <module name="WhitespaceAround"/>
 
-                                        <module name="ModifierOrder" />
-                                        <module name="RedundantModifier" />
+                                        <module name="ModifierOrder"/>
+                                        <module name="RedundantModifier"/>
 
-                                        <module name="AvoidNestedBlocks" />
-                                        <module name="EmptyBlock" />
-                                        <module name="LeftCurly" />
-                                        <module name="NeedBraces" />
-                                        <module name="RightCurly" />
+                                        <module name="AvoidNestedBlocks"/>
+                                        <module name="EmptyBlock"/>
+                                        <module name="LeftCurly"/>
+                                        <module name="NeedBraces"/>
+                                        <module name="RightCurly"/>
 
 
                                         <!-- Checks for common coding problems               -->
                                         <!-- See http://checkstyle.sf.net/config_coding.html -->
-                                        <module name="EmptyStatement" />
-                                        <module name="EqualsHashCode" />
+                                        <module name="EmptyStatement"/>
+                                        <module name="EqualsHashCode"/>
                                         <!--<module name="HiddenField" />-->
-                                        <module name="IllegalInstantiation" />
-                                        <module name="InnerAssignment" />
-                                        <module name="MagicNumber" />
-                                        <module name="MissingSwitchDefault" />
+                                        <module name="IllegalInstantiation"/>
+                                        <module name="InnerAssignment"/>
+                                        <module name="MagicNumber"/>
+                                        <module name="MissingSwitchDefault"/>
                                         <!--<module name="RedundantThrows" />-->
-                                        <module name="SimplifyBooleanExpression" />
-                                        <module name="SimplifyBooleanReturn" />
+                                        <module name="SimplifyBooleanExpression"/>
+                                        <module name="SimplifyBooleanReturn"/>
 
                                         <!-- Checks for class design                         -->
                                         <!-- See http://checkstyle.sf.net/config_design.html -->
                                         <!--<module name="DesignForExtension" />-->
-                                        <module name="FinalClass" />
-                                        <module name="HideUtilityClassConstructor" />
-                                        <module name="InterfaceIsType" />
-                                        <module name="VisibilityModifier" />
-                                        <module name="ArrayTypeStyle" />
-                                        <module name="TodoComment" />
-                                        <module name="UpperEll" />
+                                        <module name="FinalClass"/>
+                                        <module name="HideUtilityClassConstructor"/>
+                                        <module name="InterfaceIsType"/>
+                                        <module name="VisibilityModifier"/>
+                                        <module name="ArrayTypeStyle"/>
+                                        <module name="TodoComment"/>
+                                        <module name="UpperEll"/>
                                     </module>
-                                    <module name="SuppressWarningsFilter" />
-                                    <module name="UniqueProperties" />
+                                    <module name="SuppressWarningsFilter"/>
+                                    <module name="UniqueProperties"/>
                                 </module>
                             </checkstyleRules>
                         </configuration>
@@ -177,6 +227,57 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>3.0.1</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>3.0.0</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.6</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
     <modules>
         <module>orm-next-core</module>
         <module>proxy-maker</module>
