@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>ru.saidgadjiev.ormnext</groupId>
     <artifactId>orm-next</artifactId>
     <packaging>pom</packaging>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
 
     <name>orm-next</name>
     <description>OrmNext is a flexible, easy, lightweight orm library</description>
@@ -25,7 +24,7 @@
         <connection>scm:git:https://github.com/saidgadjiev/orm-next.git</connection>
         <developerConnection>scm:git:https://github.com/saidgadjiev/orm-next.git</developerConnection>
         <url>https://github.com/saidgadjiev/orm-next.git</url>
-        <tag>HEAD</tag>
+        <tag>orm-next-1.0</tag>
     </scm>
 
     <developers>
@@ -131,91 +130,91 @@
                             <checkstyleRules>
                                 <module name="Checker">
                                     <module name="JavadocPackage">
-                                        <property name="allowLegacy" value="true"/>
+                                        <property name="allowLegacy" value="true" />
                                     </module>
-                                    <module name="NewlineAtEndOfFile"/>
-                                    <module name="Translation"/>
-                                    <module name="FileLength"/>
+                                    <module name="NewlineAtEndOfFile" />
+                                    <module name="Translation" />
+                                    <module name="FileLength" />
                                     <module name="RegexpSingleline">
-                                        <property name="format" value="\s+$"/>
-                                        <property name="message" value="Line has trailing spaces."/>
+                                        <property name="format" value="\s+$" />
+                                        <property name="message" value="Line has trailing spaces." />
                                     </module>
 
                                     <module name="TreeWalker">
-                                        <module name="SuppressWarningsHolder"/>
-                                        <module name="JavadocMethod"/>
+                                        <module name="SuppressWarningsHolder" />
+                                        <module name="JavadocMethod" />
                                         <module name="JavadocType">
-                                            <property name="allowMissingParamTags" value="true"/>
-                                            <property name="allowUnknownTags" value="true"/>
+                                            <property name="allowMissingParamTags" value="true" />
+                                            <property name="allowUnknownTags" value="true" />
                                         </module>
-                                        <module name="JavadocVariable"/>
-                                        <module name="JavadocStyle"/>
+                                        <module name="JavadocVariable" />
+                                        <module name="JavadocStyle" />
 
-                                        <module name="ConstantName"/>
-                                        <module name="LocalFinalVariableName"/>
-                                        <module name="LocalVariableName"/>
-                                        <module name="MemberName"/>
-                                        <module name="MethodName"/>
-                                        <module name="PackageName"/>
-                                        <module name="ParameterName"/>
-                                        <module name="StaticVariableName"/>
-                                        <module name="TypeName"/>
+                                        <module name="ConstantName" />
+                                        <module name="LocalFinalVariableName" />
+                                        <module name="LocalVariableName" />
+                                        <module name="MemberName" />
+                                        <module name="MethodName" />
+                                        <module name="PackageName" />
+                                        <module name="ParameterName" />
+                                        <module name="StaticVariableName" />
+                                        <module name="TypeName" />
 
-                                        <module name="IllegalImport"/>
-                                        <module name="RedundantImport"/>
-                                        <module name="UnusedImports"/>
+                                        <module name="IllegalImport" />
+                                        <module name="RedundantImport" />
+                                        <module name="UnusedImports" />
                                         <module name="LineLength">
-                                            <property name="max" value="120"/>
+                                            <property name="max" value="120" />
                                         </module>
-                                        <module name="MethodLength"/>
-                                        <module name="ParameterNumber"/>
+                                        <module name="MethodLength" />
+                                        <module name="ParameterNumber" />
 
-                                        <module name="EmptyForIteratorPad"/>
-                                        <module name="MethodParamPad"/>
-                                        <module name="NoWhitespaceAfter"/>
-                                        <module name="NoWhitespaceBefore"/>
-                                        <module name="OperatorWrap"/>
-                                        <module name="ParenPad"/>
-                                        <module name="TypecastParenPad"/>
-                                        <module name="WhitespaceAfter"/>
-                                        <module name="WhitespaceAround"/>
+                                        <module name="EmptyForIteratorPad" />
+                                        <module name="MethodParamPad" />
+                                        <module name="NoWhitespaceAfter" />
+                                        <module name="NoWhitespaceBefore" />
+                                        <module name="OperatorWrap" />
+                                        <module name="ParenPad" />
+                                        <module name="TypecastParenPad" />
+                                        <module name="WhitespaceAfter" />
+                                        <module name="WhitespaceAround" />
 
-                                        <module name="ModifierOrder"/>
-                                        <module name="RedundantModifier"/>
+                                        <module name="ModifierOrder" />
+                                        <module name="RedundantModifier" />
 
-                                        <module name="AvoidNestedBlocks"/>
-                                        <module name="EmptyBlock"/>
-                                        <module name="LeftCurly"/>
-                                        <module name="NeedBraces"/>
-                                        <module name="RightCurly"/>
+                                        <module name="AvoidNestedBlocks" />
+                                        <module name="EmptyBlock" />
+                                        <module name="LeftCurly" />
+                                        <module name="NeedBraces" />
+                                        <module name="RightCurly" />
 
 
                                         <!-- Checks for common coding problems               -->
                                         <!-- See http://checkstyle.sf.net/config_coding.html -->
-                                        <module name="EmptyStatement"/>
-                                        <module name="EqualsHashCode"/>
+                                        <module name="EmptyStatement" />
+                                        <module name="EqualsHashCode" />
                                         <!--<module name="HiddenField" />-->
-                                        <module name="IllegalInstantiation"/>
-                                        <module name="InnerAssignment"/>
-                                        <module name="MagicNumber"/>
-                                        <module name="MissingSwitchDefault"/>
+                                        <module name="IllegalInstantiation" />
+                                        <module name="InnerAssignment" />
+                                        <module name="MagicNumber" />
+                                        <module name="MissingSwitchDefault" />
                                         <!--<module name="RedundantThrows" />-->
-                                        <module name="SimplifyBooleanExpression"/>
-                                        <module name="SimplifyBooleanReturn"/>
+                                        <module name="SimplifyBooleanExpression" />
+                                        <module name="SimplifyBooleanReturn" />
 
                                         <!-- Checks for class design                         -->
                                         <!-- See http://checkstyle.sf.net/config_design.html -->
                                         <!--<module name="DesignForExtension" />-->
-                                        <module name="FinalClass"/>
-                                        <module name="HideUtilityClassConstructor"/>
-                                        <module name="InterfaceIsType"/>
-                                        <module name="VisibilityModifier"/>
-                                        <module name="ArrayTypeStyle"/>
-                                        <module name="TodoComment"/>
-                                        <module name="UpperEll"/>
+                                        <module name="FinalClass" />
+                                        <module name="HideUtilityClassConstructor" />
+                                        <module name="InterfaceIsType" />
+                                        <module name="VisibilityModifier" />
+                                        <module name="ArrayTypeStyle" />
+                                        <module name="TodoComment" />
+                                        <module name="UpperEll" />
                                     </module>
-                                    <module name="SuppressWarningsFilter"/>
-                                    <module name="UniqueProperties"/>
+                                    <module name="SuppressWarningsFilter" />
+                                    <module name="UniqueProperties" />
                                 </module>
                             </checkstyleRules>
                         </configuration>
