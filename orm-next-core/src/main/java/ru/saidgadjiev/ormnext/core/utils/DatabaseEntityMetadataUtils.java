@@ -1,8 +1,8 @@
 package ru.saidgadjiev.ormnext.core.utils;
 
 import ru.saidgadjiev.ormnext.core.field.DatabaseColumn;
-import ru.saidgadjiev.ormnext.core.field.field_type.DatabaseColumnType;
-import ru.saidgadjiev.ormnext.core.field.field_type.IDatabaseColumnType;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.DatabaseColumnType;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.IDatabaseColumnType;
 import ru.saidgadjiev.ormnext.core.table.DatabaseEntity;
 
 import java.lang.reflect.Field;

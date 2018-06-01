@@ -1,12 +1,12 @@
 package ru.saidgadjiev.ormnext.core.dao;
 
-import ru.saidgadjiev.ormnext.core.connection_source.DatabaseConnection;
-import ru.saidgadjiev.ormnext.core.connection_source.DatabaseResults;
-import ru.saidgadjiev.ormnext.core.connection_source.DatabaseResultsImpl;
-import ru.saidgadjiev.ormnext.core.database_type.DatabaseType;
+import ru.saidgadjiev.ormnext.core.connectionsource.DatabaseConnection;
+import ru.saidgadjiev.ormnext.core.connectionsource.DatabaseResults;
+import ru.saidgadjiev.ormnext.core.connectionsource.DatabaseResultsImpl;
+import ru.saidgadjiev.ormnext.core.databasetype.DatabaseType;
 import ru.saidgadjiev.ormnext.core.field.DataPersisterManager;
-import ru.saidgadjiev.ormnext.core.field.data_persister.DataPersister;
-import ru.saidgadjiev.ormnext.core.field.field_type.IDatabaseColumnType;
+import ru.saidgadjiev.ormnext.core.field.datapersister.DataPersister;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.IDatabaseColumnType;
 import ru.saidgadjiev.ormnext.core.loader.Argument;
 import ru.saidgadjiev.ormnext.core.loader.GeneratedKey;
 import ru.saidgadjiev.ormnext.core.query.visitor.DefaultVisitor;

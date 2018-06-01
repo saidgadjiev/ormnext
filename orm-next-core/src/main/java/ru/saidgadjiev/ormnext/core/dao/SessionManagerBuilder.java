@@ -1,7 +1,7 @@
 package ru.saidgadjiev.ormnext.core.dao;
 
-import ru.saidgadjiev.ormnext.core.connection_source.ConnectionSource;
-import ru.saidgadjiev.ormnext.core.database_type.DatabaseType;
+import ru.saidgadjiev.ormnext.core.connectionsource.ConnectionSource;
+import ru.saidgadjiev.ormnext.core.databasetype.DatabaseType;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.MetaModel;
 
 import java.util.ArrayList;

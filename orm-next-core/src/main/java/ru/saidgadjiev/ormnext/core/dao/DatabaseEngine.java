@@ -1,8 +1,8 @@
 package ru.saidgadjiev.ormnext.core.dao;
 
-import ru.saidgadjiev.ormnext.core.connection_source.DatabaseConnection;
-import ru.saidgadjiev.ormnext.core.connection_source.DatabaseResults;
-import ru.saidgadjiev.ormnext.core.field.field_type.IDatabaseColumnType;
+import ru.saidgadjiev.ormnext.core.connectionsource.DatabaseConnection;
+import ru.saidgadjiev.ormnext.core.connectionsource.DatabaseResults;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.IDatabaseColumnType;
 import ru.saidgadjiev.ormnext.core.loader.Argument;
 import ru.saidgadjiev.ormnext.core.loader.GeneratedKey;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.*;

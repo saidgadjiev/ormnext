@@ -1,6 +1,6 @@
 package ru.saidgadjiev.ormnext.core.query.visitor.element.constraints.table;
 
-import ru.saidgadjiev.ormnext.core.field.field_type.UniqueColumns;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.UniqueColumns;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 
 import java.util.List;

@@ -1,7 +1,7 @@
 package ru.saidgadjiev.ormnext.core.field;
 
 import ru.saidgadjiev.ormnext.core.exception.PersisterNotFoundException;
-import ru.saidgadjiev.ormnext.core.field.data_persister.*;
+import ru.saidgadjiev.ormnext.core.field.datapersister.*;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -1,8 +1,8 @@
 package ru.saidgadjiev.ormnext.core.loader.rowreader.entityinitializer;
 
 import ru.saidgadjiev.ormnext.core.field.FetchType;
-import ru.saidgadjiev.ormnext.core.field.data_persister.DataPersister;
-import ru.saidgadjiev.ormnext.core.field.field_type.ForeignCollectionColumnType;
+import ru.saidgadjiev.ormnext.core.field.datapersister.DataPersister;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignCollectionColumnType;
 import ru.saidgadjiev.ormnext.core.loader.ResultSetContext;
 import ru.saidgadjiev.ormnext.core.loader.object.collection.CollectionLoader;
 import ru.saidgadjiev.ormnext.core.loader.object.collection.LazyList;

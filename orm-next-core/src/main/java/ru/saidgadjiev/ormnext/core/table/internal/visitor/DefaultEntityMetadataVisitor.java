@@ -1,9 +1,9 @@
 package ru.saidgadjiev.ormnext.core.table.internal.visitor;
 
 import ru.saidgadjiev.ormnext.core.field.FetchType;
-import ru.saidgadjiev.ormnext.core.field.field_type.ColumnKey;
-import ru.saidgadjiev.ormnext.core.field.field_type.ForeignCollectionColumnType;
-import ru.saidgadjiev.ormnext.core.field.field_type.ForeignColumnType;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.ColumnKey;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignCollectionColumnType;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignColumnType;
 import ru.saidgadjiev.ormnext.core.loader.object.collection.CollectionLoader;
 import ru.saidgadjiev.ormnext.core.loader.rowreader.entityinitializer.CollectionInitializer;
 import ru.saidgadjiev.ormnext.core.loader.rowreader.entityinitializer.EntityInitializer;

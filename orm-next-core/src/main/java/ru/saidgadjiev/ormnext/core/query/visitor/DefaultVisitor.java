@@ -1,6 +1,6 @@
 package ru.saidgadjiev.ormnext.core.query.visitor;
 
-import ru.saidgadjiev.ormnext.core.database_type.DatabaseType;
+import ru.saidgadjiev.ormnext.core.databasetype.DatabaseType;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.*;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.clause.*;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.clause.from.FromJoinedTables;

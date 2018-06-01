@@ -1,8 +1,8 @@
 package ru.saidgadjiev.ormnext.core.query.space;
 
-import ru.saidgadjiev.ormnext.core.field.field_type.ForeignCollectionColumnType;
-import ru.saidgadjiev.ormnext.core.field.field_type.ForeignColumnType;
-import ru.saidgadjiev.ormnext.core.field.field_type.IDatabaseColumnType;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignCollectionColumnType;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignColumnType;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.IDatabaseColumnType;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.SelectStatement;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.*;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.clause.from.FromJoinedTables;

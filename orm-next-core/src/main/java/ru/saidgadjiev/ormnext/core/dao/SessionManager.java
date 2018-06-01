@@ -14,8 +14,8 @@ import java.sql.SQLException;
 public interface SessionManager extends AutoCloseable {
 
     /**
-     * Open new session which obtain new {@link ru.saidgadjiev.ormnext.core.connection_source.DatabaseConnection} from
-     * {@link ru.saidgadjiev.ormnext.core.connection_source.ConnectionSource} as needed to perform requested work.
+     * Open new session which obtain new {@link ru.saidgadjiev.ormnext.core.connectionsource.DatabaseConnection} from
+     * {@link ru.saidgadjiev.ormnext.core.connectionsource.ConnectionSource} as needed to perform requested work.
      * @return created session
      * @throws SQLException on any SQL problems
      * @see Session

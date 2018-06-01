@@ -3,10 +3,10 @@ package ru.saidgadjiev.ormnext.core;
 import org.h2.jdbcx.JdbcDataSource;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import ru.saidgadjiev.ormnext.core.connection_source.DataSourceConnectionSource;
+import ru.saidgadjiev.ormnext.core.connectionsource.DataSourceConnectionSource;
 import ru.saidgadjiev.ormnext.core.dao.SessionManager;
 import ru.saidgadjiev.ormnext.core.dao.SessionManagerBuilder;
-import ru.saidgadjiev.ormnext.core.database_type.H2DatabaseType;
+import ru.saidgadjiev.ormnext.core.databasetype.H2DatabaseType;
 import ru.saidgadjiev.ormnext.core.model.ForeignSimpleEntity;
 import ru.saidgadjiev.ormnext.core.model.SimpleEntity;
 

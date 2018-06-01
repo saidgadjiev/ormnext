@@ -1,6 +1,6 @@
 package ru.saidgadjiev.ormnext.core.query.visitor.element;
 
-import ru.saidgadjiev.ormnext.core.field.field_type.IndexColumns;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.IndexColumns;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryElement;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 

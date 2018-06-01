@@ -1,8 +1,8 @@
 package ru.saidgadjiev.ormnext.core.utils;
 
-import ru.saidgadjiev.ormnext.core.field.data_persister.ColumnConverter;
-import ru.saidgadjiev.ormnext.core.field.field_type.ForeignColumnType;
-import ru.saidgadjiev.ormnext.core.field.field_type.IDatabaseColumnType;
+import ru.saidgadjiev.ormnext.core.field.datapersister.ColumnConverter;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignColumnType;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.IDatabaseColumnType;
 import ru.saidgadjiev.ormnext.core.loader.Argument;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetadata;
 

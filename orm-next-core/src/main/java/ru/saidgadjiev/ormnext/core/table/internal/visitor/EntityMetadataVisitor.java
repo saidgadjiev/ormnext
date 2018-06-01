@@ -1,7 +1,7 @@
 package ru.saidgadjiev.ormnext.core.table.internal.visitor;
 
-import ru.saidgadjiev.ormnext.core.field.field_type.ForeignCollectionColumnType;
-import ru.saidgadjiev.ormnext.core.field.field_type.ForeignColumnType;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignCollectionColumnType;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignColumnType;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetadata;
 
 /**

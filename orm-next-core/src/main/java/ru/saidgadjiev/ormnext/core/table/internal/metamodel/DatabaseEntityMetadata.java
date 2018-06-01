@@ -1,7 +1,7 @@
 package ru.saidgadjiev.ormnext.core.table.internal.metamodel;
 
 import ru.saidgadjiev.ormnext.core.exception.PropertyNotFoundException;
-import ru.saidgadjiev.ormnext.core.field.field_type.*;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.*;
 import ru.saidgadjiev.ormnext.core.table.DatabaseEntity;
 import ru.saidgadjiev.ormnext.core.table.Index;
 import ru.saidgadjiev.ormnext.core.table.Unique;

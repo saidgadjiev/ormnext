@@ -1,6 +1,6 @@
 package ru.saidgadjiev.ormnext.core.table.internal.alias;
 
-import ru.saidgadjiev.ormnext.core.field.field_type.IDatabaseColumnType;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.IDatabaseColumnType;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetadata;
 
 import java.util.HashMap;

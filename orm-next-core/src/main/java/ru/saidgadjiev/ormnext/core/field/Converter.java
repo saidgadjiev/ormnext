@@ -1,6 +1,6 @@
 package ru.saidgadjiev.ormnext.core.field;
 
-import ru.saidgadjiev.ormnext.core.field.data_persister.ColumnConverter;
+import ru.saidgadjiev.ormnext.core.field.datapersister.ColumnConverter;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -3,10 +3,10 @@ package ru.saidgadjiev.ormnext.core.utils;
 import ru.saidgadjiev.ormnext.core.field.DatabaseColumn;
 import ru.saidgadjiev.ormnext.core.field.ForeignCollectionField;
 import ru.saidgadjiev.ormnext.core.field.ForeignColumn;
-import ru.saidgadjiev.ormnext.core.field.field_type.DatabaseColumnType;
-import ru.saidgadjiev.ormnext.core.field.field_type.ForeignCollectionColumnType;
-import ru.saidgadjiev.ormnext.core.field.field_type.ForeignColumnType;
-import ru.saidgadjiev.ormnext.core.field.field_type.IDatabaseColumnType;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.DatabaseColumnType;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignCollectionColumnType;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignColumnType;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.IDatabaseColumnType;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
