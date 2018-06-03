@@ -8,7 +8,7 @@ import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 public class DisplayedColumn extends DisplayedColumnSpec {
 
     /**
-     * Select column.
+     * SelectQuery column.
      * @see ColumnSpec
      */
     private ColumnSpec columnSpec;

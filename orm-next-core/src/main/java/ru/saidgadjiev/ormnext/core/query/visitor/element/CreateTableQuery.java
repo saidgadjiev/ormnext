@@ -21,7 +21,7 @@ public class CreateTableQuery implements QueryElement {
      * Table constraints.
      * @see TableConstraint
      */
-    private final List<TableConstraint> tableConstraints = new ArrayList<>();
+    private List<TableConstraint> tableConstraints = new ArrayList<>();
 
     /**
      * Table name.

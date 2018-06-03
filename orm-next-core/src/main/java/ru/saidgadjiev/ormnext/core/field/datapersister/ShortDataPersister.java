@@ -5,6 +5,7 @@ import ru.saidgadjiev.ormnext.core.field.DataType;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Types;
 
 /**
  * Type that persists a short type.
@@ -17,7 +18,7 @@ public class ShortDataPersister extends BaseDataPersister {
      * Create a new instance.
      */
     public ShortDataPersister() {
-        super(new Class<?>[] {Short.class, short.class});
+        super(new Class<?>[] {Short.class, short.class}, Types.SMALLINT);
     }
 
     @Override
@@ -31,7 +32,7 @@ public class ShortDataPersister extends BaseDataPersister {
     }
 
     @Override
-    public void setObject(PreparedStatement preparedStatement, int index, Object value) throws SQLException {
+    protected void setNonNullObject(PreparedStatement preparedStatement, int index, Object value) throws SQLException {
         preparedStatement.setShort(index, (Short) value);
     }
 }

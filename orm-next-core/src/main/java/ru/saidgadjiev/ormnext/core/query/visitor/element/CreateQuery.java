@@ -1,6 +1,5 @@
 package ru.saidgadjiev.ormnext.core.query.visitor.element;
 
-import ru.saidgadjiev.ormnext.core.query.visitor.QueryElement;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 
 import java.util.ArrayList;
@@ -9,7 +8,7 @@ import java.util.List;
 /**
  * This class represent INSERT query.
  */
-public class CreateQuery implements QueryElement {
+public class CreateQuery implements SqlStatement {
 
     /**
      * Table name.

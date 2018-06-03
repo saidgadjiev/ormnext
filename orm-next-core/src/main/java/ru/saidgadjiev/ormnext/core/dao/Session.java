@@ -9,7 +9,7 @@ import java.sql.SQLException;
  *
  * @author said gadjiev
  */
-public interface Session extends AutoCloseable, BaseDao {
+public interface Session extends AutoCloseable, Dao {
 
     /**
      * Begin transaction.

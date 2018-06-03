@@ -5,6 +5,7 @@ import ru.saidgadjiev.ormnext.core.field.DataType;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Types;
 
 /**
  * Type that persists a string type.
@@ -17,7 +18,7 @@ public class StringDataPersister extends BaseDataPersister {
      * Create a new instance.
      */
     public StringDataPersister() {
-        super(new Class<?>[] {String.class});
+        super(new Class<?>[] {String.class}, Types.VARCHAR);
     }
 
     @Override
@@ -31,7 +32,7 @@ public class StringDataPersister extends BaseDataPersister {
     }
 
     @Override
-    public void setObject(PreparedStatement preparedStatement, int index, Object value) throws SQLException {
+    protected void setNonNullObject(PreparedStatement preparedStatement, int index, Object value) throws SQLException {
         preparedStatement.setString(index, (String) value);
     }
 }

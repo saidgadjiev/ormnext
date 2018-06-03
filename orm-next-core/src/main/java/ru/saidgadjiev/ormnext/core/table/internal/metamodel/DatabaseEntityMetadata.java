@@ -106,7 +106,7 @@ public final class DatabaseEntityMetadata<T> implements EntityElement {
                 .orElse(null);
         this.databaseColumnTypes = columnTypes
                 .stream()
-                .filter(IDatabaseColumnType::isDbColumnType)
+                .filter(IDatabaseColumnType::isDatabaseColumnType)
                 .map(idbFieldType -> (DatabaseColumnType) idbFieldType)
                 .collect(Collectors.toList());
         this.foreignColumnypes = columnTypes

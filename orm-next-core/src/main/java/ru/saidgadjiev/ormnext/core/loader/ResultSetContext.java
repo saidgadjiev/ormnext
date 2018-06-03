@@ -2,6 +2,7 @@ package ru.saidgadjiev.ormnext.core.loader;
 
 import ru.saidgadjiev.ormnext.core.connectionsource.DatabaseResults;
 import ru.saidgadjiev.ormnext.core.dao.Session;
+import ru.saidgadjiev.ormnext.core.loader.rowreader.entityinitializer.ResultSetValue;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,13 +29,17 @@ public class ResultSetContext {
 
     /**
      * Map for associate uid with processing state.
+     *
      * @see EntityProcessingState
      */
     private Map<String, Map<Object, EntityProcessingState>> processingStateMap = new HashMap<>();
 
+    private Map<Class<?>, Map<Object, Object>> cache = new HashMap<>();
+
     /**
      * Create a new instance.
-     * @param session target session
+     *
+     * @param session         target session
      * @param databaseResults target database results
      */
     public ResultSetContext(Session session, DatabaseResults databaseResults) {
@@ -44,6 +49,7 @@ public class ResultSetContext {
 
     /**
      * Return session.
+     *
      * @return session
      */
     public Session getSession() {
@@ -52,6 +58,7 @@ public class ResultSetContext {
 
     /**
      * Return database results.
+     *
      * @return database results
      */
     public DatabaseResults getDatabaseResults() {
@@ -60,8 +67,9 @@ public class ResultSetContext {
 
     /**
      * Return processing state by uid. If it absent put will be created new processing state.
+     *
      * @param uid target uid
-     * @param id target entity object id
+     * @param id  target entity object id
      * @return processing state
      */
     public EntityProcessingState getProcessingState(String uid, Object id) {
@@ -70,12 +78,16 @@ public class ResultSetContext {
                 uid,
                 new HashMap<>()
         );
+        EntityProcessingState entityProcessingState = new EntityProcessingState();
 
-        return putIfAbsent(entityProcessingStateMap, id, new EntityProcessingState());
+        entityProcessingState.setKey(id);
+
+        return putIfAbsent(entityProcessingStateMap, id, entityProcessingState);
     }
 
     /**
      * Return all processing states associated with requested uid.
+     *
      * @param uid target uid
      * @return all processing states
      */
@@ -85,14 +97,15 @@ public class ResultSetContext {
 
     /**
      * Put value to map if absent.
-     * @param map target map
-     * @param key target key
+     *
+     * @param map   target map
+     * @param key   target key
      * @param value target value
-     * @param <K> key type
-     * @param <V> value type
+     * @param <K>   key type
+     * @param <V>   value type
      * @return putted value
      */
-    private<K, V> V putIfAbsent(Map<K, V> map, K key, V value) {
+    private <K, V> V putIfAbsent(Map<K, V> map, K key, V value) {
         V putted = map.putIfAbsent(key, value);
 
         if (putted == null) {
@@ -100,6 +113,17 @@ public class ResultSetContext {
         }
 
         return putted;
+    }
+
+    public void addEntry(Object id, Object data) {
+        cache.putIfAbsent(data.getClass(), new HashMap<>());
+        Map<Object, Object> objectCache = cache.get(data.getClass());
+
+        objectCache.put(id, data);
+    }
+
+    public Object getEntry(Class<?> tClass, Object id) {
+        return cache.get(tClass).get(id);
     }
 
     /**
@@ -121,15 +145,18 @@ public class ResultSetContext {
         /**
          * Read values from result set.
          */
-        private List<Object> values;
+        private List<ResultSetValue> values;
 
         /**
          * Read collection object ids from result set.
          */
         private List<Object> collectionObjectIds = new ArrayList<>();
 
+        private Object key;
+
         /**
          * Provide entity instance.
+         *
          * @param instance entity instance
          */
         public void setEntityInstance(Object instance) {
@@ -138,14 +165,16 @@ public class ResultSetContext {
 
         /**
          * Provide read values.
+         *
          * @param values read values
          */
-        public void setValuesFromResultSet(List<Object> values) {
+        public void setValuesFromResultSet(List<ResultSetValue> values) {
             this.values = values;
         }
 
         /**
          * Return entity instance.
+         *
          * @return entity instance
          */
         public Object getEntityInstance() {
@@ -154,14 +183,16 @@ public class ResultSetContext {
 
         /**
          * Return read values.
+         *
          * @return read values
          */
-        public List<Object> getValues() {
+        public List<ResultSetValue> getValues() {
             return values;
         }
 
         /**
          * True if is a new instance.
+         *
          * @return true if is a new instance
          */
         public boolean isNew() {
@@ -170,6 +201,7 @@ public class ResultSetContext {
 
         /**
          * Provide entity instance is a new.
+         *
          * @param aNew entity instance is a new
          */
         public void setNew(boolean aNew) {
@@ -178,7 +210,8 @@ public class ResultSetContext {
 
         /**
          * Add a new read collection object id.
-         * @param id  a new read collection object id
+         *
+         * @param id a new read collection object id
          */
         public void addCollectionObjectId(Object id) {
             collectionObjectIds.add(id);
@@ -186,10 +219,19 @@ public class ResultSetContext {
 
         /**
          * Return read collection object ids.
+         *
          * @return read collection object ids
          */
         public List<Object> getCollectionObjectIds() {
             return collectionObjectIds;
+        }
+
+        public Object getKey() {
+            return key;
+        }
+
+        public void setKey(Object key) {
+            this.key = key;
         }
     }
 }

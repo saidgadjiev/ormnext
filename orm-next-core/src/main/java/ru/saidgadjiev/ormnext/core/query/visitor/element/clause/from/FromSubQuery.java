@@ -1,7 +1,7 @@
 package ru.saidgadjiev.ormnext.core.query.visitor.element.clause.from;
 
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
-import ru.saidgadjiev.ormnext.core.query.visitor.element.Select;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.SelectQuery;
 
 /**
  * This class represent from clause with sub query.
@@ -9,30 +9,30 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.Select;
 public class FromSubQuery implements FromExpression {
 
     /**
-     * Sub select.
+     * Sub selectQuery.
      */
-    private Select select;
+    private SelectQuery selectQuery;
 
     /**
-     * Create new instance with provided sub select.
-     * @param select target sub select
+     * Create new instance with provided sub selectQuery.
+     * @param selectQuery target sub selectQuery
      */
-    public FromSubQuery(Select select) {
-        this.select = select;
+    public FromSubQuery(SelectQuery selectQuery) {
+        this.selectQuery = selectQuery;
     }
 
     /**
-     * Get current sub select.
-     * @return select
+     * Get current sub selectQuery.
+     * @return selectQuery
      */
-    public Select getSelect() {
-        return select;
+    public SelectQuery getSelectQuery() {
+        return selectQuery;
     }
 
     @Override
     public void accept(QueryVisitor visitor) {
         if (visitor.visit(this)) {
-            select.accept(visitor);
+            selectQuery.accept(visitor);
         }
     }
 }

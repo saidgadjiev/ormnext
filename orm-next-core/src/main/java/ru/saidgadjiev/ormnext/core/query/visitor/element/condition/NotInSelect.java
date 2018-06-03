@@ -2,7 +2,7 @@ package ru.saidgadjiev.ormnext.core.query.visitor.element.condition;
 
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.Operand;
-import ru.saidgadjiev.ormnext.core.query.visitor.element.Select;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.SelectQuery;
 
 /**
  * This class represent not in restriction.
@@ -17,26 +17,26 @@ public class NotInSelect implements Condition {
 
     /**
      * Not in sub query.
-     * @see Select
+     * @see SelectQuery
      */
-    private Select select;
+    private SelectQuery selectQuery;
 
     /**
      * Create new not in.
-     * @param select target sub query
+     * @param selectQuery target sub query
      * @param operand target checked operand
      */
-    public NotInSelect(Select select, Operand operand) {
-        this.select = select;
+    public NotInSelect(SelectQuery selectQuery, Operand operand) {
+        this.selectQuery = selectQuery;
         this.operand = operand;
     }
 
     /**
      * Return current not in sub query.
-     * @return select
+     * @return selectQuery
      */
-    public Select getSelect() {
-        return select;
+    public SelectQuery getSelectQuery() {
+        return selectQuery;
     }
 
     /**
@@ -51,7 +51,7 @@ public class NotInSelect implements Condition {
     public void accept(QueryVisitor visitor) {
         if (visitor.visit(this)) {
             operand.accept(visitor);
-            select.accept(visitor);
+            selectQuery.accept(visitor);
         }
     }
 }

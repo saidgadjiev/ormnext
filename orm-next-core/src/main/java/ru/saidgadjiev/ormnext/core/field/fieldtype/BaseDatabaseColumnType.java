@@ -48,7 +48,7 @@ public abstract class BaseDatabaseColumnType implements IDatabaseColumnType {
     }
 
     @Override
-    public boolean isDbColumnType() {
+    public boolean isDatabaseColumnType() {
         return false;
     }
 
@@ -69,6 +69,11 @@ public abstract class BaseDatabaseColumnType implements IDatabaseColumnType {
 
     @Override
     public boolean defaultIfNull() {
+        return false;
+    }
+
+    @Override
+    public boolean unique() {
         return false;
     }
 }

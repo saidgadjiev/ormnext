@@ -41,4 +41,8 @@ public interface DatabaseType {
      * @see AttributeDefinition
      */
     String getTypeSqlPresent(AttributeDefinition def);
+
+    boolean supportTableForeignConstraint();
+
+    boolean supportTableUniqueConstraint();
 }

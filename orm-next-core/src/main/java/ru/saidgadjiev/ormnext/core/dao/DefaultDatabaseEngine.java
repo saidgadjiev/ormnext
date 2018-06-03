@@ -9,11 +9,15 @@ import ru.saidgadjiev.ormnext.core.field.datapersister.DataPersister;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.IDatabaseColumnType;
 import ru.saidgadjiev.ormnext.core.loader.Argument;
 import ru.saidgadjiev.ormnext.core.loader.GeneratedKey;
+import ru.saidgadjiev.ormnext.core.logger.Log;
+import ru.saidgadjiev.ormnext.core.logger.LoggerFactory;
 import ru.saidgadjiev.ormnext.core.query.visitor.DefaultVisitor;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryElement;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.*;
 
 import java.sql.*;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -22,6 +26,8 @@ import java.util.Map;
  * @author said gadjiev
  */
 public class DefaultDatabaseEngine implements DatabaseEngine<Connection> {
+
+    private static final Log LOG = LoggerFactory.getLogger(DefaultDatabaseEngine.class);
 
     /**
      * Generated key column index.
@@ -46,9 +52,10 @@ public class DefaultDatabaseEngine implements DatabaseEngine<Connection> {
 
     @Override
     public DatabaseResults select(DatabaseConnection<Connection> databaseConnection,
-                                  Select select,
+                                  SelectQuery selectQuery,
                                   Map<Integer, Argument> args) throws SQLException {
-        String query = getQuery(select);
+        String query = getQuery(selectQuery);
+        LOG.debug("Select: " + query + " args: " + args);
         Connection connection = databaseConnection.getConnection();
 
         PreparedStatement preparedStatement = connection.prepareStatement(query);
@@ -71,17 +78,18 @@ public class DefaultDatabaseEngine implements DatabaseEngine<Connection> {
     }
 
     @Override
-    public void create(DatabaseConnection<Connection> databaseConnection,
-                       CreateQuery createQuery,
-                       Map<Integer, Argument> args,
-                       IDatabaseColumnType primaryKey,
-                       GeneratedKey generatedKey) throws SQLException {
+    public int create(DatabaseConnection<Connection> databaseConnection,
+                      CreateQuery createQuery,
+                      Map<Integer, Argument> args,
+                      IDatabaseColumnType primaryKey,
+                      GeneratedKey generatedKey) throws SQLException {
         String query = getQuery(createQuery);
+        LOG.debug("Create: " + query + " args: " + args);
         Connection connection = databaseConnection.getConnection();
 
         try (PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             processArgs(statement, args);
-            statement.executeUpdate();
+            int result = statement.executeUpdate();
 
             try (ResultSet resultSet = statement.getGeneratedKeys()) {
                 ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
@@ -90,6 +98,55 @@ public class DefaultDatabaseEngine implements DatabaseEngine<Connection> {
                     generatedKey.set(readValue(resultSet, resultSetMetaData.getColumnType(GENERATED_KEY_COLUMN_INDEX)));
                 }
             }
+
+            return result;
+        }
+    }
+
+    @Override
+    public int create(DatabaseConnection<Connection> databaseConnection,
+                      CreateQuery createQuery,
+                      List<Map<Integer, Argument>> argList,
+                      IDatabaseColumnType primaryKey,
+                      List<GeneratedKey> generatedKeys) throws SQLException {
+        String query = getQuery(createQuery);
+        LOG.debug("Create: " + query + " args: " + argList);
+        Connection connection = databaseConnection.getConnection();
+        Iterator<GeneratedKey> generatedKeyIterator = generatedKeys.iterator();
+
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            int result = 0;
+
+            for (Map<Integer, Argument> args : argList) {
+                processArgs(statement, args);
+                result += statement.executeUpdate();
+
+                try (ResultSet resultSet = statement.getGeneratedKeys()) {
+                    ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
+
+                    while (resultSet.next()) {
+                        generatedKeyIterator.next().set(readValue(resultSet, resultSetMetaData.getColumnType(GENERATED_KEY_COLUMN_INDEX)));
+                    }
+                }
+            }
+
+            return result;
+        }
+    }
+
+    @Override
+    public int[] executeBatch(DatabaseConnection<?> databaseConnection,
+                              List<SqlStatement> sqlStatements) throws SQLException {
+        Connection connection = (Connection) databaseConnection.getConnection();
+
+        try (Statement statement = connection.createStatement()) {
+            for (SqlStatement sqlStatement : sqlStatements) {
+                String query = getQuery(sqlStatement);
+
+                statement.addBatch(query);
+            }
+
+            return statement.executeBatch();
         }
     }
 
@@ -117,30 +174,32 @@ public class DefaultDatabaseEngine implements DatabaseEngine<Connection> {
     }
 
     @Override
-    public void delete(DatabaseConnection<Connection> databaseConnection,
-                       DeleteQuery deleteQuery,
-                       Map<Integer, Argument> args) throws SQLException {
+    public int delete(DatabaseConnection<Connection> databaseConnection,
+                      DeleteQuery deleteQuery,
+                      Map<Integer, Argument> args) throws SQLException {
         String query = getQuery(deleteQuery);
+        LOG.debug("Delete: " + query + " args: " + args);
         Connection originialConnection = databaseConnection.getConnection();
 
         try (PreparedStatement preparedQuery = originialConnection.prepareStatement(query)) {
             processArgs(preparedQuery, args);
 
-            preparedQuery.executeUpdate();
+            return preparedQuery.executeUpdate();
         }
     }
 
     @Override
-    public void update(DatabaseConnection<Connection> databaseConnection,
-                       UpdateQuery updateQuery,
-                       Map<Integer, Argument> args) throws SQLException {
+    public int update(DatabaseConnection<Connection> databaseConnection,
+                      UpdateQuery updateQuery,
+                      Map<Integer, Argument> args) throws SQLException {
         String query = getQuery(updateQuery);
+        LOG.debug("Update: " + query + " args: " + args);
         Connection originialConnection = databaseConnection.getConnection();
 
         try (PreparedStatement preparedQuery = originialConnection.prepareStatement(query)) {
             processArgs(preparedQuery, args);
 
-            preparedQuery.executeUpdate();
+            return preparedQuery.executeUpdate();
         }
     }
 
@@ -212,6 +271,11 @@ public class DefaultDatabaseEngine implements DatabaseEngine<Connection> {
             statement.close();
             throw e;
         }
+    }
+
+    @Override
+    public DatabaseType getDatabaseType() {
+        return databaseType;
     }
 
     /**

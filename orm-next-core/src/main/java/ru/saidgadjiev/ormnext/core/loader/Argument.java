@@ -42,4 +42,12 @@ public class Argument {
     public Object getValue() {
         return value;
     }
+
+    @Override
+    public String toString() {
+        return "Argument{" +
+                "dataType=" + dataType +
+                ", value=" + value +
+                '}';
+    }
 }

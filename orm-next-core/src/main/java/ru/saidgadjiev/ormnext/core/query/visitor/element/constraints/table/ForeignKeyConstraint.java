@@ -1,5 +1,6 @@
 package ru.saidgadjiev.ormnext.core.query.visitor.element.constraints.table;
 
+import ru.saidgadjiev.ormnext.core.field.ReferenceAction;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 
 /**
@@ -11,6 +12,8 @@ public class ForeignKeyConstraint implements TableConstraint {
      * Column name.
      */
     private String columnName;
+    private ReferenceAction onDelete;
+    private ReferenceAction onUpdate;
 
     /**
      * Foreign table name.
@@ -28,10 +31,16 @@ public class ForeignKeyConstraint implements TableConstraint {
      * @param foreignColumnName target foreign column name
      * @param columnName target column name
      */
-    public ForeignKeyConstraint(String tableName, String foreignColumnName, String columnName) {
+    public ForeignKeyConstraint(String tableName,
+                                String foreignColumnName,
+                                String columnName,
+                                ReferenceAction onDelete,
+                                ReferenceAction onUpdate) {
         this.tableName = tableName;
         this.foreignColumnName = foreignColumnName;
         this.columnName = columnName;
+        this.onDelete = onDelete;
+        this.onUpdate = onUpdate;
     }
 
     /**
@@ -56,6 +65,14 @@ public class ForeignKeyConstraint implements TableConstraint {
      */
     public String getColumnName() {
         return columnName;
+    }
+
+    public ReferenceAction getOnDelete() {
+        return onDelete;
+    }
+
+    public ReferenceAction getOnUpdate() {
+        return onUpdate;
     }
 
     @Override

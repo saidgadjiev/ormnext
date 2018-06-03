@@ -18,7 +18,8 @@ public final class ArgumentUtils {
     /**
      * Can't be instantiated.
      */
-    private ArgumentUtils() { }
+    private ArgumentUtils() {
+    }
 
     /**
      * Retrieve arguments with sql values from object {@code object} for insert statement.
@@ -33,26 +34,28 @@ public final class ArgumentUtils {
     ) throws SQLException {
         Map<IDatabaseColumnType, Argument> args = new LinkedHashMap<>();
 
-        for (IDatabaseColumnType columnType : databaseEntityMetadata.toDatabaseColumnTypes()) {
-            if (!columnType.isGenerated() && columnType.insertable()) {
-                Object value = columnType.access(object);
-
-                if (value != null) {
-                    args.put(columnType, processConvertersToSqlValue(
-                            value,
-                            columnType
-                    ));
-                } else if (!columnType.defaultIfNull()) {
-                    args.put(columnType, new Argument(columnType.getDataType(), null));
-                }
+        for (IDatabaseColumnType columnType : databaseEntityMetadata.getColumnTypes()) {
+            if (columnType.isForeignCollectionColumnType()) {
+                continue;
             }
-        }
+            Object value = columnType.access(object);
 
-        for (ForeignColumnType foreignColumnType : databaseEntityMetadata.toForeignColumnTypes()) {
-            Object value = foreignColumnType.access(object);
-            IDatabaseColumnType foreignPrimaryKeyType = foreignColumnType.getForeignPrimaryKey();
+            if (columnType.isDatabaseColumnType()) {
+                if (!columnType.isGenerated() && columnType.insertable()) {
+                    if (value != null) {
+                        args.put(columnType, processConvertersToSqlValue(
+                                value,
+                                columnType
+                        ));
+                    } else if (!columnType.defaultIfNull()) {
+                        args.put(columnType, new Argument(columnType.getDataType(), null));
+                    }
+                }
+            } else {
+                IDatabaseColumnType foreignPrimaryKeyType = ((ForeignColumnType) columnType).getForeignPrimaryKey();
 
-            args.put(foreignColumnType, eject(value, foreignPrimaryKeyType));
+                args.put(columnType, eject(value, foreignPrimaryKeyType));
+            }
         }
 
         return args;
@@ -71,23 +74,29 @@ public final class ArgumentUtils {
     ) throws SQLException {
         Map<IDatabaseColumnType, Argument> args = new LinkedHashMap<>();
 
-        for (IDatabaseColumnType columnType : databaseEntityMetadata.toDatabaseColumnTypes()) {
-            if (!columnType.isId() && !columnType.isGenerated() && columnType.updatable()) {
-                Object value = columnType.access(object);
+        for (IDatabaseColumnType columnType : databaseEntityMetadata.getColumnTypes()) {
+            if (columnType.isForeignCollectionColumnType()) {
+                continue;
+            }
+            Object value = columnType.access(object);
 
-                if (value != null) {
-                    args.put(columnType, processConvertersToSqlValue(
-                            value,
-                            columnType
-                    ));
-                } else if (!columnType.defaultIfNull()) {
-                    args.put(columnType, new Argument(columnType.getDataType(), null));
+            if (columnType.isDatabaseColumnType()) {
+                if (!columnType.isId() && columnType.updatable()) {
+                    if (value != null) {
+                        args.put(columnType, processConvertersToSqlValue(
+                                value,
+                                columnType
+                        ));
+                    } else if (!columnType.defaultIfNull()) {
+                        args.put(columnType, new Argument(columnType.getDataType(), null));
+                    }
                 }
+            } else {
+                IDatabaseColumnType foreignPrimaryKeyType = ((ForeignColumnType) columnType).getForeignPrimaryKey();
+
+                args.put(columnType, eject(value, foreignPrimaryKeyType));
             }
         }
-        IDatabaseColumnType primaryKeyColumnType = databaseEntityMetadata.getPrimaryKeyColumnType();
-
-        args.put(primaryKeyColumnType, eject(object, primaryKeyColumnType));
 
         return args;
     }
@@ -101,6 +110,9 @@ public final class ArgumentUtils {
      * @throws SQLException any exceptions
      */
     public static Argument eject(Object object, IDatabaseColumnType databaseColumnType) throws SQLException {
+        if (object == null) {
+            return new Argument(databaseColumnType.getDataType(), null);
+        }
         return processConvertersToSqlValue(
                 databaseColumnType.access(object),
                 databaseColumnType
@@ -118,6 +130,9 @@ public final class ArgumentUtils {
      */
     public static Argument processConvertersToSqlValue(Object javaValue, IDatabaseColumnType databaseColumnType)
             throws SQLException {
+        if (javaValue == null) {
+            return new Argument(databaseColumnType.getDataType(), null);
+        }
         Object result = javaValue;
 
         if (databaseColumnType.getColumnConverters().isPresent()) {

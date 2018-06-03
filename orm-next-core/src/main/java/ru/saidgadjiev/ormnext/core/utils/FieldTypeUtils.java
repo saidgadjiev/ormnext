@@ -59,11 +59,11 @@ public final class FieldTypeUtils {
      * @param clazz target class
      * @return field
      */
-    public static Field findFieldByName(String foreignFieldName, Class<?> clazz) {
+    public static Optional<Field> findFieldByName(String foreignFieldName, Class<?> clazz) {
         try {
-            return clazz.getDeclaredField(foreignFieldName);
+            return Optional.of(clazz.getDeclaredField(foreignFieldName));
         } catch (NoSuchFieldException e) {
-            throw new IllegalArgumentException(e);
+            return Optional.empty();
         }
     }
 

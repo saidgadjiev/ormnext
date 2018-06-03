@@ -2,12 +2,15 @@ package ru.saidgadjiev.ormnext.core.dao;
 
 import ru.saidgadjiev.ormnext.core.connectionsource.DatabaseConnection;
 import ru.saidgadjiev.ormnext.core.connectionsource.DatabaseResults;
+import ru.saidgadjiev.ormnext.core.databasetype.DatabaseType;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.IDatabaseColumnType;
 import ru.saidgadjiev.ormnext.core.loader.Argument;
 import ru.saidgadjiev.ormnext.core.loader.GeneratedKey;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.*;
 
+import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -21,15 +24,15 @@ import java.util.Map;
 public interface DatabaseEngine<T> {
 
     /**
-     * Execute select statement.
+     * Execute selectQuery statement.
      *
      * @param connection target connection
-     * @param select     target select statement
-     * @param args       select statement args
-     * @return execute select results
+     * @param selectQuery     target selectQuery statement
+     * @param args       selectQuery statement args
+     * @return execute selectQuery results
      * @throws SQLException on any SQL problems
      */
-    DatabaseResults select(DatabaseConnection<T> connection, Select select, Map<Integer, Argument> args)
+    DatabaseResults select(DatabaseConnection<T> connection, SelectQuery selectQuery, Map<Integer, Argument> args)
             throws SQLException;
 
     /**
@@ -42,32 +45,41 @@ public interface DatabaseEngine<T> {
      * @param generatedKey generated key holder
      * @throws SQLException on any SQL problems
      */
-    void create(DatabaseConnection<T> connection,
-                CreateQuery createQuery,
-                Map<Integer, Argument> args,
-                IDatabaseColumnType primaryKey,
-                GeneratedKey generatedKey) throws SQLException;
+    int create(DatabaseConnection<T> connection,
+               CreateQuery createQuery,
+               Map<Integer, Argument> args,
+               IDatabaseColumnType primaryKey,
+               GeneratedKey generatedKey) throws SQLException;
+
+    int create(DatabaseConnection<Connection> databaseConnection,
+               CreateQuery createQuery,
+               List<Map<Integer, Argument>> argList,
+               IDatabaseColumnType primaryKey,
+               List<GeneratedKey> generatedKeys) throws SQLException;
+
+    int[] executeBatch(DatabaseConnection<?> databaseConnection,
+                       List<SqlStatement> sqlStatements) throws SQLException;
 
     /**
      * Execute delete statement.
      *
-     * @param deleteQuery target delete statement
      * @param connection  target connection
+     * @param deleteQuery target delete statement
      * @param args        delete statement args
      * @throws SQLException on any SQL problems
      */
-    void delete(DatabaseConnection<T> connection, DeleteQuery deleteQuery, Map<Integer, Argument> args)
+    int delete(DatabaseConnection<T> connection, DeleteQuery deleteQuery, Map<Integer, Argument> args)
             throws SQLException;
 
     /**
      * Execute update statement.
      *
-     * @param updateQuery target update statement
      * @param connection  target connection
+     * @param updateQuery target update statement
      * @param args        update statement args
      * @throws SQLException on any SQL problems
      */
-    void update(DatabaseConnection<T> connection, UpdateQuery updateQuery, Map<Integer, Argument> args)
+    int update(DatabaseConnection<T> connection, UpdateQuery updateQuery, Map<Integer, Argument> args)
             throws SQLException;
 
     /**
@@ -121,5 +133,7 @@ public interface DatabaseEngine<T> {
      * @throws SQLException any SQL exceptions
      */
     DatabaseResults query(DatabaseConnection<T> databaseConnection, String query) throws SQLException;
+
+    DatabaseType getDatabaseType();
 }
 

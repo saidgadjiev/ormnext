@@ -8,6 +8,8 @@ package ru.saidgadjiev.ormnext.core.loader.rowreader;
  */
 public class RowResult<T> {
 
+    private final Object id;
+
     /**
      * Readed result.
      */
@@ -24,7 +26,8 @@ public class RowResult<T> {
      * @param result result
      * @param isNew  true if a new result
      */
-    public RowResult(T result, boolean isNew) {
+    public RowResult(Object id, T result, boolean isNew) {
+        this.id = id;
         this.result = result;
         this.isNew = isNew;
     }
@@ -45,5 +48,9 @@ public class RowResult<T> {
      */
     public boolean isNew() {
         return isNew;
+    }
+
+    public Object getId() {
+        return id;
     }
 }

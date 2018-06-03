@@ -8,21 +8,17 @@ public class CollectionEntityAliases {
     /**
      * Collection column key alias.
      */
-    private final String collectionOwnerColumnKeyAlias;
+    private final String collectionObjectKeyAlias;
 
     /**
      * Create a new instance.
-     * @param collectionOwnerColumnKeyAlias collection owner key column alias
+     * @param collectionObjectKeyAlias collection owner key column alias
      */
-    public CollectionEntityAliases(String collectionOwnerColumnKeyAlias) {
-        this.collectionOwnerColumnKeyAlias = collectionOwnerColumnKeyAlias;
+    public CollectionEntityAliases(String collectionObjectKeyAlias) {
+        this.collectionObjectKeyAlias = collectionObjectKeyAlias;
     }
 
-    /**
-     * Return collection column key alias.
-     * @return collection column key alias
-     */
-    public String getCollectionOwnerColumnKeyAlias() {
-        return collectionOwnerColumnKeyAlias;
+    public String getCollectionObjectKeyAlias() {
+        return collectionObjectKeyAlias;
     }
 }

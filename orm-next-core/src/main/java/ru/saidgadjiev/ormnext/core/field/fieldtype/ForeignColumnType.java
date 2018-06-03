@@ -3,6 +3,7 @@ package ru.saidgadjiev.ormnext.core.field.fieldtype;
 import ru.saidgadjiev.ormnext.core.field.FetchType;
 import ru.saidgadjiev.ormnext.core.field.FieldAccessor;
 import ru.saidgadjiev.ormnext.core.field.ForeignColumn;
+import ru.saidgadjiev.ormnext.core.field.ReferenceAction;
 import ru.saidgadjiev.ormnext.core.field.datapersister.DataPersister;
 import ru.saidgadjiev.ormnext.core.table.internal.visitor.EntityMetadataVisitor;
 import ru.saidgadjiev.ormnext.core.utils.DatabaseEntityMetadataUtils;
@@ -69,6 +70,12 @@ public class ForeignColumnType extends BaseDatabaseColumnType implements IForeig
      */
     private FetchType fetchType;
 
+    private ReferenceAction onUpdate;
+
+    private ReferenceAction onDelete;
+
+    private IDatabaseColumnType databaseColumnType;
+
     @Override
     public Field getField() {
         return field;
@@ -79,7 +86,8 @@ public class ForeignColumnType extends BaseDatabaseColumnType implements IForeig
      *
      * @return true if foreign auto create
      */
-    public boolean isForeignAutoCreate() {
+    @Override
+    public boolean foreignAutoCreate() {
         return foreignAutoCreate;
     }
 
@@ -114,6 +122,10 @@ public class ForeignColumnType extends BaseDatabaseColumnType implements IForeig
      */
     public IDatabaseColumnType getForeignPrimaryKey() {
         return foreignPrimaryKey;
+    }
+
+    public IDatabaseColumnType getDatabaseColumnType() {
+        return databaseColumnType;
     }
 
     @Override
@@ -151,12 +163,6 @@ public class ForeignColumnType extends BaseDatabaseColumnType implements IForeig
     }
 
     @Override
-    public void accept(EntityMetadataVisitor visitor) {
-        visitor.start(this);
-        visitor.finish(this);
-    }
-
-    @Override
     public String getTableName() {
         return tableName;
     }
@@ -174,6 +180,21 @@ public class ForeignColumnType extends BaseDatabaseColumnType implements IForeig
     @Override
     public FetchType getFetchType() {
         return fetchType;
+    }
+
+    public ReferenceAction getOnUpdate() {
+        return onUpdate;
+    }
+
+    public ReferenceAction getOnDelete() {
+        return onDelete;
+    }
+
+    @Override
+    public void accept(EntityMetadataVisitor visitor) {
+        if (visitor.start(this)) {
+            visitor.finish(this);
+        }
     }
 
     /**
@@ -202,6 +223,9 @@ public class ForeignColumnType extends BaseDatabaseColumnType implements IForeig
         foreignColumnType.columnName = foreignColumn.columnName().isEmpty()
                 ? field.getName().toLowerCase() : foreignColumn.columnName();
         foreignColumnType.tableName = DatabaseEntityMetadataUtils.resolveTableName(field.getDeclaringClass());
+        foreignColumnType.databaseColumnType = DatabaseColumnType.build(field);
+        foreignColumnType.onDelete = foreignColumn.onDelete();
+        foreignColumnType.onUpdate = foreignColumn.onUpdate();
 
         return foreignColumnType;
     }

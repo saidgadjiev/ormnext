@@ -108,10 +108,11 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
     }
 
     @Override
-    public void start(ForeignColumnType foreignColumnType) {
+    public boolean start(ForeignColumnType foreignColumnType) {
         if (visitedColumnKey.contains(foreignColumnType.getColumnKey())) {
-            LOGGER.debug("Detected circular references!");
-            return;
+            LOGGER.debug("Detected circular references for " + foreignColumnType.getField());
+
+            return false;
         }
         EntityAliases ownerAliases = entityAliasResolverContext.getAliases(parentUidStack.peek());
 
@@ -132,13 +133,16 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
         visitedColumnKey.add(foreignColumnType.getColumnKey());
         parentUidStack.push(nextUID);
         foreignMetaData.accept(this);
+
+        return true;
     }
 
     @Override
-    public void start(ForeignCollectionColumnType collectionColumnType) {
+    public boolean start(ForeignCollectionColumnType collectionColumnType) {
         if (visitedColumnKey.contains(collectionColumnType.getColumnKey())) {
-            LOGGER.debug("Detected circular references!");
-            return;
+            LOGGER.debug("Detected circular references for " + collectionColumnType.getField());
+
+            return false;
         }
         DatabaseEntityMetadata<?> ownerMetaData = metaModel.getPersister(
                 collectionColumnType.getField().getDeclaringClass()
@@ -168,7 +172,7 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
         }
         CollectionLoader collectionLoader = new CollectionLoader(
                 new CollectionQuerySpace(
-                        new CollectionEntityAliases(ownerAliases.getKeyAlias()),
+                        new CollectionEntityAliases(foreignEntityAliases.getKeyAlias()),
                         ownerMetaData.getPrimaryKeyColumnType(),
                         collectionColumnType
                 )
@@ -183,6 +187,9 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
         visitedColumnKey.add(collectionColumnType.getColumnKey());
         parentUidStack.push(nextUID);
         foreignMetaData.accept(this);
+
+
+        return true;
     }
 
     @Override

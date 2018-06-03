@@ -73,6 +73,10 @@ public class ForeignCollectionColumnType extends BaseDatabaseColumnType implemen
      */
     private ColumnKey columnKey;
 
+    private boolean foreignAutoCreate;
+
+    private ForeignColumnType foreignColumnType;
+
     @Override
     public Object access(Object object) {
         return fieldAccessor.access(object);
@@ -111,6 +115,11 @@ public class ForeignCollectionColumnType extends BaseDatabaseColumnType implemen
     @Override
     public boolean updatable() {
         return false;
+    }
+
+    @Override
+    public boolean foreignAutoCreate() {
+        return foreignAutoCreate;
     }
 
     /**
@@ -181,10 +190,15 @@ public class ForeignCollectionColumnType extends BaseDatabaseColumnType implemen
         return foreignField;
     }
 
+    public ForeignColumnType getForeignColumnType() {
+        return foreignColumnType;
+    }
+
     @Override
     public void accept(EntityMetadataVisitor visitor) {
-        visitor.start(this);
-        visitor.finish(this);
+        if (visitor.start(this)) {
+            visitor.finish(this);
+        }
     }
 
     /**
@@ -215,12 +229,14 @@ public class ForeignCollectionColumnType extends BaseDatabaseColumnType implemen
                     fieldType.getCollectionObjectClass()
             ).get();
         } else {
-            foreignField = FieldTypeUtils.findFieldByName(foreignFieldName, collectionObjectClass);
+            foreignField = FieldTypeUtils.findFieldByName(foreignFieldName, collectionObjectClass).get();
         }
         fieldType.tableName = DatabaseEntityMetadataUtils.resolveTableName(field.getDeclaringClass());
         fieldType.foreignField = foreignField;
         fieldType.foreignColumnName = FieldTypeUtils.resolveForeignColumnTypeName(foreignField);
         fieldType.foreignTableName = DatabaseEntityMetadataUtils.resolveTableName(foreignField.getDeclaringClass());
+        fieldType.foreignAutoCreate = foreignCollectionField.foreignAutoCreate();
+        fieldType.foreignColumnType = ForeignColumnType.build(foreignField);
 
         return fieldType;
     }

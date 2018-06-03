@@ -8,8 +8,10 @@ import ru.saidgadjiev.ormnext.core.exception.GeneratedValueNotFoundException;
 import ru.saidgadjiev.ormnext.core.exception.PropertyNotFoundException;
 import ru.saidgadjiev.ormnext.core.field.DataPersisterManager;
 import ru.saidgadjiev.ormnext.core.field.datapersister.DataPersister;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignCollectionColumnType;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignColumnType;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.IDatabaseColumnType;
+import ru.saidgadjiev.ormnext.core.loader.rowreader.RowResult;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.CriterionArgument;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.SelectStatement;
 import ru.saidgadjiev.ormnext.core.query.space.EntityQuerySpace;
@@ -31,7 +33,7 @@ import static ru.saidgadjiev.ormnext.core.utils.ArgumentUtils.*;
  *
  * @author said gadjiev
  */
-public class DefaultEntityLoader {
+public class DefaultEntityLoader implements EntityLoader {
 
     /**
      * Session which create this instance.
@@ -63,50 +65,22 @@ public class DefaultEntityLoader {
         this.metaModel = metaModel;
     }
 
-    /**
-     * Create a new entry in the database from an object.
-     *
-     * @param connection target connection
-     * @param object     target object
-     * @param <T>        object type
-     * @throws SQLException any SQL exceptions
-     */
-    public <T> void create(DatabaseConnection connection, T object) throws SQLException {
+    @Override
+    public int create(DatabaseConnection connection, Object object) throws SQLException {
         try {
             DatabaseEntityPersister entityPersister = metaModel.getPersister(object.getClass());
-            Map<IDatabaseColumnType, Argument> argumentMap = ejectForCreate(object, entityPersister.getMetadata());
+            DatabaseEntityMetadata<?> entityMetadata = entityPersister.getMetadata();
+
+            foreignAutoCreate(object, entityMetadata);
+
+            Map<IDatabaseColumnType, Argument> argumentMap = ejectForCreate(object, entityMetadata);
             EntityQuerySpace entityQuerySpace = entityPersister.getEntityQuerySpace();
-            CreateQuery createQuery = entityQuerySpace.getCreateQuery(argumentMap.keySet());
-            IDatabaseColumnType idField = entityPersister.getMetadata().getPrimaryKeyColumnType();
+            CreateQuery createQuery = entityQuerySpace.getCreatedQuery(argumentMap.keySet());
+            IDatabaseColumnType idField = entityMetadata.getPrimaryKeyColumnType();
 
-            for (ForeignColumnType fieldType : entityPersister.getMetadata().toForeignColumnTypes()) {
-                Object foreignObject = fieldType.access(object);
+            GeneratedKey generatedKey = new KeyHolder();
 
-                if (foreignObject != null && fieldType.isForeignAutoCreate()) {
-                    session.create(foreignObject);
-                }
-            }
-            GeneratedKey generatedKey = new GeneratedKey() {
-
-                private Object key;
-
-                @Override
-                public void set(Object key) throws SQLException {
-                    if (this.key != null) {
-                        throw new SQLException(
-                                "Generated key has already been set to " + this.key + ", now set to " + key
-                        );
-                    }
-
-                    this.key = key;
-                }
-
-                @Override
-                public Object get() {
-                    return key;
-                }
-            };
-            databaseEngine.create(connection, createQuery, new HashMap<Integer, Argument>() {{
+            int result = databaseEngine.create(connection, createQuery, new HashMap<Integer, Argument>() {{
                 AtomicInteger index = new AtomicInteger();
 
                 argumentMap.forEach((key, value) -> put(index.incrementAndGet(), value));
@@ -115,45 +89,96 @@ public class DefaultEntityLoader {
             if (idField.isGenerated()) {
                 if (generatedKey.get() != null) {
                     idField.assign(object, generatedKey.get());
+                    session.cacheHelper().saveToCache(generatedKey.get(), object);
                 } else {
                     throw new GeneratedValueNotFoundException(idField.getField());
                 }
-
+            } else {
+                session.cacheHelper().saveToCache(null, object);
             }
+
+            foreignAutoCreateForeignCollectionColumnType(object, entityMetadata);
+
+            return result;
         } catch (Exception ex) {
             throw new SQLException(ex);
         }
     }
 
-    /**
-     * Create table in the database.
-     *
-     * @param connection target connection
-     * @param tClass     table class
-     * @param ifNotExist append if not exist
-     * @param <T>        table type
-     * @return true if table create success
-     * @throws SQLException any SQL exceptions
-     */
-    public <T> boolean createTable(DatabaseConnection connection, Class<T> tClass, boolean ifNotExist)
+    @Override
+    public int create(DatabaseConnection connection, Object[] objects) throws SQLException {
+        if (objects.length == 0) {
+            return 0;
+        }
+
+        try {
+            DatabaseEntityPersister entityPersister = metaModel.getPersister(objects[0].getClass());
+            EntityQuerySpace entityQuerySpace = entityPersister.getEntityQuerySpace();
+            IDatabaseColumnType idField = entityPersister.getMetadata().getPrimaryKeyColumnType();
+            CreateQuery createQuery = null;
+            List<Map<Integer, Argument>> args = new ArrayList<>();
+
+            for (Object object : objects) {
+                Map<IDatabaseColumnType, Argument> argumentMap = ejectForCreate(object, entityPersister.getMetadata());
+
+                if (createQuery == null) {
+                    createQuery = entityQuerySpace.getCreatedQuery(argumentMap.keySet());
+                }
+                foreignAutoCreate(object, entityPersister.getMetadata());
+                args.add(new HashMap<Integer, Argument>() {{
+                    AtomicInteger index = new AtomicInteger();
+
+                    argumentMap.forEach((key, value) -> put(index.incrementAndGet(), value));
+                }});
+            }
+
+            List<GeneratedKey> generatedKeys = new ArrayList<>();
+
+            for (int i = 0; i < objects.length; ++i) {
+                generatedKeys.add(new KeyHolder());
+            }
+            int result = databaseEngine.create(connection, createQuery, args, idField, generatedKeys);
+
+            if (idField.isGenerated()) {
+                Iterator<GeneratedKey> generatedKeyIterator = generatedKeys.iterator();
+
+                for (Object object : objects) {
+                    GeneratedKey generatedKey = generatedKeyIterator.next();
+
+                    if (generatedKey.get() != null) {
+                        idField.assign(object, generatedKey.get());
+                        session.cacheHelper().saveToCache(generatedKey.get(), object);
+                    } else {
+                        throw new GeneratedValueNotFoundException(idField.getField());
+                    }
+                }
+            } else {
+                session.cacheHelper().saveToCache(objects, objects[0].getClass());
+            }
+            for (Object object : objects) {
+                foreignAutoCreateForeignCollectionColumnType(object, entityPersister.getMetadata());
+            }
+
+            return result;
+        } catch (Exception ex) {
+            throw new SQLException(ex);
+        }
+    }
+
+    @Override
+    public boolean createTable(DatabaseConnection connection, Class<?> tClass, boolean ifNotExist)
             throws SQLException {
         EntityQuerySpace entityQuerySpace = metaModel.getPersister(tClass).getEntityQuerySpace();
-        CreateTableQuery createTableQuery = entityQuerySpace.createTableQuery(ifNotExist);
+        CreateTableQuery createTableQuery = entityQuerySpace.createTableQuery(
+                databaseEngine.getDatabaseType(),
+                ifNotExist
+        );
 
         return databaseEngine.createTable(connection, createTableQuery);
     }
 
-    /**
-     * Drop table from the database.
-     *
-     * @param connection target connection
-     * @param tClass     table class
-     * @param ifExist    append if exist
-     * @param <T>        table type
-     * @return true if table drop success
-     * @throws SQLException any SQL exceptions
-     */
-    public <T> boolean dropTable(DatabaseConnection connection, Class<T> tClass, boolean ifExist)
+    @Override
+    public boolean dropTable(DatabaseConnection connection, Class<?> tClass, boolean ifExist)
             throws SQLException {
         EntityQuerySpace entityQuerySpace = metaModel.getPersister(tClass).getEntityQuerySpace();
         DropTableQuery dropTableQuery = entityQuerySpace.getDropTableQuery(ifExist);
@@ -161,95 +186,72 @@ public class DefaultEntityLoader {
         return databaseEngine.dropTable(connection, dropTableQuery);
     }
 
-    /**
-     * Update an object in the database.
-     *
-     * @param connection target connection
-     * @param object     target object
-     * @param <T>        object type
-     * @throws SQLException any SQL exceptions
-     */
-    public <T> void update(DatabaseConnection connection, T object) throws SQLException {
+    @Override
+    public int update(DatabaseConnection connection, Object object) throws SQLException {
         DatabaseEntityPersister entityPersister = metaModel.getPersister(object.getClass());
         DatabaseEntityMetadata<?> entityMetadata = entityPersister.getMetadata();
 
-        List<IDatabaseColumnType> updatableColumnTypes = entityMetadata.getColumnTypes()
-                .stream()
-                .filter(IDatabaseColumnType::updatable)
-                .collect(Collectors.toList());
-
-        UpdateQuery updateQuery = entityPersister.getEntityQuerySpace().getUpdateQuery(updatableColumnTypes);
         Map<IDatabaseColumnType, Argument> arguments = ejectForUpdate(object, entityMetadata);
+        UpdateQuery updateQuery = entityPersister.getEntityQuerySpace().getUpdateByIdQuery(arguments.keySet());
+        IDatabaseColumnType primaryKeyColumnType = entityMetadata.getPrimaryKeyColumnType();
+        Argument id = eject(object, primaryKeyColumnType);
 
+        arguments.put(primaryKeyColumnType, id);
         try {
-            databaseEngine.update(connection, updateQuery, new HashMap<Integer, Argument>() {{
+            int result = databaseEngine.update(connection, updateQuery, new HashMap<Integer, Argument>() {{
                 AtomicInteger index = new AtomicInteger();
 
                 arguments.forEach((key, value) -> put(index.incrementAndGet(), value));
             }});
+
+            session.cacheHelper().saveToCache(id.getValue(), object);
+
+            return result;
         } catch (Exception ex) {
             throw new SQLException(ex);
         }
     }
 
-    /**
-     * Delete an object from the database.
-     *
-     * @param connection target connection
-     * @param object     target object
-     * @param <T>        object type
-     * @throws SQLException any SQL exceptions
-     */
-    public <T> void delete(DatabaseConnection connection, T object) throws SQLException {
+    @Override
+    public int delete(DatabaseConnection connection, Object object) throws SQLException {
         try {
             DatabaseEntityPersister entityPersister = metaModel.getPersister(object.getClass());
             Argument id = eject(object, entityPersister.getMetadata().getPrimaryKeyColumnType());
 
-            DeleteQuery deleteQuery = entityPersister.getEntityQuerySpace().getDeleteQuery();
+            DeleteQuery deleteQuery = entityPersister.getEntityQuerySpace().getDeleteByIdQuery();
 
-            databaseEngine.delete(connection, deleteQuery, new HashMap<Integer, Argument>() {{
+            int result = databaseEngine.delete(connection, deleteQuery, new HashMap<Integer, Argument>() {{
                 put(1, id);
             }});
+
+            session.cacheHelper().delete(object.getClass(), id.getValue());
+
+            return result;
         } catch (Exception ex) {
             throw new SQLException(ex);
         }
     }
 
-    /**
-     * Delete an object in the database by id.
-     *
-     * @param connection target connection
-     * @param tClass     target object class
-     * @param id         target id
-     * @param <T>        object type
-     * @param <ID>       id type
-     * @throws SQLException any SQL exceptions
-     */
-    public <T, ID> void deleteById(DatabaseConnection connection, Class<T> tClass, ID id) throws SQLException {
+    @Override
+    public int deleteById(DatabaseConnection connection, Class<?> tClass, Object id) throws SQLException {
         DatabaseEntityPersister entityPersister = metaModel.getPersister(tClass);
-        DeleteQuery deleteQuery = entityPersister.getEntityQuerySpace().getDeleteQuery();
+        DeleteQuery deleteQuery = entityPersister.getEntityQuerySpace().getDeleteByIdQuery();
         Argument idArgument = processConvertersToSqlValue(
                 id,
                 entityPersister.getMetadata().getPrimaryKeyColumnType()
         );
 
-        databaseEngine.delete(connection, deleteQuery, new HashMap<Integer, Argument>() {{
+        int result = databaseEngine.delete(connection, deleteQuery, new HashMap<Integer, Argument>() {{
             put(1, idArgument);
         }});
+
+        session.cacheHelper().delete(tClass, id);
+
+        return result;
     }
 
-    /**
-     * Return the object associated with the id or null if none.
-     *
-     * @param connection target connection
-     * @param tClass     result object class
-     * @param id         target id
-     * @param <T>        result object type
-     * @param <ID>       target id type
-     * @return object associated with requested id
-     * @throws SQLException any SQL exceptions
-     */
-    public <T, ID> T queryForId(DatabaseConnection connection, Class<T> tClass, ID id) throws SQLException {
+    @Override
+    public <T> T queryForId(DatabaseConnection connection, Class<T> tClass, Object id) throws SQLException {
         Optional<Object> instance = session.cacheHelper().get(tClass, id);
 
         if (instance.isPresent()) {
@@ -270,25 +272,21 @@ public class DefaultEntityLoader {
                     put(1, idArgument);
                 }}
         )) {
-            List<Object> result = entityPersister.load(session, databaseResults);
+            List<RowResult<Object>> rowResults = entityPersister.load(session, databaseResults);
 
-            if (!result.isEmpty()) {
-                result.iterator().next();
+            if (!rowResults.isEmpty()) {
+                RowResult<Object> rowResult = rowResults.iterator().next();
+
+                session.cacheHelper().saveToCache(rowResult.getId(), rowResult.getResult());
+
+                return (T) rowResult.getResult();
             }
         }
 
         return null;
     }
 
-    /**
-     * Return all objects from table.
-     *
-     * @param connection target connection
-     * @param tClass     result table class
-     * @param <T>        table type
-     * @return all objects from requested table
-     * @throws SQLException any SQL exceptions
-     */
+    @Override
     public <T> List<T> queryForAll(DatabaseConnection connection, Class<T> tClass) throws SQLException {
         DatabaseEntityPersister entityPersister = metaModel.getPersister(tClass);
         EntityQuerySpace entityQuerySpace = entityPersister.getEntityQuerySpace();
@@ -298,19 +296,52 @@ public class DefaultEntityLoader {
                 entityQuerySpace.getSelectAll(),
                 Collections.emptyMap()
         )) {
-            return (List<T>) entityPersister.load(session, databaseResults);
+            List<RowResult<Object>> results = entityPersister.load(session, databaseResults);
+
+            for (RowResult<Object> result : results) {
+                session.cacheHelper().saveToCache(result.getId(), result.getResult());
+            }
+
+            return (List<T>) results.stream().map(RowResult::getResult).collect(Collectors.toList());
         }
     }
 
-    /**
-     * Create table indexes.
-     *
-     * @param connection target connection
-     * @param tClass     table class
-     * @param <T>        table type
-     * @throws SQLException any SQL exceptions
-     */
-    public <T> void createIndexes(DatabaseConnection connection, Class<T> tClass) throws SQLException {
+    @Override
+    public boolean refresh(DatabaseConnection databaseConnection, Object object) throws SQLException {
+        DatabaseEntityPersister entityPersister = metaModel.getPersister(object.getClass());
+        IDatabaseColumnType primaryKeyType = entityPersister.getMetadata().getPrimaryKeyColumnType();
+        EntityQuerySpace entityQuerySpace = entityPersister.getEntityQuerySpace();
+        Argument idArgument = eject(object, primaryKeyType);
+
+        try (DatabaseResults databaseResults = databaseEngine.select(
+                databaseConnection,
+                entityQuerySpace.getSelectById(),
+                new HashMap<Integer, Argument>() {{
+                    put(1, idArgument);
+                }}
+        )) {
+            List<RowResult<Object>> rowResults = entityPersister.load(session, databaseResults);
+
+            if (!rowResults.isEmpty()) {
+                RowResult<Object> rowResult = rowResults.iterator().next();
+                Object newObject = rowResult.getResult();
+
+                for (IDatabaseColumnType columnType : entityPersister.getMetadata().getColumnTypes()) {
+                    Object newValue = columnType.access(newObject);
+
+                    columnType.assign(object, newValue);
+                }
+                session.cacheHelper().saveToCache(rowResult.getId(), object);
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    @Override
+    public void createIndexes(DatabaseConnection connection, Class<?> tClass) throws SQLException {
         DatabaseEntityPersister entityPersister = metaModel.getPersister(tClass);
 
         for (CreateIndexQuery createIndexQuery : entityPersister.getEntityQuerySpace().getCreateIndexQuery()) {
@@ -318,15 +349,8 @@ public class DefaultEntityLoader {
         }
     }
 
-    /**
-     * Drop table indexes.
-     *
-     * @param connection target connection
-     * @param tClass     table class
-     * @param <T>        table type
-     * @throws SQLException any SQL exceptions
-     */
-    public <T> void dropIndexes(DatabaseConnection connection, Class<T> tClass) throws SQLException {
+    @Override
+    public void dropIndexes(DatabaseConnection connection, Class<?> tClass) throws SQLException {
         DatabaseEntityPersister entityPersister = metaModel.getPersister(tClass);
 
         for (DropIndexQuery dropIndexQuery : entityPersister.getEntityQuerySpace().getDropIndexQuery()) {
@@ -334,20 +358,12 @@ public class DefaultEntityLoader {
         }
     }
 
-    /**
-     * Count star in the table.
-     *
-     * @param connection target connection
-     * @param tClass     table class
-     * @param <T>        table type
-     * @return count off entities in the table
-     * @throws SQLException any SQL exceptions
-     */
-    public <T> long countOff(DatabaseConnection connection, Class<T> tClass) throws SQLException {
+    @Override
+    public long countOff(DatabaseConnection connection, Class<?> tClass) throws SQLException {
         DatabaseEntityPersister entityPersister = metaModel.getPersister(tClass);
-        Select select = entityPersister.getEntityQuerySpace().countOff();
+        SelectQuery selectQuery = entityPersister.getEntityQuerySpace().countOff();
 
-        try (DatabaseResults databaseResults = databaseEngine.select(connection, select, new HashMap<>())) {
+        try (DatabaseResults databaseResults = databaseEngine.select(connection, selectQuery, new HashMap<>())) {
             if (databaseResults.next()) {
                 return databaseResults.getLong(1);
             }
@@ -356,45 +372,36 @@ public class DefaultEntityLoader {
         return 0;
     }
 
-    /**
-     * Return all objects by select query.
-     *
-     * @param connection    target connection
-     * @param selectStatement target query
-     * @param <T>           table type
-     * @return objects list
-     * @throws SQLException any SQL exceptions
-     */
-    public <T> List<T> list(DatabaseConnection connection, SelectStatement<?> selectStatement) throws SQLException {
+    @Override
+    public <T> List<T> list(DatabaseConnection connection, SelectStatement<T> selectStatement) throws SQLException {
         DatabaseEntityPersister entityPersister = metaModel.getPersister(selectStatement.getEntityClass());
-        Select select = entityPersister.getEntityQuerySpace().getBySelectStatement(selectStatement);
+        IDatabaseColumnType primaryKeyType = entityPersister.getMetadata().getPrimaryKeyColumnType();
+        SelectQuery selectQuery = entityPersister.getEntityQuerySpace().getBySelectStatement(selectStatement);
 
         try (DatabaseResults databaseResults = databaseEngine.select(
                 connection,
-                select,
+                selectQuery,
                 getArguments(entityPersister.getMetadata(), selectStatement)
         )) {
-            return (List<T>) entityPersister.load(session, databaseResults);
+            List<T> results = (List<T>) entityPersister.load(session, databaseResults);
+
+            for (T result : results) {
+                session.cacheHelper().saveToCache(primaryKeyType.access(result), result);
+            }
+
+            return results;
         }
     }
 
-    /**
-     * Return long result by select query.
-     *
-     * @param connection    target connection
-     * @param selectStatement target query
-     * @param <T>           table type
-     * @return result long value
-     * @throws SQLException any SQL exceptions
-     */
-    public <T> long queryForLong(DatabaseConnection connection, SelectStatement<T> selectStatement)
+    @Override
+    public long queryForLong(DatabaseConnection connection, SelectStatement<?> selectStatement)
             throws SQLException {
         DatabaseEntityPersister entityPersister = metaModel.getPersister(selectStatement.getEntityClass());
-        Select select = entityPersister.getEntityQuerySpace().getSelectForLongResult(selectStatement);
+        SelectQuery selectQuery = entityPersister.getEntityQuerySpace().getSelectForLongResult(selectStatement);
 
         try (DatabaseResults databaseResults = databaseEngine.select(
                 connection,
-                select,
+                selectQuery,
                 getArguments(entityPersister.getMetadata(), selectStatement)
         )) {
             if (databaseResults.next()) {
@@ -405,22 +412,37 @@ public class DefaultEntityLoader {
         return 0;
     }
 
-    /**
-     * Execute query by database engine and return results.
-     *
-     * @param databaseConnection target connection
-     * @param query              target query
-     * @return database results
-     * @throws SQLException any SQL exceptions
-     */
+    @Override
     public DatabaseResults query(DatabaseConnection databaseConnection, String query) throws SQLException {
         return databaseEngine.query(databaseConnection, query);
+    }
+
+    private void foreignAutoCreate(Object object, DatabaseEntityMetadata<?> entityMetadata) throws SQLException {
+        for (ForeignColumnType foreignColumnType : entityMetadata.toForeignColumnTypes()) {
+            Object foreignObject = foreignColumnType.access(object);
+
+            if (foreignObject != null && foreignColumnType.foreignAutoCreate()) {
+                session.create(foreignObject);
+            }
+        }
+    }
+
+    private void foreignAutoCreateForeignCollectionColumnType(Object object, DatabaseEntityMetadata<?> entityMetadata) throws SQLException {
+        for (ForeignCollectionColumnType foreignCollectionColumnType : entityMetadata.toForeignCollectionColumnTypes()) {
+            if (foreignCollectionColumnType.foreignAutoCreate()) {
+                for (Object foreignObject : (Collection) foreignCollectionColumnType.access(object)) {
+                    foreignCollectionColumnType.getForeignColumnType().assign(foreignObject, object);
+
+                    session.create(foreignObject);
+                }
+            }
+        }
     }
 
     /**
      * Obtain arguments {@link Argument} from criteria query.
      *
-     * @param metadata      target table meta data
+     * @param metadata        target table meta data
      * @param selectStatement target criteria query
      * @return argument index map
      */
@@ -451,4 +473,24 @@ public class DefaultEntityLoader {
         return args;
     }
 
+    private static class KeyHolder implements GeneratedKey {
+
+        private Object key;
+
+        @Override
+        public void set(Object key) throws SQLException {
+            if (this.key != null) {
+                throw new SQLException(
+                        "Generated key has already been set to " + this.key + ", now set to " + key
+                );
+            }
+
+            this.key = key;
+        }
+
+        @Override
+        public Object get() {
+            return key;
+        }
+    }
 }

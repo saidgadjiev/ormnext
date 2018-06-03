@@ -6,6 +6,7 @@ import ru.saidgadjiev.ormnext.core.field.DataType;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Time;
+import java.sql.Types;
 import java.util.Date;
 
 /**
@@ -19,7 +20,7 @@ public class TimeDataPersister extends BaseDataPersister {
      * Create a new instance.
      */
     public TimeDataPersister() {
-        super(new Class<?>[] {Time.class, Date.class, java.sql.Date.class});
+        super(new Class<?>[] {Time.class, Date.class, java.sql.Date.class}, Types.TIME);
     }
 
     @Override
@@ -33,7 +34,7 @@ public class TimeDataPersister extends BaseDataPersister {
     }
 
     @Override
-    public void setObject(PreparedStatement preparedStatement, int index, Object value) throws SQLException {
+    protected void setNonNullObject(PreparedStatement preparedStatement, int index, Object value) throws SQLException {
         preparedStatement.setTime(index, (Time) value);
     }
 }

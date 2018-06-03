@@ -3,6 +3,7 @@ package ru.saidgadjiev.ormnext.core.table.internal.persister;
 import ru.saidgadjiev.ormnext.core.connectionsource.DatabaseResults;
 import ru.saidgadjiev.ormnext.core.dao.Session;
 import ru.saidgadjiev.ormnext.core.dao.SessionManager;
+import ru.saidgadjiev.ormnext.core.loader.EntityLoader;
 import ru.saidgadjiev.ormnext.core.loader.ResultSetContext;
 import ru.saidgadjiev.ormnext.core.loader.object.OrmNextMethodHandler;
 import ru.saidgadjiev.ormnext.core.loader.rowreader.RowReader;
@@ -22,7 +23,9 @@ import ru.saidgadjiev.proxymaker.ProxyMaker;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Entity persister. Holds entity aliases and aliases for entity references.
@@ -84,6 +87,8 @@ public class DatabaseEntityPersister {
      */
     private EntityQuerySpace entityQuerySpace;
 
+    private Map<EntityLoader.Loader, EntityLoader> registeredLoaders = new HashMap<>();
+
     /**
      * Create a new instance.
      *
@@ -107,6 +112,8 @@ public class DatabaseEntityPersister {
 
         rootEntityInitializer = new EntityInitializer(nextUID, entityAliases, this);
     }
+
+    private void initLoaders
 
     /**
      * Perssiter initialize method.
@@ -158,15 +165,15 @@ public class DatabaseEntityPersister {
      * @return object list
      * @throws SQLException any SQL exceptions
      */
-    public List<Object> load(Session session, DatabaseResults databaseResults) throws SQLException {
+    public List<RowResult<Object>> load(Session session, DatabaseResults databaseResults) throws SQLException {
         ResultSetContext resultSetContext = new ResultSetContext(session, databaseResults);
-        List<Object> results = new ArrayList<>();
+        List<RowResult<Object>> results = new ArrayList<>();
 
         while (databaseResults.next()) {
             RowResult<Object> rowResult = rowReader.startRead(resultSetContext);
 
             if (rowResult.isNew()) {
-                results.add(rowResult.getResult());
+                results.add(rowResult);
             }
         }
         rowReader.finishRead(resultSetContext);

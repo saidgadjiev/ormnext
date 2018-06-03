@@ -97,6 +97,8 @@ public final class DatabaseColumnType extends BaseDatabaseColumnType {
      */
     private List<ColumnConverter<?, Object>> columnConverters;
 
+    private boolean unique;
+
     /**
      * Create a new instance only from {@link #build(Field)} method.
      */
@@ -158,7 +160,7 @@ public final class DatabaseColumnType extends BaseDatabaseColumnType {
     }
 
     @Override
-    public boolean isDbColumnType() {
+    public boolean isDatabaseColumnType() {
         return true;
     }
 
@@ -187,6 +189,11 @@ public final class DatabaseColumnType extends BaseDatabaseColumnType {
         return defaultIfNull;
     }
 
+    @Override
+    public boolean unique() {
+        return unique;
+    }
+
     /**
      * Method for build new instance by field.
      * @param field target field
@@ -197,49 +204,50 @@ public final class DatabaseColumnType extends BaseDatabaseColumnType {
             return null;
         }
         DatabaseColumn databaseColumn = field.getAnnotation(DatabaseColumn.class);
-        DatabaseColumnType fieldType = new DatabaseColumnType();
+        DatabaseColumnType columnType = new DatabaseColumnType();
 
-        fieldType.field = field;
-        fieldType.columnName = databaseColumn.columnName().isEmpty()
+        columnType.field = field;
+        columnType.columnName = databaseColumn.columnName().isEmpty()
                 ? field.getName().toLowerCase() : databaseColumn.columnName();
-        fieldType.length = databaseColumn.length();
-        fieldType.fieldAccessor = new FieldAccessor(field);
+        columnType.length = databaseColumn.length();
+        columnType.fieldAccessor = new FieldAccessor(field);
 
         if (!field.isAnnotationPresent(ForeignColumn.class)) {
             Integer dataType = databaseColumn.dataType();
             DataPersister dataPersister = dataType.equals(DataType.UNKNOWN)
                     ? DataPersisterManager.lookup(field.getType()) : DataPersisterManager.lookup(dataType);
 
-            fieldType.tableName = DatabaseEntityMetadataUtils.resolveTableName(field.getDeclaringClass());
-            fieldType.dataPersister = dataPersister;
-            fieldType.dataType = dataType.equals(DataType.UNKNOWN) ? dataPersister.getDataType() : dataType;
+            columnType.tableName = DatabaseEntityMetadataUtils.resolveTableName(field.getDeclaringClass());
+            columnType.dataPersister = dataPersister;
+            columnType.dataType = dataType.equals(DataType.UNKNOWN) ? dataPersister.getDataType() : dataType;
             String defaultDefinition = databaseColumn.defaultDefinition();
 
             if (!defaultDefinition.isEmpty()) {
-                fieldType.defaultDefinition = defaultDefinition;
+                columnType.defaultDefinition = defaultDefinition;
             }
         }
         if (field.isAnnotationPresent(ConverterGroup.class)) {
             ConverterGroup converterGroupAnnotation = field.getAnnotation(ConverterGroup.class);
 
-            fieldType.columnConverters = new ArrayList<>();
+            columnType.columnConverters = new ArrayList<>();
             for (Converter converter : converterGroupAnnotation.converters()) {
-                fieldType.columnConverters.add(toConverter(converter));
+                columnType.columnConverters.add(toConverter(converter));
             }
         } else if (field.isAnnotationPresent(Converter.class)) {
             Converter converterAnnotation = field.getAnnotation(Converter.class);
 
-            fieldType.columnConverters = new ArrayList<>();
-            fieldType.columnConverters.add(toConverter(converterAnnotation));
+            columnType.columnConverters = new ArrayList<>();
+            columnType.columnConverters.add(toConverter(converterAnnotation));
         }
-        fieldType.notNull = databaseColumn.notNull();
-        fieldType.id = databaseColumn.id();
-        fieldType.generated = databaseColumn.generated();
-        fieldType.insertable = databaseColumn.insertable();
-        fieldType.updatable = databaseColumn.updatable();
-        fieldType.defaultIfNull = databaseColumn.defaultIfNull();
+        columnType.notNull = databaseColumn.notNull();
+        columnType.id = databaseColumn.id();
+        columnType.generated = databaseColumn.generated();
+        columnType.insertable = databaseColumn.insertable();
+        columnType.updatable = databaseColumn.updatable();
+        columnType.defaultIfNull = databaseColumn.defaultIfNull();
+        columnType.unique = databaseColumn.unique();
 
-        return fieldType;
+        return columnType;
     }
 
     /**

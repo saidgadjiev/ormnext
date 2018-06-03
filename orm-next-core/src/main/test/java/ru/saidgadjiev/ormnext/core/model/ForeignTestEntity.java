@@ -3,13 +3,13 @@ package ru.saidgadjiev.ormnext.core.model;
 import ru.saidgadjiev.ormnext.core.field.DatabaseColumn;
 import ru.saidgadjiev.ormnext.core.field.ForeignColumn;
 
-public class ForeignSimpleEntity {
+public class ForeignTestEntity {
 
     @DatabaseColumn(id = true, generated = true)
     private int id;
 
     @ForeignColumn
-    private SimpleEntity entity;
+    private TestEntity entity;
 
     public int getId() {
         return id;
@@ -19,11 +19,11 @@ public class ForeignSimpleEntity {
         this.id = id;
     }
 
-    public SimpleEntity getEntity() {
+    public TestEntity getEntity() {
         return entity;
     }
 
-    public void setEntity(SimpleEntity entity) {
+    public void setEntity(TestEntity entity) {
         this.entity = entity;
     }
 
@@ -32,7 +32,7 @@ public class ForeignSimpleEntity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        ForeignSimpleEntity that = (ForeignSimpleEntity) o;
+        ForeignTestEntity that = (ForeignTestEntity) o;
 
         if (id != that.id) return false;
         return entity != null ? entity.equals(that.entity) : that.entity == null;

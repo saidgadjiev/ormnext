@@ -1,5 +1,6 @@
 package ru.saidgadjiev.ormnext.core.query.visitor.element.constraints.attribute;
 
+import ru.saidgadjiev.ormnext.core.field.ReferenceAction;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 
 /**
@@ -17,14 +18,23 @@ public class ReferencesConstraint implements AttributeConstraint {
      */
     private final String columnName;
 
+    private final ReferenceAction onDelete;
+
+    private final ReferenceAction onUpdate;
+
     /**
      * Create a new instance.
      * @param tableName target table name
      * @param columnName target column name
      */
-    public ReferencesConstraint(String tableName, String columnName) {
+    public ReferencesConstraint(String tableName,
+                                String columnName,
+                                ReferenceAction onDelete,
+                                ReferenceAction onUpdate) {
         this.tableName = tableName;
         this.columnName = columnName;
+        this.onDelete = onDelete;
+        this.onUpdate = onUpdate;
     }
 
     /**
@@ -41,6 +51,14 @@ public class ReferencesConstraint implements AttributeConstraint {
      */
     public String getColumnName() {
         return columnName;
+    }
+
+    public ReferenceAction getOnDelete() {
+        return onDelete;
+    }
+
+    public ReferenceAction getOnUpdate() {
+        return onUpdate;
     }
 
     @Override

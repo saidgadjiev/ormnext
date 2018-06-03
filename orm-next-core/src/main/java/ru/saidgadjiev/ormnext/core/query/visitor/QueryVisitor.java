@@ -13,10 +13,7 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.DisplayedOpe
 import ru.saidgadjiev.ormnext.core.query.visitor.element.common.TableRef;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.common.UpdateValue;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.condition.*;
-import ru.saidgadjiev.ormnext.core.query.visitor.element.constraints.attribute.Default;
-import ru.saidgadjiev.ormnext.core.query.visitor.element.constraints.attribute.NotNullConstraint;
-import ru.saidgadjiev.ormnext.core.query.visitor.element.constraints.attribute.PrimaryKeyConstraint;
-import ru.saidgadjiev.ormnext.core.query.visitor.element.constraints.attribute.ReferencesConstraint;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.constraints.attribute.*;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.constraints.table.ForeignKeyConstraint;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.constraints.table.UniqueConstraint;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.function.*;
@@ -67,7 +64,7 @@ public interface QueryVisitor {
      * @return true if need visit another visitor elements that contained in {@code updateValue} else false
      * @see UpdateValue
      */
-    boolean visit(Select selectQuery);
+    boolean visit(SelectQuery selectQuery);
 
     /**
      * Visit {@link Expression} element.
@@ -633,4 +630,8 @@ public interface QueryVisitor {
      * @see CountColumn
      */
     boolean visit(CountColumn countColumn);
+
+    void visit(SqlLiteral sqlLiteral);
+
+    void visit(UniqueAttributeConstraint uniqueAttributeConstraint);
 }

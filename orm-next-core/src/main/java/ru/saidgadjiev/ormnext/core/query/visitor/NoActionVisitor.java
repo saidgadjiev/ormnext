@@ -13,10 +13,7 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.DisplayedOpe
 import ru.saidgadjiev.ormnext.core.query.visitor.element.common.TableRef;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.common.UpdateValue;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.condition.*;
-import ru.saidgadjiev.ormnext.core.query.visitor.element.constraints.attribute.Default;
-import ru.saidgadjiev.ormnext.core.query.visitor.element.constraints.attribute.NotNullConstraint;
-import ru.saidgadjiev.ormnext.core.query.visitor.element.constraints.attribute.PrimaryKeyConstraint;
-import ru.saidgadjiev.ormnext.core.query.visitor.element.constraints.attribute.ReferencesConstraint;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.constraints.attribute.*;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.constraints.table.ForeignKeyConstraint;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.constraints.table.UniqueConstraint;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.function.*;
@@ -46,7 +43,7 @@ public class NoActionVisitor implements QueryVisitor {
     }
 
     @Override
-    public boolean visit(Select selectQuery) {
+    public boolean visit(SelectQuery selectQuery) {
         return true;
     }
 
@@ -354,5 +351,15 @@ public class NoActionVisitor implements QueryVisitor {
     @Override
     public boolean visit(CountColumn countColumn) {
         return false;
+    }
+
+    @Override
+    public void visit(SqlLiteral sqlLiteral) {
+
+    }
+
+    @Override
+    public void visit(UniqueAttributeConstraint uniqueAttributeConstraint) {
+
     }
 }

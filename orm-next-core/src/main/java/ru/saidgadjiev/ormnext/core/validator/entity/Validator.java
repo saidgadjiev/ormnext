@@ -3,7 +3,7 @@ package ru.saidgadjiev.ormnext.core.validator.entity;
 /**
  * Interface for different entity validators.
  */
-public interface IValidator {
+public interface Validator {
 
     /**
      * Validate some rule for entity class.

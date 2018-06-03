@@ -34,12 +34,12 @@ public class CollectionQuerySpace {
     private final ForeignCollectionColumnType foreignCollectionColumnType;
 
     /**
-     * Select collection items statement.
+     * SelectQuery collection items statement.
      */
     private final SelectStatement loadCollectionQuery;
 
     /**
-     * Select collection items count statement.
+     * SelectQuery collection items count statement.
      */
     private final SelectStatement countOffCriteria;
 

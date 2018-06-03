@@ -68,4 +68,14 @@ public abstract class BaseDatabaseType implements DatabaseType {
     public String getValueEscape() {
         return "'";
     }
+
+    @Override
+    public boolean supportTableForeignConstraint() {
+        return true;
+    }
+
+    @Override
+    public boolean supportTableUniqueConstraint() {
+        return true;
+    }
 }

@@ -12,9 +12,7 @@ import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetada
 import ru.saidgadjiev.ormnext.core.table.internal.persister.DatabaseEntityPersister;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static ru.saidgadjiev.ormnext.core.loader.ResultSetContext.EntityProcessingState;
 
@@ -102,8 +100,8 @@ public class EntityInitializer {
 
         primaryKey.assign(entityInstance, id);
 
-        context.getSession().cacheHelper().saveToCache(id, entityInstance);
-        List<Object> values = new ArrayList<>();
+        addToCache(context, id, entityInstance);
+        List<ResultSetValue> values = new ArrayList<>();
 
         List<String> columnAliases = entityAliases.getColumnAliases();
         int i = 0;
@@ -120,7 +118,7 @@ public class EntityInitializer {
                     columnAliases.get(i++)
             );
 
-            values.add(value);
+            values.add(new ResultSetValue(value, context.getDatabaseResults().wasNull()));
         }
         processingState.setValuesFromResultSet(values);
         LOG.debug("Values read from resultset %s", values);
@@ -154,7 +152,7 @@ public class EntityInitializer {
     private void finishRead(ResultSetContext context, EntityProcessingState processingState) throws SQLException {
         DatabaseEntityMetadata<?> entityMetadata = persister.getMetadata();
         Object entityInstance = processingState.getEntityInstance();
-        List<Object> values = processingState.getValues();
+        List<ResultSetValue> values = processingState.getValues();
         int i = 0;
 
         for (IDatabaseColumnType columnType : entityMetadata.getColumnTypes()) {
@@ -164,8 +162,9 @@ public class EntityInitializer {
             if (columnType.isId()) {
                 continue;
             }
-            if (columnType.isDbColumnType()) {
-                Object value = values.get(i++);
+            if (columnType.isDatabaseColumnType()) {
+                ResultSetValue resultSetValue = values.get(i++);
+                Object value = resultSetValue.getValue();
 
                 if (columnType.getColumnConverters().isPresent()) {
                     List<ColumnConverter<?, Object>> columnConverters = columnType.getColumnConverters().get();
@@ -178,29 +177,40 @@ public class EntityInitializer {
             }
             if (columnType.isForeignColumnType()) {
                 ForeignColumnType foreignColumnType = (ForeignColumnType) columnType;
+                ResultSetValue resultSetValue = values.get(i++);
 
-                switch (foreignColumnType.getFetchType()) {
-                    case LAZY:
-                        LOG.debug(
-                                "Found lazy entity %s %s",
-                                foreignColumnType.getField().getDeclaringClass().getName(),
-                                foreignColumnType.getField().getName()
-                        );
-                        Object proxy = persister.createProxy(foreignColumnType.getForeignFieldClass(), values.get(i++));
+                if (!resultSetValue.isWasNull()) {
+                    switch (foreignColumnType.getFetchType()) {
+                        case LAZY:
+                            LOG.debug(
+                                    "Found lazy entity %s %s",
+                                    foreignColumnType.getField().getDeclaringClass().getName(),
+                                    foreignColumnType.getField().getName()
+                            );
+                            Object proxy = persister.createProxy(
+                                    foreignColumnType.getForeignFieldClass(),
+                                    resultSetValue.getValue()
+                            );
 
-                        columnType.assign(entityInstance, proxy);
-                        break;
-                    case EAGER:
-                        columnType.assign(entityInstance, context.getSession().queryForId(
-                                foreignColumnType.getForeignFieldClass(),
-                                values.get(i++))
-                        );
-                        break;
-                    default:
-                        break;
+                            columnType.assign(entityInstance, proxy);
+                            break;
+                        case EAGER:
+                            columnType.assign(entityInstance, context.getEntry(
+                                    foreignColumnType.getForeignFieldClass(),
+                                    resultSetValue.getValue()
+                            ));
+                            break;
+                        default:
+                            break;
+                    }
                 }
             }
         }
+    }
+
+    private void addToCache(ResultSetContext context, Object id, Object entityInstance) {
+        context.addEntry(id, entityInstance);
+        context.getSession().cacheHelper().saveToCache(id, entityInstance);
     }
 
     /**

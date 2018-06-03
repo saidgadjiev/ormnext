@@ -1,6 +1,9 @@
 package ru.saidgadjiev.ormnext.core.field.datapersister;
 
 import ru.saidgadjiev.ormnext.core.connectionsource.DatabaseResults;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.literals.Literal;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.literals.RValue;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.literals.SqlLiteral;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -44,4 +47,6 @@ public interface DataPersister {
      * @throws SQLException any SQL exceptions
      */
     void setObject(PreparedStatement preparedStatement, int index, Object value) throws SQLException;
+
+    SqlLiteral createLiteral(Object value);
 }

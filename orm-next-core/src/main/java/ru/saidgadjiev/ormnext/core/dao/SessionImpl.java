@@ -1,20 +1,22 @@
 package ru.saidgadjiev.ormnext.core.dao;
 
 import ru.saidgadjiev.ormnext.core.cache.CacheHolder;
-import ru.saidgadjiev.ormnext.core.cache.ObjectCache;
-import ru.saidgadjiev.ormnext.core.cache.ReferenceObjectCache;
 import ru.saidgadjiev.ormnext.core.connectionsource.ConnectionSource;
 import ru.saidgadjiev.ormnext.core.connectionsource.DatabaseConnection;
 import ru.saidgadjiev.ormnext.core.connectionsource.DatabaseResults;
 import ru.saidgadjiev.ormnext.core.dao.transaction.state.BeginState;
 import ru.saidgadjiev.ormnext.core.dao.transaction.state.InternalTransaction;
 import ru.saidgadjiev.ormnext.core.dao.transaction.state.TransactionState;
+import ru.saidgadjiev.ormnext.core.loader.BatchEntityLoader;
 import ru.saidgadjiev.ormnext.core.loader.CacheHelper;
 import ru.saidgadjiev.ormnext.core.loader.DefaultEntityLoader;
+import ru.saidgadjiev.ormnext.core.loader.EntityLoader;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.SelectStatement;
 
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Concrete session implementation {@link Session}.
@@ -28,7 +30,7 @@ public class SessionImpl implements Session, InternalTransaction {
      *
      * @see DefaultEntityLoader
      */
-    private final DefaultEntityLoader entityLoader;
+    private EntityLoader entityLoader;
 
     /**
      * Cache helper.
@@ -55,13 +57,6 @@ public class SessionImpl implements Session, InternalTransaction {
     private final DatabaseConnection<?> connection;
 
     /**
-     * Session cache.
-     *
-     * @see CacheHolder
-     */
-    private final CacheHolder cacheHolder;
-
-    /**
      * Transaction state.
      *
      * @see TransactionState
@@ -83,14 +78,8 @@ public class SessionImpl implements Session, InternalTransaction {
         this.connectionSource = connectionSource;
         this.sessionManager = sessionManager;
         this.connection = connection;
-        ObjectCache sessionCache = new ReferenceObjectCache<>();
-        this.cacheHolder = new CacheHolder().objectCache(sessionCache);
 
-        sessionManager.getMetaModel()
-                .getPersistentClasses()
-                .forEach(sessionCache::registerClass);
-
-        this.cacheHelper = new CacheHelper(cacheHolder, this.cacheHolder);
+        this.cacheHelper = new CacheHelper(cacheHolder, sessionManager.getMetaModel());
         this.entityLoader = new DefaultEntityLoader(
                 this,
                 sessionManager.getMetaModel(),
@@ -99,17 +88,33 @@ public class SessionImpl implements Session, InternalTransaction {
     }
 
     @Override
-    public <T> void create(T object) throws SQLException {
-        entityLoader.create(connection, object);
+    public int create(Object object) throws SQLException {
+        return entityLoader.create(connection, object);
     }
 
     @Override
-    public <T> boolean createTable(Class<T> tClass, boolean ifNotExist) throws SQLException {
+    public int create(Object[] object) throws SQLException {
+        return entityLoader.create(connection, object);
+    }
+
+    @Override
+    public boolean createTable(Class<?> tClass, boolean ifNotExist) throws SQLException {
         return entityLoader.createTable(connection, tClass, ifNotExist);
     }
 
     @Override
-    public <T, ID> T queryForId(Class<T> tClass, ID id) throws SQLException {
+    public Map<Class<?>, Boolean> createTables(Class<?>[] classes, boolean ifNotExist) throws SQLException {
+        Map<Class<?>, Boolean> result = new HashMap<>();
+
+        for (Class<?> tableClass : classes) {
+            result.put(tableClass, createTable(tableClass, ifNotExist));
+        }
+
+        return result;
+    }
+
+    @Override
+    public <T> T queryForId(Class<T> tClass, Object id) throws SQLException {
         return entityLoader.queryForId(connection, tClass, id);
     }
 
@@ -119,37 +124,53 @@ public class SessionImpl implements Session, InternalTransaction {
     }
 
     @Override
-    public <T> void update(T object) throws SQLException {
-        entityLoader.update(connection, object);
+    public int update(Object object) throws SQLException {
+        return entityLoader.update(connection, object);
     }
 
     @Override
-    public <T> void delete(T object) throws SQLException {
-        entityLoader.delete(connection, object);
+    public int delete(Object object) throws SQLException {
+        return entityLoader.delete(connection, object);
     }
 
     @Override
-    public <T, ID> void deleteById(Class<T> tClass, ID id) throws SQLException {
-        entityLoader.deleteById(connection, tClass, id);
+    public int deleteById(Class<?> tClass, Object id) throws SQLException {
+        return entityLoader.deleteById(connection, tClass, id);
     }
 
     @Override
-    public <T> boolean dropTable(Class<T> tClass, boolean ifExist) throws SQLException {
+    public boolean refresh(Object object) throws SQLException {
+        return entityLoader.refresh(connection, object);
+    }
+
+    @Override
+    public Map<Class<?>, Boolean> dropTables(Class<?>[] classes, boolean ifExist) throws SQLException {
+        Map<Class<?>, Boolean> result = new HashMap<>();
+
+        for (Class<?> tableClass : classes) {
+            result.put(tableClass, dropTable(tableClass, ifExist));
+        }
+
+        return result;
+    }
+
+    @Override
+    public boolean dropTable(Class<?> tClass, boolean ifExist) throws SQLException {
         return entityLoader.dropTable(connection, tClass, ifExist);
     }
 
     @Override
-    public <T> void createIndexes(Class<T> tClass) throws SQLException {
+    public void createIndexes(Class<?> tClass) throws SQLException {
         entityLoader.createIndexes(connection, tClass);
     }
 
     @Override
-    public <T> void dropIndexes(Class<T> tClass) throws SQLException {
+    public void dropIndexes(Class<?> tClass) throws SQLException {
         entityLoader.dropIndexes(connection, tClass);
     }
 
     @Override
-    public <T> long countOff(Class<T> tClass) throws SQLException {
+    public long countOff(Class<?> tClass) throws SQLException {
         return entityLoader.countOff(connection, tClass);
     }
 
@@ -192,13 +213,37 @@ public class SessionImpl implements Session, InternalTransaction {
     }
 
     @Override
-    public <T> long queryForLong(SelectStatement<T> selectStatement) throws SQLException {
+    public long queryForLong(SelectStatement<?> selectStatement) throws SQLException {
         return entityLoader.queryForLong(connection, selectStatement);
     }
 
     @Override
     public DatabaseResults query(String query) throws SQLException {
         return entityLoader.query(connection, query);
+    }
+
+    @Override
+    public void batch() {
+        entityLoader = new BatchEntityLoader(
+                this,
+                sessionManager.getMetaModel(),
+                sessionManager.getDatabaseEngine()
+        );
+
+        entityLoader.batch();
+    }
+
+    @Override
+    public int[] executeBatch() throws SQLException {
+        int[] batchResults = entityLoader.executeBatch(connection);
+
+        entityLoader = new DefaultEntityLoader(
+                this,
+                sessionManager.getMetaModel(),
+                sessionManager.getDatabaseEngine()
+        );
+
+        return batchResults;
     }
 
     @Override
@@ -209,6 +254,5 @@ public class SessionImpl implements Session, InternalTransaction {
     @Override
     public void close() throws SQLException {
         connectionSource.releaseConnection((DatabaseConnection) connection);
-        cacheHolder.close();
     }
 }

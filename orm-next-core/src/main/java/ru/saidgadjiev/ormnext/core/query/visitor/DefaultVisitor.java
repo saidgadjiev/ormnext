@@ -116,7 +116,7 @@ public final class DefaultVisitor extends NoActionVisitor {
     }
 
     @Override
-    public boolean visit(Select selectQuery) {
+    public boolean visit(SelectQuery selectQuery) {
         sql.append("SELECT ");
         if (selectQuery.getSelectColumnsStrategy() != null) {
             selectQuery.getSelectColumnsStrategy().accept(this);
@@ -338,7 +338,10 @@ public final class DefaultVisitor extends NoActionVisitor {
                 .append(escapeEntity)
                 .append(referencesConstraint.getColumnName())
                 .append(escapeEntity)
-                .append(")");
+                .append(") ON DELETE ")
+                .append(referencesConstraint.getOnDelete().getSql())
+                .append(" ON UPDATE ")
+                .append(referencesConstraint.getOnUpdate().getSql());
     }
 
     @Override
@@ -494,7 +497,7 @@ public final class DefaultVisitor extends NoActionVisitor {
     public boolean visit(InSelect inSelect) {
         inSelect.getOperand().accept(this);
         sql.append(" IN (");
-        inSelect.getSelect().accept(this);
+        inSelect.getSelectQuery().accept(this);
         sql.append(")");
 
         return false;
@@ -625,7 +628,10 @@ public final class DefaultVisitor extends NoActionVisitor {
                 .append(escapeEntity)
                 .append(foreignKeyConstraint.getForeignColumnName())
                 .append(escapeEntity)
-                .append(")");
+                .append(") ON DELETE ")
+                .append(foreignKeyConstraint.getOnDelete().getSql())
+                .append(" ON UPDATE ")
+                .append(foreignKeyConstraint.getOnUpdate().getSql());
 
         return false;
     }
@@ -637,5 +643,21 @@ public final class DefaultVisitor extends NoActionVisitor {
         sql.append(")");
 
         return false;
+    }
+
+    @Override
+    public void visit(SqlLiteral sqlLiteral) {
+        if (sqlLiteral.isNeedEscape()) {
+            sql.append(escapeLiteral).append(sqlLiteral.get()).append(escapeLiteral);
+
+            return;
+        }
+
+        sql.append(sqlLiteral.get());
+    }
+
+    @Override
+    public void visit(UniqueAttributeConstraint uniqueAttributeConstraint) {
+        sql.append("UNIQUE");
     }
 }

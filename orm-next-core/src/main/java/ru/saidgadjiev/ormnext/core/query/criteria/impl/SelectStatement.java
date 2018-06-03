@@ -73,7 +73,7 @@ public class SelectStatement<T> implements QueryElement {
     private Offset offset;
 
     /**
-     * Select operand. It may be only {@link Function}
+     * SelectQuery operand. It may be only {@link Function}
      *
      * @see DisplayedOperand
      */

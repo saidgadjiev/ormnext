@@ -1,6 +1,5 @@
 package ru.saidgadjiev.ormnext.core.query.visitor.element;
 
-import ru.saidgadjiev.ormnext.core.query.visitor.QueryElement;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.clause.GroupBy;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.clause.Having;
@@ -15,20 +14,20 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.condition.Expression;
  * This class represent select query. For example it will be visited
  * with {@link ru.saidgadjiev.ormnext.core.query.visitor.DefaultVisitor} for make sql.
  */
-public class Select implements QueryElement {
+public class SelectQuery implements SqlStatement {
 
     /**
-     * Select from part.
+     * SelectQuery from part.
      */
     private FromExpression from;
 
     /**
-     * Select is distinct.
+     * SelectQuery is distinct.
      */
     private boolean distinct;
 
     /**
-     * Select column strategy.
+     * SelectQuery column strategy.
      * @see SelectColumnsList
      * @see SelectAll
      */

@@ -27,4 +27,6 @@ public @interface ForeignCollectionField {
      * @return fetch type
      */
     FetchType fetchType() default FetchType.EAGER;
+
+    boolean foreignAutoCreate() default false;
 }

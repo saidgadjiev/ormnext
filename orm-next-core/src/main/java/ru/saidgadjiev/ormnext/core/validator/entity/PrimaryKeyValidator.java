@@ -9,7 +9,7 @@ import java.lang.reflect.Field;
  * Check is defined primary key or not.
  * If not throw {@link PrimaryKeyMissException}.
  */
-public class PrimaryKeyValidator implements IValidator {
+public class PrimaryKeyValidator implements Validator {
 
     @Override
     public<T> void validate(Class<T> entityClass) {

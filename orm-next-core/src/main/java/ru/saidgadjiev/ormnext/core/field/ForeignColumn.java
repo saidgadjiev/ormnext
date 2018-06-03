@@ -32,4 +32,8 @@ public @interface ForeignColumn {
      * @return fetch type
      */
     FetchType fetchType() default FetchType.EAGER;
+
+    ReferenceAction onUpdate() default ReferenceAction.NO_ACTION;
+
+    ReferenceAction onDelete() default ReferenceAction.NO_ACTION;
 }

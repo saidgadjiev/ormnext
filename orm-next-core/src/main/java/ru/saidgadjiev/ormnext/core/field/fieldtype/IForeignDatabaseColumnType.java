@@ -11,6 +11,8 @@ import ru.saidgadjiev.ormnext.core.field.FetchType;
  */
 public interface IForeignDatabaseColumnType extends IDatabaseColumnType {
 
+    boolean foreignAutoCreate();
+
     /**
      * Return fetch type.
      * @return fetch type

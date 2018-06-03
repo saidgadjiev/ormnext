@@ -9,7 +9,7 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.Alias;
 public abstract class DisplayedColumnSpec implements QueryElement {
 
     /**
-     * Select column alias eg. select name as test
+     * SelectQuery column alias eg. select name as test
      */
     private Alias alias;
 

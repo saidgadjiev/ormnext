@@ -88,4 +88,6 @@ public @interface DatabaseColumn {
      * @return true for set NULL instead of default definition
      */
     boolean defaultIfNull() default true;
+
+    boolean unique() default false;
 }

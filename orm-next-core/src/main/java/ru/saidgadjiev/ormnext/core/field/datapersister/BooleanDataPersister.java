@@ -5,6 +5,7 @@ import ru.saidgadjiev.ormnext.core.field.DataType;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Types;
 
 /**
  * Type that persists a boolean type.
@@ -17,7 +18,7 @@ public class BooleanDataPersister extends BaseDataPersister {
      * Create a new instance.
      */
     public BooleanDataPersister() {
-        super(new Class[] {Boolean.class, boolean.class});
+        super(new Class[] {Boolean.class, boolean.class}, Types.BOOLEAN);
     }
 
     @Override
@@ -31,8 +32,7 @@ public class BooleanDataPersister extends BaseDataPersister {
     }
 
     @Override
-    public void setObject(PreparedStatement preparedStatement, int index, Object value) throws SQLException {
+    protected void setNonNullObject(PreparedStatement preparedStatement, int index, Object value) throws SQLException {
         preparedStatement.setBoolean(index, (Boolean) value);
     }
-
 }

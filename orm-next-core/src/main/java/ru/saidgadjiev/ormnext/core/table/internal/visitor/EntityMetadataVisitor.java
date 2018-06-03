@@ -20,13 +20,13 @@ public interface EntityMetadataVisitor {
      * Start visit {@link ForeignColumnType} element.
      * @param foreignColumnType target column type
      */
-    void start(ForeignColumnType foreignColumnType);
+    boolean start(ForeignColumnType foreignColumnType);
 
     /**
      * Start visit {@link ForeignCollectionColumnType} element.
      * @param foreignCollectionColumnType target column type
      */
-    void start(ForeignCollectionColumnType foreignCollectionColumnType);
+    boolean start(ForeignCollectionColumnType foreignCollectionColumnType);
 
     /**
      * Finish visit {@link ForeignColumnType} element.

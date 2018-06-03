@@ -62,6 +62,7 @@ public class RowReaderImpl implements RowReader {
         );
 
         return new RowResult<>(
+                entityProcessingState.getKey(),
                 entityProcessingState.getEntityInstance(),
                 entityProcessingState.isNew()
         );

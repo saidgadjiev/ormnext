@@ -1,13 +1,12 @@
 package ru.saidgadjiev.ormnext.core.query.visitor.element;
 
-import ru.saidgadjiev.ormnext.core.query.visitor.QueryElement;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.condition.Expression;
 
 /**
  * This class represent DELETE sql query.
  */
-public class DeleteQuery implements QueryElement {
+public class DeleteQuery implements SqlStatement {
 
     /**
      * Where clause.

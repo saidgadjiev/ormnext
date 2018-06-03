@@ -5,6 +5,7 @@ import ru.saidgadjiev.ormnext.core.field.DataType;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Types;
 
 /**
  * Type that persists a double type.
@@ -17,7 +18,7 @@ public class DoubleDataPersister extends BaseDataPersister {
      * Create a new instance.
      */
     public DoubleDataPersister() {
-        super(new Class[] {Double.class, double.class});
+        super(new Class[] {Double.class, double.class}, Types.DOUBLE);
     }
 
     @Override
@@ -31,7 +32,7 @@ public class DoubleDataPersister extends BaseDataPersister {
     }
 
     @Override
-    public void setObject(PreparedStatement preparedStatement, int index, Object value) throws SQLException {
+    public void setNonNullObject(PreparedStatement preparedStatement, int index, Object value) throws SQLException {
         preparedStatement.setDouble(index, (Double) value);
     }
 }

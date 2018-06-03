@@ -89,7 +89,7 @@ public class CollectionInitializer {
         EntityProcessingState processingState = context.getProcessingState(uid, id);
         Object collectionObjectId = foreignColumnDataPersister.readValue(
                 context.getDatabaseResults(),
-                aliases.getCollectionOwnerColumnKeyAlias()
+                aliases.getCollectionObjectKeyAlias()
         );
 
         if (context.getDatabaseResults().wasNull()) {
@@ -102,9 +102,8 @@ public class CollectionInitializer {
      * This method execute second phase operations for all read first phase collection object ids.
      *
      * @param resultSetContext context
-     * @throws SQLException any SQL exceptions
      */
-    public void loadCollection(ResultSetContext resultSetContext) throws SQLException {
+    public void loadCollection(ResultSetContext resultSetContext) {
         Map<Object, EntityProcessingState> processingStates = resultSetContext.getProcessingStates(uid);
 
         if (processingStates != null) {
@@ -120,16 +119,14 @@ public class CollectionInitializer {
      * @param resultSetContext context
      * @param processingState  processing state
      * @param id               current id
-     * @throws SQLException any SQL exceptions
      */
-    private void loadCollection(ResultSetContext resultSetContext, Object id, EntityProcessingState processingState)
-            throws SQLException {
+    private void loadCollection(ResultSetContext resultSetContext, Object id, EntityProcessingState processingState) {
         Object instance = processingState.getEntityInstance();
         ForeignCollectionColumnType foreignCollectionColumnType = collectionLoader.getGoreignCollectionColumnType();
 
         if (foreignCollectionColumnType.getFetchType().equals(FetchType.EAGER)) {
             for (Object collectionObjectId : processingState.getCollectionObjectIds()) {
-                foreignCollectionColumnType.add(instance, resultSetContext.getSession().queryForId(
+                foreignCollectionColumnType.add(instance, resultSetContext.getEntry(
                         foreignCollectionColumnType.getCollectionObjectClass(),
                         collectionObjectId
                 ));
