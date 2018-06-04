@@ -60,10 +60,9 @@ public class DefaultDatabaseEngine implements DatabaseEngine<Connection> {
         Connection connection = databaseConnection.getConnection();
 
         PreparedStatement preparedStatement = connection.prepareStatement(query);
-        OrmNextPreparedStatement ormNextPreparedStatement = new OrmNextPreparedStatementImpl(preparedStatement);
 
         try {
-            processArgs(ormNextPreparedStatement, args);
+            processArgs(new PreparableObjectImpl(preparedStatement), args);
 
             ResultSet resultSet = preparedStatement.executeQuery();
 
@@ -71,7 +70,7 @@ public class DefaultDatabaseEngine implements DatabaseEngine<Connection> {
                 @Override
                 public void close() throws SQLException {
                     resultSet.close();
-                    ormNextPreparedStatement.close();
+                    preparedStatement.close();
                 }
             };
         } catch (SQLException ex) {
@@ -91,7 +90,7 @@ public class DefaultDatabaseEngine implements DatabaseEngine<Connection> {
         Connection connection = databaseConnection.getConnection();
 
         try (PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
-            processArgs(new OrmNextPreparedStatementImpl(statement), args);
+            processArgs(new PreparableObjectImpl(statement), args);
 
             int result = statement.executeUpdate();
 
@@ -119,11 +118,11 @@ public class DefaultDatabaseEngine implements DatabaseEngine<Connection> {
         Iterator<GeneratedKey> generatedKeyIterator = generatedKeys.iterator();
 
         try (PreparedStatement statement = connection.prepareStatement(query)) {
-            OrmNextPreparedStatement ormNextPreparedStatement = new OrmNextPreparedStatementImpl(statement);
+            PreparableObject preparableObject = new PreparableObjectImpl(statement);
             int result = 0;
 
             for (Map<Integer, Argument> args : argList) {
-                processArgs(ormNextPreparedStatement, args);
+                processArgs(preparableObject, args);
                 result += statement.executeUpdate();
 
                 try (ResultSet resultSet = statement.getGeneratedKeys()) {
@@ -190,7 +189,7 @@ public class DefaultDatabaseEngine implements DatabaseEngine<Connection> {
         Connection originialConnection = databaseConnection.getConnection();
 
         try (PreparedStatement preparedQuery = originialConnection.prepareStatement(query)) {
-            processArgs(new OrmNextPreparedStatementImpl(preparedQuery), args);
+            processArgs(new PreparableObjectImpl(preparedQuery), args);
 
             return preparedQuery.executeUpdate();
         }
@@ -205,7 +204,7 @@ public class DefaultDatabaseEngine implements DatabaseEngine<Connection> {
         Connection originialConnection = databaseConnection.getConnection();
 
         try (PreparedStatement preparedQuery = originialConnection.prepareStatement(query)) {
-            processArgs(new OrmNextPreparedStatementImpl(preparedQuery), args);
+            processArgs(new PreparableObjectImpl(preparedQuery), args);
 
             return preparedQuery.executeUpdate();
         }
@@ -293,7 +292,7 @@ public class DefaultDatabaseEngine implements DatabaseEngine<Connection> {
      * @param args              target args
      * @throws SQLException on any SQL problems
      */
-    private void processArgs(OrmNextPreparedStatement preparedStatement,
+    private void processArgs(PreparableObject preparedStatement,
                              Map<Integer, Argument> args) throws SQLException {
         for (Map.Entry<Integer, Argument> entry : args.entrySet()) {
             Argument argument = entry.getValue();

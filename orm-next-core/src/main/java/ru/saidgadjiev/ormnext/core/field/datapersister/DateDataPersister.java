@@ -1,7 +1,7 @@
 package ru.saidgadjiev.ormnext.core.field.datapersister;
 
 import ru.saidgadjiev.ormnext.core.connection.DatabaseResults;
-import ru.saidgadjiev.ormnext.core.connection.OrmNextPreparedStatement;
+import ru.saidgadjiev.ormnext.core.connection.PreparableObject;
 import ru.saidgadjiev.ormnext.core.field.DataType;
 
 import java.sql.SQLException;
@@ -33,7 +33,7 @@ public class DateDataPersister extends BaseDataPersister {
     }
 
     @Override
-    protected void setNonNullObject(OrmNextPreparedStatement preparedStatement, int index, Object value) throws SQLException {
+    protected void setNonNullObject(PreparableObject preparedStatement, int index, Object value) throws SQLException {
         preparedStatement.setDate(index, (java.sql.Date) value);
     }
 }

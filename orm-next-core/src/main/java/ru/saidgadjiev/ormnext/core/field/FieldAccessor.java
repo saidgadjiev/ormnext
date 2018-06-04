@@ -8,6 +8,7 @@ import java.lang.invoke.LambdaMetafactory;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.function.BiConsumer;
@@ -38,16 +39,30 @@ public class FieldAccessor {
     private Function<Object, Object> getter;
 
     /**
+     * Lookup hack.
+     */
+    private Constructor<MethodHandles.Lookup> lookupConstructor;
+
+    /**
      * Create a new instance.
      *
      * @param field target field
      */
     public FieldAccessor(Field field) {
+        this.lookupConstructor = resolveLookupConstructor();
         if (!resolveGetter(field)) {
             resolveFieldGetter(field);
         }
         if (!resoveSetter(field)) {
             resolveFieldSetter(field);
+        }
+    }
+
+    private Constructor<MethodHandles.Lookup> resolveLookupConstructor() {
+        try {
+            return MethodHandles.Lookup.class.getDeclaredConstructor(Class.class);
+        } catch (NoSuchMethodException ex) {
+            throw new RuntimeException(ex);
         }
     }
 
@@ -89,8 +104,11 @@ public class FieldAccessor {
 
         try {
             Method getter = field.getDeclaringClass().getDeclaredMethod(getterName);
-            MethodHandles.Lookup lookup = MethodHandles.lookup();
-            MethodHandle getterHandle = MethodHandles.lookup().unreflect(getter);
+
+            lookupConstructor.setAccessible(true);
+            MethodHandles.Lookup lookup = lookupConstructor.newInstance(field.getDeclaringClass());
+            lookupConstructor.setAccessible(false);
+            MethodHandle getterHandle = lookup.unreflect(getter);
 
             this.getter = makeGetter(lookup, getterHandle);
 
@@ -128,7 +146,11 @@ public class FieldAccessor {
         try {
             LOG.debug("Try find method %s in %s", setterName, field.getDeclaringClass().getName());
             Method setter = field.getDeclaringClass().getDeclaredMethod(setterName, field.getType());
-            MethodHandles.Lookup lookup = MethodHandles.lookup();
+            lookupConstructor.setAccessible(true);
+            MethodHandles.Lookup lookup = lookupConstructor.newInstance(field.getDeclaringClass());
+            lookupConstructor.setAccessible(false);
+
+            setter.setAccessible(true);
             MethodHandle setterHandle = lookup.unreflect(setter);
 
             this.setter = makeSetter(lookup, setterHandle);
@@ -162,7 +184,9 @@ public class FieldAccessor {
                     field.getName()
             );
 
-            MethodHandles.Lookup lookup = MethodHandles.lookup();
+            lookupConstructor.setAccessible(true);
+            MethodHandles.Lookup lookup = lookupConstructor.newInstance(field.getDeclaringClass());
+            lookupConstructor.setAccessible(false);
             MethodHandle fieldSetterHandle = lookup.unreflectSetter(field);
 
             this.setter = makeSetter(lookup, fieldSetterHandle);
@@ -185,7 +209,9 @@ public class FieldAccessor {
                     field.getName()
             );
 
-            MethodHandles.Lookup lookup = MethodHandles.lookup();
+            lookupConstructor.setAccessible(true);
+            MethodHandles.Lookup lookup = lookupConstructor.newInstance(field.getDeclaringClass());
+            lookupConstructor.setAccessible(false);
             MethodHandle fieldGetterHandle = lookup.unreflectGetter(field);
 
             this.getter = makeGetter(lookup, fieldGetterHandle);

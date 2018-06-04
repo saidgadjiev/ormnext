@@ -198,6 +198,14 @@ public interface EntityLoader {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * Clear table.
+     *
+     * @param session target session
+     * @param entityClass target entity class
+     * @return deleted count
+     * @throws SQLException any SQL exceptions
+     */
     int clearTable(Session session, Class<?> entityClass) throws SQLException;
 
     /**

@@ -1,9 +1,8 @@
 package ru.saidgadjiev.ormnext.core.field.datapersister;
 
-import ru.saidgadjiev.ormnext.core.connection.OrmNextPreparedStatement;
+import ru.saidgadjiev.ormnext.core.connection.PreparableObject;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.literals.SqlLiteral;
 
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
@@ -54,7 +53,7 @@ public abstract class BaseDataPersister implements DataPersister {
     }
 
     @Override
-    public final void setObject(OrmNextPreparedStatement preparedStatement, int index, Object value) throws SQLException {
+    public final void setObject(PreparableObject preparedStatement, int index, Object value) throws SQLException {
         if (value == null) {
             preparedStatement.setNull(index, sqlType);
         } else {
@@ -70,7 +69,7 @@ public abstract class BaseDataPersister implements DataPersister {
      * @param value             target value
      * @throws SQLException any SQL exceptions
      */
-    protected abstract void setNonNullObject(OrmNextPreparedStatement preparedStatement,
+    protected abstract void setNonNullObject(PreparableObject preparedStatement,
                                              int index,
                                              Object value) throws SQLException;
 

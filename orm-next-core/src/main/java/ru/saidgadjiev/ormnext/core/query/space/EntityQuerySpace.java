@@ -434,6 +434,11 @@ public class EntityQuerySpace {
         return deleteQuery;
     }
 
+    /**
+     * Delete all query from table.
+     *
+     * @return delete all statement
+     */
     public DeleteQuery getDeleteAllQuery() {
         return new DeleteQuery(rootEntityMetaData.getTableName());
     }

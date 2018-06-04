@@ -72,8 +72,22 @@ public interface Dao {
      */
     Map<Class<?>, Boolean> dropTables(Class<?>[] classes, boolean ifExist) throws SQLException;
 
+    /**
+     * Clear database table.
+     *
+     * @param entityClass target table class
+     * @return deleted row count
+     * @throws SQLException any SQL exceptions
+     */
     int clearTable(Class<?> entityClass) throws SQLException;
 
+    /**
+     * Clear database tables.
+     *
+     * @param entityClasses target table classes
+     * @return deleted row count
+     * @throws SQLException any SQL exceptions
+     */
     int clearTables(Class<?>[] entityClasses) throws SQLException;
 
     /**

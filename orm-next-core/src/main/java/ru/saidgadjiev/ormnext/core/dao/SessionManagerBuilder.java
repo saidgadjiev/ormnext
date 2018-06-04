@@ -38,6 +38,11 @@ public class SessionManagerBuilder {
      */
     private DatabaseEngine<?> databaseEngine;
 
+    /**
+     * Table operation.
+     *
+     * @see TableOperation
+     */
     private TableOperation tableOperation = TableOperation.NO_ACTION;
 
     /**
@@ -88,6 +93,13 @@ public class SessionManagerBuilder {
         return this;
     }
 
+    /**
+     * Provide table operation.
+     *
+     * @param tableOperation target table operation
+     * @return this for chain
+     * @see TableOperation
+     */
     public SessionManagerBuilder tableOperation(TableOperation tableOperation) {
         this.tableOperation = tableOperation;
 
@@ -98,6 +110,7 @@ public class SessionManagerBuilder {
      * Create session manager. If database engine not provided use {@link DefaultDatabaseEngine}.
      *
      * @return this for chain
+     * @throws SQLException any SQL exceptions
      */
     public SessionManager build() throws SQLException {
         DatabaseEngine engine = databaseEngine == null
@@ -118,6 +131,13 @@ public class SessionManagerBuilder {
         return sessionManager;
     }
 
+    /**
+     * Do table operation.
+     *
+     * @param session target session
+     * @throws SQLException any SQL exceptions
+     * @see TableOperation
+     */
     private void doTableOperations(Session session) throws SQLException {
         switch (tableOperation) {
             case CREATE:
@@ -136,7 +156,7 @@ public class SessionManagerBuilder {
                 session.dropTables(reversedEntityClasses.toArray(new Class<?>[reversedEntityClasses.size()]), true);
                 session.createTables(entityClasses.toArray(new Class<?>[entityClasses.size()]), true);
                 break;
-            case NO_ACTION:
+            default:
                 break;
         }
     }

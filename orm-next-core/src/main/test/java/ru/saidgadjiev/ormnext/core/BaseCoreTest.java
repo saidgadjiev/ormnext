@@ -10,6 +10,7 @@ import ru.saidgadjiev.ormnext.core.dao.SessionManagerBuilder;
 import ru.saidgadjiev.ormnext.core.dialect.H2Dialect;
 import ru.saidgadjiev.ormnext.core.logger.LoggerFactory;
 import ru.saidgadjiev.ormnext.core.model.*;
+import ru.saidgadjiev.ormnext.core.util.TestUtils;
 
 import java.sql.SQLException;
 
@@ -18,22 +19,15 @@ public class BaseCoreTest {
     protected static SessionManager sessionManager;
 
     @BeforeClass
-    public static void setUpClass() {
+    public static void setUpClass() throws SQLException {
         System.setProperty(LoggerFactory.LOG_ENABLED_PROPERTY, "true");
-        JdbcDataSource dataSource = new JdbcDataSource();
-
-        dataSource.setURL("jdbc:h2:mem:h2testdatabase");
-        sessionManager = new SessionManagerBuilder()
-                .entities(
-                        TestEntity.class,
-                        ForeignTestEntity.class,
-                        ForeignCollectionTestEntity.class,
-                        WithDefaultTestEntity.class,
-                        ForeignAutoCreateForeignColumnTestEntity.class,
-                        ForeignAutoCreateForeignCollectionColumnTestEntity.class
-                ).databaseType(new H2Dialect())
-                .connectionSource(new DataSourceConnectionSource(dataSource))
-                .build();
+        sessionManager = TestUtils.h2SessionManager(
+                TestEntity.class,
+                ForeignTestEntity.class,
+                ForeignCollectionTestEntity.class,
+                WithDefaultTestEntity.class,
+                ForeignAutoCreateForeignColumnTestEntity.class,
+                ForeignAutoCreateForeignCollectionColumnTestEntity.class);
     }
 
     @AfterClass
