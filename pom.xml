@@ -6,7 +6,7 @@
     <groupId>ru.saidgadjiev.ormnext</groupId>
     <artifactId>orm-next</artifactId>
     <packaging>pom</packaging>
-    <version>1.1-SNAPSHOT</version>
+    <version>1.1</version>
 
     <name>orm-next</name>
     <description>OrmNext is a flexible, easy, lightweight orm library</description>
@@ -24,7 +24,7 @@
         <connection>scm:git:https://github.com/saidgadjiev/orm-next.git</connection>
         <developerConnection>scm:git:https://github.com/saidgadjiev/orm-next.git</developerConnection>
         <url>https://github.com/saidgadjiev/orm-next.git</url>
-        <tag>HEAD</tag>
+        <tag>orm-next-1.1</tag>
     </scm>
 
     <developers>
