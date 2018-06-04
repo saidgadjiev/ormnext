@@ -17,6 +17,7 @@ public interface DataPersister {
 
     /**
      * Associated java classes with this type.
+     *
      * @return associated classes
      * @see ru.saidgadjiev.ormnext.core.field.DataPersisterManager
      * @see ru.saidgadjiev.ormnext.core.field.DataType
@@ -25,14 +26,16 @@ public interface DataPersister {
 
     /**
      * Associated data type.
+     *
      * @return data type
      */
     int getDataType();
 
     /**
      * Read value from database results by column name.
+     *
      * @param databaseResults target results
-     * @param columnLabel target column name
+     * @param columnLabel     target column name
      * @return read value
      * @throws SQLException any SQL exceptions
      */
@@ -40,17 +43,27 @@ public interface DataPersister {
 
     /**
      * Set value to prepared statement {@link PreparedStatement}.
+     *
      * @param preparedStatement target prepared statement
-     * @param index target index
-     * @param value target value
+     * @param index             target index
+     * @param value             target value
      * @throws SQLException any SQL exceptions
      */
     void setObject(PreparableObject preparedStatement, int index, Object value) throws SQLException;
 
     /**
      * Create sql literal which will be directly append to sql query.
+     *
      * @param value target value
      * @return sql literal
      */
     SqlLiteral createLiteral(Object value);
+
+    /**
+     * Cast requested value to persister type.
+     *
+     * @param value target value
+     * @return casted value
+     */
+    Object cast(Object value);
 }

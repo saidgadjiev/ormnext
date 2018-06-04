@@ -173,7 +173,7 @@ public class DefaultEntityLoader implements EntityLoader {
      */
     private void processGeneratedKey(GeneratedKey generatedKey, IDatabaseColumnType idColumnType, Object object) {
         if (generatedKey.get() != null) {
-            idColumnType.assign(object, generatedKey.get());
+            idColumnType.assign(object, idColumnType.dataPersister().cast(generatedKey.get()));
             cacheHelper.saveToCache(generatedKey.get(), object);
         } else {
             throw new GeneratedValueNotFoundException(idColumnType.getField());

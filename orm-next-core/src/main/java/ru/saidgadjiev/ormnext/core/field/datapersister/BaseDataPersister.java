@@ -61,6 +61,11 @@ public abstract class BaseDataPersister implements DataPersister {
         }
     }
 
+    @Override
+    public Object cast(Object value) {
+        return value;
+    }
+
     /**
      * Set non null value to prepared statement.
      *

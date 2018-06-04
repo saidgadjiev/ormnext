@@ -35,4 +35,9 @@ public class IntegerDataPersister extends BaseDataPersister {
     protected void setNonNullObject(PreparableObject preparedStatement, int index, Object value) throws SQLException {
         preparedStatement.setInt(index, (Integer) value);
     }
+
+    @Override
+    public Object cast(Object value) {
+        return ((Number) value).intValue();
+    }
 }

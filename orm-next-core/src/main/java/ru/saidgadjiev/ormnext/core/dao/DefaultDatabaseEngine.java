@@ -214,7 +214,9 @@ public class DefaultDatabaseEngine implements DatabaseEngine<Connection> {
     public boolean createTable(DatabaseConnection<Connection> databaseConnection,
                                CreateTableQuery createTableQuery) throws SQLException {
         Connection connection = databaseConnection.getConnection();
+        String sql = getQuery(createTableQuery);
 
+        LOG.debug("Create table: " + sql);
         try (Statement statement = connection.createStatement()) {
             statement.execute(getQuery(createTableQuery));
 

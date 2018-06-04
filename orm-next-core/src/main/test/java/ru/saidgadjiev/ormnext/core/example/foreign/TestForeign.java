@@ -1,35 +1,17 @@
-package ru.saidgadjiev.ormnext.core.example.simple;
+package ru.saidgadjiev.ormnext.core.example.foreign;
 
 import ru.saidgadjiev.ormnext.core.field.DatabaseColumn;
 
-import java.lang.invoke.MethodHandles;
-
-public class Test {
+public class TestForeign {
 
     @DatabaseColumn(id = true, generated = true)
-    public int id;
+    private int id;
 
     @DatabaseColumn
     private String name;
 
-    public int getId() {
-        return id;
-    }
-
-    private void setId(int id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
     public void setName(String name) {
         this.name = name;
-    }
-
-    public static MethodHandles.Lookup lookup() {
-        return MethodHandles.lookup();
     }
 
     @Override
@@ -37,10 +19,10 @@ public class Test {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Test test = (Test) o;
+        TestForeign that = (TestForeign) o;
 
-        if (id != test.id) return false;
-        return name != null ? name.equals(test.name) : test.name == null;
+        if (id != that.id) return false;
+        return name != null ? name.equals(that.name) : that.name == null;
     }
 
     @Override

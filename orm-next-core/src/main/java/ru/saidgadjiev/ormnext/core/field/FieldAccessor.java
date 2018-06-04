@@ -6,6 +6,7 @@ import ru.saidgadjiev.ormnext.core.logger.LoggerFactory;
 
 import java.lang.invoke.LambdaMetafactory;
 import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandleProxies;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Constructor;
@@ -39,25 +40,26 @@ public class FieldAccessor {
     private Function<Object, Object> getter;
 
     /**
-     * Lookup hack.
-     */
-    private Constructor<MethodHandles.Lookup> lookupConstructor;
-
-    /**
      * Create a new instance.
      *
      * @param field target field
      */
     public FieldAccessor(Field field) {
-        this.lookupConstructor = resolveLookupConstructor();
-        if (!resolveGetter(field)) {
-            resolveFieldGetter(field);
+        Constructor<MethodHandles.Lookup> lookupConstructor = resolveLookupConstructor();
+
+        if (!resolveGetter(field, lookupConstructor)) {
+            resolveFieldGetter(field, lookupConstructor);
         }
-        if (!resoveSetter(field)) {
-            resolveFieldSetter(field);
+        if (!resoveSetter(field, lookupConstructor)) {
+            resolveFieldSetter(field, lookupConstructor);
         }
     }
 
+    /**
+     * Find {@link java.lang.invoke.MethodHandles.Lookup} constructor.
+     *
+     * @return resolved constructor
+     */
     private Constructor<MethodHandles.Lookup> resolveLookupConstructor() {
         try {
             return MethodHandles.Lookup.class.getDeclaredConstructor(Class.class);
@@ -89,10 +91,11 @@ public class FieldAccessor {
     /**
      * Resolve field getter. Try find getter method.
      *
-     * @param field target field
+     * @param lookupConstructor lookup constructor
+     * @param field             target field
      * @return true if getter method found
      */
-    private boolean resolveGetter(Field field) {
+    private boolean resolveGetter(Field field, Constructor<MethodHandles.Lookup> lookupConstructor) {
         String getterName;
 
         if (field.isAnnotationPresent(Getter.class)) {
@@ -132,10 +135,11 @@ public class FieldAccessor {
     /**
      * Resolve field setter. Try find setter method.
      *
-     * @param field target field
+     * @param field             target field
+     * @param lookupConstructor lookup constructor
      * @return true if setter method found
      */
-    private boolean resoveSetter(Field field) {
+    private boolean resoveSetter(Field field, Constructor<MethodHandles.Lookup> lookupConstructor) {
         String setterName;
 
         if (field.isAnnotationPresent(Setter.class)) {
@@ -174,9 +178,10 @@ public class FieldAccessor {
     /**
      * Resolve field setter. Try make setter by {@link Field#set(Object, Object)}.
      *
-     * @param field target field
+     * @param lookupConstructor lookup constructor
+     * @param field             target field
      */
-    private void resolveFieldSetter(Field field) {
+    private void resolveFieldSetter(Field field, Constructor<MethodHandles.Lookup> lookupConstructor) {
         try {
             LOG.debug(
                     "Try reflection field direct assign %s %s",
@@ -189,7 +194,8 @@ public class FieldAccessor {
             lookupConstructor.setAccessible(false);
             MethodHandle fieldSetterHandle = lookup.unreflectSetter(field);
 
-            this.setter = makeSetter(lookup, fieldSetterHandle);
+            this.setter = MethodHandleProxies
+                    .asInterfaceInstance(BiConsumer.class, fieldSetterHandle);
         } catch (Throwable ex) {
             LOG.error(ex.getMessage(), ex);
             throw new FieldAccessException(ex);
@@ -199,9 +205,10 @@ public class FieldAccessor {
     /**
      * Resolve field getter. Try make getter by {@link Field#get(Object)}.
      *
-     * @param field target field
+     * @param lookupConstructor lookup constructor
+     * @param field             target field
      */
-    private void resolveFieldGetter(Field field) {
+    private void resolveFieldGetter(Field field, Constructor<MethodHandles.Lookup> lookupConstructor) {
         try {
             LOG.debug(
                     "Try reflection field direct access %s %s",
@@ -214,7 +221,8 @@ public class FieldAccessor {
             lookupConstructor.setAccessible(false);
             MethodHandle fieldGetterHandle = lookup.unreflectGetter(field);
 
-            this.getter = makeGetter(lookup, fieldGetterHandle);
+            this.getter = MethodHandleProxies
+                    .asInterfaceInstance(Function.class, fieldGetterHandle);
         } catch (Throwable ex) {
             LOG.error(ex.getMessage(), ex);
             throw new FieldAccessException(ex);
