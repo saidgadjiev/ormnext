@@ -5,6 +5,8 @@ import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 
 /**
  * This class represent limit part sql.
+ *
+ * @author said gadjiev
  */
 public class Limit implements QueryElement {
 

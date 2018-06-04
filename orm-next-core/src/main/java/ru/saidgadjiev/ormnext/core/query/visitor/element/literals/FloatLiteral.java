@@ -4,6 +4,8 @@ import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 
 /**
  * Float literal.
+ *
+ * @author said gadjiev
  */
 public class FloatLiteral implements Literal<Float> {
 

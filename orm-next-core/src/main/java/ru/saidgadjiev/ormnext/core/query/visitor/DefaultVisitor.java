@@ -1,6 +1,6 @@
 package ru.saidgadjiev.ormnext.core.query.visitor;
 
-import ru.saidgadjiev.ormnext.core.databasetype.DatabaseType;
+import ru.saidgadjiev.ormnext.core.dialect.Dialect;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.*;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.clause.*;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.clause.from.FromJoinedTables;
@@ -45,7 +45,7 @@ public final class DefaultVisitor extends NoActionVisitor {
     /**
      * Current database type(dialect).
      */
-    private DatabaseType databaseType;
+    private Dialect dialect;
 
     /**
      * Escape table name.
@@ -59,16 +59,18 @@ public final class DefaultVisitor extends NoActionVisitor {
 
     /**
      * Create new instance with provided database type.
-     * @param databaseType target database type
+     *
+     * @param dialect target database type
      */
-    public DefaultVisitor(DatabaseType databaseType) {
-        this.databaseType = databaseType;
-        escapeEntity = databaseType.getEntityNameEscape();
-        escapeLiteral = databaseType.getValueEscape();
+    public DefaultVisitor(Dialect dialect) {
+        this.dialect = dialect;
+        escapeEntity = dialect.getEntityNameEscape();
+        escapeLiteral = dialect.getValueEscape();
     }
 
     /**
      * Get builded sql query.
+     *
      * @return query
      */
     public String getQuery() {
@@ -79,23 +81,23 @@ public final class DefaultVisitor extends NoActionVisitor {
     public boolean visit(CreateQuery createQuery) {
         sql.append("INSERT INTO ").append(escapeEntity).append(createQuery.getTableName()).append(escapeEntity);
 
-        if (createQuery.getColumnNames().isEmpty()) {
-            sql.append(" ").append(databaseType.getNoArgsInsertDefinition());
+        if (createQuery.getUpdateValues().isEmpty()) {
+            sql.append(" ").append(dialect.getNoArgsInsertDefinition());
         } else {
             sql.append(" (");
 
-            for (Iterator<String> iterator = createQuery.getColumnNames().iterator(); iterator.hasNext();) {
-                sql.append(escapeEntity).append(iterator.next()).append(escapeEntity);
+            for (Iterator<UpdateValue> iterator = createQuery.getUpdateValues().iterator(); iterator.hasNext();) {
+                sql.append(escapeEntity).append(iterator.next().getName()).append(escapeEntity);
                 if (iterator.hasNext()) {
                     sql.append(",");
                 }
             }
             sql.append(")");
             sql.append(" VALUES (");
-            for (Iterator<InsertValues> iterator = createQuery.getInsertValues().iterator(); iterator.hasNext();) {
-                InsertValues insertValues = iterator.next();
+            for (Iterator<UpdateValue> iterator = createQuery.getUpdateValues().iterator(); iterator.hasNext();) {
+                UpdateValue updateValue = iterator.next();
 
-                insertValues.accept(this);
+                updateValue.accept(this);
                 if (iterator.hasNext()) {
                     sql.append(", ");
                 }
@@ -226,7 +228,7 @@ public final class DefaultVisitor extends NoActionVisitor {
             AttributeDefinition attributeDefinition = iterator.next();
 
             sql.append(escapeEntity).append(attributeDefinition.getName()).append(escapeEntity).append(" ");
-            sql.append(databaseType.getTypeSqlPresent(attributeDefinition));
+            sql.append(dialect.getTypeSqlPresent(attributeDefinition));
             sql.append(" ");
             List<AttributeConstraint> attributeConstraints = attributeDefinition.getAttributeConstraints();
 
@@ -309,7 +311,7 @@ public final class DefaultVisitor extends NoActionVisitor {
 
     @Override
     public void visit(PrimaryKeyConstraint primaryKeyConstraint) {
-        sql.append(databaseType.getPrimaryKeyDefinition(primaryKeyConstraint.isGenerated()));
+        sql.append(dialect.getPrimaryKeyDefinition(primaryKeyConstraint.isGenerated()));
     }
 
     @Override
@@ -600,18 +602,6 @@ public final class DefaultVisitor extends NoActionVisitor {
         }
 
         return false;
-    }
-
-    @Override
-    public void visit(InsertValues insertValues) {
-        for (Iterator<RValue> iterator = insertValues.getValues().iterator(); iterator.hasNext();) {
-            RValue value = iterator.next();
-
-            value.accept(this);
-            if (iterator.hasNext()) {
-                sql.append(",");
-            }
-        }
     }
 
     @Override

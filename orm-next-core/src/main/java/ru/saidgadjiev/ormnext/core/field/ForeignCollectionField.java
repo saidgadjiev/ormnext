@@ -24,9 +24,15 @@ public @interface ForeignCollectionField {
 
     /**
      * Collection fetch type. Default is {@link FetchType#EAGER}
+     *
      * @return fetch type
      */
     FetchType fetchType() default FetchType.EAGER;
 
+    /**
+     * Is foreign auto create?
+     *
+     * @return true if foreign auto create
+     */
     boolean foreignAutoCreate() default false;
 }

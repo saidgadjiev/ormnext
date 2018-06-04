@@ -5,6 +5,8 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.Operand;
 
 /**
  * This class represent not equals restriction.
+ *
+ * @author said gadjiev
  */
 public class NotEquals implements Condition {
 

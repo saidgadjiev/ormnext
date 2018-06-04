@@ -10,6 +10,8 @@ import java.util.Map;
 
 /**
  * Meta model.
+ *
+ * @author said gadjiev
  */
 public class MetaModel {
 

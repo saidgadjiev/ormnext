@@ -5,6 +5,8 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.condition.Expression;
 
 /**
  * This class represent sql COUNT.
+ *
+ * @author said gadjiev
  */
 public class CountExpression implements Function {
 

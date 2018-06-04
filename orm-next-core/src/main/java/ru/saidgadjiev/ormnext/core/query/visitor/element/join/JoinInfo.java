@@ -7,6 +7,8 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.condition.Expression;
 
 /**
  * This class represent join info-table name and join expression.
+ *
+ * @author said gadjiev
  */
 public class JoinInfo implements QueryElement {
 

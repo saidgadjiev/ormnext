@@ -6,6 +6,8 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.Alias;
 
 /**
  * This class represent table name.
+ *
+ * @author said gadjiev
  */
 public class TableRef implements QueryElement {
 
@@ -16,12 +18,14 @@ public class TableRef implements QueryElement {
 
     /**
      * Table alias.
+     *
      * @see Alias
      */
     private Alias alias;
 
     /**
      * Create new instance with provided table name.
+     *
      * @param tableName target table name
      */
     public TableRef(String tableName) {
@@ -30,8 +34,9 @@ public class TableRef implements QueryElement {
 
     /**
      * Create new instance with provided table name and alias.
+     *
      * @param tableName target table name
-     * @param alias target table alias
+     * @param alias     target table alias
      */
     public TableRef(String tableName, String alias) {
         this.tableName = tableName;
@@ -40,6 +45,7 @@ public class TableRef implements QueryElement {
 
     /**
      * Provide table alias.
+     *
      * @param alias target alias
      * @return this instance for chain
      */
@@ -51,6 +57,7 @@ public class TableRef implements QueryElement {
 
     /**
      * Get current table name.
+     *
      * @return tableName
      */
     public String getTableName() {
@@ -59,6 +66,7 @@ public class TableRef implements QueryElement {
 
     /**
      * Return current table alias.
+     *
      * @return alias
      */
     public Alias getAlias() {
@@ -67,9 +75,9 @@ public class TableRef implements QueryElement {
 
     @Override
     public void accept(QueryVisitor visitor) {
-       if (visitor.visit(this)) {
-           alias.accept(visitor);
-       }
+        if (visitor.visit(this)) {
+            alias.accept(visitor);
+        }
     }
 }
 

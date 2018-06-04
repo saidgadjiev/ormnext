@@ -4,6 +4,8 @@ import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 
 /**
  * This class represent not restriction.
+ *
+ * @author said gadjiev
  */
 public class Not implements Condition {
 

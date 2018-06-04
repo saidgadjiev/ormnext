@@ -1,9 +1,9 @@
 package ru.saidgadjiev.ormnext.core.field.datapersister;
 
-import ru.saidgadjiev.ormnext.core.connectionsource.DatabaseResults;
+import ru.saidgadjiev.ormnext.core.connection.DatabaseResults;
+import ru.saidgadjiev.ormnext.core.connection.OrmNextPreparedStatement;
 import ru.saidgadjiev.ormnext.core.field.DataType;
 
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
@@ -34,7 +34,7 @@ public class TimeStampDataPersister extends BaseDataPersister {
     }
 
     @Override
-    protected void setNonNullObject(PreparedStatement preparedStatement, int index, Object value) throws SQLException {
+    protected void setNonNullObject(OrmNextPreparedStatement preparedStatement, int index, Object value) throws SQLException {
         preparedStatement.setTimestamp(index, (Timestamp) value);
     }
 }

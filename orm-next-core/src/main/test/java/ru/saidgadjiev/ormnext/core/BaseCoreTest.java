@@ -3,11 +3,11 @@ package ru.saidgadjiev.ormnext.core;
 import org.h2.jdbcx.JdbcDataSource;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import ru.saidgadjiev.ormnext.core.connectionsource.DataSourceConnectionSource;
+import ru.saidgadjiev.ormnext.core.connection.source.DataSourceConnectionSource;
 import ru.saidgadjiev.ormnext.core.dao.Session;
 import ru.saidgadjiev.ormnext.core.dao.SessionManager;
 import ru.saidgadjiev.ormnext.core.dao.SessionManagerBuilder;
-import ru.saidgadjiev.ormnext.core.databasetype.H2DatabaseType;
+import ru.saidgadjiev.ormnext.core.dialect.H2Dialect;
 import ru.saidgadjiev.ormnext.core.logger.LoggerFactory;
 import ru.saidgadjiev.ormnext.core.model.*;
 
@@ -31,7 +31,7 @@ public class BaseCoreTest {
                         WithDefaultTestEntity.class,
                         ForeignAutoCreateForeignColumnTestEntity.class,
                         ForeignAutoCreateForeignCollectionColumnTestEntity.class
-                ).databaseType(new H2DatabaseType())
+                ).databaseType(new H2Dialect())
                 .connectionSource(new DataSourceConnectionSource(dataSource))
                 .build();
     }

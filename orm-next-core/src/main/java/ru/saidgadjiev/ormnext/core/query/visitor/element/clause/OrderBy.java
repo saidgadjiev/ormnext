@@ -9,6 +9,8 @@ import java.util.List;
 
 /**
  * This class represent order by clause.
+ *
+ * @author said gadjiev
  */
 public class OrderBy implements QueryElement {
 

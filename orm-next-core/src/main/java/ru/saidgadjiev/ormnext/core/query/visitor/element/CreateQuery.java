@@ -1,12 +1,15 @@
 package ru.saidgadjiev.ormnext.core.query.visitor.element;
 
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.common.UpdateValue;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * This class represent INSERT query.
+ *
+ * @author said gadjiev
  */
 public class CreateQuery implements SqlStatement {
 
@@ -16,18 +19,15 @@ public class CreateQuery implements SqlStatement {
     private final String tableName;
 
     /**
-     * Insert values.
-     * @see InsertValues
+     * UpdateValue values.
+     *
+     * @see UpdateValue
      */
-    private final List<InsertValues> updateValues = new ArrayList<>();
-
-    /**
-     * Insert column names.
-     */
-    private final List<String> columnNames = new ArrayList<>();
+    private final List<UpdateValue> updateValues = new ArrayList<>();
 
     /**
      * Create a new instance.
+     *
      * @param tableName target table name
      */
     public CreateQuery(String tableName) {
@@ -35,39 +35,26 @@ public class CreateQuery implements SqlStatement {
     }
 
     /**
-     * Add new insert values.
-     * @param insertValues target insert values
+     * Add a new update values.
+     *
+     * @param updateValue target insert values
      */
-    public void add(InsertValues insertValues) {
-        this.updateValues.add(insertValues);
+    public void add(UpdateValue updateValue) {
+        this.updateValues.add(updateValue);
     }
 
     /**
-     * Return current insert values.
-     * @return current insert values
+     * Return current update values.
+     *
+     * @return current update values
      */
-    public List<InsertValues> getInsertValues() {
+    public List<UpdateValue> getUpdateValues() {
         return updateValues;
     }
 
     /**
-     * Add new insert column name.
-     * @param columnName target column name
-     */
-    public void addColumnName(String columnName) {
-        columnNames.add(columnName);
-    }
-
-    /**
-     * Return current insert column names.
-     * @return current insert column names
-     */
-    public List<String> getColumnNames() {
-        return columnNames;
-    }
-
-    /**
      * Return current insert table name.
+     *
      * @return current insert table name
      */
     public String getTableName() {

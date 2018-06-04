@@ -9,6 +9,8 @@ import java.util.Map;
 
 /**
  * Entity alias context.
+ *
+ * @author said gadjiev
  */
 public class EntityAliasResolverContext {
 
@@ -36,21 +38,21 @@ public class EntityAliasResolverContext {
         Map<String, String> propertyNameAliases = new HashMap<>();
 
         for (IDatabaseColumnType columnType: entityMetadata.getColumnTypes()) {
-            if (columnType.isForeignCollectionColumnType()) {
+            if (columnType.foreignCollectionColumnType()) {
                 continue;
             }
-            if (columnType.isId()) {
+            if (columnType.id()) {
                 continue;
             }
-            String resolvedAlias = aliasCreator.createAlias(columnType.getColumnName());
+            String resolvedAlias = aliasCreator.createAlias(columnType.columnName());
 
-            columnAliases.put(columnType.getColumnName(), resolvedAlias);
+            columnAliases.put(columnType.columnName(), resolvedAlias);
             propertyNameAliases.put(columnType.getField().getName(), resolvedAlias);
         }
         IDatabaseColumnType primaryKey = entityMetadata.getPrimaryKeyColumnType();
-        String keyAlias = aliasCreator.createAlias(primaryKey.getColumnName());
+        String keyAlias = aliasCreator.createAlias(primaryKey.columnName());
 
-        columnAliases.put(primaryKey.getColumnName(), keyAlias);
+        columnAliases.put(primaryKey.columnName(), keyAlias);
         propertyNameAliases.put(primaryKey.getField().getName(), keyAlias);
         EntityAliases entityAliases = new EntityAliases(tableAlias, columnAliases, propertyNameAliases, keyAlias);
 

@@ -45,9 +45,9 @@ public class Argument {
 
     @Override
     public String toString() {
-        return "Argument{" +
-                "dataType=" + dataType +
-                ", value=" + value +
-                '}';
+        return "Argument{"
+                + "dataType=" + dataType
+                + ", value=" + value
+                + '}';
     }
 }

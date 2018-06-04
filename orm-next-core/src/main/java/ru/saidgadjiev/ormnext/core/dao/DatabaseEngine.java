@@ -1,8 +1,8 @@
 package ru.saidgadjiev.ormnext.core.dao;
 
-import ru.saidgadjiev.ormnext.core.connectionsource.DatabaseConnection;
-import ru.saidgadjiev.ormnext.core.connectionsource.DatabaseResults;
-import ru.saidgadjiev.ormnext.core.databasetype.DatabaseType;
+import ru.saidgadjiev.ormnext.core.connection.DatabaseConnection;
+import ru.saidgadjiev.ormnext.core.connection.DatabaseResults;
+import ru.saidgadjiev.ormnext.core.dialect.Dialect;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.IDatabaseColumnType;
 import ru.saidgadjiev.ormnext.core.loader.Argument;
 import ru.saidgadjiev.ormnext.core.loader.GeneratedKey;
@@ -26,9 +26,9 @@ public interface DatabaseEngine<T> {
     /**
      * Execute selectQuery statement.
      *
-     * @param connection target connection
-     * @param selectQuery     target selectQuery statement
-     * @param args       selectQuery statement args
+     * @param connection  target connection
+     * @param selectQuery target selectQuery statement
+     * @param args        selectQuery statement args
      * @return execute selectQuery results
      * @throws SQLException on any SQL problems
      */
@@ -38,25 +38,45 @@ public interface DatabaseEngine<T> {
     /**
      * Execute insert statement.
      *
-     * @param connection   target connection
-     * @param createQuery  target insert statement
-     * @param args         insert statement args
-     * @param primaryKey   primary key column type
-     * @param generatedKey generated key holder
+     * @param databaseConnection target connection
+     * @param createQuery        target insert statement
+     * @param args               insert statement args
+     * @param primaryKey         primary key column type
+     * @param generatedKey       generated key holder
+     * @return inserted row count
      * @throws SQLException on any SQL problems
      */
-    int create(DatabaseConnection<T> connection,
+    int create(DatabaseConnection<T> databaseConnection,
                CreateQuery createQuery,
                Map<Integer, Argument> args,
                IDatabaseColumnType primaryKey,
                GeneratedKey generatedKey) throws SQLException;
 
+    /**
+     * Execute insert statement for args list.
+     *
+     * @param databaseConnection target connection
+     * @param createQuery        target insert statement
+     * @param argList            insert statement args list
+     * @param primaryKey         primary key column type
+     * @param generatedKeys      generated key holders list
+     * @return inserted row count
+     * @throws SQLException on any SQL problems
+     */
     int create(DatabaseConnection<Connection> databaseConnection,
                CreateQuery createQuery,
                List<Map<Integer, Argument>> argList,
                IDatabaseColumnType primaryKey,
                List<GeneratedKey> generatedKeys) throws SQLException;
 
+    /**
+     * Execute batch queries.
+     *
+     * @param databaseConnection target connection
+     * @param sqlStatements      target sql statements
+     * @return batch results
+     * @throws SQLException any SQL exceptions
+     */
     int[] executeBatch(DatabaseConnection<?> databaseConnection,
                        List<SqlStatement> sqlStatements) throws SQLException;
 
@@ -66,6 +86,7 @@ public interface DatabaseEngine<T> {
      * @param connection  target connection
      * @param deleteQuery target delete statement
      * @param args        delete statement args
+     * @return deleted row count
      * @throws SQLException on any SQL problems
      */
     int delete(DatabaseConnection<T> connection, DeleteQuery deleteQuery, Map<Integer, Argument> args)
@@ -77,6 +98,7 @@ public interface DatabaseEngine<T> {
      * @param connection  target connection
      * @param updateQuery target update statement
      * @param args        update statement args
+     * @return updated row count
      * @throws SQLException on any SQL problems
      */
     int update(DatabaseConnection<T> connection, UpdateQuery updateQuery, Map<Integer, Argument> args)
@@ -134,6 +156,10 @@ public interface DatabaseEngine<T> {
      */
     DatabaseResults query(DatabaseConnection<T> databaseConnection, String query) throws SQLException;
 
-    DatabaseType getDatabaseType();
+    /**
+     * Return current dialect.
+     * @return dialect
+     */
+    Dialect getDialect();
 }
 

@@ -5,6 +5,8 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.condition.Expression;
 
 /**
  * This class represent DELETE sql query.
+ *
+ * @author said gadjiev
  */
 public class DeleteQuery implements SqlStatement {
 

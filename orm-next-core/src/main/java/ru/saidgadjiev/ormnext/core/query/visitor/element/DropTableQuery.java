@@ -5,6 +5,8 @@ import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 
 /**
  * This class represent DROP TABLE sql query.
+ *
+ * @author said gadjiev
  */
 public class DropTableQuery implements QueryElement {
 

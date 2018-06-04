@@ -37,12 +37,14 @@ public class ForeignCollectionColumnType extends BaseDatabaseColumnType implemen
 
     /**
      * Collection fetch type.
+     *
      * @see FetchType
      */
     private FetchType fetchType;
 
     /**
      * Collection type. Use for decorating collection by our lazy collection.
+     *
      * @see CollectionType
      */
     private CollectionType collectionType;
@@ -69,12 +71,19 @@ public class ForeignCollectionColumnType extends BaseDatabaseColumnType implemen
 
     /**
      * Column key.
+     *
      * @see ColumnKey
      */
     private ColumnKey columnKey;
 
+    /**
+     * Foreign object auto create.
+     */
     private boolean foreignAutoCreate;
 
+    /**
+     * Associated foreign column type.
+     */
     private ForeignColumnType foreignColumnType;
 
     @Override
@@ -83,7 +92,7 @@ public class ForeignCollectionColumnType extends BaseDatabaseColumnType implemen
     }
 
     @Override
-    public DataPersister getDataPersister() {
+    public DataPersister dataPersister() {
         throw new UnsupportedOperationException();
     }
 
@@ -98,7 +107,7 @@ public class ForeignCollectionColumnType extends BaseDatabaseColumnType implemen
     }
 
     @Override
-    public boolean isForeignCollectionColumnType() {
+    public boolean foreignCollectionColumnType() {
         return true;
     }
 
@@ -124,8 +133,9 @@ public class ForeignCollectionColumnType extends BaseDatabaseColumnType implemen
 
     /**
      * Add new value to collection in requested object.
+     *
      * @param object target object
-     * @param value target value
+     * @param value  target value
      */
     public void add(Object object, Object value) {
         try {
@@ -143,6 +153,7 @@ public class ForeignCollectionColumnType extends BaseDatabaseColumnType implemen
 
     /**
      * Return collection object class.
+     *
      * @return collection object class
      */
     public Class<?> getCollectionObjectClass() {
@@ -156,6 +167,7 @@ public class ForeignCollectionColumnType extends BaseDatabaseColumnType implemen
 
     /**
      * Return collection type.
+     *
      * @return collection type
      * @see CollectionType
      */
@@ -184,12 +196,18 @@ public class ForeignCollectionColumnType extends BaseDatabaseColumnType implemen
 
     /**
      * Field refers to this.
+     *
      * @return foreign field
      */
     public Field getForeignField() {
         return foreignField;
     }
 
+    /**
+     * Associated foreign column type.
+     *
+     * @return associated foreign column type
+     */
     public ForeignColumnType getForeignColumnType() {
         return foreignColumnType;
     }
@@ -203,6 +221,7 @@ public class ForeignCollectionColumnType extends BaseDatabaseColumnType implemen
 
     /**
      * Method for build new instance by field.
+     *
      * @param field target field
      * @return new instance
      */
@@ -243,6 +262,7 @@ public class ForeignCollectionColumnType extends BaseDatabaseColumnType implemen
 
     /**
      * Resolve collection type by collection class.
+     *
      * @param field target collection field
      * @return collection type
      */
@@ -265,7 +285,7 @@ public class ForeignCollectionColumnType extends BaseDatabaseColumnType implemen
     /**
      * Available collection types.
      */
-    public enum  CollectionType {
+    public enum CollectionType {
 
         /**
          * Associate with {@link List}.

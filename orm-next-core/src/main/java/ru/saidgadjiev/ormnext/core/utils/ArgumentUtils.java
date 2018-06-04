@@ -12,6 +12,8 @@ import java.util.Map;
 
 /**
  * Util class for operation with arguments.
+ *
+ * @author said gadjiev
  */
 public final class ArgumentUtils {
 
@@ -35,20 +37,20 @@ public final class ArgumentUtils {
         Map<IDatabaseColumnType, Argument> args = new LinkedHashMap<>();
 
         for (IDatabaseColumnType columnType : databaseEntityMetadata.getColumnTypes()) {
-            if (columnType.isForeignCollectionColumnType()) {
+            if (columnType.foreignCollectionColumnType()) {
                 continue;
             }
             Object value = columnType.access(object);
 
-            if (columnType.isDatabaseColumnType()) {
-                if (!columnType.isGenerated() && columnType.insertable()) {
+            if (columnType.databaseColumnType()) {
+                if (!columnType.generated() && columnType.insertable()) {
                     if (value != null) {
                         args.put(columnType, processConvertersToSqlValue(
                                 value,
                                 columnType
                         ));
                     } else if (!columnType.defaultIfNull()) {
-                        args.put(columnType, new Argument(columnType.getDataType(), null));
+                        args.put(columnType, new Argument(columnType.dataType(), null));
                     }
                 }
             } else {
@@ -75,20 +77,20 @@ public final class ArgumentUtils {
         Map<IDatabaseColumnType, Argument> args = new LinkedHashMap<>();
 
         for (IDatabaseColumnType columnType : databaseEntityMetadata.getColumnTypes()) {
-            if (columnType.isForeignCollectionColumnType()) {
+            if (columnType.foreignCollectionColumnType()) {
                 continue;
             }
             Object value = columnType.access(object);
 
-            if (columnType.isDatabaseColumnType()) {
-                if (!columnType.isId() && columnType.updatable()) {
+            if (columnType.databaseColumnType()) {
+                if (!columnType.id() && columnType.updatable()) {
                     if (value != null) {
                         args.put(columnType, processConvertersToSqlValue(
                                 value,
                                 columnType
                         ));
                     } else if (!columnType.defaultIfNull()) {
-                        args.put(columnType, new Argument(columnType.getDataType(), null));
+                        args.put(columnType, new Argument(columnType.dataType(), null));
                     }
                 }
             } else {
@@ -111,7 +113,7 @@ public final class ArgumentUtils {
      */
     public static Argument eject(Object object, IDatabaseColumnType databaseColumnType) throws SQLException {
         if (object == null) {
-            return new Argument(databaseColumnType.getDataType(), null);
+            return new Argument(databaseColumnType.dataType(), null);
         }
         return processConvertersToSqlValue(
                 databaseColumnType.access(object),
@@ -131,7 +133,7 @@ public final class ArgumentUtils {
     public static Argument processConvertersToSqlValue(Object javaValue, IDatabaseColumnType databaseColumnType)
             throws SQLException {
         if (javaValue == null) {
-            return new Argument(databaseColumnType.getDataType(), null);
+            return new Argument(databaseColumnType.dataType(), null);
         }
         Object result = javaValue;
 
@@ -141,6 +143,6 @@ public final class ArgumentUtils {
             }
         }
 
-        return new Argument(databaseColumnType.getDataType(), result);
+        return new Argument(databaseColumnType.dataType(), result);
     }
 }

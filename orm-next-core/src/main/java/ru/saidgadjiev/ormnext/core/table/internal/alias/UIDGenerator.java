@@ -4,6 +4,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Unique uid generator.
+ *
+ * @author said gadjiev
  */
 public class UIDGenerator {
 

@@ -8,6 +8,8 @@ import java.lang.annotation.Target;
 
 /**
  * Annotation for define table index.
+ *
+ * @author said gadjiev
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

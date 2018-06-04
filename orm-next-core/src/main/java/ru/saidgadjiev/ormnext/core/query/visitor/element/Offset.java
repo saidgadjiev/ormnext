@@ -5,6 +5,8 @@ import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 
 /**
  * This class represent offset part sql.
+ *
+ * @author said gadjiev
  */
 public class Offset implements QueryElement {
 

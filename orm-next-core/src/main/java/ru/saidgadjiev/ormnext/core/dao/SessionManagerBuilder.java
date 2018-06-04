@@ -1,12 +1,11 @@
 package ru.saidgadjiev.ormnext.core.dao;
 
-import ru.saidgadjiev.ormnext.core.connectionsource.ConnectionSource;
-import ru.saidgadjiev.ormnext.core.databasetype.DatabaseType;
+import ru.saidgadjiev.ormnext.core.connection.source.ConnectionSource;
+import ru.saidgadjiev.ormnext.core.dialect.Dialect;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.MetaModel;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
+import java.sql.SQLException;
+import java.util.*;
 
 /**
  * Builder for session manager.
@@ -27,22 +26,27 @@ public class SessionManagerBuilder {
 
     /**
      * Database type.
-     * @see DatabaseType
+     *
+     * @see Dialect
      */
-    private DatabaseType databaseType;
+    private Dialect dialect;
 
     /**
      * Database engine.
+     *
      * @see DatabaseEngine
      */
     private DatabaseEngine<?> databaseEngine;
 
+    private TableOperation tableOperation = TableOperation.NO_ACTION;
+
     /**
      * Provide entity classes.
+     *
      * @param classes target classes
      * @return this for chain
      */
-    public SessionManagerBuilder entities(Class<?> ... classes) {
+    public SessionManagerBuilder entities(Class<?>... classes) {
         entityClasses.addAll(Arrays.asList(classes));
 
         return this;
@@ -50,6 +54,7 @@ public class SessionManagerBuilder {
 
     /**
      * Provide connection source.
+     *
      * @param connectionSource target connection source
      * @return this for chain
      */
@@ -61,17 +66,19 @@ public class SessionManagerBuilder {
 
     /**
      * Provide database type.
-     * @param databaseType target database type
+     *
+     * @param dialect target database type
      * @return this for chain
      */
-    public SessionManagerBuilder databaseType(DatabaseType databaseType) {
-        this.databaseType = databaseType;
+    public SessionManagerBuilder databaseType(Dialect dialect) {
+        this.dialect = dialect;
 
         return this;
     }
 
     /**
      * Database engine.
+     *
      * @param databaseEngine target database engine
      * @return this for chain
      */
@@ -81,20 +88,56 @@ public class SessionManagerBuilder {
         return this;
     }
 
+    public SessionManagerBuilder tableOperation(TableOperation tableOperation) {
+        this.tableOperation = tableOperation;
+
+        return this;
+    }
+
     /**
      * Create session manager. If database engine not provided use {@link DefaultDatabaseEngine}.
+     *
      * @return this for chain
      */
-    public SessionManager build() {
+    public SessionManager build() throws SQLException {
         DatabaseEngine engine = databaseEngine == null
-                ? databaseType == null
-                ? null : new DefaultDatabaseEngine(databaseType) : databaseEngine;
+                ? dialect == null
+                ? null : new DefaultDatabaseEngine(dialect) : databaseEngine;
 
         if (engine == null) {
-            throw new IllegalArgumentException("Please provide " + DatabaseType.class + " or " + DatabaseEngine.class);
+            throw new IllegalArgumentException("Please provide " + Dialect.class + " or " + DatabaseEngine.class);
         }
         MetaModel metaModel = new MetaModel(entityClasses);
 
-        return new SessionManagerImpl(connectionSource, metaModel, engine);
+        SessionManager sessionManager = new SessionManagerImpl(connectionSource, metaModel, engine);
+
+        try (Session session = sessionManager.createSession()) {
+            doTableOperations(session);
+        }
+
+        return sessionManager;
+    }
+
+    private void doTableOperations(Session session) throws SQLException {
+        switch (tableOperation) {
+            case CREATE:
+                session.createTables(entityClasses.toArray(new Class<?>[entityClasses.size()]), true);
+
+                break;
+            case CLEAR:
+                session.clearTables(entityClasses.toArray(new Class<?>[entityClasses.size()]));
+
+                break;
+            case DROP_CREATE:
+                List<Class<?>> reversedEntityClasses = new ArrayList<>(entityClasses);
+
+                Collections.reverse(reversedEntityClasses);
+
+                session.dropTables(reversedEntityClasses.toArray(new Class<?>[reversedEntityClasses.size()]), true);
+                session.createTables(entityClasses.toArray(new Class<?>[entityClasses.size()]), true);
+                break;
+            case NO_ACTION:
+                break;
+        }
     }
 }

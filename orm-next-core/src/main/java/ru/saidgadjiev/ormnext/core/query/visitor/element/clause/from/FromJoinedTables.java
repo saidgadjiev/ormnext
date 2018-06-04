@@ -10,6 +10,8 @@ import java.util.List;
 
 /**
  * This class represent from clause in select with joins.
+ *
+ * @author said gadjiev
  */
 public class FromJoinedTables implements FromExpression {
 

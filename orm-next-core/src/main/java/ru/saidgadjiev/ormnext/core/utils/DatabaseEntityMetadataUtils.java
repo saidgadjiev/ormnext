@@ -13,6 +13,8 @@ import java.util.Optional;
 
 /**
  * Entity metadata utils.
+ *
+ * @author said gadjiev
  */
 public final class DatabaseEntityMetadataUtils {
 
@@ -73,12 +75,12 @@ public final class DatabaseEntityMetadataUtils {
     public static Optional<String> getColumnNameByPropertyName(List<IDatabaseColumnType> columnTypes,
                                                                String propertyName) {
         for (IDatabaseColumnType columnType : columnTypes) {
-            if (columnType.isForeignCollectionColumnType()) {
+            if (columnType.foreignCollectionColumnType()) {
                 continue;
             }
 
             if (columnType.getField().getName().equals(propertyName)) {
-                return Optional.ofNullable(columnType.getColumnName());
+                return Optional.ofNullable(columnType.columnName());
             }
         }
 
@@ -94,7 +96,7 @@ public final class DatabaseEntityMetadataUtils {
     public static Optional<IDatabaseColumnType> getDataTypeByPropertyName(List<IDatabaseColumnType> columnTypes,
                                                                           String propertyName) {
         for (IDatabaseColumnType columnType : columnTypes) {
-            if (columnType.isForeignCollectionColumnType()) {
+            if (columnType.foreignCollectionColumnType()) {
                 continue;
             }
 

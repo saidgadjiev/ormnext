@@ -1,10 +1,17 @@
-package ru.saidgadjiev.ormnext.core.connectionsource;
+package ru.saidgadjiev.ormnext.core.connection;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 
+/**
+ * Implementation for jdbc connection {@link Connection}.
+ */
 public class DatabaseConnectionImpl extends DatabaseConnection<Connection> {
 
+    /**
+     * Create a new connection.
+     * @param connection target physical connection
+     */
     public DatabaseConnectionImpl(Connection connection) {
         super(connection);
     }

@@ -7,6 +7,8 @@ import java.util.List;
 
 /**
  * Unique table constraint.
+ *
+ * @author said gadjiev
  */
 public class UniqueConstraint implements TableConstraint {
 

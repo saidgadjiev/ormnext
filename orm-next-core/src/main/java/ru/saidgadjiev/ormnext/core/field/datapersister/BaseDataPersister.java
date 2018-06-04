@@ -1,5 +1,6 @@
 package ru.saidgadjiev.ormnext.core.field.datapersister;
 
+import ru.saidgadjiev.ormnext.core.connection.OrmNextPreparedStatement;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.literals.SqlLiteral;
 
 import java.sql.PreparedStatement;
@@ -19,12 +20,18 @@ public abstract class BaseDataPersister implements DataPersister {
      */
     private final Class<?>[] classes;
 
+    /**
+     * Associated sql type.
+     *
+     * @see java.sql.Types
+     */
     private final int sqlType;
 
     /**
      * Create a new instance.
+     *
      * @param classes associated classes for this type
-     * @param sqlType
+     * @param sqlType target associated sql type
      */
     protected BaseDataPersister(Class<?>[] classes, int sqlType) {
         this.classes = classes;
@@ -47,7 +54,7 @@ public abstract class BaseDataPersister implements DataPersister {
     }
 
     @Override
-    public final void setObject(PreparedStatement preparedStatement, int index, Object value) throws SQLException {
+    public final void setObject(OrmNextPreparedStatement preparedStatement, int index, Object value) throws SQLException {
         if (value == null) {
             preparedStatement.setNull(index, sqlType);
         } else {
@@ -55,7 +62,15 @@ public abstract class BaseDataPersister implements DataPersister {
         }
     }
 
-    protected abstract void setNonNullObject(PreparedStatement preparedStatement,
+    /**
+     * Set non null value to prepared statement.
+     *
+     * @param preparedStatement target statement
+     * @param index             target value index
+     * @param value             target value
+     * @throws SQLException any SQL exceptions
+     */
+    protected abstract void setNonNullObject(OrmNextPreparedStatement preparedStatement,
                                              int index,
                                              Object value) throws SQLException;
 

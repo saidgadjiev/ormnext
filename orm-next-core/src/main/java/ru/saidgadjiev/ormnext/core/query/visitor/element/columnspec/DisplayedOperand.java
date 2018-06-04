@@ -5,6 +5,8 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.Operand;
 
 /**
  * This class represent select operand eg. aggregate functions
+ *
+ * @author said gadjiev
  */
 public class DisplayedOperand extends DisplayedColumnSpec {
 

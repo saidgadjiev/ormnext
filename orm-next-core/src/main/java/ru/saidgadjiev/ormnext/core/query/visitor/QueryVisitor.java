@@ -615,14 +615,6 @@ public interface QueryVisitor {
     boolean visit(OrderByItem orderByItem);
 
     /**
-     * Visit {@link InsertValues} element.
-     *
-     * @param insertValues target visitor element
-     * @see InsertValues
-     */
-    void visit(InsertValues insertValues);
-
-    /**
      * Visit {@link CountColumn} element.
      *
      * @param countColumn target visitor element
@@ -631,7 +623,19 @@ public interface QueryVisitor {
      */
     boolean visit(CountColumn countColumn);
 
+    /**
+     * Visit {@link SqlLiteral} element.
+     *
+     * @param sqlLiteral target visitor element
+     * @see SqlLiteral
+     */
     void visit(SqlLiteral sqlLiteral);
 
+    /**
+     * Visit {@link UniqueAttributeConstraint} element.
+     *
+     * @param uniqueAttributeConstraint target visitor element
+     * @see UniqueAttributeConstraint
+     */
     void visit(UniqueAttributeConstraint uniqueAttributeConstraint);
 }

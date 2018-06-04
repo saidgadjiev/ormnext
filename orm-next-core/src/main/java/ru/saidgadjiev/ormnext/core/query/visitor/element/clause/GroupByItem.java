@@ -6,6 +6,8 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.ColumnSpec;
 
 /**
  * This class represent group by item.
+ *
+ * @author said gadjiev
  */
 public class GroupByItem implements QueryElement {
 

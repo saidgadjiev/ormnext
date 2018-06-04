@@ -13,52 +13,52 @@ import java.util.Optional;
 public abstract class BaseDatabaseColumnType implements IDatabaseColumnType {
 
     @Override
-    public String getDefaultDefinition() {
+    public String defaultDefinition() {
         return null;
     }
 
     @Override
-    public boolean isId() {
+    public boolean id() {
         return false;
     }
 
     @Override
-    public boolean isNotNull() {
+    public boolean notNull() {
         return false;
     }
 
     @Override
-    public boolean isGenerated() {
+    public boolean generated() {
         return false;
     }
 
     @Override
-    public String getColumnName() {
+    public String columnName() {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public int getDataType() {
+    public int dataType() {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public int getLength() {
+    public int length() {
         return 0;
     }
 
     @Override
-    public boolean isDatabaseColumnType() {
+    public boolean databaseColumnType() {
         return false;
     }
 
     @Override
-    public boolean isForeignColumnType() {
+    public boolean foreignColumnType() {
         return false;
     }
 
     @Override
-    public boolean isForeignCollectionColumnType() {
+    public boolean foreignCollectionColumnType() {
         return false;
     }
 
@@ -75,5 +75,10 @@ public abstract class BaseDatabaseColumnType implements IDatabaseColumnType {
     @Override
     public boolean unique() {
         return false;
+    }
+
+    @Override
+    public boolean defineInCreateTable() {
+        return true;
     }
 }

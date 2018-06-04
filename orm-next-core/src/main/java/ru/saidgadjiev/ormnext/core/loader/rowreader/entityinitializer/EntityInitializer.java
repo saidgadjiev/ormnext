@@ -73,7 +73,7 @@ public class EntityInitializer {
      */
     public Object startRead(ResultSetContext context) throws SQLException {
         IDatabaseColumnType idColumnType = persister.getMetadata().getPrimaryKeyColumnType();
-        Object id = idColumnType.getDataPersister().readValue(
+        Object id = idColumnType.dataPersister().readValue(
                 context.getDatabaseResults(),
                 entityAliases.getKeyAlias()
         );
@@ -107,13 +107,13 @@ public class EntityInitializer {
         int i = 0;
 
         for (IDatabaseColumnType columnType : entityMetadata.getColumnTypes()) {
-            if (columnType.isForeignCollectionColumnType()) {
+            if (columnType.foreignCollectionColumnType()) {
                 continue;
             }
-            if (columnType.isId()) {
+            if (columnType.id()) {
                 continue;
             }
-            Object value = columnType.getDataPersister().readValue(
+            Object value = columnType.dataPersister().readValue(
                     context.getDatabaseResults(),
                     columnAliases.get(i++)
             );
@@ -156,13 +156,13 @@ public class EntityInitializer {
         int i = 0;
 
         for (IDatabaseColumnType columnType : entityMetadata.getColumnTypes()) {
-            if (columnType.isForeignCollectionColumnType()) {
+            if (columnType.foreignCollectionColumnType()) {
                 continue;
             }
-            if (columnType.isId()) {
+            if (columnType.id()) {
                 continue;
             }
-            if (columnType.isDatabaseColumnType()) {
+            if (columnType.databaseColumnType()) {
                 ResultSetValue resultSetValue = values.get(i++);
                 Object value = resultSetValue.getValue();
 
@@ -175,7 +175,7 @@ public class EntityInitializer {
                 }
                 columnType.assign(entityInstance, value);
             }
-            if (columnType.isForeignColumnType()) {
+            if (columnType.foreignColumnType()) {
                 ForeignColumnType foreignColumnType = (ForeignColumnType) columnType;
                 ResultSetValue resultSetValue = values.get(i++);
 
@@ -208,9 +208,16 @@ public class EntityInitializer {
         }
     }
 
+    /**
+     * Add object to cache.
+     *
+     * @param context        target context
+     * @param id             target object id
+     * @param entityInstance target object
+     */
     private void addToCache(ResultSetContext context, Object id, Object entityInstance) {
         context.addEntry(id, entityInstance);
-        context.getSession().cacheHelper().saveToCache(id, entityInstance);
+        context.getCacheHelper().saveToCache(id, entityInstance);
     }
 
     /**

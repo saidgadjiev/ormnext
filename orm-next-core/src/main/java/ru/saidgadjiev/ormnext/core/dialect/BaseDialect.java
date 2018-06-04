@@ -1,4 +1,4 @@
-package ru.saidgadjiev.ormnext.core.databasetype;
+package ru.saidgadjiev.ormnext.core.dialect;
 
 import ru.saidgadjiev.ormnext.core.exception.UnknownTypeException;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.AttributeDefinition;
@@ -6,12 +6,12 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.AttributeDefinition;
 import static ru.saidgadjiev.ormnext.core.field.DataType.*;
 
 /**
- * Base class for all of the {@link DatabaseType} classes that provide the per-database type functionality to create
+ * Base class for all of the {@link Dialect} classes that provide the per-database type functionality to create
  * tables and build queries.
  *
  * @author said gadjiev
  */
-public abstract class BaseDatabaseType implements DatabaseType {
+public abstract class BaseDialect implements Dialect {
 
     @Override
     public String getTypeSqlPresent(AttributeDefinition def) {

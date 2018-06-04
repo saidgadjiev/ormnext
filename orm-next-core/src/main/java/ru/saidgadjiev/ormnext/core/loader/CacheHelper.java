@@ -19,18 +19,28 @@ public class CacheHelper {
      */
     private CacheHolder sessionFactoryCacheHolder;
 
+    /**
+     * Meta model.
+     */
     private MetaModel metaModel;
 
     /**
      * Create a new helper.
      *
      * @param sessionFactoryCacheHolder session factory cache holder
+     * @param metaModel                 target meta model
      */
     public CacheHelper(CacheHolder sessionFactoryCacheHolder, MetaModel metaModel) {
         this.sessionFactoryCacheHolder = sessionFactoryCacheHolder;
         this.metaModel = metaModel;
     }
 
+    /**
+     * Save objects to cache.
+     *
+     * @param objects     target objects
+     * @param objectClass target object class
+     */
     public void saveToCache(Object[] objects, Class<?> objectClass) {
         if (sessionFactoryCacheHolder.isCaching(objectClass)) {
             IDatabaseColumnType primaryKeyColumnType = metaModel

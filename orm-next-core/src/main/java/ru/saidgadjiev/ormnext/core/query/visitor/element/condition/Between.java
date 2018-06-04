@@ -6,6 +6,8 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.literals.RValue;
 
 /**
  * This class represent between restriction.
+ *
+ * @author said gadjiev
  */
 public class Between implements Condition {
 

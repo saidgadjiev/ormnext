@@ -4,6 +4,8 @@ import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 
 /**
  * This implementation represent select all(count star) in select.
+ *
+ * @author said gadjiev
  */
 public class SelectAll implements SelectColumnsStrategy {
 

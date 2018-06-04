@@ -2,6 +2,8 @@ package ru.saidgadjiev.ormnext.core.table.internal.instatiator;
 
 /**
  * Interface for implement entity instantiator.
+ *
+ * @author said gadjiev
  */
 public interface Instantiator {
 

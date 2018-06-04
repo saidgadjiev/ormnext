@@ -73,6 +73,6 @@ public class CollectionLoader {
      * @return owner primary key persister
      */
     public DataPersister getOwnerPrimaryKeyPersister() {
-        return collectionQuerySpace.getOwnerPrimaryKey().getDataPersister();
+        return collectionQuerySpace.getOwnerPrimaryKey().dataPersister();
     }
 }

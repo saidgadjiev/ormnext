@@ -20,42 +20,42 @@ public interface IDatabaseColumnType extends EntityElement {
      *
      * @return current default definition
      */
-    String getDefaultDefinition();
+    String defaultDefinition();
 
     /**
      * True if column is id.
      *
      * @return true if column is id
      */
-    boolean isId();
+    boolean id();
 
     /**
      * True if column is not null.
      *
      * @return true if column is not null
      */
-    boolean isNotNull();
+    boolean notNull();
 
     /**
      * True if column is generated.
      *
      * @return true if column is generated
      */
-    boolean isGenerated();
+    boolean generated();
 
     /**
      * Return column name.
      *
      * @return column name
      */
-    String getColumnName();
+    String columnName();
 
     /**
      * Return column type.
      *
      * @return Return column type
      */
-    int getDataType();
+    int dataType();
 
     /**
      * Access to field by object and return field value.
@@ -71,7 +71,7 @@ public interface IDatabaseColumnType extends EntityElement {
      * @return data persister
      * @see DataPersister
      */
-    DataPersister getDataPersister();
+    DataPersister dataPersister();
 
     /**
      * Assign field to object with value.
@@ -93,7 +93,7 @@ public interface IDatabaseColumnType extends EntityElement {
      *
      * @return column length
      */
-    int getLength();
+    int length();
 
     /**
      * Column owner table name.
@@ -131,26 +131,38 @@ public interface IDatabaseColumnType extends EntityElement {
      */
     boolean defaultIfNull();
 
+    /**
+     * Is unique?
+     *
+     * @return true if unique
+     */
     boolean unique();
+
+    /**
+     * If true column will be defined in create table.
+     *
+     * @return if true column will be defined in create table
+     */
+    boolean defineInCreateTable();
 
     /**
      * True if this instance {@link DatabaseColumnType}.
      *
      * @return true if this instance {@link DatabaseColumnType}
      */
-    boolean isDatabaseColumnType();
+    boolean databaseColumnType();
 
     /**
      * True if this instance {@link ForeignColumnType}.
      *
      * @return true if this instance {@link ForeignColumnType}
      */
-    boolean isForeignColumnType();
+    boolean foreignColumnType();
 
     /**
      * True if this instance {@link ForeignCollectionColumnType}.
      *
      * @return true if this instance {@link ForeignCollectionColumnType}
      */
-    boolean isForeignCollectionColumnType();
+    boolean foreignCollectionColumnType();
 }

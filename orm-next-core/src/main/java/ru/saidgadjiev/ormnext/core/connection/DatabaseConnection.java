@@ -1,4 +1,4 @@
-package ru.saidgadjiev.ormnext.core.connectionsource;
+package ru.saidgadjiev.ormnext.core.connection;
 
 import java.sql.SQLException;
 

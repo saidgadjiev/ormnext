@@ -1,11 +1,9 @@
 package ru.saidgadjiev.ormnext.core.loader;
 
-import ru.saidgadjiev.ormnext.core.connectionsource.DatabaseConnection;
-import ru.saidgadjiev.ormnext.core.connectionsource.DatabaseResults;
+import ru.saidgadjiev.ormnext.core.connection.DatabaseResults;
 import ru.saidgadjiev.ormnext.core.dao.DatabaseEngine;
 import ru.saidgadjiev.ormnext.core.dao.Session;
-import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignCollectionColumnType;
-import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignColumnType;
+import ru.saidgadjiev.ormnext.core.dao.SessionManager;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.IDatabaseColumnType;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.SelectStatement;
 import ru.saidgadjiev.ormnext.core.query.space.EntityQuerySpace;
@@ -19,49 +17,56 @@ import ru.saidgadjiev.ormnext.core.table.internal.persister.DatabaseEntityPersis
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
 import static ru.saidgadjiev.ormnext.core.utils.ArgumentUtils.*;
 
+/**
+ * Batch entity loader. Use for batch query execute.
+ */
 public class BatchEntityLoader implements EntityLoader {
+
+    /**
+     * Cache helper.
+     */
+    private final CacheHelper cacheHelper;
 
     /**
      * Current meta model.
      */
     private MetaModel metaModel;
 
-    private Session session;
     /**
-     * Current database engine.
-     *
-     * @see DatabaseEngine
+     * Database engine.
      */
     private DatabaseEngine<?> databaseEngine;
 
+    /**
+     * Batch statements.
+     */
     private List<SqlStatement> batchStatements = new ArrayList<>();
 
+    /**
+     * Post batch executes. This will be executed after execute sql statements {@link #batchStatements}.
+     */
     private List<Callable<Void>> postBatchExecutes = new ArrayList<>();
 
     /**
      * Create a new instance.
      *
-     * @param metaModel      current meta model
-     * @param databaseEngine target database engine
+     * @param sessionManager session manager
      */
-    public BatchEntityLoader(Session session, MetaModel metaModel, DatabaseEngine<?> databaseEngine) {
-        this.session = session;
-        this.databaseEngine = databaseEngine;
-        this.metaModel = metaModel;
+    public BatchEntityLoader(SessionManager sessionManager) {
+        this.cacheHelper = sessionManager.cacheHelper();
+        this.databaseEngine = sessionManager.getDatabaseEngine();
+        this.metaModel = sessionManager.getMetaModel();
     }
 
     @Override
-    public int create(DatabaseConnection connection, Object object) throws SQLException {
+    public int create(Session session, Object object) throws SQLException {
         DatabaseEntityPersister entityPersister = metaModel.getPersister(object.getClass());
-
-        foreignAutoCreate(object, entityPersister.getMetadata());
 
         IDatabaseColumnType primaryKeyType = entityPersister.getMetadata().getPrimaryKeyColumnType();
         Map<IDatabaseColumnType, Argument> argumentMap = ejectForCreate(object, entityPersister.getMetadata());
@@ -69,9 +74,9 @@ public class BatchEntityLoader implements EntityLoader {
         CreateQuery createQuery = entityQuerySpace.getCreateQueryCompiledStatement(argumentMap);
 
         batchStatements.add(createQuery);
-        if (!primaryKeyType.isGenerated()) {
+        if (!primaryKeyType.generated()) {
             postBatchExecutes.add(() -> {
-                session.cacheHelper().saveToCache(null, object);
+                cacheHelper.saveToCache(null, object);
 
                 return null;
             });
@@ -81,7 +86,7 @@ public class BatchEntityLoader implements EntityLoader {
     }
 
     @Override
-    public int create(DatabaseConnection connection, Object[] objects) throws SQLException {
+    public int create(Session session, Object[] objects) throws SQLException {
         if (objects.length == 0) {
             return 0;
         }
@@ -89,16 +94,15 @@ public class BatchEntityLoader implements EntityLoader {
         IDatabaseColumnType primaryKeyType = entityPersister.getMetadata().getPrimaryKeyColumnType();
 
         for (Object object : objects) {
-            foreignAutoCreate(object, entityPersister.getMetadata());
             Map<IDatabaseColumnType, Argument> argumentMap = ejectForCreate(object, entityPersister.getMetadata());
             EntityQuerySpace entityQuerySpace = entityPersister.getEntityQuerySpace();
             CreateQuery createQuery = entityQuerySpace.getCreateQueryCompiledStatement(argumentMap);
 
             batchStatements.add(createQuery);
         }
-        if (!primaryKeyType.isGenerated()) {
+        if (!primaryKeyType.generated()) {
             postBatchExecutes.add(() -> {
-                session.cacheHelper().saveToCache(objects, objects[0].getClass());
+                cacheHelper.saveToCache(objects, objects[0].getClass());
 
                 return null;
             });
@@ -108,17 +112,17 @@ public class BatchEntityLoader implements EntityLoader {
     }
 
     @Override
-    public boolean createTable(DatabaseConnection connection, Class<?> tClass, boolean ifNotExist) {
+    public boolean createTable(Session session, Class<?> tClass, boolean ifNotExist) {
         throw new UnsupportedOperationException("Not supported for batch execute");
     }
 
     @Override
-    public boolean dropTable(DatabaseConnection connection, Class<?> tClass, boolean ifExist) {
+    public boolean dropTable(Session session, Class<?> tClass, boolean ifExist) {
         throw new UnsupportedOperationException("Not supported for batch execute");
     }
 
     @Override
-    public int update(DatabaseConnection connection, Object object) throws SQLException {
+    public int update(Session session, Object object) throws SQLException {
         DatabaseEntityPersister entityPersister = metaModel.getPersister(object.getClass());
         DatabaseEntityMetadata<?> entityMetadata = entityPersister.getMetadata();
 
@@ -132,7 +136,7 @@ public class BatchEntityLoader implements EntityLoader {
 
         batchStatements.add(updateQuery);
         postBatchExecutes.add(() -> {
-            session.cacheHelper().saveToCache(id, object);
+            cacheHelper.saveToCache(id, object);
 
             return null;
         });
@@ -141,7 +145,7 @@ public class BatchEntityLoader implements EntityLoader {
     }
 
     @Override
-    public int delete(DatabaseConnection connection, Object object) throws SQLException {
+    public int delete(Session session, Object object) throws SQLException {
         DatabaseEntityPersister entityPersister = metaModel.getPersister(object.getClass());
         Argument id = eject(object, entityPersister.getMetadata().getPrimaryKeyColumnType());
 
@@ -149,7 +153,7 @@ public class BatchEntityLoader implements EntityLoader {
 
         batchStatements.add(deleteQuery);
         postBatchExecutes.add(() -> {
-            session.cacheHelper().delete(object.getClass(), id);
+            cacheHelper.delete(object.getClass(), id);
 
             return null;
         });
@@ -158,7 +162,7 @@ public class BatchEntityLoader implements EntityLoader {
     }
 
     @Override
-    public int deleteById(DatabaseConnection connection, Class<?> tClass, Object id) throws SQLException {
+    public int deleteById(Session session, Class<?> tClass, Object id) throws SQLException {
         DatabaseEntityPersister entityPersister = metaModel.getPersister(tClass);
         Argument idArgument = processConvertersToSqlValue(
                 id,
@@ -168,7 +172,7 @@ public class BatchEntityLoader implements EntityLoader {
 
         batchStatements.add(deleteQuery);
         postBatchExecutes.add(() -> {
-            session.cacheHelper().delete(tClass, id);
+            cacheHelper.delete(tClass, id);
 
             return null;
         });
@@ -177,47 +181,47 @@ public class BatchEntityLoader implements EntityLoader {
     }
 
     @Override
-    public <T> T queryForId(DatabaseConnection connection, Class<T> tClass, Object id) {
+    public <T> T queryForId(Session session, Class<T> tClass, Object id) {
         throw new UnsupportedOperationException("Not supported for batch execute");
     }
 
     @Override
-    public <T> List<T> queryForAll(DatabaseConnection connection, Class<T> tClass) {
+    public <T> List<T> queryForAll(Session session, Class<T> tClass) {
         throw new UnsupportedOperationException("Not supported for batch execute");
     }
 
     @Override
-    public boolean refresh(DatabaseConnection databaseConnection, Object object) throws SQLException {
+    public boolean refresh(Session session, Object object) {
         throw new UnsupportedOperationException("Not supported for batch execute");
     }
 
     @Override
-    public void createIndexes(DatabaseConnection connection, Class<?> tClass) {
+    public void createIndexes(Session session, Class<?> tClass) {
         throw new UnsupportedOperationException("Not supported for batch execute");
     }
 
     @Override
-    public void dropIndexes(DatabaseConnection connection, Class<?> tClass) {
+    public void dropIndexes(Session session, Class<?> tClass) {
         throw new UnsupportedOperationException("Not supported for batch execute");
     }
 
     @Override
-    public long countOff(DatabaseConnection connection, Class<?> tClass) {
+    public long countOff(Session session, Class<?> tClass) {
         throw new UnsupportedOperationException("Not supported for batch execute");
     }
 
     @Override
-    public <T> List<T> list(DatabaseConnection connection, SelectStatement<T> selectStatement) {
+    public <T> List<T> list(Session session, SelectStatement<T> selectStatement) {
         throw new UnsupportedOperationException("Not supported for batch execute");
     }
 
     @Override
-    public long queryForLong(DatabaseConnection connection, SelectStatement<?> selectStatement) {
+    public long queryForLong(Session session, SelectStatement<?> selectStatement) {
         throw new UnsupportedOperationException("Not supported for batch execute");
     }
 
     @Override
-    public DatabaseResults query(DatabaseConnection databaseConnection, String query) {
+    public DatabaseResults query(Session session, String query) {
         throw new UnsupportedOperationException("Not supported for batch execute");
     }
 
@@ -227,8 +231,8 @@ public class BatchEntityLoader implements EntityLoader {
     }
 
     @Override
-    public int[] executeBatch(DatabaseConnection<?> databaseConnection) throws SQLException {
-        int[] batchResults = databaseEngine.executeBatch(databaseConnection, batchStatements);
+    public int[] executeBatch(Session session) throws SQLException {
+        int[] batchResults = databaseEngine.executeBatch(session.getConnection(), batchStatements);
 
         batchStatements.clear();
         try {
@@ -244,22 +248,8 @@ public class BatchEntityLoader implements EntityLoader {
         return batchResults;
     }
 
-    private void foreignAutoCreate(Object object, DatabaseEntityMetadata<?> entityMetadata) throws SQLException {
-        for (ForeignColumnType foreignColumnType : entityMetadata.toForeignColumnTypes()) {
-            Object foreignObject = foreignColumnType.access(object);
-
-            if (foreignObject != null && foreignColumnType.foreignAutoCreate()) {
-                session.create(foreignObject);
-            }
-        }
-        for (ForeignCollectionColumnType foreignCollectionColumnType : entityMetadata.toForeignCollectionColumnTypes()) {
-            if (foreignCollectionColumnType.foreignAutoCreate()) {
-                for (Object foreignObject : (Collection) foreignCollectionColumnType.access(object)) {
-                    foreignCollectionColumnType.getForeignColumnType().assign(foreignObject, object);
-
-                    session.create(foreignObject);
-                }
-            }
-        }
+    @Override
+    public int clearTable(Session session, Class<?> entityClass) {
+        throw new UnsupportedOperationException("Not supported for batch execute");
     }
 }

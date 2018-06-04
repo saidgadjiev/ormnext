@@ -9,6 +9,8 @@ import java.util.List;
 
 /**
  * This class represent attribute definition.
+ *
+ * @author said gadjiev
  * @see CreateTableQuery
  */
 public class AttributeDefinition implements QueryElement {
@@ -20,6 +22,7 @@ public class AttributeDefinition implements QueryElement {
 
     /**
      * Column type.
+     *
      * @see ru.saidgadjiev.ormnext.core.field.DataType
      */
     private final int dataType;
@@ -31,15 +34,17 @@ public class AttributeDefinition implements QueryElement {
 
     /**
      * Attribute constraints.
+     *
      * @see AttributeConstraint
      */
     private List<AttributeConstraint> attributeConstraints = new ArrayList<>();
 
     /**
      * Create a new instance.
+     *
      * @param columnName target column name.
-     * @param dataType target column type
-     * @param length target column lenght
+     * @param dataType   target column type
+     * @param length     target column lenght
      */
     public AttributeDefinition(String columnName, int dataType, int length) {
         this.columnName = columnName;
@@ -49,6 +54,7 @@ public class AttributeDefinition implements QueryElement {
 
     /**
      * Return current column name.
+     *
      * @return current column name
      */
     public String getName() {
@@ -57,6 +63,7 @@ public class AttributeDefinition implements QueryElement {
 
     /**
      * Return current column type.
+     *
      * @return current column type
      */
     public int getDataType() {
@@ -65,6 +72,7 @@ public class AttributeDefinition implements QueryElement {
 
     /**
      * Return current column length.
+     *
      * @return current column length
      */
     public int getLength() {
@@ -73,6 +81,7 @@ public class AttributeDefinition implements QueryElement {
 
     /**
      * Return current attribute constraints.
+     *
      * @return current attribute constraints
      */
     public List<AttributeConstraint> getAttributeConstraints() {

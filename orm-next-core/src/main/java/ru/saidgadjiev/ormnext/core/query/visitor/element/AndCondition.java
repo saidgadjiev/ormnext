@@ -10,6 +10,8 @@ import java.util.List;
 /**
  * This class represent conditions group eg. 'a' = 'test' and b = 2 or c = 3.
  * This example has two conditions group: 1) 'a' = 'test'; b = 2, 2) c = 3.
+ *
+ * @author said gadjiev
  */
 public class AndCondition implements Condition, QueryElement {
 

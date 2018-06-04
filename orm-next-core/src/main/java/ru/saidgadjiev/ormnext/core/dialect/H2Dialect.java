@@ -1,6 +1,9 @@
-package ru.saidgadjiev.ormnext.core.databasetype;
+package ru.saidgadjiev.ormnext.core.dialect;
 
-public class H2DatabaseType extends BaseDatabaseType {
+/**
+ * Dialect for h2 database.
+ */
+public class H2Dialect extends BaseDialect {
 
     @Override
     public String getPrimaryKeyDefinition(boolean generated) {

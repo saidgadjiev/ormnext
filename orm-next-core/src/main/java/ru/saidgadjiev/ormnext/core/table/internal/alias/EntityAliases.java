@@ -6,6 +6,8 @@ import java.util.Map;
 
 /**
  * Entity aliases.
+ *
+ * @author said gadjiev
  */
 public class EntityAliases {
 

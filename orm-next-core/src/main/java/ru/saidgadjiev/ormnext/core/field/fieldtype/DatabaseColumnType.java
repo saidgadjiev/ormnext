@@ -97,7 +97,15 @@ public final class DatabaseColumnType extends BaseDatabaseColumnType {
      */
     private List<ColumnConverter<?, Object>> columnConverters;
 
+    /**
+     * Unique.
+     */
     private boolean unique;
+
+    /**
+     * Define in create table.
+     */
+    private boolean defineInCreateTable;
 
     /**
      * Create a new instance only from {@link #build(Field)} method.
@@ -105,32 +113,32 @@ public final class DatabaseColumnType extends BaseDatabaseColumnType {
     private DatabaseColumnType() { }
 
     @Override
-    public String getDefaultDefinition() {
+    public String defaultDefinition() {
         return defaultDefinition;
     }
 
     @Override
-    public boolean isId() {
+    public boolean id() {
         return id;
     }
 
     @Override
-    public boolean isNotNull() {
+    public boolean notNull() {
         return notNull;
     }
 
     @Override
-    public boolean isGenerated() {
+    public boolean generated() {
         return generated;
     }
 
     @Override
-    public String getColumnName() {
+    public String columnName() {
         return columnName;
     }
 
     @Override
-    public int getDataType() {
+    public int dataType() {
         return dataType;
     }
 
@@ -140,7 +148,7 @@ public final class DatabaseColumnType extends BaseDatabaseColumnType {
     }
 
     @Override
-    public DataPersister getDataPersister() {
+    public DataPersister dataPersister() {
         return dataPersister;
     }
 
@@ -155,12 +163,12 @@ public final class DatabaseColumnType extends BaseDatabaseColumnType {
     }
 
     @Override
-    public int getLength() {
+    public int length() {
         return length;
     }
 
     @Override
-    public boolean isDatabaseColumnType() {
+    public boolean databaseColumnType() {
         return true;
     }
 
@@ -192,6 +200,11 @@ public final class DatabaseColumnType extends BaseDatabaseColumnType {
     @Override
     public boolean unique() {
         return unique;
+    }
+
+    @Override
+    public boolean defineInCreateTable() {
+        return defineInCreateTable;
     }
 
     /**
@@ -246,6 +259,7 @@ public final class DatabaseColumnType extends BaseDatabaseColumnType {
         columnType.updatable = databaseColumn.updatable();
         columnType.defaultIfNull = databaseColumn.defaultIfNull();
         columnType.unique = databaseColumn.unique();
+        columnType.defineInCreateTable = databaseColumn.defineInCreateTable();
 
         return columnType;
     }

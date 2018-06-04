@@ -4,6 +4,8 @@ import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 
 /**
  * Int literal.
+ *
+ * @author said gadjiev
  */
 public class IntLiteral implements Literal<Integer> {
 

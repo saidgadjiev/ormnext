@@ -1,9 +1,14 @@
 package ru.saidgadjiev.ormnext.core.dao;
 
 import ru.saidgadjiev.ormnext.core.cache.ObjectCache;
+import ru.saidgadjiev.ormnext.core.connection.source.ConnectionSource;
+import ru.saidgadjiev.ormnext.core.loader.CacheHelper;
+import ru.saidgadjiev.ormnext.core.loader.EntityLoader;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.MetaModel;
 
 import java.sql.SQLException;
+
+import static ru.saidgadjiev.ormnext.core.loader.EntityLoader.*;
 
 /**
  * The main contract here is the creation of {@link Session} instances.
@@ -14,8 +19,9 @@ import java.sql.SQLException;
 public interface SessionManager extends AutoCloseable {
 
     /**
-     * Open new session which obtain new {@link ru.saidgadjiev.ormnext.core.connectionsource.DatabaseConnection} from
-     * {@link ru.saidgadjiev.ormnext.core.connectionsource.ConnectionSource} as needed to perform requested work.
+     * Open new session which obtain new {@link ru.saidgadjiev.ormnext.core.connection.DatabaseConnection} from
+     * {@link ConnectionSource} as needed to perform requested work.
+     *
      * @return created session
      * @throws SQLException on any SQL problems
      * @see Session
@@ -24,6 +30,7 @@ public interface SessionManager extends AutoCloseable {
 
     /**
      * Return current meta model.
+     *
      * @return current entities meta model
      * @see MetaModel
      */
@@ -31,6 +38,7 @@ public interface SessionManager extends AutoCloseable {
 
     /**
      * Provide object cache.
+     *
      * @param objectCache target object cache
      * @see ObjectCache
      */
@@ -44,13 +52,31 @@ public interface SessionManager extends AutoCloseable {
 
     /**
      * Return current database engine.
+     *
      * @return current database engine
      * @see DatabaseEngine
      */
     DatabaseEngine getDatabaseEngine();
 
     /**
+     * Cache helper.
+     *
+     * @return current cache helper
+     * @see CacheHelper
+     */
+    CacheHelper cacheHelper();
+
+    /**
+     * Return entity loader associated with requested loader type {@link Loader}.
+     *
+     * @param loader target loader
+     * @return entity loader
+     */
+    EntityLoader loader(Loader loader);
+
+    /**
      * Close all resources in this {@link SessionManager}.
+     *
      * @throws SQLException on any SQL problems
      */
     void close() throws SQLException;

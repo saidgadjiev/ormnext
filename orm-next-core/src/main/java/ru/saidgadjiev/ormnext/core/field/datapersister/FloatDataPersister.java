@@ -1,9 +1,9 @@
 package ru.saidgadjiev.ormnext.core.field.datapersister;
 
-import ru.saidgadjiev.ormnext.core.connectionsource.DatabaseResults;
+import ru.saidgadjiev.ormnext.core.connection.DatabaseResults;
+import ru.saidgadjiev.ormnext.core.connection.OrmNextPreparedStatement;
 import ru.saidgadjiev.ormnext.core.field.DataType;
 
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
 
@@ -32,7 +32,7 @@ public class FloatDataPersister extends BaseDataPersister {
     }
 
     @Override
-    public void setNonNullObject(PreparedStatement preparedStatement, int index, Object value) throws SQLException {
+    public void setNonNullObject(OrmNextPreparedStatement preparedStatement, int index, Object value) throws SQLException {
         preparedStatement.setFloat(index, (Float) value);
     }
 }

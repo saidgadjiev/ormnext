@@ -15,7 +15,9 @@ import java.util.Arrays;
 import java.util.Optional;
 
 /**
- * Provide methods for create {@link IDatabaseColumnType} from field, .
+ * Provide methods for create {@link IDatabaseColumnType} from field.
+ *
+ * @author said gadjiev
  */
 public final class FieldTypeUtils {
 

@@ -85,9 +85,22 @@ public @interface DatabaseColumn {
 
     /**
      * True for set NULL instead of default definition value {@link #defaultDefinition}.
+     *
      * @return true for set NULL instead of default definition
      */
     boolean defaultIfNull() default true;
 
+    /**
+     * True if column should be unique.
+     *
+     * @return true if column should be unique
+     */
     boolean unique() default false;
+
+    /**
+     * If true column will be defined in create table.
+     *
+     * @return if true column will be defined in create table
+     */
+    boolean defineInCreateTable() default true;
 }

@@ -5,6 +5,8 @@ import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 
 /**
  * Attribute references constraint.
+ *
+ * @author said gadjiev
  */
 public class ReferencesConstraint implements AttributeConstraint {
 
@@ -18,14 +20,27 @@ public class ReferencesConstraint implements AttributeConstraint {
      */
     private final String columnName;
 
+    /**
+     * On delete action.
+     *
+     * @see ReferenceAction
+     */
     private final ReferenceAction onDelete;
 
+    /**
+     * On update action.
+     *
+     * @see ReferenceAction
+     */
     private final ReferenceAction onUpdate;
 
     /**
      * Create a new instance.
-     * @param tableName target table name
+     *
+     * @param tableName  target table name
      * @param columnName target column name
+     * @param onDelete   on delete action
+     * @param onUpdate   on update action
      */
     public ReferencesConstraint(String tableName,
                                 String columnName,
@@ -39,6 +54,7 @@ public class ReferencesConstraint implements AttributeConstraint {
 
     /**
      * Return current table name.
+     *
      * @return tableName
      */
     public String getTableName() {
@@ -47,16 +63,27 @@ public class ReferencesConstraint implements AttributeConstraint {
 
     /**
      * Return current column name.
+     *
      * @return columnName
      */
     public String getColumnName() {
         return columnName;
     }
 
+    /**
+     * Return on delete action.
+     *
+     * @return on delete action
+     */
     public ReferenceAction getOnDelete() {
         return onDelete;
     }
 
+    /**
+     * Return on update action.
+     *
+     * @return on update action
+     */
     public ReferenceAction getOnUpdate() {
         return onUpdate;
     }

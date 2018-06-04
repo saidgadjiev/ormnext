@@ -22,6 +22,8 @@ import java.util.*;
 
 /**
  * This visitor implementation use for create entity query space.
+ *
+ * @author said gadjiev
  */
 public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
 
@@ -158,7 +160,7 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
 
         if (collectionColumnType.getFetchType().equals(FetchType.EAGER)) {
             entityQuerySpace.appendCollectionJoin(
-                    ownerMetaData.getPrimaryKeyColumnType().getColumnName(),
+                    ownerMetaData.getPrimaryKeyColumnType().columnName(),
                     collectionColumnType,
                     ownerAliases,
                     foreignEntityAliases

@@ -70,10 +70,19 @@ public class ForeignColumnType extends BaseDatabaseColumnType implements IForeig
      */
     private FetchType fetchType;
 
+    /**
+     * References action on delete.
+     */
     private ReferenceAction onUpdate;
 
+    /**
+     * References action on update.
+     */
     private ReferenceAction onDelete;
 
+    /**
+     * Column type.
+     */
     private IDatabaseColumnType databaseColumnType;
 
     @Override
@@ -102,17 +111,17 @@ public class ForeignColumnType extends BaseDatabaseColumnType implements IForeig
 
     @Override
     public ColumnKey getColumnKey() {
-        return new ColumnKey(getTableName(), getColumnName());
+        return new ColumnKey(getTableName(), columnName());
     }
 
     @Override
-    public DataPersister getDataPersister() {
-        return foreignPrimaryKey.getDataPersister();
+    public DataPersister dataPersister() {
+        return foreignPrimaryKey.dataPersister();
     }
 
     @Override
-    public int getDataType() {
-        return foreignPrimaryKey.getDataType();
+    public int dataType() {
+        return foreignPrimaryKey.dataType();
     }
 
     /**
@@ -124,8 +133,24 @@ public class ForeignColumnType extends BaseDatabaseColumnType implements IForeig
         return foreignPrimaryKey;
     }
 
-    public IDatabaseColumnType getDatabaseColumnType() {
-        return databaseColumnType;
+    @Override
+    public String defaultDefinition() {
+        return databaseColumnType == null ? super.defaultDefinition() : databaseColumnType.defaultDefinition();
+    }
+
+    @Override
+    public boolean notNull() {
+        return databaseColumnType == null ? super.notNull() : databaseColumnType.notNull();
+    }
+
+    @Override
+    public boolean defaultIfNull() {
+        return databaseColumnType == null ? super.defaultIfNull() : databaseColumnType.defaultIfNull();
+    }
+
+    @Override
+    public boolean unique() {
+        return databaseColumnType == null ? super.unique() : databaseColumnType.unique();
     }
 
     @Override
@@ -139,7 +164,7 @@ public class ForeignColumnType extends BaseDatabaseColumnType implements IForeig
     }
 
     @Override
-    public String getColumnName() {
+    public String columnName() {
         if (columnName.endsWith(ID_SUFFIX)) {
             return columnName;
         }
@@ -154,11 +179,11 @@ public class ForeignColumnType extends BaseDatabaseColumnType implements IForeig
 
     @Override
     public String getForeignColumnName() {
-        return foreignPrimaryKey.getColumnName();
+        return foreignPrimaryKey.columnName();
     }
 
     @Override
-    public boolean isForeignColumnType() {
+    public boolean foreignColumnType() {
         return true;
     }
 
@@ -178,14 +203,31 @@ public class ForeignColumnType extends BaseDatabaseColumnType implements IForeig
     }
 
     @Override
+    public boolean defineInCreateTable() {
+        return databaseColumnType == null ? super.defineInCreateTable() : databaseColumnType.defineInCreateTable();
+    }
+
+    @Override
     public FetchType getFetchType() {
         return fetchType;
     }
 
+    /**
+     * On delete action.
+     *
+     * @return on delte action
+     * @see ReferenceAction
+     */
     public ReferenceAction getOnUpdate() {
         return onUpdate;
     }
 
+    /**
+     * On update action.
+     *
+     * @return on update action
+     * @see ReferenceAction
+     */
     public ReferenceAction getOnDelete() {
         return onDelete;
     }

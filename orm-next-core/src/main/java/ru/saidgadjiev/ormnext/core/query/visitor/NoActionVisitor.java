@@ -344,11 +344,6 @@ public class NoActionVisitor implements QueryVisitor {
     }
 
     @Override
-    public void visit(InsertValues insertValues) {
-
-    }
-
-    @Override
     public boolean visit(CountColumn countColumn) {
         return false;
     }

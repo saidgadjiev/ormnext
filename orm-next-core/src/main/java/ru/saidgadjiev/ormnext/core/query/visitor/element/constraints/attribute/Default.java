@@ -4,6 +4,8 @@ import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 
 /**
  * Attribute default constraint. It will be represented like this DEFAULT {@link Default#defaultDefinition}.
+ *
+ * @author said gadjiev
  */
 public class Default implements AttributeConstraint {
 

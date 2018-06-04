@@ -4,6 +4,8 @@ import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 
 /**
  * This class represent alias eg. 'test' as 'test1'.
+ *
+ * @author said gadjiev
  */
 public class Alias implements Operand {
 

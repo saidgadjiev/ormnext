@@ -6,6 +6,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Use for create unique alias for value.
+ *
+ * @author said gadjiev
  */
 public class AliasCreator {
 

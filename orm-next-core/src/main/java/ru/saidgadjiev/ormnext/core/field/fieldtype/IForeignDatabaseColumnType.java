@@ -11,10 +11,16 @@ import ru.saidgadjiev.ormnext.core.field.FetchType;
  */
 public interface IForeignDatabaseColumnType extends IDatabaseColumnType {
 
+    /**
+     * Is foreign auto create?
+     *
+     * @return true if foreign auto create
+     */
     boolean foreignAutoCreate();
 
     /**
      * Return fetch type.
+     *
      * @return fetch type
      * @see FetchType
      */
@@ -22,6 +28,7 @@ public interface IForeignDatabaseColumnType extends IDatabaseColumnType {
 
     /**
      * Return column key. It is a pair of table name + column name.
+     *
      * @return column key
      * @see ColumnKey
      */
@@ -29,12 +36,14 @@ public interface IForeignDatabaseColumnType extends IDatabaseColumnType {
 
     /**
      * Return foreign table name.
+     *
      * @return foreign table name
      */
     String getForeignTableName();
 
     /**
      * Return foreign column name.
+     *
      * @return foreign column name
      */
     String getForeignColumnName();

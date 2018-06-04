@@ -1,9 +1,7 @@
 package ru.saidgadjiev.ormnext.core.dao;
 
-import ru.saidgadjiev.ormnext.core.connectionsource.DatabaseConnection;
-import ru.saidgadjiev.ormnext.core.connectionsource.DatabaseResults;
-import ru.saidgadjiev.ormnext.core.connectionsource.DatabaseResultsImpl;
-import ru.saidgadjiev.ormnext.core.databasetype.DatabaseType;
+import ru.saidgadjiev.ormnext.core.connection.*;
+import ru.saidgadjiev.ormnext.core.dialect.Dialect;
 import ru.saidgadjiev.ormnext.core.field.DataPersisterManager;
 import ru.saidgadjiev.ormnext.core.field.datapersister.DataPersister;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.IDatabaseColumnType;
@@ -27,6 +25,9 @@ import java.util.Map;
  */
 public class DefaultDatabaseEngine implements DatabaseEngine<Connection> {
 
+    /**
+     * Logger.
+     */
     private static final Log LOG = LoggerFactory.getLogger(DefaultDatabaseEngine.class);
 
     /**
@@ -35,19 +36,19 @@ public class DefaultDatabaseEngine implements DatabaseEngine<Connection> {
     private static final int GENERATED_KEY_COLUMN_INDEX = 1;
 
     /**
-     * Database type.
+     * Database dialect.
      *
-     * @see DatabaseType
+     * @see Dialect
      */
-    private final DatabaseType databaseType;
+    private final Dialect dialect;
 
     /**
      * Create a new instance.
      *
-     * @param databaseType target database type
+     * @param dialect target database dialect
      */
-    public DefaultDatabaseEngine(DatabaseType databaseType) {
-        this.databaseType = databaseType;
+    public DefaultDatabaseEngine(Dialect dialect) {
+        this.dialect = dialect;
     }
 
     @Override
@@ -59,16 +60,18 @@ public class DefaultDatabaseEngine implements DatabaseEngine<Connection> {
         Connection connection = databaseConnection.getConnection();
 
         PreparedStatement preparedStatement = connection.prepareStatement(query);
+        OrmNextPreparedStatement ormNextPreparedStatement = new OrmNextPreparedStatementImpl(preparedStatement);
 
         try {
-            processArgs(preparedStatement, args);
+            processArgs(ormNextPreparedStatement, args);
+
             ResultSet resultSet = preparedStatement.executeQuery();
 
             return new DatabaseResultsImpl(resultSet) {
                 @Override
                 public void close() throws SQLException {
                     resultSet.close();
-                    preparedStatement.close();
+                    ormNextPreparedStatement.close();
                 }
             };
         } catch (SQLException ex) {
@@ -88,7 +91,8 @@ public class DefaultDatabaseEngine implements DatabaseEngine<Connection> {
         Connection connection = databaseConnection.getConnection();
 
         try (PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
-            processArgs(statement, args);
+            processArgs(new OrmNextPreparedStatementImpl(statement), args);
+
             int result = statement.executeUpdate();
 
             try (ResultSet resultSet = statement.getGeneratedKeys()) {
@@ -115,17 +119,21 @@ public class DefaultDatabaseEngine implements DatabaseEngine<Connection> {
         Iterator<GeneratedKey> generatedKeyIterator = generatedKeys.iterator();
 
         try (PreparedStatement statement = connection.prepareStatement(query)) {
+            OrmNextPreparedStatement ormNextPreparedStatement = new OrmNextPreparedStatementImpl(statement);
             int result = 0;
 
             for (Map<Integer, Argument> args : argList) {
-                processArgs(statement, args);
+                processArgs(ormNextPreparedStatement, args);
                 result += statement.executeUpdate();
 
                 try (ResultSet resultSet = statement.getGeneratedKeys()) {
                     ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
 
                     while (resultSet.next()) {
-                        generatedKeyIterator.next().set(readValue(resultSet, resultSetMetaData.getColumnType(GENERATED_KEY_COLUMN_INDEX)));
+                        generatedKeyIterator.next().set(readValue(
+                                resultSet,
+                                resultSetMetaData.getColumnType(GENERATED_KEY_COLUMN_INDEX)
+                        ));
                     }
                 }
             }
@@ -182,7 +190,7 @@ public class DefaultDatabaseEngine implements DatabaseEngine<Connection> {
         Connection originialConnection = databaseConnection.getConnection();
 
         try (PreparedStatement preparedQuery = originialConnection.prepareStatement(query)) {
-            processArgs(preparedQuery, args);
+            processArgs(new OrmNextPreparedStatementImpl(preparedQuery), args);
 
             return preparedQuery.executeUpdate();
         }
@@ -197,7 +205,7 @@ public class DefaultDatabaseEngine implements DatabaseEngine<Connection> {
         Connection originialConnection = databaseConnection.getConnection();
 
         try (PreparedStatement preparedQuery = originialConnection.prepareStatement(query)) {
-            processArgs(preparedQuery, args);
+            processArgs(new OrmNextPreparedStatementImpl(preparedQuery), args);
 
             return preparedQuery.executeUpdate();
         }
@@ -274,8 +282,8 @@ public class DefaultDatabaseEngine implements DatabaseEngine<Connection> {
     }
 
     @Override
-    public DatabaseType getDatabaseType() {
-        return databaseType;
+    public Dialect getDialect() {
+        return dialect;
     }
 
     /**
@@ -285,7 +293,7 @@ public class DefaultDatabaseEngine implements DatabaseEngine<Connection> {
      * @param args              target args
      * @throws SQLException on any SQL problems
      */
-    private void processArgs(PreparedStatement preparedStatement,
+    private void processArgs(OrmNextPreparedStatement preparedStatement,
                              Map<Integer, Argument> args) throws SQLException {
         for (Map.Entry<Integer, Argument> entry : args.entrySet()) {
             Argument argument = entry.getValue();
@@ -303,7 +311,7 @@ public class DefaultDatabaseEngine implements DatabaseEngine<Connection> {
      * @return sql query
      */
     private String getQuery(QueryElement queryElement) {
-        DefaultVisitor defaultVisitor = new DefaultVisitor(databaseType);
+        DefaultVisitor defaultVisitor = new DefaultVisitor(dialect);
 
         queryElement.accept(defaultVisitor);
 

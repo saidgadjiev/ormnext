@@ -5,6 +5,8 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.Operand;
 
 /**
  * Operand condition. It may be used for add aggregate function restriction eg. count(column_name) greater than 5.
+ *
+ * @author said gadjiev
  */
 public class OperandCondition implements Condition {
 

@@ -22,6 +22,8 @@ import static ru.saidgadjiev.ormnext.core.utils.DatabaseEntityMetadataUtils.reso
 /**
  * This class represent meta info entity class eg. holds entity class, resolved entity column types, table name.
  * It is immutable class.
+ *
+ * @author said gadjiev
  */
 public final class DatabaseEntityMetadata<T> implements EntityElement {
 
@@ -101,22 +103,22 @@ public final class DatabaseEntityMetadata<T> implements EntityElement {
         this.indexColumns = indexColumns;
         this.primaryKeyFieldType = columnTypes
                 .stream()
-                .filter(IDatabaseColumnType::isId)
+                .filter(IDatabaseColumnType::id)
                 .findAny()
                 .orElse(null);
         this.databaseColumnTypes = columnTypes
                 .stream()
-                .filter(IDatabaseColumnType::isDatabaseColumnType)
+                .filter(IDatabaseColumnType::databaseColumnType)
                 .map(idbFieldType -> (DatabaseColumnType) idbFieldType)
                 .collect(Collectors.toList());
         this.foreignColumnypes = columnTypes
                 .stream()
-                .filter(IDatabaseColumnType::isForeignColumnType)
+                .filter(IDatabaseColumnType::foreignColumnType)
                 .map(idbFieldType -> (ForeignColumnType) idbFieldType)
                 .collect(Collectors.toList());
         this.foreignCollectionColumnTypes = columnTypes
                 .stream()
-                .filter(IDatabaseColumnType::isForeignCollectionColumnType)
+                .filter(IDatabaseColumnType::foreignCollectionColumnType)
                 .map(idbFieldType -> (ForeignCollectionColumnType) idbFieldType)
                 .collect(Collectors.toList());
         this.uniqueColumns = uniqueColumns;

@@ -9,6 +9,8 @@ import java.util.List;
 
 /**
  * This implementation represent select column list or aggregate functions in select.
+ *
+ * @author said gadjiev
  */
 public class SelectColumnsList implements SelectColumnsStrategy {
 

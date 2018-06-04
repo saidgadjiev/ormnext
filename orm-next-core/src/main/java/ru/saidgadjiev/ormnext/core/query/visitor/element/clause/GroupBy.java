@@ -9,6 +9,8 @@ import java.util.List;
 
 /**
  * Represent group by clause.
+ *
+ * @author said gadjiev
  */
 public class GroupBy implements QueryElement {
 

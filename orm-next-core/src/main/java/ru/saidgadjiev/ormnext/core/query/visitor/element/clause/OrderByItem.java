@@ -10,6 +10,8 @@ import java.util.List;
 
 /**
  * This class represent order by item clause.
+ *
+ * @author said gadjiev
  */
 public class OrderByItem implements QueryElement {
 

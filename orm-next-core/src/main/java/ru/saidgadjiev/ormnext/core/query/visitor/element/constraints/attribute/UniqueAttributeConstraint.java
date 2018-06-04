@@ -1,13 +1,11 @@
 package ru.saidgadjiev.ormnext.core.query.visitor.element.constraints.attribute;
 
-import ru.saidgadjiev.ormnext.core.field.fieldtype.UniqueColumns;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
-import ru.saidgadjiev.ormnext.core.query.visitor.element.constraints.table.TableConstraint;
-
-import java.util.List;
 
 /**
  * Unique attribute constraint.
+ *
+ * @author said gadjiev
  */
 public class UniqueAttributeConstraint implements AttributeConstraint {
 

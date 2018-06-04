@@ -2,6 +2,8 @@ package ru.saidgadjiev.ormnext.core.table.internal.alias;
 
 /**
  * Collection entity aliases.
+ *
+ * @author said gadjiev
  */
 public class CollectionEntityAliases {
 
@@ -18,6 +20,11 @@ public class CollectionEntityAliases {
         this.collectionObjectKeyAlias = collectionObjectKeyAlias;
     }
 
+    /**
+     * Return collection object key alias.
+     *
+     * @return collection object key alias
+     */
     public String getCollectionObjectKeyAlias() {
         return collectionObjectKeyAlias;
     }

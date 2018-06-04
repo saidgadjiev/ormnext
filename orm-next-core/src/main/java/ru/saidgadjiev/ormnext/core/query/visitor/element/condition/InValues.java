@@ -9,6 +9,8 @@ import java.util.List;
 
 /**
  * This class represent in (value1, value2, ...) restriction.
+ *
+ * @author said gadjiev
  */
 public class InValues implements Condition {
 

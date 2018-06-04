@@ -5,6 +5,8 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.Operand;
 
 /**
  * This class represent is null restriction.
+ *
+ * @author said gadjiev
  */
 public class IsNull implements Condition {
 

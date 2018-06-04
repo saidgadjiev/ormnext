@@ -6,11 +6,14 @@ import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetada
 
 /**
  * Entity visitor. Represent visitor pattern.
+ *
+ * @author said gadjiev
  */
 public interface EntityMetadataVisitor {
 
     /**
      * Start visit {@link DatabaseEntityMetadata} element.
+     *
      * @param databaseEntityMetadata target metadata
      * @return true if need visit another visitor elements that contained in requested entity element else false
      */
@@ -18,24 +21,30 @@ public interface EntityMetadataVisitor {
 
     /**
      * Start visit {@link ForeignColumnType} element.
+     *
      * @param foreignColumnType target column type
+     * @return true if need visit finish method
      */
     boolean start(ForeignColumnType foreignColumnType);
 
     /**
      * Start visit {@link ForeignCollectionColumnType} element.
+     *
      * @param foreignCollectionColumnType target column type
+     * @return true if need visit finish method
      */
     boolean start(ForeignCollectionColumnType foreignCollectionColumnType);
 
     /**
      * Finish visit {@link ForeignColumnType} element.
+     *
      * @param foreignColumnType target column type
      */
     void finish(ForeignColumnType foreignColumnType);
 
     /**
      * Finish visit {@link ForeignCollectionColumnType} element.
+     *
      * @param foreignCollectionColumnType target column type
      */
     void finish(ForeignCollectionColumnType foreignCollectionColumnType);

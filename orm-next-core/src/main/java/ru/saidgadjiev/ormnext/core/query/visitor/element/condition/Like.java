@@ -5,6 +5,8 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.Operand;
 
 /**
  * This class represent like restriction.
+ *
+ * @author said gadjiev
  */
 public class Like implements Condition {
 

@@ -8,6 +8,8 @@ import java.util.List;
 
 /**
  * This class represent create index query.
+ *
+ * @author said gadjiev
  */
 public class CreateIndexQuery implements QueryElement {
 

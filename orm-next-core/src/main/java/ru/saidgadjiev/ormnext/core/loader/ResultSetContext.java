@@ -1,6 +1,6 @@
 package ru.saidgadjiev.ormnext.core.loader;
 
-import ru.saidgadjiev.ormnext.core.connectionsource.DatabaseResults;
+import ru.saidgadjiev.ormnext.core.connection.DatabaseResults;
 import ru.saidgadjiev.ormnext.core.dao.Session;
 import ru.saidgadjiev.ormnext.core.loader.rowreader.entityinitializer.ResultSetValue;
 
@@ -34,17 +34,27 @@ public class ResultSetContext {
      */
     private Map<String, Map<Object, EntityProcessingState>> processingStateMap = new HashMap<>();
 
+    /**
+     * Temporary object cache.
+     */
     private Map<Class<?>, Map<Object, Object>> cache = new HashMap<>();
+
+    /**
+     * Cache helper.
+     */
+    private final CacheHelper cacheHelper;
 
     /**
      * Create a new instance.
      *
      * @param session         target session
      * @param databaseResults target database results
+     * @param cacheHelper     target cache helper
      */
-    public ResultSetContext(Session session, DatabaseResults databaseResults) {
+    public ResultSetContext(Session session, DatabaseResults databaseResults, CacheHelper cacheHelper) {
         this.session = session;
         this.databaseResults = databaseResults;
+        this.cacheHelper = cacheHelper;
     }
 
     /**
@@ -115,6 +125,21 @@ public class ResultSetContext {
         return putted;
     }
 
+    /**
+     * Return cache helper.
+     *
+     * @return cache helper
+     */
+    public CacheHelper getCacheHelper() {
+        return cacheHelper;
+    }
+
+    /**
+     * Add new object to cache.
+     *
+     * @param id   target id
+     * @param data target object
+     */
     public void addEntry(Object id, Object data) {
         cache.putIfAbsent(data.getClass(), new HashMap<>());
         Map<Object, Object> objectCache = cache.get(data.getClass());
@@ -122,6 +147,13 @@ public class ResultSetContext {
         objectCache.put(id, data);
     }
 
+    /**
+     * Retrieve object from temporary cache {@link #cache}.
+     *
+     * @param tClass target object class
+     * @param id     target object id
+     * @return object from cache or else null if it not exist
+     */
     public Object getEntry(Class<?> tClass, Object id) {
         return cache.get(tClass).get(id);
     }
@@ -152,6 +184,9 @@ public class ResultSetContext {
          */
         private List<Object> collectionObjectIds = new ArrayList<>();
 
+        /**
+         * Entity key.
+         */
         private Object key;
 
         /**
@@ -226,10 +261,20 @@ public class ResultSetContext {
             return collectionObjectIds;
         }
 
+        /**
+         * Return entity key.
+         *
+         * @return entity key
+         */
         public Object getKey() {
             return key;
         }
 
+        /**
+         * Provide entity key.
+         *
+         * @param key target entity key
+         */
         public void setKey(Object key) {
             this.key = key;
         }

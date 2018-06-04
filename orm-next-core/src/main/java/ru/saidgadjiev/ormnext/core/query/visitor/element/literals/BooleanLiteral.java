@@ -4,6 +4,8 @@ import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 
 /**
  * Boolean literal.
+ *
+ * @author said gadjiev
  */
 public class BooleanLiteral implements Literal<Boolean> {
 

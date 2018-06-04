@@ -1,9 +1,8 @@
 package ru.saidgadjiev.ormnext.core.table.internal.persister;
 
-import ru.saidgadjiev.ormnext.core.connectionsource.DatabaseResults;
+import ru.saidgadjiev.ormnext.core.connection.DatabaseResults;
 import ru.saidgadjiev.ormnext.core.dao.Session;
 import ru.saidgadjiev.ormnext.core.dao.SessionManager;
-import ru.saidgadjiev.ormnext.core.loader.EntityLoader;
 import ru.saidgadjiev.ormnext.core.loader.ResultSetContext;
 import ru.saidgadjiev.ormnext.core.loader.object.OrmNextMethodHandler;
 import ru.saidgadjiev.ormnext.core.loader.rowreader.RowReader;
@@ -23,12 +22,12 @@ import ru.saidgadjiev.proxymaker.ProxyMaker;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Entity persister. Holds entity aliases and aliases for entity references.
+ *
+ * @author said gadjiev
  */
 public class DatabaseEntityPersister {
 
@@ -87,8 +86,6 @@ public class DatabaseEntityPersister {
      */
     private EntityQuerySpace entityQuerySpace;
 
-    private Map<EntityLoader.Loader, EntityLoader> registeredLoaders = new HashMap<>();
-
     /**
      * Create a new instance.
      *
@@ -113,7 +110,34 @@ public class DatabaseEntityPersister {
         rootEntityInitializer = new EntityInitializer(nextUID, entityAliases, this);
     }
 
-    private void initLoaders
+    /**
+     * Load entity object list from database results.
+     *
+     * @param <T>             target result object type
+     * @param session         target session
+     * @param databaseResults target database results
+     * @return object list
+     * @throws SQLException any SQL exceptions
+     */
+    public <T> List<RowResult<T>> load(Session session, DatabaseResults databaseResults) throws SQLException {
+        ResultSetContext resultSetContext = new ResultSetContext(
+                session,
+                databaseResults,
+                sessionManager.cacheHelper()
+        );
+        List<RowResult<T>> results = new ArrayList<>();
+
+        while (databaseResults.next()) {
+            RowResult<T> rowResult = (RowResult<T>) rowReader.startRead(resultSetContext);
+
+            if (rowResult.isNew()) {
+                results.add(rowResult);
+            }
+        }
+        rowReader.finishRead(resultSetContext);
+
+        return results;
+    }
 
     /**
      * Perssiter initialize method.
@@ -144,7 +168,7 @@ public class DatabaseEntityPersister {
      * {@link ru.saidgadjiev.ormnext.core.field.ForeignColumn}.
      *
      * @param entityClass target entity class
-     * @param id target entity id
+     * @param id          target entity id
      * @return new proxy object
      * @throws SQLException any SQL exceptions
      */
@@ -159,30 +183,8 @@ public class DatabaseEntityPersister {
     }
 
     /**
-     * Load entity object list from database results.
-     * @param session target session
-     * @param databaseResults target database results
-     * @return object list
-     * @throws SQLException any SQL exceptions
-     */
-    public List<RowResult<Object>> load(Session session, DatabaseResults databaseResults) throws SQLException {
-        ResultSetContext resultSetContext = new ResultSetContext(session, databaseResults);
-        List<RowResult<Object>> results = new ArrayList<>();
-
-        while (databaseResults.next()) {
-            RowResult<Object> rowResult = rowReader.startRead(resultSetContext);
-
-            if (rowResult.isNew()) {
-                results.add(rowResult);
-            }
-        }
-        rowReader.finishRead(resultSetContext);
-
-        return results;
-    }
-
-    /**
      * Return current entity metadata.
+     *
      * @return current metadata
      */
     public DatabaseEntityMetadata<?> getMetadata() {
@@ -191,6 +193,7 @@ public class DatabaseEntityPersister {
 
     /**
      * Create new entity class object.
+     *
      * @return new object
      */
     public Object instance() {
@@ -199,6 +202,7 @@ public class DatabaseEntityPersister {
 
     /**
      * Return current entity query space.
+     *
      * @return entity query space
      */
     public EntityQuerySpace getEntityQuerySpace() {

@@ -1,6 +1,6 @@
 package ru.saidgadjiev.ormnext.core.dao.transaction.state;
 
-import ru.saidgadjiev.ormnext.core.connectionsource.DatabaseConnection;
+import ru.saidgadjiev.ormnext.core.connection.DatabaseConnection;
 
 import java.sql.SQLException;
 

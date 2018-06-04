@@ -7,6 +7,8 @@ import java.util.Date;
 
 /**
  * Date literal.
+ *
+ * @author said gadjiev
  */
 public class DateLiteral implements Literal<Date> {
 

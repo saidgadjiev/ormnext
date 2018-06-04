@@ -5,7 +5,9 @@ import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.condition.Expression;
 
 /**
- * This class represent havig clause.
+ * This class represent having clause.
+ *
+ * @author said gadjiev
  */
 public class Having implements QueryElement {
 
