@@ -60,10 +60,10 @@ public interface DataPersister {
     SqlLiteral createLiteral(Object value);
 
     /**
-     * Cast requested value to persister type.
+     * Cast requested value to primary key type.
      *
      * @param value target value
-     * @return casted value
+     * @return converted value
      */
-    Object cast(Object value);
+    Object convertToPrimaryKey(Object value);
 }

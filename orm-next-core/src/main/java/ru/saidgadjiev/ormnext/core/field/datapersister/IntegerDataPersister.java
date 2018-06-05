@@ -37,7 +37,7 @@ public class IntegerDataPersister extends BaseDataPersister {
     }
 
     @Override
-    public Object cast(Object value) {
+    public Object convertToPrimaryKey(Object value) {
         return ((Number) value).intValue();
     }
 }

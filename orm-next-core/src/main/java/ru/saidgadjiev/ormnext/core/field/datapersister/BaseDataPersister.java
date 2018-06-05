@@ -62,7 +62,7 @@ public abstract class BaseDataPersister implements DataPersister {
     }
 
     @Override
-    public Object cast(Object value) {
+    public Object convertToPrimaryKey(Object value) {
         return value;
     }
 
