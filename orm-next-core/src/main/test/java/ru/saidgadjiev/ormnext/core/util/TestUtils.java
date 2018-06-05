@@ -18,7 +18,7 @@ public final class TestUtils {
 
         dataSource.setURL("jdbc:h2:mem:h2testdatabase");
         return new SessionManagerBuilder()
-                .entities(entityClasses).databaseType(new H2Dialect())
+                .entities(entityClasses).dialect(new H2Dialect())
                 .connectionSource(new DataSourceConnectionSource(dataSource))
                 .build();
     }

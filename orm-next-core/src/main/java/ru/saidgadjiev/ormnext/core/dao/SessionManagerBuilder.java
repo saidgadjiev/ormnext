@@ -75,7 +75,7 @@ public class SessionManagerBuilder {
      * @param dialect target database type
      * @return this for chain
      */
-    public SessionManagerBuilder databaseType(Dialect dialect) {
+    public SessionManagerBuilder dialect(Dialect dialect) {
         this.dialect = dialect;
 
         return this;
