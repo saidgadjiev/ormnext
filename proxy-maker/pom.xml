@@ -2,12 +2,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>ru.saidgadjiev</groupId>
-        <artifactId>orm-next</artifactId>
+        <artifactId>ormnext</artifactId>
         <version>1.2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>ru.saidgadjiev.orm-next</groupId>
+    <groupId>ru.saidgadjiev.ormnext</groupId>
     <artifactId>proxy-maker</artifactId>
     <name>proxy-maker</name>
 

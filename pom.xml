@@ -4,11 +4,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>ru.saidgadjiev</groupId>
-    <artifactId>orm-next</artifactId>
+    <artifactId>ormnext</artifactId>
     <packaging>pom</packaging>
     <version>1.2-SNAPSHOT</version>
 
-    <name>orm-next</name>
+    <name>ormnext</name>
     <description>OrmNext is a flexible, easy, lightweight orm library</description>
     <url>https://github.com/saidgadjiev/orm-next</url>
 
@@ -279,7 +279,7 @@
     </profiles>
 
     <modules>
-        <module>orm-next-core</module>
+        <module>ormnext-core</module>
         <module>proxy-maker</module>
     </modules>
 
