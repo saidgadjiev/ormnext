@@ -111,7 +111,7 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
 
     @Override
     public boolean start(ForeignColumnTypeImpl foreignColumnType) {
-        if (!visitedColumnTypes.add(foreignColumnType)) {
+        if (!visitedColumnTypes.add(foreignColumnType) && foreignColumnType.getFetchType().equals(FetchType.EAGER)) {
             LOGGER.debug("Detected circular references for " + foreignColumnType.getField());
 
             return false;
@@ -121,6 +121,7 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
         DatabaseEntityMetadata<?> foreignMetaData = metaModel.getPersister(
                 foreignColumnType.getForeignFieldClass()
         ).getMetadata();
+
         String nextUID = uidGenerator.nextUID();
         EntityAliases foreignEntityAliases = entityAliasResolverContext.resolveAliases(nextUID, foreignMetaData);
 
@@ -153,11 +154,12 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
         DatabaseEntityMetadata<?> foreignMetaData = metaModel.getPersister(
                 collectionColumnType.getCollectionObjectClass()
         ).getMetadata();
-        String nextUID = uidGenerator.nextUID();
-
-        EntityAliases foreignEntityAliases = entityAliasResolverContext.resolveAliases(nextUID, foreignMetaData);
 
         if (collectionColumnType.getFetchType().equals(FetchType.EAGER)) {
+            String nextUID = uidGenerator.nextUID();
+
+            EntityAliases foreignEntityAliases = entityAliasResolverContext.resolveAliases(nextUID, foreignMetaData);
+
             entityQuerySpace.appendCollectionJoin(
                     ownerMetaData.getPrimaryKeyColumnType().columnName(),
                     collectionColumnType,
@@ -170,26 +172,46 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
                     foreignEntityAliases,
                     metaModel.getPersister(foreignMetaData.getTableClass())
             ));
-        }
-        CollectionLoader collectionLoader = new CollectionLoader(
-                new CollectionQuerySpace(
-                        new CollectionEntityAliases(
-                                foreignEntityAliases.getKeyAlias(),
-                                foreignEntityAliases.getAliasByColumnName(collectionColumnType.getForeignColumnName())
-                        ),
-                        ownerMetaData.getPrimaryKeyColumnType(),
-                        collectionColumnType
-                )
-        );
+            CollectionLoader collectionLoader = new CollectionLoader(
+                    new CollectionQuerySpace(
+                            new CollectionEntityAliases(
+                                    foreignEntityAliases.getKeyAlias(),
+                                    foreignEntityAliases.getAliasByColumnName(
+                                            collectionColumnType.getForeignColumnName()
+                                    )
+                            ),
+                            ownerMetaData.getPrimaryKeyColumnType(),
+                            collectionColumnType
+                    )
+            );
 
-        collectionInitializers.add(
-                new CollectionInitializer(
-                        parentUidStack.peek(),
-                        collectionLoader
-                )
-        );
-        parentUidStack.push(nextUID);
-        foreignMetaData.accept(this);
+            collectionInitializers.add(
+                    new CollectionInitializer(
+                            parentUidStack.peek(),
+                            collectionLoader
+                    )
+            );
+            parentUidStack.push(nextUID);
+            foreignMetaData.accept(this);
+        } else {
+            CollectionLoader collectionLoader = new CollectionLoader(
+                    new CollectionQuerySpace(
+                            new CollectionEntityAliases(
+                                    ownerAliases.getKeyAlias(),
+                                    ownerAliases.getKeyAlias()
+                            ),
+                            ownerMetaData.getPrimaryKeyColumnType(),
+                            collectionColumnType
+                    )
+            );
+
+            collectionInitializers.add(
+                    new CollectionInitializer(
+                            parentUidStack.peek(),
+                            collectionLoader
+                    )
+            );
+        }
 
         return true;
     }

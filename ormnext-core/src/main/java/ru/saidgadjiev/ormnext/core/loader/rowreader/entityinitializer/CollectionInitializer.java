@@ -82,10 +82,9 @@ public class CollectionInitializer {
      * This method execute first phase operations.
      *
      * @param context current context
-     * @param id      collection owner id
      * @throws SQLException any SQL exceptions
      */
-    public void startRead(ResultSetContext context, Object id) throws SQLException {
+    public void startRead(ResultSetContext context) throws SQLException {
         Object collectionObjectId = collectionColumnDataPersister.readValue(
                 context.getDatabaseResults(),
                 aliases.getCollectionObjectKeyAlias()

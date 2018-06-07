@@ -265,4 +265,39 @@ public class SessionImplTest extends BaseCoreTest {
             Assert.assertEquals(resultBefore.getEntities(), foreignTestEntity.getEntities());
         }
     }
+
+    @Test
+    public void testLazyCollection() throws SQLException {
+        try (Session session = createSessionAndCreateTables(TestLazyCollection.class, TestLazy.class)) {
+            TestLazyCollection testLazyCollection = new TestLazyCollection();
+
+            session.create(testLazyCollection);
+            TestLazy testLazy = new TestLazy();
+
+            testLazy.setDesc("TestLazy");
+            testLazy.setTestLazyCollection(testLazyCollection);
+
+            session.create(testLazy);
+            testLazyCollection.getEntities().add(testLazy);
+            TestLazyCollection result = session.queryForId(TestLazyCollection.class, 1);
+            Assert.assertEquals(result.getEntities(), testLazyCollection.getEntities());
+        }
+    }
+
+    @Test
+    public void testLazyForeign() throws SQLException {
+        try (Session session = createSessionAndCreateTables(TestLazyCollection.class, TestLazyForeign.class)) {
+            TestLazyCollection testLazyCollection = new TestLazyCollection();
+
+            session.create(testLazyCollection);
+            TestLazyForeign testLazy = new TestLazyForeign();
+
+            testLazy.setDesc("TestLazy");
+            testLazy.setTestLazyCollection(testLazyCollection);
+
+            session.create(testLazy);
+            TestLazyForeign result = session.queryForId(TestLazyForeign.class, 1);
+            Assert.assertEquals(result, testLazy);
+        }
+    }
 }

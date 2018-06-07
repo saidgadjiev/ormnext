@@ -54,7 +54,7 @@ public class RowReaderImpl implements RowReader {
             entityInitializer.startRead(resultSetContext);
         }
         for (CollectionInitializer collectionInitializer: collectionInitializers) {
-            collectionInitializer.startRead(resultSetContext, readedId);
+            collectionInitializer.startRead(resultSetContext);
         }
         ResultSetContext.EntityProcessingState entityProcessingState = resultSetContext.getProcessingState(
                 rootEntityInitializer.getUid(),

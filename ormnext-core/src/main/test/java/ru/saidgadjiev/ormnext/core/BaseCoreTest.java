@@ -27,7 +27,11 @@ public class BaseCoreTest {
                 ForeignCollectionTestEntity.class,
                 WithDefaultTestEntity.class,
                 ForeignAutoCreateForeignColumnTestEntity.class,
-                ForeignAutoCreateForeignCollectionColumnTestEntity.class);
+                ForeignAutoCreateForeignCollectionColumnTestEntity.class,
+                TestLazyCollection.class,
+                TestLazy.class,
+                TestLazyForeign.class
+        );
     }
 
     @AfterClass
