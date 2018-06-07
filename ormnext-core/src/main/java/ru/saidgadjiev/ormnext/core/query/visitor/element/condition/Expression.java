@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * This class contains restriction groups separated by 'and' or 'or'.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class Expression implements Condition {
 

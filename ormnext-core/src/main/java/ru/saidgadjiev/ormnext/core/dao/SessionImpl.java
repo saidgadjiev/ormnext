@@ -17,7 +17,7 @@ import java.util.Map;
 /**
  * Concrete session implementation {@link Session}.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class SessionImpl implements Session, InternalTransaction {
 

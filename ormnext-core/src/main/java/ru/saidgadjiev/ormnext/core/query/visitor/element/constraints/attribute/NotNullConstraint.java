@@ -5,7 +5,7 @@ import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 /**
  * Attribute not null constraint.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class NotNullConstraint implements AttributeConstraint {
 

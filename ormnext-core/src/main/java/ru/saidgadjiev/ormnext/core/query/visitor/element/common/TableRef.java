@@ -7,7 +7,7 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.Alias;
 /**
  * This class represent table name.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class TableRef implements QueryElement {
 

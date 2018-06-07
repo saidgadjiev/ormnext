@@ -8,7 +8,7 @@ import java.lang.reflect.Constructor;
  * Check entity class has default constructor or not.
  * If not throw exception {@link DefaultConstructorNotFoundException}.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class HasDefaultConstructorValidator implements Validator {
 

@@ -7,7 +7,7 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.SelectQuery;
 /**
  * This class represent exists restriction.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class Exists implements Condition {
 

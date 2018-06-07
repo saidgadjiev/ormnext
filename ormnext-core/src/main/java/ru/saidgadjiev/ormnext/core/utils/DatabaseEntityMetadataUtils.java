@@ -1,8 +1,8 @@
 package ru.saidgadjiev.ormnext.core.utils;
 
 import ru.saidgadjiev.ormnext.core.field.DatabaseColumn;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.SimpleDatabaseColumnTypeImpl;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.DatabaseColumnType;
-import ru.saidgadjiev.ormnext.core.field.fieldtype.IDatabaseColumnType;
 import ru.saidgadjiev.ormnext.core.table.DatabaseEntity;
 
 import java.lang.reflect.Field;
@@ -14,7 +14,7 @@ import java.util.Optional;
 /**
  * Entity metadata utils.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public final class DatabaseEntityMetadataUtils {
 
@@ -33,10 +33,10 @@ public final class DatabaseEntityMetadataUtils {
      * @param entityClass entity class
      * @return optional primary key
      */
-    public static Optional<IDatabaseColumnType> resolvePrimaryKey(Class<?> entityClass) {
+    public static Optional<DatabaseColumnType> resolvePrimaryKey(Class<?> entityClass) {
         for (Field field : entityClass.getDeclaredFields()) {
             if (field.isAnnotationPresent(DatabaseColumn.class) && field.getAnnotation(DatabaseColumn.class).id()) {
-                return Optional.ofNullable(DatabaseColumnType.build(field));
+                return Optional.ofNullable(SimpleDatabaseColumnTypeImpl.build(field));
             }
         }
 
@@ -72,9 +72,9 @@ public final class DatabaseEntityMetadataUtils {
      * @param propertyName property name
      * @return optional column name
      */
-    public static Optional<String> getColumnNameByPropertyName(List<IDatabaseColumnType> columnTypes,
+    public static Optional<String> getColumnNameByPropertyName(List<DatabaseColumnType> columnTypes,
                                                                String propertyName) {
-        for (IDatabaseColumnType columnType : columnTypes) {
+        for (DatabaseColumnType columnType : columnTypes) {
             if (columnType.foreignCollectionColumnType()) {
                 continue;
             }
@@ -93,9 +93,9 @@ public final class DatabaseEntityMetadataUtils {
      * @param propertyName target property name
      * @return optional column type
      */
-    public static Optional<IDatabaseColumnType> getDataTypeByPropertyName(List<IDatabaseColumnType> columnTypes,
-                                                                          String propertyName) {
-        for (IDatabaseColumnType columnType : columnTypes) {
+    public static Optional<DatabaseColumnType> getDataTypeByPropertyName(List<DatabaseColumnType> columnTypes,
+                                                                         String propertyName) {
+        for (DatabaseColumnType columnType : columnTypes) {
             if (columnType.foreignCollectionColumnType()) {
                 continue;
             }

@@ -11,7 +11,7 @@ import java.util.Map;
 /**
  * Meta model.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class MetaModel {
 

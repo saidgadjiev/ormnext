@@ -6,7 +6,7 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.Operand;
 /**
  * This class use for prepared statement param '?' instead of r_value.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class Param implements RValue, Operand {
 

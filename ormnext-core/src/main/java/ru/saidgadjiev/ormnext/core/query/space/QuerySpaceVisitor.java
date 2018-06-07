@@ -12,7 +12,7 @@ import static ru.saidgadjiev.ormnext.core.utils.DatabaseEntityMetadataUtils.getC
 /**
  * Visitor for visit criteria statement. Use for replace property name by column name with aliases.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class QuerySpaceVisitor extends NoActionVisitor {
 

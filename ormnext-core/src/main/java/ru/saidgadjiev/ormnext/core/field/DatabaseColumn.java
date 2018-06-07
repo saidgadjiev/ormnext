@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 /**
  * Is used to specify a mapped column for a persistent property or field.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)

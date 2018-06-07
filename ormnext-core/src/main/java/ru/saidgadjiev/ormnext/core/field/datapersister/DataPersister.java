@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * Column data persister.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public interface DataPersister {
 

@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * Represent group by clause.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class GroupBy implements QueryElement {
 

@@ -9,7 +9,7 @@ import static ru.saidgadjiev.ormnext.core.field.DataType.*;
  * Base class for all of the {@link Dialect} classes that provide the per-database type functionality to create
  * tables and build queries.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public abstract class BaseDialect implements Dialect {
 

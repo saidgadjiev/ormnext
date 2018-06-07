@@ -3,7 +3,7 @@ package ru.saidgadjiev.ormnext.core.field;
 /**
  * Fetch type.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public enum FetchType {
 

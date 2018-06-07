@@ -6,7 +6,7 @@ import java.sql.*;
  * Database result set implementation for retrieve results from {@link ResultSet}.
  * It delegate close method.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public abstract class DatabaseResultsImpl implements DatabaseResults {
 

@@ -1,6 +1,6 @@
 package ru.saidgadjiev.ormnext.core.table.internal.alias;
 
-import ru.saidgadjiev.ormnext.core.field.fieldtype.IDatabaseColumnType;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.DatabaseColumnType;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetadata;
 
 import java.util.HashMap;
@@ -10,7 +10,7 @@ import java.util.Map;
 /**
  * Entity alias context.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class EntityAliasResolverContext {
 
@@ -37,7 +37,7 @@ public class EntityAliasResolverContext {
         Map<String, String> columnAliases = new LinkedHashMap<>();
         Map<String, String> propertyNameAliases = new HashMap<>();
 
-        for (IDatabaseColumnType columnType: entityMetadata.getColumnTypes()) {
+        for (DatabaseColumnType columnType: entityMetadata.getColumnTypes()) {
             if (columnType.foreignCollectionColumnType()) {
                 continue;
             }
@@ -49,7 +49,7 @@ public class EntityAliasResolverContext {
             columnAliases.put(columnType.columnName(), resolvedAlias);
             propertyNameAliases.put(columnType.getField().getName(), resolvedAlias);
         }
-        IDatabaseColumnType primaryKey = entityMetadata.getPrimaryKeyColumnType();
+        DatabaseColumnType primaryKey = entityMetadata.getPrimaryKeyColumnType();
         String keyAlias = aliasCreator.createAlias(primaryKey.columnName());
 
         columnAliases.put(primaryKey.columnName(), keyAlias);

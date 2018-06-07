@@ -10,7 +10,7 @@ import java.sql.SQLException;
  * First state maen transaction was prepared for begin.
  * Second state mean transaction was prepared for commit or rollback.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public interface TransactionState {
 

@@ -26,7 +26,7 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.literals.*;
  * I.e. a class that implements this interface can traverse the contents of
  * a Java class just by calling the `accept' method which all classes have.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  * @see QueryElement
  */
 public interface QueryVisitor {

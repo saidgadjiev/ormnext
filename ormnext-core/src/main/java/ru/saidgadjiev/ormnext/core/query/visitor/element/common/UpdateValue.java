@@ -7,7 +7,7 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.literals.RValue;
 /**
  * This class present update value eg. name = 'test'.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class UpdateValue implements QueryElement {
 

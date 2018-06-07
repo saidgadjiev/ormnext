@@ -1,7 +1,7 @@
 package ru.saidgadjiev.ormnext.core.query.space;
 
-import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignCollectionColumnType;
-import ru.saidgadjiev.ormnext.core.field.fieldtype.IDatabaseColumnType;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignCollectionColumnTypeImpl;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.DatabaseColumnType;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.Criteria;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.SelectStatement;
 import ru.saidgadjiev.ormnext.core.table.internal.alias.CollectionEntityAliases;
@@ -11,7 +11,7 @@ import static ru.saidgadjiev.ormnext.core.query.criteria.impl.Restrictions.eq;
 /**
  * Collection query space.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class CollectionQuerySpace {
 
@@ -23,15 +23,15 @@ public class CollectionQuerySpace {
 
     /**
      * Collection owner primary key.
-     * @see IDatabaseColumnType
+     * @see DatabaseColumnType
      */
-    private IDatabaseColumnType ownerPrimaryKey;
+    private DatabaseColumnType ownerPrimaryKey;
 
     /**
      * Target foreign collection type.
-     * @see ForeignCollectionColumnType
+     * @see ForeignCollectionColumnTypeImpl
      */
-    private final ForeignCollectionColumnType foreignCollectionColumnType;
+    private final ForeignCollectionColumnTypeImpl foreignCollectionColumnType;
 
     /**
      * SelectQuery collection items statement.
@@ -50,8 +50,8 @@ public class CollectionQuerySpace {
      * @param foreignCollectionColumnType target collection type
      */
     public CollectionQuerySpace(CollectionEntityAliases collectionEntityAliases,
-                                IDatabaseColumnType ownerPrimaryKey,
-                                ForeignCollectionColumnType foreignCollectionColumnType) {
+                                DatabaseColumnType ownerPrimaryKey,
+                                ForeignCollectionColumnTypeImpl foreignCollectionColumnType) {
         this.collectionEntityAliases = collectionEntityAliases;
         this.ownerPrimaryKey = ownerPrimaryKey;
         this.foreignCollectionColumnType = foreignCollectionColumnType;
@@ -88,7 +88,7 @@ public class CollectionQuerySpace {
      * Return collection column type.
      * @return collection column type
      */
-    public ForeignCollectionColumnType getForeignCollectionColumnType() {
+    public ForeignCollectionColumnTypeImpl getForeignCollectionColumnType() {
         return foreignCollectionColumnType;
     }
 
@@ -104,7 +104,7 @@ public class CollectionQuerySpace {
      * Return owner primary key.
      * @return owner primary key
      */
-    public IDatabaseColumnType getOwnerPrimaryKey() {
+    public DatabaseColumnType getOwnerPrimaryKey() {
         return ownerPrimaryKey;
     }
 }

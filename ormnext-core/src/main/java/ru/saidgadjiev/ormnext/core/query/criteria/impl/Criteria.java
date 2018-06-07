@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * This class represent restrictions container.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class Criteria {
 

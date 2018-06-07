@@ -6,7 +6,7 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.Operand;
 /**
  * This class represent less than or equals restriction.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class LessThanOrEquals implements Condition {
 

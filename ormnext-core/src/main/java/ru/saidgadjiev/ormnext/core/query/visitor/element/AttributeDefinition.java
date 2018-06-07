@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * This class represent attribute definition.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  * @see CreateTableQuery
  */
 public class AttributeDefinition implements QueryElement {

@@ -1,295 +1,168 @@
 package ru.saidgadjiev.ormnext.core.field.fieldtype;
 
-import ru.saidgadjiev.ormnext.core.exception.InstantiationException;
-import ru.saidgadjiev.ormnext.core.field.*;
 import ru.saidgadjiev.ormnext.core.field.datapersister.ColumnConverter;
 import ru.saidgadjiev.ormnext.core.field.datapersister.DataPersister;
-import ru.saidgadjiev.ormnext.core.table.internal.visitor.EntityMetadataVisitor;
-import ru.saidgadjiev.ormnext.core.utils.DatabaseEntityMetadataUtils;
+import ru.saidgadjiev.ormnext.core.table.internal.visitor.EntityElement;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 /**
- * This class represent simple database column annotated by {@link DatabaseColumn}.
+ * This interface represent database column type.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
-public final class DatabaseColumnType extends BaseDatabaseColumnType {
+public interface DatabaseColumnType extends EntityElement {
 
     /**
-     * Column name.
+     * Return default column definition. It will be append in create type eg. 'DEFAULT defaultDefinition'.
+     *
+     * @return current default definition
      */
-    private String columnName;
+    String defaultDefinition();
 
     /**
-     * Data type. It will be any integer value.
-     * @see DataType
+     * True if column is id.
+     *
+     * @return true if column is id
      */
-    private int dataType;
+    boolean id();
 
     /**
-     * Column field.
+     * True if column is not null.
+     *
+     * @return true if column is not null
      */
-    private Field field;
+    boolean notNull();
+
+    /**
+     * True if column is generated.
+     *
+     * @return true if column is generated
+     */
+    boolean generated();
+
+    /**
+     * Return column name.
+     *
+     * @return column name
+     */
+    String columnName();
+
+    /**
+     * Return column type.
+     *
+     * @return Return column type
+     */
+    int dataType();
+
+    /**
+     * Access to field by object and return field value.
+     *
+     * @param object target object
+     * @return field value
+     */
+    Object access(Object object);
+
+    /**
+     * Return data persister associated with this column.
+     *
+     * @return data persister
+     * @see DataPersister
+     */
+    DataPersister dataPersister();
+
+    /**
+     * Assign field to object with value.
+     *
+     * @param object target object
+     * @param value  target value
+     */
+    void assign(Object object, Object value);
+
+    /**
+     * Return field.
+     *
+     * @return field
+     */
+    Field getField();
 
     /**
      * Column length.
+     *
+     * @return column length
      */
-    private int length;
+    int length();
 
     /**
-     * Column data persister.
-     * @see DataPersister
+     * Column owner table name.
+     *
+     * @return owner table name
      */
-    private DataPersister dataPersister;
+    String getTableName();
 
     /**
-     * Helper for field access.
+     * Return field converters. ColumnConverter use for convert field value to sql value and sql to java value.
+     *
+     * @return current field converters
+     * @see ColumnConverter
      */
-    private FieldAccessor fieldAccessor;
+    Optional<List<ColumnConverter<?, Object>>> getColumnConverters();
 
     /**
-     * Not null.
+     * False for ignore in insert.
+     *
+     * @return insertable
      */
-    private boolean notNull;
+    boolean insertable();
 
     /**
-     * Is id.
+     * False for ignore in update.
+     *
+     * @return updatable
      */
-    private boolean id;
+    boolean updatable();
 
     /**
-     * Is generated.
+     * True for set NULL instead of default definition value.
+     *
+     * @return true for set NULL instead of default definition value
      */
-    private boolean generated;
+    boolean defaultIfNull();
 
     /**
-     * Default definition.
+     * Is unique?
+     *
+     * @return true if unique
      */
-    private String defaultDefinition;
+    boolean unique();
 
     /**
-     * This column owner table name.
+     * If true column will be defined in create table.
+     *
+     * @return if true column will be defined in create table
      */
-    private String tableName;
+    boolean defineInCreateTable();
 
     /**
-     * Is insertable.
+     * True if this instance {@link SimpleDatabaseColumnTypeImpl}.
+     *
+     * @return true if this instance {@link SimpleDatabaseColumnTypeImpl}
      */
-    private boolean insertable;
+    boolean databaseColumnType();
 
     /**
-     * Is updatable.
+     * True if this instance {@link ForeignColumnTypeImpl}.
+     *
+     * @return true if this instance {@link ForeignColumnTypeImpl}
      */
-    private boolean updatable;
+    boolean foreignColumnType();
 
     /**
-     * Default if null.
+     * True if this instance {@link ForeignCollectionColumnTypeImpl}.
+     *
+     * @return true if this instance {@link ForeignCollectionColumnTypeImpl}
      */
-    private boolean defaultIfNull;
-
-    /**
-     * Field column converters. It use for convert java to sql value and sql to java.
-     */
-    private List<ColumnConverter<?, Object>> columnConverters;
-
-    /**
-     * Unique.
-     */
-    private boolean unique;
-
-    /**
-     * Define in create table.
-     */
-    private boolean defineInCreateTable;
-
-    /**
-     * Create a new instance only from {@link #build(Field)} method.
-     */
-    private DatabaseColumnType() { }
-
-    @Override
-    public String defaultDefinition() {
-        return defaultDefinition;
-    }
-
-    @Override
-    public boolean id() {
-        return id;
-    }
-
-    @Override
-    public boolean notNull() {
-        return notNull;
-    }
-
-    @Override
-    public boolean generated() {
-        return generated;
-    }
-
-    @Override
-    public String columnName() {
-        return columnName;
-    }
-
-    @Override
-    public int dataType() {
-        return dataType;
-    }
-
-    @Override
-    public Object access(Object object) {
-        return fieldAccessor.access(object);
-    }
-
-    @Override
-    public DataPersister dataPersister() {
-        return dataPersister;
-    }
-
-    @Override
-    public void assign(Object object, Object value) {
-        fieldAccessor.assign(object, value);
-    }
-
-    @Override
-    public Field getField() {
-        return field;
-    }
-
-    @Override
-    public int length() {
-        return length;
-    }
-
-    @Override
-    public boolean databaseColumnType() {
-        return true;
-    }
-
-    @Override
-    public String getTableName() {
-        return tableName;
-    }
-
-    @Override
-    public Optional<List<ColumnConverter<?, Object>>> getColumnConverters() {
-        return Optional.ofNullable(columnConverters);
-    }
-
-    @Override
-    public boolean insertable() {
-        return insertable;
-    }
-
-    @Override
-    public boolean updatable() {
-        return updatable;
-    }
-
-    @Override
-    public boolean defaultIfNull() {
-        return defaultIfNull;
-    }
-
-    @Override
-    public boolean unique() {
-        return unique;
-    }
-
-    @Override
-    public boolean defineInCreateTable() {
-        return defineInCreateTable;
-    }
-
-    /**
-     * Method for build new instance by field.
-     * @param field target field
-     * @return new instance
-     */
-    public static DatabaseColumnType build(Field field) {
-        if (!field.isAnnotationPresent(DatabaseColumn.class)) {
-            return null;
-        }
-        DatabaseColumn databaseColumn = field.getAnnotation(DatabaseColumn.class);
-        DatabaseColumnType columnType = new DatabaseColumnType();
-
-        columnType.field = field;
-        columnType.columnName = databaseColumn.columnName().isEmpty()
-                ? field.getName().toLowerCase() : databaseColumn.columnName();
-        columnType.length = databaseColumn.length();
-        columnType.fieldAccessor = new FieldAccessor(field);
-
-        if (!field.isAnnotationPresent(ForeignColumn.class)) {
-            Integer dataType = databaseColumn.dataType();
-            DataPersister dataPersister = dataType.equals(DataType.UNKNOWN)
-                    ? DataPersisterManager.lookup(field.getType()) : DataPersisterManager.lookup(dataType);
-
-            columnType.tableName = DatabaseEntityMetadataUtils.resolveTableName(field.getDeclaringClass());
-            columnType.dataPersister = dataPersister;
-            columnType.dataType = dataType.equals(DataType.UNKNOWN) ? dataPersister.getDataType() : dataType;
-            String defaultDefinition = databaseColumn.defaultDefinition();
-
-            if (!defaultDefinition.isEmpty()) {
-                columnType.defaultDefinition = defaultDefinition;
-            }
-        }
-        if (field.isAnnotationPresent(ConverterGroup.class)) {
-            ConverterGroup converterGroupAnnotation = field.getAnnotation(ConverterGroup.class);
-
-            columnType.columnConverters = new ArrayList<>();
-            for (Converter converter : converterGroupAnnotation.converters()) {
-                columnType.columnConverters.add(toConverter(converter));
-            }
-        } else if (field.isAnnotationPresent(Converter.class)) {
-            Converter converterAnnotation = field.getAnnotation(Converter.class);
-
-            columnType.columnConverters = new ArrayList<>();
-            columnType.columnConverters.add(toConverter(converterAnnotation));
-        }
-        columnType.notNull = databaseColumn.notNull();
-        columnType.id = databaseColumn.id();
-        columnType.generated = databaseColumn.generated();
-        columnType.insertable = databaseColumn.insertable();
-        columnType.updatable = databaseColumn.updatable();
-        columnType.defaultIfNull = databaseColumn.defaultIfNull();
-        columnType.unique = databaseColumn.unique();
-        columnType.defineInCreateTable = databaseColumn.defineInCreateTable();
-
-        return columnType;
-    }
-
-    /**
-     * Make {@link ColumnConverter} from {@link Converter}.
-     * @param converter target converter annotation
-     * @return column converter instance which created from converter annotation
-     */
-    private static ColumnConverter<?, Object> toConverter(Converter converter) {
-        try {
-            List<Class<?>> parametrTypes = new ArrayList<>();
-
-            for (int i = 0; i < converter.args().length; ++i) {
-                parametrTypes.add(String.class);
-            }
-            Constructor<? extends ColumnConverter> constructor =
-                    converter.value().getDeclaredConstructor(parametrTypes.toArray(new Class[parametrTypes.size()]));
-
-            return constructor.newInstance(converter.args());
-        } catch (Exception ex) {
-            throw new InstantiationException(
-                    "Converter " + converter.value() + " instantiate exception. " + ex.getMessage(),
-                    converter.value(),
-                    ex
-            );
-        }
-    }
-
-    @Override
-    public void accept(EntityMetadataVisitor visitor) {
-    }
+    boolean foreignCollectionColumnType();
 }

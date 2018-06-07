@@ -8,7 +8,7 @@ import java.util.Optional;
 /**
  * Object instantiator by default constructor.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class ObjectInstantiator implements Instantiator {
 

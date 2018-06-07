@@ -8,7 +8,7 @@ import java.sql.Timestamp;
 /**
  * Provide method for retrieve results from database result set.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public interface DatabaseResults extends AutoCloseable {
 

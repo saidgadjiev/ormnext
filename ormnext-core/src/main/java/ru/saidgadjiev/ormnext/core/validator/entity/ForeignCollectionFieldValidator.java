@@ -9,7 +9,7 @@ import java.lang.reflect.Field;
 /**
  * Validate foreign collection field eg. check is foreign field defined.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class ForeignCollectionFieldValidator implements Validator {
 

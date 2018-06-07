@@ -3,7 +3,7 @@ package ru.saidgadjiev.ormnext.core.loader.rowreader.entityinitializer;
 /**
  * Value retrieved from result set.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class ResultSetValue {
 
@@ -44,5 +44,13 @@ public class ResultSetValue {
      */
     public boolean isWasNull() {
         return wasNull;
+    }
+
+    @Override
+    public String toString() {
+        return "ResultSetValue{"
+                + "value=" + value
+                + ", wasNull=" + wasNull
+                + '}';
     }
 }

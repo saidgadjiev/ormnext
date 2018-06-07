@@ -3,7 +3,7 @@ package ru.saidgadjiev.ormnext.core.table.internal.visitor;
 /**
  * Visitor element for visitor pattern.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public interface EntityElement {
 

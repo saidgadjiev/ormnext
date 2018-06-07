@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * This class represent UPDATE query.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class UpdateQuery implements SqlStatement {
 

@@ -6,7 +6,7 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.common.TableRef;
 /**
  * This class represent from clause from single table.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class FromTable implements FromExpression {
 

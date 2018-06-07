@@ -4,7 +4,7 @@ import ru.saidgadjiev.ormnext.core.connection.DatabaseResults;
 import ru.saidgadjiev.ormnext.core.dao.DatabaseEngine;
 import ru.saidgadjiev.ormnext.core.dao.Session;
 import ru.saidgadjiev.ormnext.core.dao.SessionManager;
-import ru.saidgadjiev.ormnext.core.field.fieldtype.IDatabaseColumnType;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.DatabaseColumnType;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.SelectStatement;
 import ru.saidgadjiev.ormnext.core.query.space.EntityQuerySpace;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.CreateQuery;
@@ -68,8 +68,8 @@ public class BatchEntityLoader implements EntityLoader {
     public int create(Session session, Object object) throws SQLException {
         DatabaseEntityPersister entityPersister = metaModel.getPersister(object.getClass());
 
-        IDatabaseColumnType primaryKeyType = entityPersister.getMetadata().getPrimaryKeyColumnType();
-        Map<IDatabaseColumnType, Argument> argumentMap = ejectForCreate(object, entityPersister.getMetadata());
+        DatabaseColumnType primaryKeyType = entityPersister.getMetadata().getPrimaryKeyColumnType();
+        Map<DatabaseColumnType, Argument> argumentMap = ejectForCreate(object, entityPersister.getMetadata());
         EntityQuerySpace entityQuerySpace = entityPersister.getEntityQuerySpace();
         CreateQuery createQuery = entityQuerySpace.getCreateQueryCompiledStatement(argumentMap);
 
@@ -91,10 +91,10 @@ public class BatchEntityLoader implements EntityLoader {
             return 0;
         }
         DatabaseEntityPersister entityPersister = metaModel.getPersister(objects.getClass());
-        IDatabaseColumnType primaryKeyType = entityPersister.getMetadata().getPrimaryKeyColumnType();
+        DatabaseColumnType primaryKeyType = entityPersister.getMetadata().getPrimaryKeyColumnType();
 
         for (Object object : objects) {
-            Map<IDatabaseColumnType, Argument> argumentMap = ejectForCreate(object, entityPersister.getMetadata());
+            Map<DatabaseColumnType, Argument> argumentMap = ejectForCreate(object, entityPersister.getMetadata());
             EntityQuerySpace entityQuerySpace = entityPersister.getEntityQuerySpace();
             CreateQuery createQuery = entityQuerySpace.getCreateQueryCompiledStatement(argumentMap);
 
@@ -126,7 +126,7 @@ public class BatchEntityLoader implements EntityLoader {
         DatabaseEntityPersister entityPersister = metaModel.getPersister(object.getClass());
         DatabaseEntityMetadata<?> entityMetadata = entityPersister.getMetadata();
 
-        Map<IDatabaseColumnType, Argument> arguments = ejectForUpdate(object, entityMetadata);
+        Map<DatabaseColumnType, Argument> arguments = ejectForUpdate(object, entityMetadata);
         Argument id = eject(object, entityMetadata.getPrimaryKeyColumnType());
 
         UpdateQuery updateQuery = entityPersister.getEntityQuerySpace().getUpdateByIdCompiledQuery(

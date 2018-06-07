@@ -5,7 +5,7 @@ import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 /**
  * String literal.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class StringLiteral implements Literal<String> {
 

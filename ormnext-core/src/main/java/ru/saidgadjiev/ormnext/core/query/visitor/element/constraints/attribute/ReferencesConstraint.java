@@ -6,7 +6,7 @@ import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 /**
  * Attribute references constraint.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class ReferencesConstraint implements AttributeConstraint {
 

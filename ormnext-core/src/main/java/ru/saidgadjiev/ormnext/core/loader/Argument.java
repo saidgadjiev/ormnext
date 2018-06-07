@@ -3,7 +3,7 @@ package ru.saidgadjiev.ormnext.core.loader;
 /**
  * Statement argument info.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class Argument {
 

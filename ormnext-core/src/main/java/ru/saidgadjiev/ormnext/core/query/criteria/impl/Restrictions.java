@@ -9,7 +9,7 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.literals.Param;
 /**
  * This class provide static functions for create restrictions.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public final class Restrictions {
 

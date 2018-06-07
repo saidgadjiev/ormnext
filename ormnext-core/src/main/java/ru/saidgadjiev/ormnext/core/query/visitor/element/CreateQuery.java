@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * This class represent INSERT query.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class CreateQuery implements SqlStatement {
 

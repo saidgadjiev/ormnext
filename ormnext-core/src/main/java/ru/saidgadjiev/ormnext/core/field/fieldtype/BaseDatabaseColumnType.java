@@ -8,9 +8,9 @@ import java.util.Optional;
 /**
  * Base class for database column types.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
-public abstract class BaseDatabaseColumnType implements IDatabaseColumnType {
+public abstract class BaseDatabaseColumnType implements DatabaseColumnType {
 
     @Override
     public String defaultDefinition() {

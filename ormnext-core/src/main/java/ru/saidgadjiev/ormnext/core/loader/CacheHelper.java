@@ -2,7 +2,7 @@ package ru.saidgadjiev.ormnext.core.loader;
 
 import ru.saidgadjiev.ormnext.core.cache.CacheHolder;
 import ru.saidgadjiev.ormnext.core.cache.ObjectCache;
-import ru.saidgadjiev.ormnext.core.field.fieldtype.IDatabaseColumnType;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.DatabaseColumnType;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.MetaModel;
 
 import java.util.Optional;
@@ -10,7 +10,7 @@ import java.util.Optional;
 /**
  * Cache helper.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class CacheHelper {
 
@@ -43,7 +43,7 @@ public class CacheHelper {
      */
     public void saveToCache(Object[] objects, Class<?> objectClass) {
         if (sessionFactoryCacheHolder.isCaching(objectClass)) {
-            IDatabaseColumnType primaryKeyColumnType = metaModel
+            DatabaseColumnType primaryKeyColumnType = metaModel
                     .getPersister(objectClass)
                     .getMetadata()
                     .getPrimaryKeyColumnType();
@@ -68,7 +68,7 @@ public class CacheHelper {
             if (id != null) {
                 objectCache.put(object.getClass(), id, object);
             } else {
-                IDatabaseColumnType primaryKeyColumnType = metaModel
+                DatabaseColumnType primaryKeyColumnType = metaModel
                         .getPersister(object.getClass())
                         .getMetadata()
                         .getPrimaryKeyColumnType();

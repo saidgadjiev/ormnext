@@ -3,7 +3,7 @@ package ru.saidgadjiev.ormnext.core.exception;
 /**
  * Exception will be thrown when property not found in type.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class PropertyNotFoundException extends RuntimeException {
 

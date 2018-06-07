@@ -11,7 +11,7 @@ import java.sql.SQLException;
  * temporary context {@link ResultSetContext} it is a first phase.
  * Then we set read values from first phase to entity object it is a second phase.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public interface RowReader {
 

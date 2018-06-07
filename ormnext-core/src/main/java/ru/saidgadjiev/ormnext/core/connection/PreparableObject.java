@@ -5,7 +5,7 @@ import java.sql.*;
 /**
  * Preparable object {@link ru.saidgadjiev.ormnext.core.field.datapersister.DataPersister#setObject}.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public interface PreparableObject {
 

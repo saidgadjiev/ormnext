@@ -6,7 +6,7 @@ import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 /**
  * Table foreign key constraint.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class ForeignKeyConstraint implements TableConstraint {
 

@@ -1,8 +1,8 @@
 package ru.saidgadjiev.ormnext.core.loader.rowreader.entityinitializer;
 
 import ru.saidgadjiev.ormnext.core.field.datapersister.ColumnConverter;
-import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignColumnType;
-import ru.saidgadjiev.ormnext.core.field.fieldtype.IDatabaseColumnType;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignColumnTypeImpl;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.DatabaseColumnType;
 import ru.saidgadjiev.ormnext.core.loader.ResultSetContext;
 import ru.saidgadjiev.ormnext.core.logger.Log;
 import ru.saidgadjiev.ormnext.core.logger.LoggerFactory;
@@ -23,7 +23,7 @@ import static ru.saidgadjiev.ormnext.core.loader.ResultSetContext.EntityProcessi
  * temporary context {@link ResultSetContext} it is a first phase.
  * Then we set read values from first phase to entity object it is a second phase.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class EntityInitializer {
 
@@ -72,7 +72,7 @@ public class EntityInitializer {
      * @throws SQLException any SQL exceptions
      */
     public Object startRead(ResultSetContext context) throws SQLException {
-        IDatabaseColumnType idColumnType = persister.getMetadata().getPrimaryKeyColumnType();
+        DatabaseColumnType idColumnType = persister.getMetadata().getPrimaryKeyColumnType();
         Object id = idColumnType.dataPersister().readValue(
                 context.getDatabaseResults(),
                 entityAliases.getKeyAlias()
@@ -96,7 +96,7 @@ public class EntityInitializer {
             entityInstance = processingState.getEntityInstance();
         }
         DatabaseEntityMetadata<?> entityMetadata = persister.getMetadata();
-        IDatabaseColumnType primaryKey = entityMetadata.getPrimaryKeyColumnType();
+        DatabaseColumnType primaryKey = entityMetadata.getPrimaryKeyColumnType();
 
         primaryKey.assign(entityInstance, id);
 
@@ -106,7 +106,7 @@ public class EntityInitializer {
         List<String> columnAliases = entityAliases.getColumnAliases();
         int i = 0;
 
-        for (IDatabaseColumnType columnType : entityMetadata.getColumnTypes()) {
+        for (DatabaseColumnType columnType : entityMetadata.getColumnTypes()) {
             if (columnType.foreignCollectionColumnType()) {
                 continue;
             }
@@ -155,7 +155,7 @@ public class EntityInitializer {
         List<ResultSetValue> values = processingState.getValues();
         int i = 0;
 
-        for (IDatabaseColumnType columnType : entityMetadata.getColumnTypes()) {
+        for (DatabaseColumnType columnType : entityMetadata.getColumnTypes()) {
             if (columnType.foreignCollectionColumnType()) {
                 continue;
             }
@@ -176,7 +176,7 @@ public class EntityInitializer {
                 columnType.assign(entityInstance, value);
             }
             if (columnType.foreignColumnType()) {
-                ForeignColumnType foreignColumnType = (ForeignColumnType) columnType;
+                ForeignColumnTypeImpl foreignColumnType = (ForeignColumnTypeImpl) columnType;
                 ResultSetValue resultSetValue = values.get(i++);
 
                 if (!resultSetValue.isWasNull()) {

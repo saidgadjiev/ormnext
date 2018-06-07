@@ -6,7 +6,7 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.Operand;
  * This is the abstract class for implement literal.
  *
  * @param <T> literal type
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public interface Literal<T> extends RValue, Operand {
 

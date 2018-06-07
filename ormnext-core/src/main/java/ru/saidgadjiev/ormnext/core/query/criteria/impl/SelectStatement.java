@@ -21,7 +21,7 @@ import java.util.Map;
  * This class represent select query.
  *
  * @param <T> entity type
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class SelectStatement<T> implements QueryElement {
 

@@ -7,7 +7,7 @@ import java.sql.SQLException;
 /**
  * This interface provide methods for work with transaction.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public interface Session extends AutoCloseable, Dao {
 

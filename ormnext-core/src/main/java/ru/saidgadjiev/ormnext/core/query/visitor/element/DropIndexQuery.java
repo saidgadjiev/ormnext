@@ -6,7 +6,7 @@ import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 /**
  * This class represent drop index query.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class DropIndexQuery implements QueryElement {
 

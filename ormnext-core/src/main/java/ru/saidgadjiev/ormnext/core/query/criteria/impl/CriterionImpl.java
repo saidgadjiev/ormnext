@@ -6,7 +6,7 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.condition.Condition;
 /**
  * Criterion implement.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class CriterionImpl implements Criterion {
 

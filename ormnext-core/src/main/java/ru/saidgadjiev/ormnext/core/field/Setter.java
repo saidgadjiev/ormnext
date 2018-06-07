@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
  * By default orm next thinks that the class is java bean, if you provide setter method
  * orm next use your provided method and don't try find java bean setter method.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)

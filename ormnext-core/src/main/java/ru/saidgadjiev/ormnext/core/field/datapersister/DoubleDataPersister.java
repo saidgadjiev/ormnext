@@ -10,7 +10,7 @@ import java.sql.Types;
 /**
  * Type that persists a double type.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class DoubleDataPersister extends BaseDataPersister {
 

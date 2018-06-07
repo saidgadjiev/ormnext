@@ -6,7 +6,7 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.condition.Expression;
 /**
  * This class represent sql MAX.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class MAX implements Function {
 

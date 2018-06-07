@@ -4,7 +4,7 @@ import ru.saidgadjiev.ormnext.core.connection.*;
 import ru.saidgadjiev.ormnext.core.dialect.Dialect;
 import ru.saidgadjiev.ormnext.core.field.DataPersisterManager;
 import ru.saidgadjiev.ormnext.core.field.datapersister.DataPersister;
-import ru.saidgadjiev.ormnext.core.field.fieldtype.IDatabaseColumnType;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.DatabaseColumnType;
 import ru.saidgadjiev.ormnext.core.loader.Argument;
 import ru.saidgadjiev.ormnext.core.loader.GeneratedKey;
 import ru.saidgadjiev.ormnext.core.logger.Log;
@@ -21,7 +21,7 @@ import java.util.Map;
 /**
  * Default database engine.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class DefaultDatabaseEngine implements DatabaseEngine<Connection> {
 
@@ -83,7 +83,7 @@ public class DefaultDatabaseEngine implements DatabaseEngine<Connection> {
     public int create(DatabaseConnection<Connection> databaseConnection,
                       CreateQuery createQuery,
                       Map<Integer, Argument> args,
-                      IDatabaseColumnType primaryKey,
+                      DatabaseColumnType primaryKey,
                       GeneratedKey generatedKey) throws SQLException {
         String query = getQuery(createQuery);
         LOG.debug("Create: " + query + " args: " + args);
@@ -110,7 +110,7 @@ public class DefaultDatabaseEngine implements DatabaseEngine<Connection> {
     public int create(DatabaseConnection<Connection> databaseConnection,
                       CreateQuery createQuery,
                       List<Map<Integer, Argument>> argList,
-                      IDatabaseColumnType primaryKey,
+                      DatabaseColumnType primaryKey,
                       List<GeneratedKey> generatedKeys) throws SQLException {
         String query = getQuery(createQuery);
         LOG.debug("Create: " + query + " args: " + argList);

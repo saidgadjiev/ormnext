@@ -7,7 +7,7 @@ import java.sql.SQLException;
 /**
  * Transaction began state.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class BeginnedState implements TransactionState {
 

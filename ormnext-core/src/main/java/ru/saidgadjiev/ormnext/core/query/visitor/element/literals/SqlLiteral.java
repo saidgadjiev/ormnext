@@ -5,7 +5,7 @@ import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 /**
  * Literal which value will be directly append to sql query.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class SqlLiteral implements Literal<String> {
 

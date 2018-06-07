@@ -1,9 +1,9 @@
 package ru.saidgadjiev.ormnext.core.query.space;
 
 import ru.saidgadjiev.ormnext.core.dialect.Dialect;
-import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignCollectionColumnType;
-import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignColumnType;
-import ru.saidgadjiev.ormnext.core.field.fieldtype.IDatabaseColumnType;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignCollectionColumnTypeImpl;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignColumnTypeImpl;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.DatabaseColumnType;
 import ru.saidgadjiev.ormnext.core.loader.Argument;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.SelectStatement;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.*;
@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
  * Query space for entity. It contains prepared join expression, resolved aliases and select columns list
  * and methods for create statements for different operations eg. select by id, select all...
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class EntityQuerySpace {
 
@@ -90,12 +90,12 @@ public class EntityQuerySpace {
      * @param ownerAliases      owner aliases
      * @param joinTableAliases  join table aliases
      */
-    public void appendJoin(ForeignColumnType foreignColumnType,
+    public void appendJoin(ForeignColumnTypeImpl foreignColumnType,
                            EntityAliases ownerAliases,
                            EntityAliases joinTableAliases) {
         Expression onExpression = new Expression();
         AndCondition andCondition = new AndCondition();
-        IDatabaseColumnType foreignPrimaryKeyType = foreignColumnType.getForeignPrimaryKey();
+        DatabaseColumnType foreignPrimaryKeyType = foreignColumnType.getForeignPrimaryKey();
 
         andCondition.add(
                 new Equals(
@@ -121,7 +121,7 @@ public class EntityQuerySpace {
      * @param joinTableAliases            join table aliases
      */
     public void appendCollectionJoin(String ownerPrimaryKeyColumnName,
-                                     ForeignCollectionColumnType foreignCollectionColumnType,
+                                     ForeignCollectionColumnTypeImpl foreignCollectionColumnType,
                                      EntityAliases ownerAliases,
                                      EntityAliases joinTableAliases) {
         Expression onExpression = new Expression();
@@ -152,11 +152,11 @@ public class EntityQuerySpace {
      * @param databaseEntityMetadata table meta data
      */
     public void appendSelectColumns(EntityAliases aliases, DatabaseEntityMetadata<?> databaseEntityMetadata) {
-        List<IDatabaseColumnType> columnTypes = databaseEntityMetadata.getColumnTypes();
+        List<DatabaseColumnType> columnTypes = databaseEntityMetadata.getColumnTypes();
         List<String> columnAliases = aliases.getColumnAliases();
 
         for (int i = 0, a = 0; i < columnTypes.size(); ++i) {
-            IDatabaseColumnType columnType = columnTypes.get(i);
+            DatabaseColumnType columnType = columnTypes.get(i);
 
             if (columnTypes.get(i).id()) {
                 appendDisplayedColumn(columnType.columnName(), aliases.getTableAlias(), aliases.getKeyAlias());
@@ -228,10 +228,10 @@ public class EntityQuerySpace {
      * @param resultColumnTypes result columns in statement
      * @return create statement
      */
-    public CreateQuery getCreatedQuery(Collection<IDatabaseColumnType> resultColumnTypes) {
+    public CreateQuery getCreatedQuery(Collection<DatabaseColumnType> resultColumnTypes) {
         CreateQuery createQuery = new CreateQuery(rootEntityMetaData.getTableName());
 
-        for (IDatabaseColumnType columnType : resultColumnTypes) {
+        for (DatabaseColumnType columnType : resultColumnTypes) {
             if (columnType.id() && columnType.generated()) {
                 continue;
             }
@@ -250,11 +250,11 @@ public class EntityQuerySpace {
      * @param argumentMap target argument map
      * @return compiled insert statement
      */
-    public CreateQuery getCreateQueryCompiledStatement(Map<IDatabaseColumnType, Argument> argumentMap) {
+    public CreateQuery getCreateQueryCompiledStatement(Map<DatabaseColumnType, Argument> argumentMap) {
         CreateQuery createQuery = new CreateQuery(rootEntityMetaData.getTableName());
 
-        for (Map.Entry<IDatabaseColumnType, Argument> entry : argumentMap.entrySet()) {
-            IDatabaseColumnType columnType = entry.getKey();
+        for (Map.Entry<DatabaseColumnType, Argument> entry : argumentMap.entrySet()) {
+            DatabaseColumnType columnType = entry.getKey();
 
             createQuery.add(
                     new UpdateValue(
@@ -282,7 +282,7 @@ public class EntityQuerySpace {
                 attributeDefinitions
         );
 
-        for (IDatabaseColumnType columnType : rootEntityMetaData.getColumnTypes()) {
+        for (DatabaseColumnType columnType : rootEntityMetaData.getColumnTypes()) {
             if (columnType.foreignCollectionColumnType() || !columnType.defineInCreateTable()) {
                 continue;
             }
@@ -305,7 +305,7 @@ public class EntityQuerySpace {
                 attributeDefinition.getAttributeConstraints().add(new UniqueAttributeConstraint());
             }
             if (columnType.foreignColumnType()) {
-                ForeignColumnType foreignColumnType = (ForeignColumnType) columnType;
+                ForeignColumnTypeImpl foreignColumnType = (ForeignColumnTypeImpl) columnType;
 
                 if (!dialect.supportTableForeignConstraint()) {
                     attributeDefinition.getAttributeConstraints().add(
@@ -361,12 +361,12 @@ public class EntityQuerySpace {
      * @param id          target object id argument
      * @return update statement
      */
-    public UpdateQuery getUpdateByIdCompiledQuery(Map<IDatabaseColumnType, Argument> argumentMap,
+    public UpdateQuery getUpdateByIdCompiledQuery(Map<DatabaseColumnType, Argument> argumentMap,
                                                   Argument id) {
         UpdateQuery updateQuery = new UpdateQuery(rootEntityMetaData.getTableName());
 
-        for (Map.Entry<IDatabaseColumnType, Argument> entry : argumentMap.entrySet()) {
-            IDatabaseColumnType columnType = entry.getKey();
+        for (Map.Entry<DatabaseColumnType, Argument> entry : argumentMap.entrySet()) {
+            DatabaseColumnType columnType = entry.getKey();
 
             updateQuery.add(
                     new UpdateValue(
@@ -374,7 +374,7 @@ public class EntityQuerySpace {
                             columnType.dataPersister().createLiteral(entry.getValue().getValue()))
             );
         }
-        IDatabaseColumnType primaryKeyType = rootEntityMetaData.getPrimaryKeyColumnType();
+        DatabaseColumnType primaryKeyType = rootEntityMetaData.getPrimaryKeyColumnType();
         AndCondition andCondition = new AndCondition();
         ColumnSpec idColumnSpec = new ColumnSpec(
                 primaryKeyType.columnName(),
@@ -393,10 +393,10 @@ public class EntityQuerySpace {
      * @param updateColumnTypes update columns
      * @return update statement
      */
-    public UpdateQuery getUpdateByIdQuery(Collection<IDatabaseColumnType> updateColumnTypes) {
+    public UpdateQuery getUpdateByIdQuery(Collection<DatabaseColumnType> updateColumnTypes) {
         UpdateQuery updateQuery = new UpdateQuery(rootEntityMetaData.getTableName());
 
-        for (IDatabaseColumnType fieldType : updateColumnTypes) {
+        for (DatabaseColumnType fieldType : updateColumnTypes) {
             updateQuery.add(
                     new UpdateValue(
                             fieldType.columnName(),
@@ -451,7 +451,7 @@ public class EntityQuerySpace {
      */
     public DeleteQuery getDeleteByIdCompiledQuery(Argument id) {
         DeleteQuery deleteQuery = new DeleteQuery(rootEntityMetaData.getTableName());
-        IDatabaseColumnType columnType = rootEntityMetaData.getPrimaryKeyColumnType();
+        DatabaseColumnType columnType = rootEntityMetaData.getPrimaryKeyColumnType();
         AndCondition andCondition = new AndCondition();
         ColumnSpec idColumnSpec = new ColumnSpec(
                 rootEntityMetaData.getPrimaryKeyColumnType().columnName(),

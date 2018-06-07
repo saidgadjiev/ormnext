@@ -6,7 +6,7 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.ColumnSpec;
 /**
  * This class has static method for create order by item.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public final class Order {
 

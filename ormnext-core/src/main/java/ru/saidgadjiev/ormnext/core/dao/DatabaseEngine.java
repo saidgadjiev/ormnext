@@ -3,7 +3,7 @@ package ru.saidgadjiev.ormnext.core.dao;
 import ru.saidgadjiev.ormnext.core.connection.DatabaseConnection;
 import ru.saidgadjiev.ormnext.core.connection.DatabaseResults;
 import ru.saidgadjiev.ormnext.core.dialect.Dialect;
-import ru.saidgadjiev.ormnext.core.field.fieldtype.IDatabaseColumnType;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.DatabaseColumnType;
 import ru.saidgadjiev.ormnext.core.loader.Argument;
 import ru.saidgadjiev.ormnext.core.loader.GeneratedKey;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.*;
@@ -18,7 +18,7 @@ import java.util.Map;
  * It must be use for execute statements.
  *
  * @param <T> connection type
- * @author said gadjiev
+ * @author Said Gadjiev
  * @see ru.saidgadjiev.ormnext.core.loader.DefaultEntityLoader
  */
 public interface DatabaseEngine<T> {
@@ -49,7 +49,7 @@ public interface DatabaseEngine<T> {
     int create(DatabaseConnection<T> databaseConnection,
                CreateQuery createQuery,
                Map<Integer, Argument> args,
-               IDatabaseColumnType primaryKey,
+               DatabaseColumnType primaryKey,
                GeneratedKey generatedKey) throws SQLException;
 
     /**
@@ -66,7 +66,7 @@ public interface DatabaseEngine<T> {
     int create(DatabaseConnection<Connection> databaseConnection,
                CreateQuery createQuery,
                List<Map<Integer, Argument>> argList,
-               IDatabaseColumnType primaryKey,
+               DatabaseColumnType primaryKey,
                List<GeneratedKey> generatedKeys) throws SQLException;
 
     /**

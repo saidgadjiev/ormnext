@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * This class represent create index query.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class CreateIndexQuery implements QueryElement {
 

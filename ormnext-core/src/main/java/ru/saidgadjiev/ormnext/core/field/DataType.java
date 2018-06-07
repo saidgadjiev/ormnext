@@ -6,7 +6,7 @@ import ru.saidgadjiev.ormnext.core.field.datapersister.BooleanDataPersister;
  * This class holds default orm next data types.
  * You can add new data type or override default types with associate any integer and register persister for him.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  * @see DataPersisterManager
  * @see ru.saidgadjiev.ormnext.core.field.datapersister.DataPersister
  */

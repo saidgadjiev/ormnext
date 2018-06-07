@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * This class represent not in (value1, value2, ...) restriction.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class NotInValues implements Condition {
 

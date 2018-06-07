@@ -6,7 +6,7 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.ColumnSpec;
 /**
  * This class represent sql COUNT(column_name).
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class CountColumn implements Function {
 

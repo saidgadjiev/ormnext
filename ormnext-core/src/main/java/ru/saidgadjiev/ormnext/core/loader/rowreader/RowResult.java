@@ -4,7 +4,7 @@ package ru.saidgadjiev.ormnext.core.loader.rowreader;
  * Read database row result.
  *
  * @param <T> result type
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class RowResult<T> {
 

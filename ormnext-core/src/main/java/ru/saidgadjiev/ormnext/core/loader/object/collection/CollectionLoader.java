@@ -2,7 +2,7 @@ package ru.saidgadjiev.ormnext.core.loader.object.collection;
 
 import ru.saidgadjiev.ormnext.core.dao.Session;
 import ru.saidgadjiev.ormnext.core.field.datapersister.DataPersister;
-import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignCollectionColumnType;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignCollectionColumnTypeImpl;
 import ru.saidgadjiev.ormnext.core.query.space.CollectionQuerySpace;
 import ru.saidgadjiev.ormnext.core.table.internal.alias.CollectionEntityAliases;
 
@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * Collection loader.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class CollectionLoader {
 
@@ -56,7 +56,7 @@ public class CollectionLoader {
      * Return current collection column type.
      * @return current collection column type
      */
-    public ForeignCollectionColumnType getGoreignCollectionColumnType() {
+    public ForeignCollectionColumnTypeImpl getGoreignCollectionColumnType() {
         return collectionQuerySpace.getForeignCollectionColumnType();
     }
 
@@ -72,7 +72,7 @@ public class CollectionLoader {
      * Return owner primary key persister.
      * @return owner primary key persister
      */
-    public DataPersister getOwnerPrimaryKeyPersister() {
+    public DataPersister getCollectionColumnPersister() {
         return collectionQuerySpace.getOwnerPrimaryKey().dataPersister();
     }
 }

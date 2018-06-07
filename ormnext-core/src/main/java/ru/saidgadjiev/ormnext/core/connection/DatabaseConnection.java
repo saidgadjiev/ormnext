@@ -6,7 +6,7 @@ import java.sql.SQLException;
  * Database connection.
  *
  * @param <T> connection type
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public abstract class DatabaseConnection<T> {
 

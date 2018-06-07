@@ -5,7 +5,7 @@ import ru.saidgadjiev.ormnext.core.query.visitor.QueryElement;
 /**
  * This interface use for implement select expression.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public interface SelectColumnsStrategy extends QueryElement {
 }

@@ -10,7 +10,7 @@ import java.sql.Types;
 /**
  * Type that persists a integer type.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class IntegerDataPersister extends BaseDataPersister {
 

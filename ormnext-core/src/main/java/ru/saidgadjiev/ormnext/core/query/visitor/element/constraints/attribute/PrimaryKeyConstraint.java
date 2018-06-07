@@ -5,7 +5,7 @@ import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 /**
  * Attribute primary key constraint.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class PrimaryKeyConstraint implements AttributeConstraint {
 

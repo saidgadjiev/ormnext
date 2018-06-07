@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @param <ID> id type
  * @param <T>  value type
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class ReferenceObjectCache<ID, T> implements ObjectCache<ID, T> {
 

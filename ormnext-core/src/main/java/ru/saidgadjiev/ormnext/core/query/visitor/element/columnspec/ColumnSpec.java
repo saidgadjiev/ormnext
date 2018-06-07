@@ -7,7 +7,7 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.Operand;
 /**
  * This class represent column in select except in select column list.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class ColumnSpec implements Operand {
 

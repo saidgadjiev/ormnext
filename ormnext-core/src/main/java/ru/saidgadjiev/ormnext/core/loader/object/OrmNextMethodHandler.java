@@ -12,7 +12,7 @@ import java.lang.reflect.Method;
  * This implementation {@link MethodHandler}
  * use for lazy fetch for {@link ru.saidgadjiev.ormnext.core.field.ForeignColumn}.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class OrmNextMethodHandler implements MethodHandler {
 

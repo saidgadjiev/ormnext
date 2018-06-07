@@ -7,7 +7,7 @@ import java.sql.SQLException;
  *
  * @param <S> sql value type
  * @param <J> java value type
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public interface ColumnConverter<S, J> {
 

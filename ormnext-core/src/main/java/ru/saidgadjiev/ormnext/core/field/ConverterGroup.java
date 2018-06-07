@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 /**
  * Converter groups.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)

@@ -10,7 +10,7 @@ import java.util.Map;
 /**
  * The definition of the Database Access Objects that handle the reading and writing a class from a database.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public interface Dao {
 

@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Unique uid generator.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class UIDGenerator {
 

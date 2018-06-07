@@ -14,7 +14,7 @@ import static ru.saidgadjiev.ormnext.core.loader.EntityLoader.*;
  * The main contract here is the creation of {@link Session} instances.
  * Usually an application has one instance of {@link SessionManager}.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public interface SessionManager extends AutoCloseable {
 

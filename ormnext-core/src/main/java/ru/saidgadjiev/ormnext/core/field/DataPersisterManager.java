@@ -10,7 +10,7 @@ import java.util.Map;
  * Data persister manager. Holds data persister associated with data type.
  * Contain methods for resolve data persister by class or data type.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public final class DataPersisterManager {
 

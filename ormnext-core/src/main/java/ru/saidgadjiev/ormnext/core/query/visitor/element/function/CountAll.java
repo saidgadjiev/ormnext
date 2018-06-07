@@ -5,7 +5,7 @@ import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 /**
  * This class COUNT(*).
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class CountAll implements Function {
 

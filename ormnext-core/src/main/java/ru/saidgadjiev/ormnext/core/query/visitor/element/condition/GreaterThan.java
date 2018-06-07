@@ -6,7 +6,7 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.Operand;
 /**
  * This class represent greater than restriction.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class GreaterThan implements Condition {
 

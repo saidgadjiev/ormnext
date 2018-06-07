@@ -3,7 +3,7 @@ package ru.saidgadjiev.ormnext.core.validator.entity;
 /**
  * Database entity validator.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class EntityValidator implements Validator {
 

@@ -1,8 +1,8 @@
 package ru.saidgadjiev.ormnext.core.utils;
 
 import ru.saidgadjiev.ormnext.core.field.datapersister.ColumnConverter;
-import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignColumnType;
-import ru.saidgadjiev.ormnext.core.field.fieldtype.IDatabaseColumnType;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignColumnTypeImpl;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.DatabaseColumnType;
 import ru.saidgadjiev.ormnext.core.loader.Argument;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetadata;
 
@@ -13,7 +13,7 @@ import java.util.Map;
 /**
  * Util class for operation with arguments.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public final class ArgumentUtils {
 
@@ -31,12 +31,12 @@ public final class ArgumentUtils {
      * @return retrieved arguments
      * @throws SQLException any exceptions
      */
-    public static Map<IDatabaseColumnType, Argument> ejectForCreate(Object object,
-                                                                    DatabaseEntityMetadata<?> databaseEntityMetadata
+    public static Map<DatabaseColumnType, Argument> ejectForCreate(Object object,
+                                                                   DatabaseEntityMetadata<?> databaseEntityMetadata
     ) throws SQLException {
-        Map<IDatabaseColumnType, Argument> args = new LinkedHashMap<>();
+        Map<DatabaseColumnType, Argument> args = new LinkedHashMap<>();
 
-        for (IDatabaseColumnType columnType : databaseEntityMetadata.getColumnTypes()) {
+        for (DatabaseColumnType columnType : databaseEntityMetadata.getColumnTypes()) {
             if (columnType.foreignCollectionColumnType()) {
                 continue;
             }
@@ -54,7 +54,7 @@ public final class ArgumentUtils {
                     }
                 }
             } else {
-                IDatabaseColumnType foreignPrimaryKeyType = ((ForeignColumnType) columnType).getForeignPrimaryKey();
+                DatabaseColumnType foreignPrimaryKeyType = ((ForeignColumnTypeImpl) columnType).getForeignPrimaryKey();
 
                 args.put(columnType, eject(value, foreignPrimaryKeyType));
             }
@@ -71,12 +71,12 @@ public final class ArgumentUtils {
      * @return retrieved arguments
      * @throws SQLException any exceptions
      */
-    public static Map<IDatabaseColumnType, Argument> ejectForUpdate(Object object,
-                                                                    DatabaseEntityMetadata<?> databaseEntityMetadata
+    public static Map<DatabaseColumnType, Argument> ejectForUpdate(Object object,
+                                                                   DatabaseEntityMetadata<?> databaseEntityMetadata
     ) throws SQLException {
-        Map<IDatabaseColumnType, Argument> args = new LinkedHashMap<>();
+        Map<DatabaseColumnType, Argument> args = new LinkedHashMap<>();
 
-        for (IDatabaseColumnType columnType : databaseEntityMetadata.getColumnTypes()) {
+        for (DatabaseColumnType columnType : databaseEntityMetadata.getColumnTypes()) {
             if (columnType.foreignCollectionColumnType()) {
                 continue;
             }
@@ -94,7 +94,7 @@ public final class ArgumentUtils {
                     }
                 }
             } else {
-                IDatabaseColumnType foreignPrimaryKeyType = ((ForeignColumnType) columnType).getForeignPrimaryKey();
+                DatabaseColumnType foreignPrimaryKeyType = ((ForeignColumnTypeImpl) columnType).getForeignPrimaryKey();
 
                 args.put(columnType, eject(value, foreignPrimaryKeyType));
             }
@@ -111,7 +111,7 @@ public final class ArgumentUtils {
      * @return argument
      * @throws SQLException any exceptions
      */
-    public static Argument eject(Object object, IDatabaseColumnType databaseColumnType) throws SQLException {
+    public static Argument eject(Object object, DatabaseColumnType databaseColumnType) throws SQLException {
         if (object == null) {
             return new Argument(databaseColumnType.dataType(), null);
         }
@@ -123,14 +123,14 @@ public final class ArgumentUtils {
 
     /**
      * Convert java value to SQL with converters in requested column type
-     * {@link IDatabaseColumnType#getColumnConverters()}.
+     * {@link DatabaseColumnType#getColumnConverters()}.
      *
      * @param javaValue          target java value
      * @param databaseColumnType column type
      * @return argument with sql value
      * @throws SQLException any exceptions
      */
-    public static Argument processConvertersToSqlValue(Object javaValue, IDatabaseColumnType databaseColumnType)
+    public static Argument processConvertersToSqlValue(Object javaValue, DatabaseColumnType databaseColumnType)
             throws SQLException {
         if (javaValue == null) {
             return new Argument(databaseColumnType.dataType(), null);

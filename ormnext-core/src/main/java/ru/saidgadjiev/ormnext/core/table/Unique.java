@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 /**
  * Annotation for define unique constraint.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

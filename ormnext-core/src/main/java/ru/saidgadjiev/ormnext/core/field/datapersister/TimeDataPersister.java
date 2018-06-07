@@ -12,7 +12,7 @@ import java.util.Date;
 /**
  * Type that persists a time type.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class TimeDataPersister extends BaseDataPersister {
 

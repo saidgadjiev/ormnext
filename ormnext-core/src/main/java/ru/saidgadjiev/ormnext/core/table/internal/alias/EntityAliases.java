@@ -7,7 +7,7 @@ import java.util.Map;
 /**
  * Entity aliases.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class EntityAliases {
 

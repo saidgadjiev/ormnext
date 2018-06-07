@@ -8,7 +8,7 @@ import java.util.Set;
  * Lazy set.
  *
  * @param <T> value type
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class LazySet<T> extends AbstractLazyCollection<T> implements Set<T> {
 

@@ -5,7 +5,7 @@ import java.lang.reflect.Field;
 /**
  * Exception will be thrown if foreign field not found for foreign collection field in foreign table.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class ForeignFieldForForeignCollectionNotFoundException extends RuntimeException {
 

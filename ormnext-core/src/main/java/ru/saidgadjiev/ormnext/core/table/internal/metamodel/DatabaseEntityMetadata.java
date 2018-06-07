@@ -23,7 +23,7 @@ import static ru.saidgadjiev.ormnext.core.utils.DatabaseEntityMetadataUtils.reso
  * This class represent meta info entity class eg. holds entity class, resolved entity column types, table name.
  * It is immutable class.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public final class DatabaseEntityMetadata<T> implements EntityElement {
 
@@ -35,23 +35,23 @@ public final class DatabaseEntityMetadata<T> implements EntityElement {
     /**
      * Resolved database column types.
      *
-     * @see DatabaseColumnType
+     * @see SimpleDatabaseColumnTypeImpl
      */
-    private List<DatabaseColumnType> databaseColumnTypes;
+    private List<SimpleDatabaseColumnTypeImpl> databaseColumnTypes;
 
     /**
      * Resolved foreign column types.
      *
-     * @see ForeignColumnType
+     * @see ForeignColumnTypeImpl
      */
-    private List<ForeignColumnType> foreignColumnypes;
+    private List<ForeignColumnTypeImpl> foreignColumnypes;
 
     /**
      * Resolved foreign collection column types.
      *
-     * @see ForeignCollectionColumnType
+     * @see ForeignCollectionColumnTypeImpl
      */
-    private List<ForeignCollectionColumnType> foreignCollectionColumnTypes;
+    private List<ForeignCollectionColumnTypeImpl> foreignCollectionColumnTypes;
 
     /**
      * Resolved unique columns.
@@ -70,14 +70,14 @@ public final class DatabaseEntityMetadata<T> implements EntityElement {
     /**
      * All resolved column types together.
      *
-     * @see IDatabaseColumnType
+     * @see DatabaseColumnType
      */
-    private List<IDatabaseColumnType> fieldTypes;
+    private List<DatabaseColumnType> fieldTypes;
 
     /**
      * Resolved primary key type.
      */
-    private IDatabaseColumnType primaryKeyFieldType;
+    private DatabaseColumnType primaryKeyFieldType;
 
     /**
      * Table name.
@@ -97,29 +97,29 @@ public final class DatabaseEntityMetadata<T> implements EntityElement {
                                    List<UniqueColumns> uniqueColumns,
                                    List<IndexColumns> indexColumns,
                                    String tableName,
-                                   List<IDatabaseColumnType> columnTypes) {
+                                   List<DatabaseColumnType> columnTypes) {
         this.tableClass = tableClass;
         this.tableName = tableName;
         this.indexColumns = indexColumns;
         this.primaryKeyFieldType = columnTypes
                 .stream()
-                .filter(IDatabaseColumnType::id)
+                .filter(DatabaseColumnType::id)
                 .findAny()
                 .orElse(null);
         this.databaseColumnTypes = columnTypes
                 .stream()
-                .filter(IDatabaseColumnType::databaseColumnType)
-                .map(idbFieldType -> (DatabaseColumnType) idbFieldType)
+                .filter(DatabaseColumnType::databaseColumnType)
+                .map(idbFieldType -> (SimpleDatabaseColumnTypeImpl) idbFieldType)
                 .collect(Collectors.toList());
         this.foreignColumnypes = columnTypes
                 .stream()
-                .filter(IDatabaseColumnType::foreignColumnType)
-                .map(idbFieldType -> (ForeignColumnType) idbFieldType)
+                .filter(DatabaseColumnType::foreignColumnType)
+                .map(idbFieldType -> (ForeignColumnTypeImpl) idbFieldType)
                 .collect(Collectors.toList());
         this.foreignCollectionColumnTypes = columnTypes
                 .stream()
-                .filter(IDatabaseColumnType::foreignCollectionColumnType)
-                .map(idbFieldType -> (ForeignCollectionColumnType) idbFieldType)
+                .filter(DatabaseColumnType::foreignCollectionColumnType)
+                .map(idbFieldType -> (ForeignCollectionColumnTypeImpl) idbFieldType)
                 .collect(Collectors.toList());
         this.uniqueColumns = uniqueColumns;
         this.fieldTypes = columnTypes;
@@ -148,7 +148,7 @@ public final class DatabaseEntityMetadata<T> implements EntityElement {
      *
      * @return primary key column type
      */
-    public IDatabaseColumnType getPrimaryKeyColumnType() {
+    public DatabaseColumnType getPrimaryKeyColumnType() {
         return primaryKeyFieldType;
     }
 
@@ -157,7 +157,7 @@ public final class DatabaseEntityMetadata<T> implements EntityElement {
      *
      * @return resolved database column types
      */
-    public List<DatabaseColumnType> toDatabaseColumnTypes() {
+    public List<SimpleDatabaseColumnTypeImpl> toDatabaseColumnTypes() {
         return Collections.unmodifiableList(databaseColumnTypes);
     }
 
@@ -166,7 +166,7 @@ public final class DatabaseEntityMetadata<T> implements EntityElement {
      *
      * @return resolved foreign column types
      */
-    public List<ForeignColumnType> toForeignColumnTypes() {
+    public List<ForeignColumnTypeImpl> toForeignColumnTypes() {
         return Collections.unmodifiableList(foreignColumnypes);
     }
 
@@ -175,7 +175,7 @@ public final class DatabaseEntityMetadata<T> implements EntityElement {
      *
      * @return resolved foreign collection column types
      */
-    public List<ForeignCollectionColumnType> toForeignCollectionColumnTypes() {
+    public List<ForeignCollectionColumnTypeImpl> toForeignCollectionColumnTypes() {
         return Collections.unmodifiableList(foreignCollectionColumnTypes);
     }
 
@@ -184,7 +184,7 @@ public final class DatabaseEntityMetadata<T> implements EntityElement {
      *
      * @return all resolved column types
      */
-    public List<IDatabaseColumnType> getColumnTypes() {
+    public List<DatabaseColumnType> getColumnTypes() {
         return Collections.unmodifiableList(fieldTypes);
     }
 
@@ -217,7 +217,7 @@ public final class DatabaseEntityMetadata<T> implements EntityElement {
         new EntityValidator().validate(clazz);
         String tableName = resolveTableName(clazz);
 
-        List<IDatabaseColumnType> fieldTypes = new ArrayList<>();
+        List<DatabaseColumnType> fieldTypes = new ArrayList<>();
         for (Field field : clazz.getDeclaredFields()) {
             FieldTypeUtils.create(field).ifPresent(fieldTypes::add);
         }
@@ -239,7 +239,7 @@ public final class DatabaseEntityMetadata<T> implements EntityElement {
      * @param <T>         entity class type
      * @return resolved unique columns
      */
-    private static <T> List<UniqueColumns> resolveUniques(List<IDatabaseColumnType> columnTypes, Class<T> tClass) {
+    private static <T> List<UniqueColumns> resolveUniques(List<DatabaseColumnType> columnTypes, Class<T> tClass) {
         List<UniqueColumns> uniqueColumns = new ArrayList<>();
         if (tClass.isAnnotationPresent(DatabaseEntity.class)) {
             Unique[] uniques = tClass.getAnnotation(DatabaseEntity.class).uniqueConstraints();
@@ -261,7 +261,7 @@ public final class DatabaseEntityMetadata<T> implements EntityElement {
      * @param <T>         entity class type
      * @return resolved index columns
      */
-    private static <T> List<IndexColumns> resolveIndexes(List<IDatabaseColumnType> columnTypes,
+    private static <T> List<IndexColumns> resolveIndexes(List<DatabaseColumnType> columnTypes,
                                                          String tableName,
                                                          Class<T> tClass) {
         List<IndexColumns> uniqueFieldTypes = new ArrayList<>();
@@ -295,7 +295,7 @@ public final class DatabaseEntityMetadata<T> implements EntityElement {
      * @param clazz       entity class
      * @return resolved index columns
      */
-    private static List<String> validateIndex(List<IDatabaseColumnType> columnTypes, Index index, Class<?> clazz) {
+    private static List<String> validateIndex(List<DatabaseColumnType> columnTypes, Index index, Class<?> clazz) {
         List<String> columns = new ArrayList<>();
 
         for (String propertyName : index.columns()) {
@@ -317,7 +317,7 @@ public final class DatabaseEntityMetadata<T> implements EntityElement {
      * @param clazz       entity class
      * @return resolved unique columns
      */
-    private static List<String> validateUnique(List<IDatabaseColumnType> columnTypes, Unique unique, Class<?> clazz) {
+    private static List<String> validateUnique(List<DatabaseColumnType> columnTypes, Unique unique, Class<?> clazz) {
         List<String> columns = new ArrayList<>();
 
         for (String propertyName : unique.columns()) {
@@ -331,7 +331,7 @@ public final class DatabaseEntityMetadata<T> implements EntityElement {
     @Override
     public void accept(EntityMetadataVisitor visitor) {
         if (visitor.start(this)) {
-            for (IDatabaseColumnType columnType : fieldTypes) {
+            for (DatabaseColumnType columnType : fieldTypes) {
                 columnType.accept(visitor);
             }
         }

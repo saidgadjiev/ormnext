@@ -11,7 +11,7 @@ import java.util.Date;
 /**
  * Type that persists a date type.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class DateDataPersister extends BaseDataPersister {
 

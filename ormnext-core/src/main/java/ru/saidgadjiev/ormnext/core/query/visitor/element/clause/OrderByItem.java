@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * This class represent order by item clause.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class OrderByItem implements QueryElement {
 

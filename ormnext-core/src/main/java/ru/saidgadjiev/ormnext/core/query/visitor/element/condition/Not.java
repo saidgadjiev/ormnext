@@ -5,7 +5,7 @@ import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 /**
  * This class represent not restriction.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class Not implements Condition {
 

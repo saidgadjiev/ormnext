@@ -3,10 +3,10 @@ package ru.saidgadjiev.ormnext.core.utils;
 import ru.saidgadjiev.ormnext.core.field.DatabaseColumn;
 import ru.saidgadjiev.ormnext.core.field.ForeignCollectionField;
 import ru.saidgadjiev.ormnext.core.field.ForeignColumn;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.SimpleDatabaseColumnTypeImpl;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignCollectionColumnTypeImpl;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignColumnTypeImpl;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.DatabaseColumnType;
-import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignCollectionColumnType;
-import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignColumnType;
-import ru.saidgadjiev.ormnext.core.field.fieldtype.IDatabaseColumnType;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -15,9 +15,9 @@ import java.util.Arrays;
 import java.util.Optional;
 
 /**
- * Provide methods for create {@link IDatabaseColumnType} from field.
+ * Provide methods for create {@link DatabaseColumnType} from field.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public final class FieldTypeUtils {
 
@@ -27,17 +27,17 @@ public final class FieldTypeUtils {
     private FieldTypeUtils() { }
 
     /**
-     * Create one of the {@link IDatabaseColumnType} implementations from field.
+     * Create one of the {@link DatabaseColumnType} implementations from field.
      * @param field target field
      * @return database column type
      */
-    public static Optional<IDatabaseColumnType> create(Field field) {
+    public static Optional<DatabaseColumnType> create(Field field) {
         if (field.isAnnotationPresent(DatabaseColumn.class)) {
-            return Optional.ofNullable(DatabaseColumnType.build(field));
+            return Optional.ofNullable(SimpleDatabaseColumnTypeImpl.build(field));
         } else if (field.isAnnotationPresent(ForeignCollectionField.class)) {
-            return Optional.ofNullable(ForeignCollectionColumnType.build(field));
+            return Optional.ofNullable(ForeignCollectionColumnTypeImpl.build(field));
         } else if (field.isAnnotationPresent(ForeignColumn.class)) {
-            return Optional.ofNullable(ForeignColumnType.build(field));
+            return Optional.ofNullable(ForeignColumnTypeImpl.build(field));
         }
 
         return Optional.empty();
@@ -92,6 +92,6 @@ public final class FieldTypeUtils {
         String columnName = foreignColumn.columnName().isEmpty()
                 ? field.getName().toLowerCase() : foreignColumn.columnName();
 
-        return columnName + ForeignColumnType.ID_SUFFIX;
+        return columnName + ForeignColumnTypeImpl.ID_SUFFIX;
     }
 }

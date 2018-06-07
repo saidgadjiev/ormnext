@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 /**
  * Foreign collection field annotation. Use for Many to One relation.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)

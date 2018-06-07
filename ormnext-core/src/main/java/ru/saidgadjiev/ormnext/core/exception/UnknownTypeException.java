@@ -3,7 +3,7 @@ package ru.saidgadjiev.ormnext.core.exception;
 /**
  * Exception will be thrown when column type not defined.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class UnknownTypeException extends RuntimeException {
 

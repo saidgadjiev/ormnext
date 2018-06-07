@@ -3,7 +3,7 @@ package ru.saidgadjiev.ormnext.core.dao;
 /**
  * Table operations.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public enum TableOperation {
 

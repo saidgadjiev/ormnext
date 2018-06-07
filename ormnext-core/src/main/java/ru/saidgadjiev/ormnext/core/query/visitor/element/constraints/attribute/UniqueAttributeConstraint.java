@@ -5,7 +5,7 @@ import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 /**
  * Unique attribute constraint.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class UniqueAttributeConstraint implements AttributeConstraint {
 

@@ -8,9 +8,9 @@ import ru.saidgadjiev.ormnext.core.exception.GeneratedValueNotFoundException;
 import ru.saidgadjiev.ormnext.core.exception.PropertyNotFoundException;
 import ru.saidgadjiev.ormnext.core.field.DataPersisterManager;
 import ru.saidgadjiev.ormnext.core.field.datapersister.DataPersister;
-import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignCollectionColumnType;
-import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignColumnType;
-import ru.saidgadjiev.ormnext.core.field.fieldtype.IDatabaseColumnType;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignCollectionColumnTypeImpl;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignColumnTypeImpl;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.DatabaseColumnType;
 import ru.saidgadjiev.ormnext.core.loader.rowreader.RowResult;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.CriterionArgument;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.SelectStatement;
@@ -31,7 +31,7 @@ import static ru.saidgadjiev.ormnext.core.utils.ArgumentUtils.*;
 /**
  * Executes SQL statements via {@link DatabaseEngine}.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class DefaultEntityLoader implements EntityLoader {
 
@@ -71,10 +71,10 @@ public class DefaultEntityLoader implements EntityLoader {
 
             foreignAutoCreate(session, object, entityMetadata);
 
-            Map<IDatabaseColumnType, Argument> argumentMap = ejectForCreate(object, entityMetadata);
+            Map<DatabaseColumnType, Argument> argumentMap = ejectForCreate(object, entityMetadata);
             EntityQuerySpace entityQuerySpace = entityPersister.getEntityQuerySpace();
             CreateQuery createQuery = entityQuerySpace.getCreatedQuery(argumentMap.keySet());
-            IDatabaseColumnType idField = entityMetadata.getPrimaryKeyColumnType();
+            DatabaseColumnType idField = entityMetadata.getPrimaryKeyColumnType();
 
             GeneratedKey generatedKey = new KeyHolder();
 
@@ -114,12 +114,12 @@ public class DefaultEntityLoader implements EntityLoader {
             DatabaseEntityPersister entityPersister = metaModel.getPersister(objects[0].getClass());
             DatabaseEntityMetadata<?> entityMetadata = entityPersister.getMetadata();
             EntityQuerySpace entityQuerySpace = entityPersister.getEntityQuerySpace();
-            IDatabaseColumnType idField = entityMetadata.getPrimaryKeyColumnType();
+            DatabaseColumnType idField = entityMetadata.getPrimaryKeyColumnType();
             CreateQuery createQuery = null;
             List<Map<Integer, Argument>> args = new ArrayList<>();
 
             for (Object object : objects) {
-                Map<IDatabaseColumnType, Argument> argumentMap = ejectForCreate(object, entityMetadata);
+                Map<DatabaseColumnType, Argument> argumentMap = ejectForCreate(object, entityMetadata);
 
                 if (createQuery == null) {
                     createQuery = entityQuerySpace.getCreatedQuery(argumentMap.keySet());
@@ -171,7 +171,7 @@ public class DefaultEntityLoader implements EntityLoader {
      * @param idColumnType target id column type
      * @param object       target object
      */
-    private void processGeneratedKey(GeneratedKey generatedKey, IDatabaseColumnType idColumnType, Object object) {
+    private void processGeneratedKey(GeneratedKey generatedKey, DatabaseColumnType idColumnType, Object object) {
         if (generatedKey.get() != null) {
             idColumnType.assign(object, idColumnType.dataPersister().convertToPrimaryKey(generatedKey.get()));
             cacheHelper.saveToCache(generatedKey.get(), object);
@@ -206,9 +206,9 @@ public class DefaultEntityLoader implements EntityLoader {
         DatabaseEntityPersister entityPersister = metaModel.getPersister(object.getClass());
         DatabaseEntityMetadata<?> entityMetadata = entityPersister.getMetadata();
 
-        Map<IDatabaseColumnType, Argument> arguments = ejectForUpdate(object, entityMetadata);
+        Map<DatabaseColumnType, Argument> arguments = ejectForUpdate(object, entityMetadata);
         UpdateQuery updateQuery = entityPersister.getEntityQuerySpace().getUpdateByIdQuery(arguments.keySet());
-        IDatabaseColumnType primaryKeyColumnType = entityMetadata.getPrimaryKeyColumnType();
+        DatabaseColumnType primaryKeyColumnType = entityMetadata.getPrimaryKeyColumnType();
         Argument id = eject(object, primaryKeyColumnType);
 
         arguments.put(primaryKeyColumnType, id);
@@ -336,7 +336,7 @@ public class DefaultEntityLoader implements EntityLoader {
     @Override
     public boolean refresh(Session session, Object object) throws SQLException {
         DatabaseEntityPersister entityPersister = metaModel.getPersister(object.getClass());
-        IDatabaseColumnType primaryKeyType = entityPersister.getMetadata().getPrimaryKeyColumnType();
+        DatabaseColumnType primaryKeyType = entityPersister.getMetadata().getPrimaryKeyColumnType();
         EntityQuerySpace entityQuerySpace = entityPersister.getEntityQuerySpace();
         Argument idArgument = eject(object, primaryKeyType);
 
@@ -353,7 +353,7 @@ public class DefaultEntityLoader implements EntityLoader {
                 RowResult<Object> rowResult = rowResults.iterator().next();
                 Object newObject = rowResult.getResult();
 
-                for (IDatabaseColumnType columnType : entityPersister.getMetadata().getColumnTypes()) {
+                for (DatabaseColumnType columnType : entityPersister.getMetadata().getColumnTypes()) {
                     Object newValue = columnType.access(newObject);
 
                     columnType.assign(object, newValue);
@@ -468,7 +468,7 @@ public class DefaultEntityLoader implements EntityLoader {
                                    Object object,
                                    DatabaseEntityMetadata<?> entityMetadata
     ) throws SQLException {
-        for (ForeignColumnType foreignColumnType : entityMetadata.toForeignColumnTypes()) {
+        for (ForeignColumnTypeImpl foreignColumnType : entityMetadata.toForeignColumnTypes()) {
             Object foreignObject = foreignColumnType.access(object);
 
             if (foreignObject != null && foreignColumnType.foreignAutoCreate()) {
@@ -490,7 +490,7 @@ public class DefaultEntityLoader implements EntityLoader {
                                                     Object object,
                                                     DatabaseEntityMetadata<?> entityMetadata
     ) throws SQLException {
-        for (ForeignCollectionColumnType foreignCollectionColumnType
+        for (ForeignCollectionColumnTypeImpl foreignCollectionColumnType
                 : entityMetadata.toForeignCollectionColumnTypes()) {
             if (foreignCollectionColumnType.foreignAutoCreate()) {
                 for (Object foreignObject : (Collection) foreignCollectionColumnType.access(object)) {
@@ -515,7 +515,7 @@ public class DefaultEntityLoader implements EntityLoader {
         AtomicInteger index = new AtomicInteger();
 
         for (CriterionArgument criterionArgument : selectStatement.getArgs()) {
-            IDatabaseColumnType columnType = DatabaseEntityMetadataUtils
+            DatabaseColumnType columnType = DatabaseEntityMetadataUtils
                     .getDataTypeByPropertyName(metadata.getColumnTypes(), criterionArgument.getProperty())
                     .orElseThrow(() -> new PropertyNotFoundException(
                             metadata.getTableClass(),

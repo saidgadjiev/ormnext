@@ -8,7 +8,7 @@ import java.sql.SQLException;
  * Connection source.
  *
  * @param <T> connection type
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public interface ConnectionSource<T> extends AutoCloseable {
 

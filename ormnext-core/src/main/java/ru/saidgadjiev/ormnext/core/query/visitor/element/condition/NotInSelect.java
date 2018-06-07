@@ -7,7 +7,7 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.SelectQuery;
 /**
  * This class represent not in restriction.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class NotInSelect implements Condition {
 

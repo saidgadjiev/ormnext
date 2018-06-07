@@ -5,7 +5,7 @@ import ru.saidgadjiev.ormnext.core.query.visitor.QueryElement;
 /**
  * Interface for ddl statements.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public interface SqlStatement extends QueryElement {
 }

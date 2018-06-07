@@ -1,9 +1,9 @@
 package ru.saidgadjiev.ormnext.core.table.internal.visitor;
 
 import ru.saidgadjiev.ormnext.core.field.FetchType;
-import ru.saidgadjiev.ormnext.core.field.fieldtype.ColumnKey;
-import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignCollectionColumnType;
-import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignColumnType;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignCollectionColumnTypeImpl;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignColumnTypeImpl;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.DatabaseColumnType;
 import ru.saidgadjiev.ormnext.core.loader.object.collection.CollectionLoader;
 import ru.saidgadjiev.ormnext.core.loader.rowreader.entityinitializer.CollectionInitializer;
 import ru.saidgadjiev.ormnext.core.loader.rowreader.entityinitializer.EntityInitializer;
@@ -23,7 +23,7 @@ import java.util.*;
 /**
  * This visitor implementation use for create entity query space.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
 
@@ -70,9 +70,9 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
     private List<CollectionInitializer> collectionInitializers = new ArrayList<>();
 
     /**
-     * Already visited column keys. For avoid recursion.
+     * Already visited column types. For avoid recursion.
      */
-    private Set<ColumnKey> visitedColumnKey = new HashSet<>();
+    private Set<DatabaseColumnType> visitedColumnTypes = new HashSet<>();
 
     /**
      * Uid stack. Stack use for retrieve column owner aliases from {@link #entityAliasResolverContext}.
@@ -110,8 +110,8 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
     }
 
     @Override
-    public boolean start(ForeignColumnType foreignColumnType) {
-        if (visitedColumnKey.contains(foreignColumnType.getColumnKey())) {
+    public boolean start(ForeignColumnTypeImpl foreignColumnType) {
+        if (!visitedColumnTypes.add(foreignColumnType)) {
             LOGGER.debug("Detected circular references for " + foreignColumnType.getField());
 
             return false;
@@ -132,7 +132,6 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
                 foreignEntityAliases,
                 metaModel.getPersister(foreignMetaData.getTableClass())
         ));
-        visitedColumnKey.add(foreignColumnType.getColumnKey());
         parentUidStack.push(nextUID);
         foreignMetaData.accept(this);
 
@@ -140,8 +139,8 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
     }
 
     @Override
-    public boolean start(ForeignCollectionColumnType collectionColumnType) {
-        if (visitedColumnKey.contains(collectionColumnType.getColumnKey())) {
+    public boolean start(ForeignCollectionColumnTypeImpl collectionColumnType) {
+        if (!visitedColumnTypes.add(collectionColumnType)) {
             LOGGER.debug("Detected circular references for " + collectionColumnType.getField());
 
             return false;
@@ -174,7 +173,10 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
         }
         CollectionLoader collectionLoader = new CollectionLoader(
                 new CollectionQuerySpace(
-                        new CollectionEntityAliases(foreignEntityAliases.getKeyAlias()),
+                        new CollectionEntityAliases(
+                                foreignEntityAliases.getKeyAlias(),
+                                foreignEntityAliases.getAliasByColumnName(collectionColumnType.getForeignColumnName())
+                        ),
                         ownerMetaData.getPrimaryKeyColumnType(),
                         collectionColumnType
                 )
@@ -186,21 +188,19 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
                         collectionLoader
                 )
         );
-        visitedColumnKey.add(collectionColumnType.getColumnKey());
         parentUidStack.push(nextUID);
         foreignMetaData.accept(this);
-
 
         return true;
     }
 
     @Override
-    public void finish(ForeignColumnType foreignColumnType) {
+    public void finish(ForeignColumnTypeImpl foreignColumnType) {
         parentUidStack.pop();
     }
 
     @Override
-    public void finish(ForeignCollectionColumnType foreignCollectionColumnType) {
+    public void finish(ForeignCollectionColumnTypeImpl foreignCollectionColumnType) {
         parentUidStack.pop();
     }
 

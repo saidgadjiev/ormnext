@@ -27,7 +27,7 @@ import java.util.List;
 /**
  * Entity persister. Holds entity aliases and aliases for entity references.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class DatabaseEntityPersister {
 

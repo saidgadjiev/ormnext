@@ -5,7 +5,7 @@ import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 /**
  * Double literal.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class DoubleLiteral implements Literal<Double> {
 

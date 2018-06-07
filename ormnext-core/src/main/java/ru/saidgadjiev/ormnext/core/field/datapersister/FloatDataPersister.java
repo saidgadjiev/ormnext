@@ -10,7 +10,7 @@ import java.sql.Types;
 /**
  * Type that persists a float type.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class FloatDataPersister extends BaseDataPersister {
 

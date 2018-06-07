@@ -3,7 +3,7 @@ package ru.saidgadjiev.ormnext.core.table.internal.alias;
 /**
  * Collection entity aliases.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class CollectionEntityAliases {
 
@@ -13,11 +13,19 @@ public class CollectionEntityAliases {
     private final String collectionObjectKeyAlias;
 
     /**
-     * Create a new instance.
-     * @param collectionObjectKeyAlias collection owner key column alias
+     * Foreign column alias.
      */
-    public CollectionEntityAliases(String collectionObjectKeyAlias) {
+    private String foreignColumnAlias;
+
+    /**
+     * Create a new instance.
+     *
+     * @param collectionObjectKeyAlias target collection owner key column alias
+     * @param foreignColumnAlias       target foreign column alias
+     */
+    public CollectionEntityAliases(String collectionObjectKeyAlias, String foreignColumnAlias) {
         this.collectionObjectKeyAlias = collectionObjectKeyAlias;
+        this.foreignColumnAlias = foreignColumnAlias;
     }
 
     /**
@@ -27,5 +35,14 @@ public class CollectionEntityAliases {
      */
     public String getCollectionObjectKeyAlias() {
         return collectionObjectKeyAlias;
+    }
+
+    /**
+     * Foreign column alias.
+     *
+     * @return foreign column alias
+     */
+    public String getForeignColumnAlias() {
+        return foreignColumnAlias;
     }
 }

@@ -10,7 +10,7 @@ import java.util.Collection;
 /**
  * Reader implementation.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class RowReaderImpl implements RowReader {
 

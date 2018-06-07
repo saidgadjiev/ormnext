@@ -3,7 +3,7 @@ package ru.saidgadjiev.ormnext.core.logger;
 /**
  * Dummy log.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class DummyLog implements Log {
 

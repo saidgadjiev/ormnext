@@ -24,7 +24,7 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.literals.*;
 /**
  * No action visitor.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class NoActionVisitor implements QueryVisitor {
 

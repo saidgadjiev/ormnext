@@ -6,7 +6,7 @@ import org.apache.log4j.Logger;
 /**
  * Log4j logger.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class Log4j implements Log {
 

@@ -1,13 +1,13 @@
 package ru.saidgadjiev.ormnext.core.table.internal.visitor;
 
-import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignCollectionColumnType;
-import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignColumnType;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignCollectionColumnTypeImpl;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignColumnTypeImpl;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetadata;
 
 /**
  * Entity visitor. Represent visitor pattern.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public interface EntityMetadataVisitor {
 
@@ -20,32 +20,32 @@ public interface EntityMetadataVisitor {
     boolean start(DatabaseEntityMetadata<?> databaseEntityMetadata);
 
     /**
-     * Start visit {@link ForeignColumnType} element.
+     * Start visit {@link ForeignColumnTypeImpl} element.
      *
      * @param foreignColumnType target column type
      * @return true if need visit finish method
      */
-    boolean start(ForeignColumnType foreignColumnType);
+    boolean start(ForeignColumnTypeImpl foreignColumnType);
 
     /**
-     * Start visit {@link ForeignCollectionColumnType} element.
+     * Start visit {@link ForeignCollectionColumnTypeImpl} element.
      *
      * @param foreignCollectionColumnType target column type
      * @return true if need visit finish method
      */
-    boolean start(ForeignCollectionColumnType foreignCollectionColumnType);
+    boolean start(ForeignCollectionColumnTypeImpl foreignCollectionColumnType);
 
     /**
-     * Finish visit {@link ForeignColumnType} element.
+     * Finish visit {@link ForeignColumnTypeImpl} element.
      *
      * @param foreignColumnType target column type
      */
-    void finish(ForeignColumnType foreignColumnType);
+    void finish(ForeignColumnTypeImpl foreignColumnType);
 
     /**
-     * Finish visit {@link ForeignCollectionColumnType} element.
+     * Finish visit {@link ForeignCollectionColumnTypeImpl} element.
      *
      * @param foreignCollectionColumnType target column type
      */
-    void finish(ForeignCollectionColumnType foreignCollectionColumnType);
+    void finish(ForeignCollectionColumnTypeImpl foreignCollectionColumnType);
 }

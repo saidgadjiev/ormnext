@@ -7,7 +7,7 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.SelectQuery;
 /**
  * This class represent in restriction.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class InSelect implements Condition {
 

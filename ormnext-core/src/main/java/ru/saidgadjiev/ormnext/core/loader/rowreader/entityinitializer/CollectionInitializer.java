@@ -2,7 +2,7 @@ package ru.saidgadjiev.ormnext.core.loader.rowreader.entityinitializer;
 
 import ru.saidgadjiev.ormnext.core.field.FetchType;
 import ru.saidgadjiev.ormnext.core.field.datapersister.DataPersister;
-import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignCollectionColumnType;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignCollectionColumnTypeImpl;
 import ru.saidgadjiev.ormnext.core.loader.ResultSetContext;
 import ru.saidgadjiev.ormnext.core.loader.object.collection.CollectionLoader;
 import ru.saidgadjiev.ormnext.core.loader.object.collection.LazyList;
@@ -29,7 +29,7 @@ import static ru.saidgadjiev.ormnext.core.loader.ResultSetContext.EntityProcessi
  * Second phase:
  * Retrieve collection objects by them ids and add them to column type collection.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class CollectionInitializer {
 
@@ -62,7 +62,7 @@ public class CollectionInitializer {
      *
      * @see DataPersister
      */
-    private final DataPersister foreignColumnDataPersister;
+    private final DataPersister collectionColumnDataPersister;
 
     /**
      * Create a new instance.
@@ -75,7 +75,7 @@ public class CollectionInitializer {
         this.uid = ownerUID;
         this.aliases = collectionLoader.getCollectionEntityAliases();
         this.collectionLoader = collectionLoader;
-        this.foreignColumnDataPersister = collectionLoader.getOwnerPrimaryKeyPersister();
+        this.collectionColumnDataPersister = collectionLoader.getCollectionColumnPersister();
     }
 
     /**
@@ -86,8 +86,7 @@ public class CollectionInitializer {
      * @throws SQLException any SQL exceptions
      */
     public void startRead(ResultSetContext context, Object id) throws SQLException {
-        EntityProcessingState processingState = context.getProcessingState(uid, id);
-        Object collectionObjectId = foreignColumnDataPersister.readValue(
+        Object collectionObjectId = collectionColumnDataPersister.readValue(
                 context.getDatabaseResults(),
                 aliases.getCollectionObjectKeyAlias()
         );
@@ -95,6 +94,12 @@ public class CollectionInitializer {
         if (context.getDatabaseResults().wasNull()) {
             return;
         }
+        Object collectionOwnerId = collectionLoader
+                .getGoreignCollectionColumnType()
+                .dataPersister()
+                .readValue(context.getDatabaseResults(), aliases.getForeignColumnAlias());
+        EntityProcessingState processingState = context.getProcessingState(uid, collectionOwnerId);
+
         processingState.addCollectionObjectId(collectionObjectId);
     }
 
@@ -122,7 +127,7 @@ public class CollectionInitializer {
      */
     private void loadCollection(ResultSetContext resultSetContext, Object id, EntityProcessingState processingState) {
         Object instance = processingState.getEntityInstance();
-        ForeignCollectionColumnType foreignCollectionColumnType = collectionLoader.getGoreignCollectionColumnType();
+        ForeignCollectionColumnTypeImpl foreignCollectionColumnType = collectionLoader.getGoreignCollectionColumnType();
 
         if (foreignCollectionColumnType.getFetchType().equals(FetchType.EAGER)) {
             for (Object collectionObjectId : processingState.getCollectionObjectIds()) {

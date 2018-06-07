@@ -3,7 +3,7 @@ package ru.saidgadjiev.ormnext.core.exception;
 /**
  * Exception will be thrown when object instantiate.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class InstantiationException extends RuntimeException {
 

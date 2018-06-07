@@ -5,7 +5,7 @@ import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 /**
  * This class represent simple select column.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class DisplayedColumn extends DisplayedColumnSpec {
 

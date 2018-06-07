@@ -6,7 +6,7 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.SelectQuery;
 /**
  * This class represent from clause with sub query.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class FromSubQuery implements FromExpression {
 

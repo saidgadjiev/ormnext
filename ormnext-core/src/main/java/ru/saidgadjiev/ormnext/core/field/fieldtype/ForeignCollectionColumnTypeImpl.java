@@ -16,9 +16,9 @@ import java.util.Set;
 /**
  * This class represent column type annotated with {@link ForeignCollectionField}.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
-public class ForeignCollectionColumnType extends BaseDatabaseColumnType implements IForeignDatabaseColumnType {
+public class ForeignCollectionColumnTypeImpl extends BaseDatabaseColumnType implements ForeignColumnType {
 
     /**
      * Current field which annotated by {@link ForeignCollectionField}.
@@ -70,13 +70,6 @@ public class ForeignCollectionColumnType extends BaseDatabaseColumnType implemen
     private String foreignTableName;
 
     /**
-     * Column key.
-     *
-     * @see ColumnKey
-     */
-    private ColumnKey columnKey;
-
-    /**
      * Foreign object auto create.
      */
     private boolean foreignAutoCreate;
@@ -84,7 +77,7 @@ public class ForeignCollectionColumnType extends BaseDatabaseColumnType implemen
     /**
      * Associated foreign column type.
      */
-    private ForeignColumnType foreignColumnType;
+    private ForeignColumnTypeImpl foreignColumnType;
 
     @Override
     public Object access(Object object) {
@@ -93,7 +86,7 @@ public class ForeignCollectionColumnType extends BaseDatabaseColumnType implemen
 
     @Override
     public DataPersister dataPersister() {
-        throw new UnsupportedOperationException();
+        return foreignColumnType.dataPersister();
     }
 
     @Override
@@ -176,15 +169,6 @@ public class ForeignCollectionColumnType extends BaseDatabaseColumnType implemen
     }
 
     @Override
-    public ColumnKey getColumnKey() {
-        if (columnKey == null) {
-            columnKey = new ColumnKey(foreignTableName, foreignColumnName);
-        }
-
-        return columnKey;
-    }
-
-    @Override
     public String getForeignTableName() {
         return foreignTableName;
     }
@@ -208,7 +192,7 @@ public class ForeignCollectionColumnType extends BaseDatabaseColumnType implemen
      *
      * @return associated foreign column type
      */
-    public ForeignColumnType getForeignColumnType() {
+    public ForeignColumnTypeImpl getForeignColumnType() {
         return foreignColumnType;
     }
 
@@ -225,12 +209,12 @@ public class ForeignCollectionColumnType extends BaseDatabaseColumnType implemen
      * @param field target field
      * @return new instance
      */
-    public static ForeignCollectionColumnType build(Field field) {
+    public static ForeignCollectionColumnTypeImpl build(Field field) {
         if (!field.isAnnotationPresent(ForeignCollectionField.class)) {
             return null;
         }
         ForeignCollectionField foreignCollectionField = field.getAnnotation(ForeignCollectionField.class);
-        ForeignCollectionColumnType fieldType = new ForeignCollectionColumnType();
+        ForeignCollectionColumnTypeImpl fieldType = new ForeignCollectionColumnTypeImpl();
         String foreignFieldName = foreignCollectionField.foreignFieldName();
         Class<?> collectionObjectClass = FieldTypeUtils.getCollectionGenericClass(field);
 
@@ -255,7 +239,7 @@ public class ForeignCollectionColumnType extends BaseDatabaseColumnType implemen
         fieldType.foreignColumnName = FieldTypeUtils.resolveForeignColumnTypeName(foreignField);
         fieldType.foreignTableName = DatabaseEntityMetadataUtils.resolveTableName(foreignField.getDeclaringClass());
         fieldType.foreignAutoCreate = foreignCollectionField.foreignAutoCreate();
-        fieldType.foreignColumnType = ForeignColumnType.build(foreignField);
+        fieldType.foreignColumnType = ForeignColumnTypeImpl.build(foreignField);
 
         return fieldType;
     }

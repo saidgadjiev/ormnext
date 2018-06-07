@@ -5,7 +5,7 @@ import java.sql.*;
 /**
  * Preparable object for {@link PreparedStatement}.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class PreparableObjectImpl implements PreparableObject {
 

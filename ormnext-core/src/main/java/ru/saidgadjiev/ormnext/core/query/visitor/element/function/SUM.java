@@ -6,7 +6,7 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.condition.Expression;
 /**
  * This class represent sql SUM.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class SUM implements Function {
 

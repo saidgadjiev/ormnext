@@ -10,7 +10,7 @@ import java.util.*;
 /**
  * Builder for session manager.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class SessionManagerBuilder {
 
@@ -51,7 +51,7 @@ public class SessionManagerBuilder {
      * @param classes target classes
      * @return this for chain
      */
-    public SessionManagerBuilder entities(Class<?>... classes) {
+    public SessionManagerBuilder entities(Class<?>[] classes) {
         entityClasses.addAll(Arrays.asList(classes));
 
         return this;

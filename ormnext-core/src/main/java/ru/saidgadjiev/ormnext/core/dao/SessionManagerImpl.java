@@ -18,7 +18,7 @@ import java.util.Map;
 /**
  * Implementation of {@link SessionManager}.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class SessionManagerImpl implements SessionManager {
 

@@ -18,7 +18,7 @@ import java.util.stream.Stream;
  * Base class for implement lazy collection.
  *
  * @param <T> value type
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public abstract class AbstractLazyCollection<T> implements Collection<T> {
 

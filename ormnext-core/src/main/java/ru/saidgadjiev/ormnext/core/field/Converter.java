@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
 /**
  * Field value converter.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)

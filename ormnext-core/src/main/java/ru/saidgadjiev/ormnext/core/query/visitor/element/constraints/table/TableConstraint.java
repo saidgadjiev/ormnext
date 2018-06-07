@@ -5,7 +5,7 @@ import ru.saidgadjiev.ormnext.core.query.visitor.QueryElement;
 /**
  * This interface use for implement table constraint.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public interface TableConstraint extends QueryElement {
 }

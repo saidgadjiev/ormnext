@@ -9,7 +9,7 @@ import java.lang.reflect.Field;
  * Check is defined primary key or not.
  * If not throw {@link PrimaryKeyMissException}.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class PrimaryKeyValidator implements Validator {
 

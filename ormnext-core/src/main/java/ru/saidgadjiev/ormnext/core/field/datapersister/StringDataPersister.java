@@ -10,7 +10,7 @@ import java.sql.Types;
 /**
  * Type that persists a string type.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class StringDataPersister extends BaseDataPersister {
 

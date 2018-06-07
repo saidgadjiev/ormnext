@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * This class represent CREATE TABLE query.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class CreateTableQuery implements QueryElement {
     /**

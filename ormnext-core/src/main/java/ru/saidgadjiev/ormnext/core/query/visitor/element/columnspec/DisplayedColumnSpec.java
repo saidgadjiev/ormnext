@@ -6,7 +6,7 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.Alias;
 /**
  * Base class for select column item.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public abstract class DisplayedColumnSpec implements QueryElement {
 

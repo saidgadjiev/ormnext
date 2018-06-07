@@ -3,7 +3,7 @@ package ru.saidgadjiev.ormnext.core.field;
 /**
  * References action for on update and on delete.
  *
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public enum ReferenceAction {
 

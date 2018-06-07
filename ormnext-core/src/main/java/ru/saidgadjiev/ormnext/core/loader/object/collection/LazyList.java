@@ -10,7 +10,7 @@ import java.util.ListIterator;
  * Lazy list.
  *
  * @param <T> value type
- * @author said gadjiev
+ * @author Said Gadjiev
  */
 public class LazyList<T> extends AbstractLazyCollection<T> implements List<T> {
 
