@@ -51,4 +51,11 @@ public @interface ForeignColumn {
      * @see ReferenceAction
      */
     ReferenceAction onDelete() default ReferenceAction.NO_ACTION;
+
+    /**
+     * Foreign field name.
+     *
+     * @return foreign field name
+     */
+    String foreignFieldName() default "";
 }

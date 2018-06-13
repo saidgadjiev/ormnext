@@ -89,7 +89,7 @@ public abstract class AbstractLazyCollection<T> implements Collection<T> {
             Collection<?> loadedObjects = collectionLoader.loadCollection(session, ownerId);
 
             collection.addAll((Collection<? extends T>) loadedObjects);
-            Field field = collectionLoader.getGoreignCollectionColumnType().getField();
+            Field field = collectionLoader.getCollectionQuerySpace().getForeignCollectionColumnType().getField();
 
             session.close();
             LOG.debug(
@@ -119,7 +119,7 @@ public abstract class AbstractLazyCollection<T> implements Collection<T> {
             Session session = sessionManager.createSession();
 
             cachedSize = collectionLoader.loadSize(session, ownerId);
-            Field field = collectionLoader.getGoreignCollectionColumnType().getField();
+            Field field = collectionLoader.getCollectionQuerySpace().getForeignCollectionColumnType().getField();
 
             session.close();
             LOG.debug(

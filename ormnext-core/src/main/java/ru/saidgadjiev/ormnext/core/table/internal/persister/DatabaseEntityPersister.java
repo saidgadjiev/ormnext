@@ -167,16 +167,17 @@ public class DatabaseEntityPersister {
      * Create new proxy object which will be use for lazy instantiation
      * {@link ru.saidgadjiev.ormnext.core.field.ForeignColumn}.
      *
-     * @param entityClass target entity class
-     * @param id          target entity id
+     * @param entityClass     target entity class
+     * @param key             target entity id
+     * @param keyPropertyName target key property name
      * @return new proxy object
      * @throws SQLException any SQL exceptions
      */
-    public Object createProxy(Class<?> entityClass, Object id) throws SQLException {
+    public Object createProxy(Class<?> entityClass, String keyPropertyName, Object key) throws SQLException {
         try {
             return proxyMaker
                     .superClass(entityClass)
-                    .make(new OrmNextMethodHandler(sessionManager, entityClass, id));
+                    .make(new OrmNextMethodHandler(sessionManager, entityClass, keyPropertyName, key));
         } catch (Exception ex) {
             throw new SQLException(ex);
         }

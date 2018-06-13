@@ -7,6 +7,7 @@ import ru.saidgadjiev.ormnext.core.dao.transaction.state.BeginState;
 import ru.saidgadjiev.ormnext.core.dao.transaction.state.InternalTransaction;
 import ru.saidgadjiev.ormnext.core.dao.transaction.state.TransactionState;
 import ru.saidgadjiev.ormnext.core.loader.EntityLoader;
+import ru.saidgadjiev.ormnext.core.query.criteria.impl.DeleteStatement;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.SelectStatement;
 
 import java.sql.SQLException;
@@ -66,26 +67,31 @@ public class SessionImpl implements Session, InternalTransaction {
     }
 
     @Override
+    public CreateOrUpdateStatus createOrUpdate(Object object) throws SQLException {
+        return sessionManager.loader(loader).createOrUpdate(this, object);
+    }
+
+    @Override
     public int create(Object object) throws SQLException {
         return sessionManager.loader(loader).create(this, object);
     }
 
     @Override
-    public int create(Object[] objects) throws SQLException {
+    public int create(Object ... objects) throws SQLException {
         return sessionManager.loader(loader).create(this, objects);
     }
 
     @Override
-    public boolean createTable(Class<?> entityClass, boolean ifNotExist) throws SQLException {
+    public boolean createTable(boolean ifNotExist, Class<?> entityClass) throws SQLException {
         return sessionManager.loader(loader).createTable(this, entityClass, ifNotExist);
     }
 
     @Override
-    public Map<Class<?>, Boolean> createTables(Class<?>[] entityClasses, boolean ifNotExist) throws SQLException {
+    public Map<Class<?>, Boolean> createTables(boolean ifNotExist, Class<?> ... entityClasses) throws SQLException {
         Map<Class<?>, Boolean> result = new HashMap<>();
 
         for (Class<?> tableClass : entityClasses) {
-            result.put(tableClass, createTable(tableClass, ifNotExist));
+            result.put(tableClass, createTable(ifNotExist, tableClass));
         }
 
         return result;
@@ -122,18 +128,18 @@ public class SessionImpl implements Session, InternalTransaction {
     }
 
     @Override
-    public Map<Class<?>, Boolean> dropTables(Class<?>[] classes, boolean ifExist) throws SQLException {
+    public Map<Class<?>, Boolean> dropTables(boolean ifExist, Class<?> ... classes) throws SQLException {
         Map<Class<?>, Boolean> result = new HashMap<>();
 
         for (Class<?> tableClass : classes) {
-            result.put(tableClass, dropTable(tableClass, ifExist));
+            result.put(tableClass, dropTable(ifExist, tableClass));
         }
 
         return result;
     }
 
     @Override
-    public boolean dropTable(Class<?> entityClass, boolean ifExist) throws SQLException {
+    public boolean dropTable(boolean ifExist, Class<?> entityClass) throws SQLException {
         return sessionManager.loader(loader).dropTable(this, entityClass, ifExist);
     }
 
@@ -143,7 +149,7 @@ public class SessionImpl implements Session, InternalTransaction {
     }
 
     @Override
-    public int clearTables(Class<?>[] entityClasses) throws SQLException {
+    public int clearTables(Class<?> ... entityClasses) throws SQLException {
         int deletedCount = 0;
 
         for (Class<?> entityClass : entityClasses) {
@@ -225,6 +231,27 @@ public class SessionImpl implements Session, InternalTransaction {
         loader = EntityLoader.Loader.DEFAULT_LOADER;
 
         return batchResults;
+    }
+
+    @Override
+    public <T> T uniqueResult(SelectStatement<T> selectStatement) throws SQLException {
+        List<T> results = sessionManager.loader(loader).list(this, selectStatement);
+
+        if (results.isEmpty()) {
+            return null;
+        }
+
+        return results.iterator().next();
+    }
+
+    @Override
+    public boolean exist(Class<?> entityClass, Object id) throws SQLException {
+        return sessionManager.loader(loader).exist(this, entityClass, id);
+    }
+
+    @Override
+    public int delete(DeleteStatement deleteStatement) throws SQLException {
+        return sessionManager.loader(loader).delete(this, deleteStatement);
     }
 
     @Override

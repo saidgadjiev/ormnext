@@ -1,6 +1,7 @@
 package ru.saidgadjiev.ormnext.core.dao;
 
 import ru.saidgadjiev.ormnext.core.connection.DatabaseResults;
+import ru.saidgadjiev.ormnext.core.query.criteria.impl.DeleteStatement;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.SelectStatement;
 
 import java.sql.SQLException;
@@ -13,6 +14,16 @@ import java.util.Map;
  * @author Said Gadjiev
  */
 public interface Dao {
+
+    /**
+     * Create or update object.
+     *
+     * @param object target object
+     * @return create or update status
+     * @throws SQLException any SQL exceptions
+     * @see CreateOrUpdateStatus
+     */
+    CreateOrUpdateStatus createOrUpdate(Object object) throws SQLException;
 
     /**
      * Create a new row in the database from an object.
@@ -30,47 +41,47 @@ public interface Dao {
      * @return created objects count
      * @throws SQLException on any SQL problems
      */
-    int create(Object[] objects) throws SQLException;
+    int create(Object... objects) throws SQLException;
 
     /**
      * Create table in the database.
      *
-     * @param entityClass     target table class
-     * @param ifNotExist append if not exist part if true
+     * @param ifNotExist  append if not exist part if true
+     * @param entityClass target table class
      * @return true if table created or false
      * @throws SQLException on any SQL problems
      */
-    boolean createTable(Class<?> entityClass, boolean ifNotExist) throws SQLException;
+    boolean createTable(boolean ifNotExist, Class<?> entityClass) throws SQLException;
 
     /**
      * Create tables in the database.
      *
-     * @param entityClasses    target tables classes
-     * @param ifNotExist append if not exist part if true
+     * @param ifNotExist    append if not exist part if true
+     * @param entityClasses target tables classes
      * @return table class, create status map
      * @throws SQLException on any SQL problems
      */
-    Map<Class<?>, Boolean> createTables(Class<?>[] entityClasses, boolean ifNotExist) throws SQLException;
+    Map<Class<?>, Boolean> createTables(boolean ifNotExist, Class<?>... entityClasses) throws SQLException;
 
     /**
      * Drop requested table from the database.
      *
-     * @param entityClass  target table class
-     * @param ifExist append if exist part if true
+     * @param ifExist     append if exist part if true
+     * @param entityClass target table class
      * @return true if drop is success or false
      * @throws SQLException on any SQL problems
      */
-    boolean dropTable(Class<?> entityClass, boolean ifExist) throws SQLException;
+    boolean dropTable(boolean ifExist, Class<?> entityClass) throws SQLException;
 
     /**
      * Drop requested tables from the database.
      *
-     * @param classes target tables classes
-     * @param ifExist append if exist part if true
+     * @param ifExist       append if exist part if true
+     * @param entityClasses target tables classes
      * @return table class, create status map
      * @throws SQLException on any SQL problems
      */
-    Map<Class<?>, Boolean> dropTables(Class<?>[] classes, boolean ifExist) throws SQLException;
+    Map<Class<?>, Boolean> dropTables(boolean ifExist, Class<?>... entityClasses) throws SQLException;
 
     /**
      * Clear database table.
@@ -88,7 +99,7 @@ public interface Dao {
      * @return deleted row count
      * @throws SQLException any SQL exceptions
      */
-    int clearTables(Class<?>[] entityClasses) throws SQLException;
+    int clearTables(Class<?>... entityClasses) throws SQLException;
 
     /**
      * Retrieves an object associated with id.
@@ -215,4 +226,94 @@ public interface Dao {
      * @throws SQLException any SQL exceptions
      */
     int[] executeBatch() throws SQLException;
+
+    /**
+     * Return query result object.
+     *
+     * @param selectStatement target query statement
+     * @param <T>             object type
+     * @return query result object
+     * @throws SQLException any SQL exceptions
+     */
+    <T> T uniqueResult(SelectStatement<T> selectStatement) throws SQLException;
+
+    /**
+     * Check exist object with id.
+     *
+     * @param entityClass target entity class
+     * @param id          target object id
+     * @return true if object exist
+     * @throws SQLException any SQL exceptions
+     */
+    boolean exist(Class<?> entityClass, Object id) throws SQLException;
+
+    /**
+     * Delete the database table rows by delete statement.
+     *
+     * @param deleteStatement target statement
+     * @return deleted rows count
+     * @throws SQLException any SQL exceptions
+     */
+    int delete(DeleteStatement deleteStatement) throws SQLException;
+
+    /**
+     * Create or update object status.
+     */
+    final class CreateOrUpdateStatus {
+
+        /**
+         * True if an object was updated.
+         */
+        private final boolean updated;
+
+        /**
+         * True if an object was created.
+         */
+        private final boolean created;
+
+        /**
+         * Updated or created row count.
+         */
+        private final int rowCount;
+
+        /**
+         * Create a new instance.
+         *
+         * @param updated  true if an object was updated
+         * @param created  true if an object was created
+         * @param rowCount target updated or created row count
+         */
+        public CreateOrUpdateStatus(boolean updated, boolean created, int rowCount) {
+            this.updated = updated;
+            this.created = created;
+            this.rowCount = rowCount;
+        }
+
+        /**
+         * Is updated?
+         *
+         * @return is updated
+         */
+        public boolean isUpdated() {
+            return updated;
+        }
+
+        /**
+         * Is created?
+         *
+         * @return is updated
+         */
+        public boolean isCreated() {
+            return created;
+        }
+
+        /**
+         * Return updated or created row count.
+         *
+         * @return updated or created row count
+         */
+        public int getRowCount() {
+            return rowCount;
+        }
+    }
 }

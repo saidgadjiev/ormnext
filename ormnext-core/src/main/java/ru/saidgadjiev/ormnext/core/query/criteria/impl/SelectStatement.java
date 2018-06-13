@@ -23,7 +23,7 @@ import java.util.Map;
  * @param <T> entity type
  * @author Said Gadjiev
  */
-public class SelectStatement<T> implements QueryElement {
+public class SelectStatement<T> implements QueryElement, CriteriaStatement {
 
     /**
      * Target entity class.
@@ -82,7 +82,7 @@ public class SelectStatement<T> implements QueryElement {
     /**
      * Provided user args.
      */
-    private Map<Integer, Object> userProvidedArgs = new HashMap<>();
+    private final Map<Integer, Object> userProvidedArgs = new HashMap<>();
 
     /**
      * Without joins if true.
@@ -224,11 +224,7 @@ public class SelectStatement<T> implements QueryElement {
         return this;
     }
 
-    /**
-     * Return user provided args.
-     *
-     * @return user provided args
-     */
+    @Override
     public Map<Integer, Object> getUserProvidedArgs() {
         return userProvidedArgs;
     }
@@ -238,7 +234,7 @@ public class SelectStatement<T> implements QueryElement {
      *
      * @return entity class
      */
-    public Class<?> getEntityClass() {
+    public Class<T> getEntityClass() {
         return entityClass;
     }
 
@@ -315,11 +311,7 @@ public class SelectStatement<T> implements QueryElement {
         return withoutJoins;
     }
 
-    /**
-     * Return args for prepared statement.
-     *
-     * @return args for prepared statement
-     */
+    @Override
     public List<CriterionArgument> getArgs() {
         List<CriterionArgument> args = new LinkedList<>();
 

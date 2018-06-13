@@ -22,7 +22,7 @@ public class ByteDataPersister extends BaseDataPersister {
     }
 
     @Override
-    public int getDataType() {
+    public int getSqlType() {
         return DataType.BYTE;
     }
 

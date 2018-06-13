@@ -4,10 +4,7 @@ import ru.saidgadjiev.ormnext.core.connection.DatabaseResults;
 import ru.saidgadjiev.ormnext.core.dao.Session;
 import ru.saidgadjiev.ormnext.core.loader.rowreader.entityinitializer.ResultSetValue;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Temporary result set context.
@@ -137,14 +134,14 @@ public class ResultSetContext {
     /**
      * Add new object to cache.
      *
-     * @param id   target id
+     * @param key  target id
      * @param data target object
      */
-    public void addEntry(Object id, Object data) {
+    public void addEntry(Object key, Object data) {
         cache.putIfAbsent(data.getClass(), new HashMap<>());
         Map<Object, Object> objectCache = cache.get(data.getClass());
 
-        objectCache.put(id, data);
+        objectCache.put(key, data);
     }
 
     /**
@@ -182,7 +179,7 @@ public class ResultSetContext {
         /**
          * Read collection object ids from result set.
          */
-        private List<Object> collectionObjectIds = new ArrayList<>();
+        private Map<Class<?>, List<Object>> collectionObjectIds = new HashMap<>();
 
         /**
          * Entity key.
@@ -246,19 +243,24 @@ public class ResultSetContext {
         /**
          * Add a new read collection object id.
          *
-         * @param id a new read collection object id
+         * @param id              a new read collection object id
+         * @param collectionClass target collection class
          */
-        public void addCollectionObjectId(Object id) {
-            collectionObjectIds.add(id);
+        public void addCollectionObjectId(Class<?> collectionClass, Object id) {
+            if (!collectionObjectIds.containsKey(collectionClass)) {
+                collectionObjectIds.put(collectionClass, new ArrayList<>());
+            }
+            collectionObjectIds.get(collectionClass).add(id);
         }
 
         /**
          * Return read collection object ids.
          *
+         * @param collectionClass target collection class
          * @return read collection object ids
          */
-        public List<Object> getCollectionObjectIds() {
-            return collectionObjectIds;
+        public Optional<List<Object>> getCollectionObjectIds(Class<?> collectionClass) {
+            return Optional.ofNullable(collectionObjectIds.get(collectionClass));
         }
 
         /**

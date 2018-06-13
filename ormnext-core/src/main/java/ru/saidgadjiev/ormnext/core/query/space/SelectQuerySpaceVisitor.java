@@ -11,10 +11,11 @@ import static ru.saidgadjiev.ormnext.core.utils.DatabaseEntityMetadataUtils.getC
 
 /**
  * Visitor for visit criteria statement. Use for replace property name by column name with aliases.
+ * Use it for {@link ru.saidgadjiev.ormnext.core.query.criteria.impl.SelectStatement}.
  *
  * @author Said Gadjiev
  */
-public class QuerySpaceVisitor extends NoActionVisitor {
+public class SelectQuerySpaceVisitor extends NoActionVisitor {
 
     /**
      * Criteria entity metadata.
@@ -28,10 +29,11 @@ public class QuerySpaceVisitor extends NoActionVisitor {
 
     /**
      * Create a new visitor instance.
+     *
      * @param databaseEntityMetadata criteria entity metadata
-     * @param entityAliases criteria entity aliases
+     * @param entityAliases          criteria entity aliases
      */
-    public QuerySpaceVisitor(DatabaseEntityMetadata<?> databaseEntityMetadata, EntityAliases entityAliases) {
+    public SelectQuerySpaceVisitor(DatabaseEntityMetadata<?> databaseEntityMetadata, EntityAliases entityAliases) {
         this.databaseEntityMetadata = databaseEntityMetadata;
         this.entityAliases = entityAliases;
     }

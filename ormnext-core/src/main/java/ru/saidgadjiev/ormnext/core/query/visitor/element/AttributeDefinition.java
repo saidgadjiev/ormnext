@@ -40,16 +40,30 @@ public class AttributeDefinition implements QueryElement {
     private List<AttributeConstraint> attributeConstraints = new ArrayList<>();
 
     /**
+     * Is id?.
+     */
+    private boolean id;
+
+    /**
+     * Is generated?
+     */
+    private boolean generated;
+
+    /**
      * Create a new instance.
      *
      * @param columnName target column name.
      * @param dataType   target column type
-     * @param length     target column lenght
+     * @param length     target column length
+     * @param id         true if attr id
+     * @param generated  true if attr generated
      */
-    public AttributeDefinition(String columnName, int dataType, int length) {
+    public AttributeDefinition(String columnName, int dataType, int length, boolean id, boolean generated) {
         this.columnName = columnName;
         this.dataType = dataType;
         this.length = length;
+        this.id = id;
+        this.generated = generated;
     }
 
     /**
@@ -86,6 +100,24 @@ public class AttributeDefinition implements QueryElement {
      */
     public List<AttributeConstraint> getAttributeConstraints() {
         return attributeConstraints;
+    }
+
+    /**
+     * Is id?
+     *
+     * @return true if attr is id
+     */
+    public boolean isId() {
+        return id;
+    }
+
+    /**
+     * Is generated?
+     *
+     * @return true if attr is generated
+     */
+    public boolean isGenerated() {
+        return generated;
     }
 
     @Override

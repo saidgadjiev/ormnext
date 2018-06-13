@@ -10,12 +10,12 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.AttributeDefinition;
 public interface Dialect {
 
     /**
-     * Primary auto generated definition part.
+     * Primary key definition part.
      *
-     * @param generated true if is generated
+     * @param primaryKeyDefinition primary key definition
      * @return primary key definition
      */
-    String getPrimaryKeyDefinition(boolean generated);
+    String getPrimaryKeyDefinition(AttributeDefinition primaryKeyDefinition);
 
     /**
      * No args insert definition.
@@ -60,4 +60,12 @@ public interface Dialect {
      * @return true if support table unique constraints.
      */
     boolean supportTableUniqueConstraint();
+
+    /**
+     * Generated definition part.
+     *
+     * @param attributeDefinition generated definition
+     * @return generated definition
+     */
+    String getGeneratedDefinition(AttributeDefinition attributeDefinition);
 }

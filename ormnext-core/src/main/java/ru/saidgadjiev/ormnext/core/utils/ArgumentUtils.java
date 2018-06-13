@@ -1,8 +1,8 @@
 package ru.saidgadjiev.ormnext.core.utils;
 
 import ru.saidgadjiev.ormnext.core.field.datapersister.ColumnConverter;
-import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignColumnTypeImpl;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.DatabaseColumnType;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignColumnTypeImpl;
 import ru.saidgadjiev.ormnext.core.loader.Argument;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetadata;
 
@@ -54,9 +54,10 @@ public final class ArgumentUtils {
                     }
                 }
             } else {
-                DatabaseColumnType foreignPrimaryKeyType = ((ForeignColumnTypeImpl) columnType).getForeignPrimaryKey();
+                ForeignColumnTypeImpl foreignColumnType = ((ForeignColumnTypeImpl) columnType);
+                DatabaseColumnType foreignDatabaseColumnType = foreignColumnType.getForeignDatabaseColumnType();
 
-                args.put(columnType, eject(value, foreignPrimaryKeyType));
+                args.put(columnType, eject(value, foreignDatabaseColumnType));
             }
         }
 
@@ -94,9 +95,10 @@ public final class ArgumentUtils {
                     }
                 }
             } else {
-                DatabaseColumnType foreignPrimaryKeyType = ((ForeignColumnTypeImpl) columnType).getForeignPrimaryKey();
+                ForeignColumnTypeImpl foreignColumnType = ((ForeignColumnTypeImpl) columnType);
+                DatabaseColumnType foreignDatabaseColumnType = foreignColumnType.getForeignDatabaseColumnType();
 
-                args.put(columnType, eject(value, foreignPrimaryKeyType));
+                args.put(columnType, eject(value, foreignDatabaseColumnType));
             }
         }
 
@@ -140,6 +142,31 @@ public final class ArgumentUtils {
         if (databaseColumnType.getColumnConverters().isPresent()) {
             for (ColumnConverter columnConverter : databaseColumnType.getColumnConverters().get()) {
                 result = columnConverter.javaToSql(result);
+            }
+        }
+
+        return new Argument(databaseColumnType.dataType(), result);
+    }
+
+    /**
+     * Convert java value to SQL with converters in requested column type
+     * {@link DatabaseColumnType#getColumnConverters()}.
+     *
+     * @param sqlValue          target sql value
+     * @param databaseColumnType column type
+     * @return argument with sql value
+     * @throws SQLException any exceptions
+     */
+    public static Argument processConvertersToJavaValue(Object sqlValue, DatabaseColumnType databaseColumnType)
+            throws SQLException {
+        if (sqlValue == null) {
+            return new Argument(databaseColumnType.dataType(), null);
+        }
+        Object result = sqlValue;
+
+        if (databaseColumnType.getColumnConverters().isPresent()) {
+            for (ColumnConverter columnConverter : databaseColumnType.getColumnConverters().get()) {
+                result = columnConverter.sqlToJava(result);
             }
         }
 

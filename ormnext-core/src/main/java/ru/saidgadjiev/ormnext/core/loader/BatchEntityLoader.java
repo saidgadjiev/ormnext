@@ -1,10 +1,12 @@
 package ru.saidgadjiev.ormnext.core.loader;
 
 import ru.saidgadjiev.ormnext.core.connection.DatabaseResults;
+import ru.saidgadjiev.ormnext.core.dao.Dao;
 import ru.saidgadjiev.ormnext.core.dao.DatabaseEngine;
 import ru.saidgadjiev.ormnext.core.dao.Session;
 import ru.saidgadjiev.ormnext.core.dao.SessionManager;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.DatabaseColumnType;
+import ru.saidgadjiev.ormnext.core.query.criteria.impl.DeleteStatement;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.SelectStatement;
 import ru.saidgadjiev.ormnext.core.query.space.EntityQuerySpace;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.CreateQuery;
@@ -86,7 +88,7 @@ public class BatchEntityLoader implements EntityLoader {
     }
 
     @Override
-    public int create(Session session, Object[] objects) throws SQLException {
+    public int create(Session session, Object... objects) throws SQLException {
         if (objects.length == 0) {
             return 0;
         }
@@ -250,6 +252,21 @@ public class BatchEntityLoader implements EntityLoader {
 
     @Override
     public int clearTable(Session session, Class<?> entityClass) {
+        throw new UnsupportedOperationException("Not supported for batch execute");
+    }
+
+    @Override
+    public Dao.CreateOrUpdateStatus createOrUpdate(Session session, Object object) {
+        throw new UnsupportedOperationException("Not supported for batch execute");
+    }
+
+    @Override
+    public boolean exist(Session session, Class<?> entityClass, Object id) {
+        throw new UnsupportedOperationException("Not supported for batch execute");
+    }
+
+    @Override
+    public int delete(Session session, DeleteStatement deleteStatement) {
         throw new UnsupportedOperationException("Not supported for batch execute");
     }
 }

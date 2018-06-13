@@ -51,7 +51,7 @@ public class SessionManagerBuilder {
      * @param classes target classes
      * @return this for chain
      */
-    public SessionManagerBuilder entities(Class<?>[] classes) {
+    public SessionManagerBuilder entities(Class<?> ... classes) {
         entityClasses.addAll(Arrays.asList(classes));
 
         return this;
@@ -141,7 +141,7 @@ public class SessionManagerBuilder {
     private void doTableOperations(Session session) throws SQLException {
         switch (tableOperation) {
             case CREATE:
-                session.createTables(entityClasses.toArray(new Class<?>[entityClasses.size()]), true);
+                session.createTables(true, entityClasses.toArray(new Class<?>[entityClasses.size()]));
 
                 break;
             case CLEAR:
@@ -153,8 +153,8 @@ public class SessionManagerBuilder {
 
                 Collections.reverse(reversedEntityClasses);
 
-                session.dropTables(reversedEntityClasses.toArray(new Class<?>[reversedEntityClasses.size()]), true);
-                session.createTables(entityClasses.toArray(new Class<?>[entityClasses.size()]), true);
+                session.dropTables(true, reversedEntityClasses.toArray(new Class<?>[reversedEntityClasses.size()]));
+                session.createTables(true, entityClasses.toArray(new Class<?>[entityClasses.size()]));
                 break;
             default:
                 break;

@@ -17,18 +17,26 @@ public class CollectionQuerySpace {
 
     /**
      * Collection entity aliases.
+     *
      * @see CollectionEntityAliases
      */
     private final CollectionEntityAliases collectionEntityAliases;
 
     /**
      * Collection owner primary key.
+     *
      * @see DatabaseColumnType
      */
-    private DatabaseColumnType ownerPrimaryKey;
+    private final DatabaseColumnType ownerPrimaryKey;
+
+    /**
+     * Collection object primary key.
+     */
+    private final DatabaseColumnType collectionObjectPrimaryKey;
 
     /**
      * Target foreign collection type.
+     *
      * @see ForeignCollectionColumnTypeImpl
      */
     private final ForeignCollectionColumnTypeImpl foreignCollectionColumnType;
@@ -45,15 +53,19 @@ public class CollectionQuerySpace {
 
     /**
      * Create a new query space.
-     * @param collectionEntityAliases collection entity aliases
-     * @param ownerPrimaryKey owner primary key
+     *
+     * @param collectionEntityAliases     collection entity aliases
+     * @param ownerPrimaryKey             owner primary key
+     * @param collectionObjectPrimaryKey  collection object primary key
      * @param foreignCollectionColumnType target collection type
      */
     public CollectionQuerySpace(CollectionEntityAliases collectionEntityAliases,
                                 DatabaseColumnType ownerPrimaryKey,
+                                DatabaseColumnType collectionObjectPrimaryKey,
                                 ForeignCollectionColumnTypeImpl foreignCollectionColumnType) {
         this.collectionEntityAliases = collectionEntityAliases;
         this.ownerPrimaryKey = ownerPrimaryKey;
+        this.collectionObjectPrimaryKey = collectionObjectPrimaryKey;
         this.foreignCollectionColumnType = foreignCollectionColumnType;
 
         this.loadCollectionQuery =
@@ -70,6 +82,7 @@ public class CollectionQuerySpace {
 
     /**
      * Return select collection items statement.
+     *
      * @return select collection items statement
      */
     public SelectStatement getLoadCollectionQuery() {
@@ -78,6 +91,7 @@ public class CollectionQuerySpace {
 
     /**
      * Return select collection items count statement.
+     *
      * @return select collection items count statement
      */
     public SelectStatement getCountOffCriteria() {
@@ -86,6 +100,7 @@ public class CollectionQuerySpace {
 
     /**
      * Return collection column type.
+     *
      * @return collection column type
      */
     public ForeignCollectionColumnTypeImpl getForeignCollectionColumnType() {
@@ -94,6 +109,7 @@ public class CollectionQuerySpace {
 
     /**
      * Return collection entity aliases.
+     *
      * @return collection entity aliases
      */
     public CollectionEntityAliases getCollectionEntityAliases() {
@@ -102,9 +118,19 @@ public class CollectionQuerySpace {
 
     /**
      * Return owner primary key.
+     *
      * @return owner primary key
      */
     public DatabaseColumnType getOwnerPrimaryKey() {
         return ownerPrimaryKey;
+    }
+
+    /**
+     * Collection object primary key.
+     *
+     * @return collection object primary key
+     */
+    public DatabaseColumnType getCollectionObjectPrimaryKey() {
+        return collectionObjectPrimaryKey;
     }
 }

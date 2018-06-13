@@ -1,10 +1,11 @@
 package ru.saidgadjiev.ormnext.core.query.space;
 
 import ru.saidgadjiev.ormnext.core.dialect.Dialect;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.DatabaseColumnType;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignCollectionColumnTypeImpl;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignColumnTypeImpl;
-import ru.saidgadjiev.ormnext.core.field.fieldtype.DatabaseColumnType;
 import ru.saidgadjiev.ormnext.core.loader.Argument;
+import ru.saidgadjiev.ormnext.core.query.criteria.impl.DeleteStatement;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.SelectStatement;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.*;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.clause.from.FromJoinedTables;
@@ -95,12 +96,12 @@ public class EntityQuerySpace {
                            EntityAliases joinTableAliases) {
         Expression onExpression = new Expression();
         AndCondition andCondition = new AndCondition();
-        DatabaseColumnType foreignPrimaryKeyType = foreignColumnType.getForeignPrimaryKey();
+        DatabaseColumnType foreignDatabaseColumnType = foreignColumnType.getForeignDatabaseColumnType();
 
         andCondition.add(
                 new Equals(
                         new ColumnSpec(foreignColumnType.columnName(), ownerAliases.getTableAlias()),
-                        new ColumnSpec(foreignPrimaryKeyType.columnName(), joinTableAliases.getTableAlias())
+                        new ColumnSpec(foreignDatabaseColumnType.columnName(), joinTableAliases.getTableAlias())
                 )
         );
         onExpression.add(andCondition);
@@ -228,7 +229,7 @@ public class EntityQuerySpace {
      * @param resultColumnTypes result columns in statement
      * @return create statement
      */
-    public CreateQuery getCreatedQuery(Collection<DatabaseColumnType> resultColumnTypes) {
+    public CreateQuery getCreateQuery(Collection<DatabaseColumnType> resultColumnTypes) {
         CreateQuery createQuery = new CreateQuery(rootEntityMetaData.getTableName());
 
         for (DatabaseColumnType columnType : resultColumnTypes) {
@@ -274,7 +275,7 @@ public class EntityQuerySpace {
      * @param dialect    target database dialect {@link Dialect}
      * @return create table statement
      */
-    public CreateTableQuery createTableQuery(Dialect dialect, boolean ifNotExist) {
+    public CreateTableQuery getCreateTableQuery(Dialect dialect, boolean ifNotExist) {
         List<AttributeDefinition> attributeDefinitions = new ArrayList<>();
         CreateTableQuery createTableQuery = new CreateTableQuery(
                 rootEntityMetaData.getTableName(),
@@ -289,12 +290,11 @@ public class EntityQuerySpace {
             AttributeDefinition attributeDefinition = new AttributeDefinition(
                     columnType.columnName(),
                     columnType.dataType(),
-                    columnType.length()
+                    columnType.length(),
+                    columnType.id(),
+                    columnType.generated()
             );
 
-            if (columnType.id()) {
-                attributeDefinition.getAttributeConstraints().add(new PrimaryKeyConstraint(columnType.generated()));
-            }
             if (columnType.notNull()) {
                 attributeDefinition.getAttributeConstraints().add(new NotNullConstraint());
             }
@@ -514,14 +514,22 @@ public class EntityQuerySpace {
         SelectQuery selectQuery = new SelectQuery();
 
         selectQuery.setSelectColumnsStrategy(selectColumnsList);
-        selectQuery.setFrom(fromJoinedTables);
+        if (selectStatement.isWithoutJoins()) {
+            selectQuery.setFrom(
+                    new FromTable(
+                            new TableRef(rootEntityMetaData.getTableName()).alias(rootEntityAliases.getTableAlias())
+                    )
+            );
+        } else {
+            selectQuery.setFrom(fromJoinedTables);
+        }
         selectQuery.setWhere(selectStatement.getWhere());
         selectQuery.setGroupBy(selectStatement.getGroupBy());
         selectQuery.setOrderBy(selectStatement.getOrderBy());
         selectQuery.setHaving(selectStatement.getHaving());
         selectQuery.setLimit(selectStatement.getLimit());
         selectQuery.setOffset(selectStatement.getOffset());
-        selectQuery.accept(new QuerySpaceVisitor(rootEntityMetaData, rootEntityAliases));
+        selectQuery.accept(new SelectQuerySpaceVisitor(rootEntityMetaData, rootEntityAliases));
 
         return selectQuery;
     }
@@ -535,7 +543,15 @@ public class EntityQuerySpace {
     public SelectQuery getSelectForLongResult(SelectStatement selectStatement) {
         SelectQuery selectQuery = new SelectQuery();
 
-        selectQuery.setFrom(new FromTable(new TableRef(rootEntityMetaData.getTableName())));
+        if (selectStatement.isWithoutJoins()) {
+            selectQuery.setFrom(
+                    new FromTable(
+                            new TableRef(rootEntityMetaData.getTableName()).alias(rootEntityAliases.getTableAlias())
+                    )
+            );
+        } else {
+            selectQuery.setFrom(fromJoinedTables);
+        }
         selectQuery.setWhere(selectStatement.getWhere());
         selectQuery.setGroupBy(selectStatement.getGroupBy());
         selectQuery.setOrderBy(selectStatement.getOrderBy());
@@ -544,10 +560,63 @@ public class EntityQuerySpace {
         selectQuery.setOffset(selectStatement.getOffset());
         SelectColumnsList selectColumnsList = new SelectColumnsList();
 
+        if (selectStatement.getSelectOperand() == null) {
+            throw new IllegalArgumentException(
+                    "Select operand does not provided for queryForLong query. "
+                            + "Please use provide it for requested select statement.");
+        }
         selectColumnsList.addColumn(selectStatement.getSelectOperand());
         selectQuery.setSelectColumnsStrategy(selectColumnsList);
-        selectQuery.accept(new QuerySpaceVisitor(rootEntityMetaData, rootEntityAliases));
+        selectQuery.accept(new SelectQuerySpaceVisitor(rootEntityMetaData, rootEntityAliases));
 
         return selectQuery;
+    }
+
+    /**
+     * Make and return exist row with id select query.
+     *
+     * @return exist row with id select query
+     */
+    public SelectQuery getExistSelect() {
+        SelectQuery select = new SelectQuery();
+
+        select.setFrom(new FromTable(new TableRef(rootEntityMetaData.getTableName())));
+
+        SelectColumnsList selectColumnsStrategy = new SelectColumnsList();
+
+        selectColumnsStrategy.addColumn(new DisplayedOperand(new CountAll()));
+
+        select.setSelectColumnsStrategy(selectColumnsStrategy);
+
+        AndCondition andCondition = new AndCondition();
+
+        andCondition.add(
+                new Equals(
+                        new ColumnSpec(rootEntityMetaData.getPrimaryKeyColumnType().columnName()),
+                        new Param()
+                )
+        );
+        Expression expression = new Expression();
+
+        expression.add(andCondition);
+        select.setWhere(expression);
+
+        return select;
+    }
+
+    /**
+     * Create delete query from delete statement.
+     *
+     * @param deleteStatement target delete statement
+     * @return return delete query
+     */
+    public DeleteQuery getDeleteQuery(DeleteStatement deleteStatement) {
+        DeleteQuery deleteQuery = new DeleteQuery(rootEntityMetaData.getTableName());
+
+        deleteQuery.setWhere(deleteStatement.getWhere());
+
+        deleteQuery.accept(new SimpleQuerySpaceVisitor(rootEntityMetaData));
+
+        return deleteQuery;
     }
 }

@@ -101,10 +101,6 @@ public class NoActionVisitor implements QueryVisitor {
     }
 
     @Override
-    public void visit(PrimaryKeyConstraint primaryKeyConstraint) {
-    }
-
-    @Override
     public void visit(UniqueConstraint uniqueConstraint) {
     }
 

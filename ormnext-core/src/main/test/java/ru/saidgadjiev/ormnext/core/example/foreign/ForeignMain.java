@@ -14,7 +14,7 @@ public class ForeignMain {
         System.setProperty(LoggerFactory.LOG_ENABLED_PROPERTY, "true");
         try (SessionManager sessionManager = TestUtils.h2SessionManager(TestForeign.class, Test.class)) {
             try (Session session = sessionManager.createSession()) {
-                session.createTables(new Class[] {TestForeign.class, Test.class}, true);
+                session.createTables(true, new Class[] {TestForeign.class, Test.class});
                 TestForeign testForeign = new TestForeign();
 
                 testForeign.setName("TestForeign");

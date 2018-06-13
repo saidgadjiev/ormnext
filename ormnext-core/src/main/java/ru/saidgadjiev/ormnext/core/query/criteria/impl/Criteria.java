@@ -1,6 +1,8 @@
 package ru.saidgadjiev.ormnext.core.query.criteria.impl;
 
 import ru.saidgadjiev.ormnext.core.query.criteria.api.Criterion;
+import ru.saidgadjiev.ormnext.core.query.visitor.QueryElement;
+import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.AndCondition;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.condition.Expression;
 
@@ -12,7 +14,7 @@ import java.util.List;
  *
  * @author Said Gadjiev
  */
-public class Criteria {
+public class Criteria implements QueryElement {
 
     /**
      * Current expression.
@@ -46,7 +48,9 @@ public class Criteria {
      */
     public Criteria add(Criterion criterion) {
         andCondition.add(criterion.getCondition());
-        args.add(criterion.getArg());
+        if (criterion.getArg() != null) {
+            args.add(criterion.getArg());
+        }
 
         return this;
     }
@@ -78,4 +82,8 @@ public class Criteria {
         return where;
     }
 
+    @Override
+    public void accept(QueryVisitor visitor) {
+        where.accept(visitor);
+    }
 }

@@ -1,10 +1,7 @@
 package ru.saidgadjiev.ormnext.core.loader.object.collection;
 
 import ru.saidgadjiev.ormnext.core.dao.Session;
-import ru.saidgadjiev.ormnext.core.field.datapersister.DataPersister;
-import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignCollectionColumnTypeImpl;
 import ru.saidgadjiev.ormnext.core.query.space.CollectionQuerySpace;
-import ru.saidgadjiev.ormnext.core.table.internal.alias.CollectionEntityAliases;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -53,26 +50,11 @@ public class CollectionLoader {
     }
 
     /**
-     * Return current collection column type.
-     * @return current collection column type
+     * Return collection query space.
+     *
+     * @return collection query space
      */
-    public ForeignCollectionColumnTypeImpl getGoreignCollectionColumnType() {
-        return collectionQuerySpace.getForeignCollectionColumnType();
-    }
-
-    /**
-     * Return collection entity aliases.
-     * @return collection entity aliases
-     */
-    public CollectionEntityAliases getCollectionEntityAliases() {
-        return collectionQuerySpace.getCollectionEntityAliases();
-    }
-
-    /**
-     * Return owner primary key persister.
-     * @return owner primary key persister
-     */
-    public DataPersister getCollectionColumnPersister() {
-        return collectionQuerySpace.getOwnerPrimaryKey().dataPersister();
+    public CollectionQuerySpace getCollectionQuerySpace() {
+        return collectionQuerySpace;
     }
 }

@@ -4,12 +4,16 @@ import ru.saidgadjiev.ormnext.core.field.FetchType;
 import ru.saidgadjiev.ormnext.core.field.FieldAccessor;
 import ru.saidgadjiev.ormnext.core.field.ForeignColumn;
 import ru.saidgadjiev.ormnext.core.field.ReferenceAction;
+import ru.saidgadjiev.ormnext.core.field.datapersister.ColumnConverter;
 import ru.saidgadjiev.ormnext.core.field.datapersister.DataPersister;
 import ru.saidgadjiev.ormnext.core.table.internal.visitor.EntityMetadataVisitor;
 import ru.saidgadjiev.ormnext.core.utils.DatabaseEntityMetadataUtils;
+import ru.saidgadjiev.ormnext.core.utils.FieldTypeUtils;
 import ru.saidgadjiev.ormnext.core.validator.entity.PrimaryKeyValidator;
 
 import java.lang.reflect.Field;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * This class represent column type annotated with {@link ForeignColumn}.
@@ -26,7 +30,7 @@ public class ForeignColumnTypeImpl extends BaseDatabaseColumnType implements For
     /**
      * Primary key reference column type.
      */
-    private DatabaseColumnType foreignPrimaryKey;
+    private DatabaseColumnType foreignDatabaseColumnType;
 
     /**
      * Is foreign auto create.
@@ -111,12 +115,12 @@ public class ForeignColumnTypeImpl extends BaseDatabaseColumnType implements For
 
     @Override
     public DataPersister dataPersister() {
-        return foreignPrimaryKey.dataPersister();
+        return foreignDatabaseColumnType.dataPersister();
     }
 
     @Override
     public int dataType() {
-        return foreignPrimaryKey.dataType();
+        return foreignDatabaseColumnType.dataType();
     }
 
     /**
@@ -124,8 +128,8 @@ public class ForeignColumnTypeImpl extends BaseDatabaseColumnType implements For
      *
      * @return current primary key reference.
      */
-    public DatabaseColumnType getForeignPrimaryKey() {
-        return foreignPrimaryKey;
+    public DatabaseColumnType getForeignDatabaseColumnType() {
+        return foreignDatabaseColumnType;
     }
 
     @Override
@@ -174,7 +178,7 @@ public class ForeignColumnTypeImpl extends BaseDatabaseColumnType implements For
 
     @Override
     public String getForeignColumnName() {
-        return foreignPrimaryKey.columnName();
+        return foreignDatabaseColumnType.columnName();
     }
 
     @Override
@@ -198,6 +202,11 @@ public class ForeignColumnTypeImpl extends BaseDatabaseColumnType implements For
     }
 
     @Override
+    public Optional<List<ColumnConverter<?, Object>>> getColumnConverters() {
+        return databaseColumnType == null ? super.getColumnConverters() : databaseColumnType.getColumnConverters();
+    }
+
+    @Override
     public boolean defineInCreateTable() {
         return databaseColumnType == null ? super.defineInCreateTable() : databaseColumnType.defineInCreateTable();
     }
@@ -205,6 +214,11 @@ public class ForeignColumnTypeImpl extends BaseDatabaseColumnType implements For
     @Override
     public FetchType getFetchType() {
         return fetchType;
+    }
+
+    @Override
+    public int length() {
+        return foreignDatabaseColumnType.length();
     }
 
     /**
@@ -247,12 +261,20 @@ public class ForeignColumnTypeImpl extends BaseDatabaseColumnType implements For
         ForeignColumn foreignColumn = field.getAnnotation(ForeignColumn.class);
         new PrimaryKeyValidator().validate(field.getType());
         ForeignColumnTypeImpl foreignColumnType = new ForeignColumnTypeImpl();
-        DatabaseColumnType foreignPrimaryKey = DatabaseEntityMetadataUtils.resolvePrimaryKey(field.getType()).get();
+        String foreignFieldName = foreignColumn.foreignFieldName();
+        DatabaseColumnType foreignDatabaseColumnType;
 
+        if (foreignFieldName.isEmpty()) {
+            foreignDatabaseColumnType = DatabaseEntityMetadataUtils.resolvePrimaryKey(field.getType()).get();
+        } else {
+            foreignDatabaseColumnType = FieldTypeUtils.create(FieldTypeUtils.findFieldByName(
+                    foreignFieldName,
+                    field.getType()
+            ).get()).get();
+        }
         foreignColumnType.foreignAutoCreate = foreignColumn.foreignAutoCreate();
-        foreignColumnType.foreignPrimaryKey = foreignPrimaryKey;
-        foreignColumnType.foreignTableName = DatabaseEntityMetadataUtils
-                .resolveTableName(foreignPrimaryKey.getField().getDeclaringClass());
+        foreignColumnType.foreignDatabaseColumnType = foreignDatabaseColumnType;
+        foreignColumnType.foreignTableName = foreignDatabaseColumnType.getTableName();
         foreignColumnType.foreignFieldClass = field.getType();
         foreignColumnType.field = field;
         foreignColumnType.fetchType = foreignColumn.fetchType();

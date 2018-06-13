@@ -1,6 +1,7 @@
 package ru.saidgadjiev.ormnext.core.loader;
 
 import ru.saidgadjiev.ormnext.core.connection.DatabaseResults;
+import ru.saidgadjiev.ormnext.core.dao.Dao;
 import ru.saidgadjiev.ormnext.core.dao.DatabaseEngine;
 import ru.saidgadjiev.ormnext.core.dao.Session;
 import ru.saidgadjiev.ormnext.core.dao.SessionManager;
@@ -8,11 +9,13 @@ import ru.saidgadjiev.ormnext.core.exception.GeneratedValueNotFoundException;
 import ru.saidgadjiev.ormnext.core.exception.PropertyNotFoundException;
 import ru.saidgadjiev.ormnext.core.field.DataPersisterManager;
 import ru.saidgadjiev.ormnext.core.field.datapersister.DataPersister;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.DatabaseColumnType;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignCollectionColumnTypeImpl;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignColumnTypeImpl;
-import ru.saidgadjiev.ormnext.core.field.fieldtype.DatabaseColumnType;
 import ru.saidgadjiev.ormnext.core.loader.rowreader.RowResult;
+import ru.saidgadjiev.ormnext.core.query.criteria.impl.CriteriaStatement;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.CriterionArgument;
+import ru.saidgadjiev.ormnext.core.query.criteria.impl.DeleteStatement;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.SelectStatement;
 import ru.saidgadjiev.ormnext.core.query.space.EntityQuerySpace;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.*;
@@ -73,7 +76,7 @@ public class DefaultEntityLoader implements EntityLoader {
 
             Map<DatabaseColumnType, Argument> argumentMap = ejectForCreate(object, entityMetadata);
             EntityQuerySpace entityQuerySpace = entityPersister.getEntityQuerySpace();
-            CreateQuery createQuery = entityQuerySpace.getCreatedQuery(argumentMap.keySet());
+            CreateQuery createQuery = entityQuerySpace.getCreateQuery(argumentMap.keySet());
             DatabaseColumnType idField = entityMetadata.getPrimaryKeyColumnType();
 
             GeneratedKey generatedKey = new KeyHolder();
@@ -105,7 +108,7 @@ public class DefaultEntityLoader implements EntityLoader {
     }
 
     @Override
-    public int create(Session session, Object[] objects) throws SQLException {
+    public int create(Session session, Object... objects) throws SQLException {
         if (objects.length == 0) {
             return 0;
         }
@@ -122,7 +125,7 @@ public class DefaultEntityLoader implements EntityLoader {
                 Map<DatabaseColumnType, Argument> argumentMap = ejectForCreate(object, entityMetadata);
 
                 if (createQuery == null) {
-                    createQuery = entityQuerySpace.getCreatedQuery(argumentMap.keySet());
+                    createQuery = entityQuerySpace.getCreateQuery(argumentMap.keySet());
                 }
                 foreignAutoCreate(session, object, entityMetadata);
                 args.add(new HashMap<Integer, Argument>() {{
@@ -184,7 +187,7 @@ public class DefaultEntityLoader implements EntityLoader {
     public boolean createTable(Session session, Class<?> tClass, boolean ifNotExist)
             throws SQLException {
         EntityQuerySpace entityQuerySpace = metaModel.getPersister(tClass).getEntityQuerySpace();
-        CreateTableQuery createTableQuery = entityQuerySpace.createTableQuery(
+        CreateTableQuery createTableQuery = entityQuerySpace.getCreateTableQuery(
                 databaseEngine.getDialect(),
                 ifNotExist
         );
@@ -272,25 +275,24 @@ public class DefaultEntityLoader implements EntityLoader {
                 }}
         );
 
-        cacheHelper.delete(tClass, id);
+        cacheHelper.delete(tClass, idArgument.getValue());
 
         return result;
     }
 
     @Override
     public <T> T queryForId(Session session, Class<T> tClass, Object id) throws SQLException {
-        Optional<Object> instance = cacheHelper.get(tClass, id);
-
-        if (instance.isPresent()) {
-            return (T) instance.get();
-        }
-
         DatabaseEntityPersister entityPersister = metaModel.getPersister(tClass);
         EntityQuerySpace entityQuerySpace = entityPersister.getEntityQuerySpace();
         Argument idArgument = processConvertersToSqlValue(
                 id,
                 entityPersister.getMetadata().getPrimaryKeyColumnType()
         );
+        Optional<Object> instance = cacheHelper.get(tClass, idArgument.getValue());
+
+        if (instance.isPresent()) {
+            return (T) instance.get();
+        }
 
         try (DatabaseResults databaseResults = databaseEngine.select(
                 session.getConnection(),
@@ -455,6 +457,57 @@ public class DefaultEntityLoader implements EntityLoader {
         return databaseEngine.delete(session.getConnection(), clearQuery, new HashMap<>());
     }
 
+    @Override
+    public boolean exist(Session session, Class<?> entityClass, Object id) throws SQLException {
+        DatabaseEntityPersister persister = metaModel.getPersister(entityClass);
+        SelectQuery existQuery = persister.getEntityQuerySpace().getExistSelect();
+        Argument idArgument = processConvertersToSqlValue(
+                id,
+                persister.getMetadata().getPrimaryKeyColumnType()
+        );
+        if (cacheHelper.get(entityClass, idArgument.getValue()).isPresent()) {
+            return true;
+        }
+
+        try (DatabaseResults results = databaseEngine.select(
+                session.getConnection(),
+                existQuery,
+                new HashMap<Integer, Argument>() {{
+                    put(1, idArgument);
+                }}
+        )) {
+            return results.next() && results.getLong(1) > 0;
+        }
+    }
+
+    @Override
+    public int delete(Session session, DeleteStatement deleteStatement) throws SQLException {
+        DatabaseEntityPersister entityPersister = metaModel.getPersister(deleteStatement.getEntityClass());
+        DeleteQuery deleteQuery = entityPersister.getEntityQuerySpace().getDeleteQuery(deleteStatement);
+
+        return databaseEngine.delete(
+                session.getConnection(),
+                deleteQuery,
+                getArguments(entityPersister.getMetadata(), deleteStatement)
+        );
+    }
+
+    @Override
+    public Dao.CreateOrUpdateStatus createOrUpdate(Session session, Object object) throws SQLException {
+        DatabaseEntityMetadata<?> metadata = metaModel.getPersister(object.getClass()).getMetadata();
+        DatabaseColumnType primaryKeyType = metadata.getPrimaryKeyColumnType();
+        Object id = primaryKeyType.access(object);
+        Dao.CreateOrUpdateStatus createOrUpdateStatus;
+
+        if (session.exist(object.getClass(), id)) {
+            createOrUpdateStatus = new Dao.CreateOrUpdateStatus(true, false, session.update(object));
+        } else {
+            createOrUpdateStatus = new Dao.CreateOrUpdateStatus(false, true, session.create(object));
+        }
+
+        return createOrUpdateStatus;
+    }
+
     /**
      * Foreign column
      * {@link ru.saidgadjiev.ormnext.core.field.ForeignColumn} object auto create if auto create enabled.
@@ -506,15 +559,15 @@ public class DefaultEntityLoader implements EntityLoader {
      * Obtain arguments {@link Argument} from criteria query.
      *
      * @param metadata        target table meta data
-     * @param selectStatement target criteria query
+     * @param criteriaStatement target criteria query
      * @return argument index map
      */
     private Map<Integer, Argument> getArguments(DatabaseEntityMetadata<?> metadata,
-                                                SelectStatement<?> selectStatement) {
+                                                CriteriaStatement criteriaStatement) {
         Map<Integer, Argument> args = new HashMap<>();
         AtomicInteger index = new AtomicInteger();
 
-        for (CriterionArgument criterionArgument : selectStatement.getArgs()) {
+        for (CriterionArgument criterionArgument : criteriaStatement.getArgs()) {
             DatabaseColumnType columnType = DatabaseEntityMetadataUtils
                     .getDataTypeByPropertyName(metadata.getColumnTypes(), criterionArgument.getProperty())
                     .orElseThrow(() -> new PropertyNotFoundException(
@@ -527,10 +580,10 @@ public class DefaultEntityLoader implements EntityLoader {
             }
         }
 
-        for (Map.Entry<Integer, Object> entry : selectStatement.getUserProvidedArgs().entrySet()) {
+        for (Map.Entry<Integer, Object> entry : criteriaStatement.getUserProvidedArgs().entrySet()) {
             DataPersister dataPersister = DataPersisterManager.lookup(entry.getValue().getClass());
 
-            args.put(entry.getKey(), new Argument(dataPersister.getDataType(), entry.getValue()));
+            args.put(entry.getKey(), new Argument(dataPersister.getSqlType(), entry.getValue()));
         }
 
         return args;

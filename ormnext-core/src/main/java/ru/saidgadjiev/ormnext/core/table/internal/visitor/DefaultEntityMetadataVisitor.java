@@ -1,9 +1,9 @@
 package ru.saidgadjiev.ormnext.core.table.internal.visitor;
 
 import ru.saidgadjiev.ormnext.core.field.FetchType;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.DatabaseColumnType;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignCollectionColumnTypeImpl;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignColumnTypeImpl;
-import ru.saidgadjiev.ormnext.core.field.fieldtype.DatabaseColumnType;
 import ru.saidgadjiev.ormnext.core.loader.object.collection.CollectionLoader;
 import ru.saidgadjiev.ormnext.core.loader.rowreader.entityinitializer.CollectionInitializer;
 import ru.saidgadjiev.ormnext.core.loader.rowreader.entityinitializer.EntityInitializer;
@@ -111,9 +111,12 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
 
     @Override
     public boolean start(ForeignColumnTypeImpl foreignColumnType) {
-        if (!visitedColumnTypes.add(foreignColumnType) && foreignColumnType.getFetchType().equals(FetchType.EAGER)) {
+        if (!visitedColumnTypes.add(foreignColumnType)) {
             LOGGER.debug("Detected circular references for " + foreignColumnType.getField());
 
+            return false;
+        }
+        if (!foreignColumnType.getFetchType().equals(FetchType.EAGER)) {
             return false;
         }
         EntityAliases ownerAliases = entityAliasResolverContext.getAliases(parentUidStack.peek());
@@ -181,6 +184,7 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
                                     )
                             ),
                             ownerMetaData.getPrimaryKeyColumnType(),
+                            foreignMetaData.getPrimaryKeyColumnType(),
                             collectionColumnType
                     )
             );
@@ -193,6 +197,8 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
             );
             parentUidStack.push(nextUID);
             foreignMetaData.accept(this);
+
+            return true;
         } else {
             CollectionLoader collectionLoader = new CollectionLoader(
                     new CollectionQuerySpace(
@@ -201,6 +207,7 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
                                     ownerAliases.getKeyAlias()
                             ),
                             ownerMetaData.getPrimaryKeyColumnType(),
+                            foreignMetaData.getPrimaryKeyColumnType(),
                             collectionColumnType
                     )
             );
@@ -211,9 +218,9 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
                             collectionLoader
                     )
             );
-        }
 
-        return true;
+            return false;
+        }
     }
 
     @Override

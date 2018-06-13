@@ -3,6 +3,7 @@ package ru.saidgadjiev.ormnext.core.field.fieldtype;
 import ru.saidgadjiev.ormnext.core.field.FetchType;
 import ru.saidgadjiev.ormnext.core.field.FieldAccessor;
 import ru.saidgadjiev.ormnext.core.field.ForeignCollectionField;
+import ru.saidgadjiev.ormnext.core.field.datapersister.ColumnConverter;
 import ru.saidgadjiev.ormnext.core.field.datapersister.DataPersister;
 import ru.saidgadjiev.ormnext.core.table.internal.visitor.EntityMetadataVisitor;
 import ru.saidgadjiev.ormnext.core.utils.DatabaseEntityMetadataUtils;
@@ -11,6 +12,7 @@ import ru.saidgadjiev.ormnext.core.utils.FieldTypeUtils;
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -176,6 +178,11 @@ public class ForeignCollectionColumnTypeImpl extends BaseDatabaseColumnType impl
     @Override
     public String getForeignColumnName() {
         return foreignColumnName;
+    }
+
+    @Override
+    public Optional<List<ColumnConverter<?, Object>>> getColumnConverters() {
+        return foreignColumnType.getColumnConverters();
     }
 
     /**

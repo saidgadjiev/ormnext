@@ -29,7 +29,7 @@ public interface DataPersister {
      *
      * @return data type
      */
-    int getDataType();
+    int getSqlType();
 
     /**
      * Read value from database results by column name.

@@ -228,18 +228,24 @@ public final class DefaultVisitor extends NoActionVisitor {
             AttributeDefinition attributeDefinition = iterator.next();
 
             sql.append(escapeEntity).append(attributeDefinition.getName()).append(escapeEntity).append(" ");
-            sql.append(dialect.getTypeSqlPresent(attributeDefinition));
-            sql.append(" ");
-            List<AttributeConstraint> attributeConstraints = attributeDefinition.getAttributeConstraints();
+            if (attributeDefinition.isId()) {
+                sql.append(dialect.getPrimaryKeyDefinition(attributeDefinition));
+            } else if (attributeDefinition.isGenerated()) {
+                sql.append(dialect.getGeneratedDefinition(attributeDefinition));
+            } else {
+                sql.append(dialect.getTypeSqlPresent(attributeDefinition));
+                sql.append(" ");
+                List<AttributeConstraint> attributeConstraints = attributeDefinition.getAttributeConstraints();
 
-            for (Iterator<AttributeConstraint> constraintIterator = attributeConstraints.iterator();
-                 constraintIterator.hasNext();) {
-                AttributeConstraint constraint = constraintIterator.next();
+                for (Iterator<AttributeConstraint> constraintIterator = attributeConstraints.iterator();
+                     constraintIterator.hasNext();) {
+                    AttributeConstraint constraint = constraintIterator.next();
 
-                constraint.accept(this);
+                    constraint.accept(this);
 
-                if (constraintIterator.hasNext()) {
-                    sql.append(" ");
+                    if (constraintIterator.hasNext()) {
+                        sql.append(" ");
+                    }
                 }
             }
             if (iterator.hasNext()) {
@@ -265,7 +271,7 @@ public final class DefaultVisitor extends NoActionVisitor {
 
     @Override
     public boolean visit(DeleteQuery deleteQuery) {
-        sql.append("DELETE FROM ").append(deleteQuery.getTableName());
+        sql.append("DELETE FROM ").append(escapeEntity).append(deleteQuery.getTableName()).append(escapeEntity);
         if (!deleteQuery.getWhere().getConditions().isEmpty()) {
             sql.append(" WHERE ");
         }
@@ -307,11 +313,6 @@ public final class DefaultVisitor extends NoActionVisitor {
             sql.append("IF EXISTS ");
         }
         sql.append(escapeEntity).append(dropTableQuery.getTableName()).append(escapeEntity);
-    }
-
-    @Override
-    public void visit(PrimaryKeyConstraint primaryKeyConstraint) {
-        sql.append(dialect.getPrimaryKeyDefinition(primaryKeyConstraint.isGenerated()));
     }
 
     @Override
@@ -649,5 +650,13 @@ public final class DefaultVisitor extends NoActionVisitor {
     @Override
     public void visit(UniqueAttributeConstraint uniqueAttributeConstraint) {
         sql.append("UNIQUE");
+    }
+
+    @Override
+    public boolean visit(IsNull isNull) {
+        isNull.getOperand().accept(this);
+        sql.append(" IS NULL ");
+
+        return false;
     }
 }

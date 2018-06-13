@@ -1,7 +1,9 @@
 package ru.saidgadjiev.ormnext.core.loader;
 
 import ru.saidgadjiev.ormnext.core.connection.DatabaseResults;
+import ru.saidgadjiev.ormnext.core.dao.Dao;
 import ru.saidgadjiev.ormnext.core.dao.Session;
+import ru.saidgadjiev.ormnext.core.query.criteria.impl.DeleteStatement;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.SelectStatement;
 
 import java.sql.SQLException;
@@ -30,7 +32,7 @@ public interface EntityLoader {
      * @return created count
      * @throws SQLException any SQL exceptions
      */
-    int create(Session session, Object[] objects) throws SQLException;
+    int create(Session session, Object... objects) throws SQLException;
 
     /**
      * Create table in the database.
@@ -201,12 +203,43 @@ public interface EntityLoader {
     /**
      * Clear table.
      *
-     * @param session target session
+     * @param session     target session
      * @param entityClass target entity class
      * @return deleted count
      * @throws SQLException any SQL exceptions
      */
     int clearTable(Session session, Class<?> entityClass) throws SQLException;
+
+    /**
+     * Create or update object.
+     *
+     * @param session target session
+     * @param object  target object
+     * @return create or update status
+     * @throws SQLException any SQL exceptions
+     */
+    Dao.CreateOrUpdateStatus createOrUpdate(Session session, Object object) throws SQLException;
+
+    /**
+     * Check exist id in the database table.
+     *
+     * @param session     target session
+     * @param entityClass table class
+     * @param id          target id
+     * @return true if row with id exist
+     * @throws SQLException any SQL exceptions
+     */
+    boolean exist(Session session, Class<?> entityClass, Object id) throws SQLException;
+
+    /**
+     * Delete the database table rows by delete statement.
+     *
+     * @param session         target session
+     * @param deleteStatement target statement
+     * @return deleted rows count
+     * @throws SQLException any SQL exceptions
+     */
+    int delete(Session session, DeleteStatement deleteStatement) throws SQLException;
 
     /**
      * Entity loader types.

@@ -232,7 +232,7 @@ public final class SimpleDatabaseColumnTypeImpl extends BaseDatabaseColumnType {
 
             columnType.tableName = DatabaseEntityMetadataUtils.resolveTableName(field.getDeclaringClass());
             columnType.dataPersister = dataPersister;
-            columnType.dataType = dataType.equals(DataType.UNKNOWN) ? dataPersister.getDataType() : dataType;
+            columnType.dataType = dataType.equals(DataType.UNKNOWN) ? dataPersister.getSqlType() : dataType;
             String defaultDefinition = databaseColumn.defaultDefinition();
 
             if (!defaultDefinition.isEmpty()) {

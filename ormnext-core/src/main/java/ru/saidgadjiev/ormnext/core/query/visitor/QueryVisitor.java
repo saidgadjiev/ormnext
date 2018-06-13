@@ -124,7 +124,7 @@ public interface QueryVisitor {
      * Visit {@link CreateTableQuery} element.
      *
      * @param createTableQuery target visitor element
-     * @return true if need visit another visitor elements that contained in {@code createTableQuery} else false
+     * @return true if need visit another visitor elements that contained in {@code getCreateTableQuery} else false
      * @see CreateTableQuery
      */
     boolean visit(CreateTableQuery createTableQuery);
@@ -162,14 +162,6 @@ public interface QueryVisitor {
      * @see DropTableQuery
      */
     void visit(DropTableQuery dropTableQuery);
-
-    /**
-     * Visit {@link PrimaryKeyConstraint} element.
-     *
-     * @param primaryKeyConstraint target visitor element
-     * @see PrimaryKeyConstraint
-     */
-    void visit(PrimaryKeyConstraint primaryKeyConstraint);
 
     /**
      * Visit {@link UniqueConstraint} element.

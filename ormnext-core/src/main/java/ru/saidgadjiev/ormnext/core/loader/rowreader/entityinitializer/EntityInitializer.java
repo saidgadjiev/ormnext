@@ -1,8 +1,7 @@
 package ru.saidgadjiev.ormnext.core.loader.rowreader.entityinitializer;
 
-import ru.saidgadjiev.ormnext.core.field.datapersister.ColumnConverter;
-import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignColumnTypeImpl;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.DatabaseColumnType;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignColumnTypeImpl;
 import ru.saidgadjiev.ormnext.core.loader.ResultSetContext;
 import ru.saidgadjiev.ormnext.core.logger.Log;
 import ru.saidgadjiev.ormnext.core.logger.LoggerFactory;
@@ -10,9 +9,12 @@ import ru.saidgadjiev.ormnext.core.table.internal.alias.EntityAliases;
 import ru.saidgadjiev.ormnext.core.table.internal.alias.UIDGenerator;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetadata;
 import ru.saidgadjiev.ormnext.core.table.internal.persister.DatabaseEntityPersister;
+import ru.saidgadjiev.ormnext.core.utils.ArgumentUtils;
 
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import static ru.saidgadjiev.ormnext.core.loader.ResultSetContext.EntityProcessingState;
 
@@ -81,6 +83,8 @@ public class EntityInitializer {
         if (context.getDatabaseResults().wasNull()) {
             return null;
         }
+        id = ArgumentUtils.processConvertersToJavaValue(id, idColumnType).getValue();
+
         EntityProcessingState processingState = context.getProcessingState(uid, id);
         Object entityInstance;
 
@@ -100,7 +104,8 @@ public class EntityInitializer {
 
         primaryKey.assign(entityInstance, id);
 
-        addToCache(context, id, entityInstance);
+        context.addEntry(id, entityInstance);
+        context.getCacheHelper().saveToCache(id, entityInstance);
         List<ResultSetValue> values = new ArrayList<>();
 
         List<String> columnAliases = entityAliases.getColumnAliases();
@@ -118,7 +123,12 @@ public class EntityInitializer {
                     columnAliases.get(i++)
             );
 
+            value = ArgumentUtils.processConvertersToJavaValue(value, columnType).getValue();
+
             values.add(new ResultSetValue(value, context.getDatabaseResults().wasNull()));
+            if (columnType.unique()) {
+                context.addEntry(value, entityInstance);
+            }
         }
         processingState.setValuesFromResultSet(values);
         LOG.debug("Values read from resultset %s", values);
@@ -166,13 +176,6 @@ public class EntityInitializer {
                 ResultSetValue resultSetValue = values.get(i++);
                 Object value = resultSetValue.getValue();
 
-                if (columnType.getColumnConverters().isPresent()) {
-                    List<ColumnConverter<?, Object>> columnConverters = columnType.getColumnConverters().get();
-
-                    for (ColumnConverter columnConverter : columnConverters) {
-                        value = columnConverter.sqlToJava(value);
-                    }
-                }
                 columnType.assign(entityInstance, value);
             }
             if (columnType.foreignColumnType()) {
@@ -189,6 +192,7 @@ public class EntityInitializer {
                             );
                             Object proxy = persister.createProxy(
                                     foreignColumnType.getForeignFieldClass(),
+                                    foreignColumnType.getForeignDatabaseColumnType().getField().getName(),
                                     resultSetValue.getValue()
                             );
 
@@ -206,18 +210,6 @@ public class EntityInitializer {
                 }
             }
         }
-    }
-
-    /**
-     * Add object to cache.
-     *
-     * @param context        target context
-     * @param id             target object id
-     * @param entityInstance target object
-     */
-    private void addToCache(ResultSetContext context, Object id, Object entityInstance) {
-        context.addEntry(id, entityInstance);
-        context.getCacheHelper().saveToCache(id, entityInstance);
     }
 
     /**

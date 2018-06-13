@@ -4,6 +4,10 @@ import org.junit.Assert;
 import org.junit.Test;
 import ru.saidgadjiev.ormnext.core.BaseCoreTest;
 import ru.saidgadjiev.ormnext.core.model.*;
+import ru.saidgadjiev.ormnext.core.query.criteria.impl.Criteria;
+import ru.saidgadjiev.ormnext.core.query.criteria.impl.DeleteStatement;
+import ru.saidgadjiev.ormnext.core.query.criteria.impl.Restrictions;
+import ru.saidgadjiev.ormnext.core.query.criteria.impl.SelectStatement;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -56,7 +60,7 @@ public class SessionImplTest extends BaseCoreTest {
         try (Session session = createSessionAndCreateTables()) {
             TestEntity entity = new TestEntity();
 
-            entity.setDesc("Test");
+            entity.setDesc("SelfJoinTestEntity");
             session.create(entity);
             entity.setDesc("TestDesc");
             session.update(entity);
@@ -98,7 +102,7 @@ public class SessionImplTest extends BaseCoreTest {
         try (Session session = createSessionAndCreateTables()) {
             TestEntity entity = new TestEntity();
 
-            entity.setDesc("Test");
+            entity.setDesc("SelfJoinTestEntity");
             session.create(entity);
             ForeignTestEntity foreignTestEntity = new ForeignTestEntity();
 
@@ -117,7 +121,7 @@ public class SessionImplTest extends BaseCoreTest {
             session.create(foreignCollectionTestEntity);
             TestEntity entity = new TestEntity();
 
-            entity.setDesc("Test");
+            entity.setDesc("SelfJoinTestEntity");
             entity.setForeignCollectionTestEntity(foreignCollectionTestEntity);
             session.create(entity);
 
@@ -136,7 +140,7 @@ public class SessionImplTest extends BaseCoreTest {
         try (Session session = createSessionAndCreateTables()) {
             TestEntity entity = new TestEntity();
 
-            entity.setDesc("Test");
+            entity.setDesc("SelfJoinTestEntity");
             session.create(entity);
             ForeignTestEntity foreignTestEntity = new ForeignTestEntity();
 
@@ -158,7 +162,7 @@ public class SessionImplTest extends BaseCoreTest {
             session.create(foreignCollectionTestEntity);
             TestEntity entity = new TestEntity();
 
-            entity.setDesc("Test");
+            entity.setDesc("SelfJoinTestEntity");
             entity.setForeignCollectionTestEntity(foreignCollectionTestEntity);
             session.create(entity);
 
@@ -192,7 +196,7 @@ public class SessionImplTest extends BaseCoreTest {
                     new ForeignAutoCreateForeignColumnTestEntity();
             TestEntity testEntity = new TestEntity();
 
-            testEntity.setDesc("Test");
+            testEntity.setDesc("SelfJoinTestEntity");
             testForeignAutoCreateEntity.setTestEntity(testEntity);
             session.create(testForeignAutoCreateEntity);
             ForeignAutoCreateForeignColumnTestEntity result = session.queryForId(
@@ -211,7 +215,7 @@ public class SessionImplTest extends BaseCoreTest {
                     new ForeignAutoCreateForeignCollectionColumnTestEntity();
             TestEntity testEntity = new TestEntity();
 
-            testEntity.setDesc("Test");
+            testEntity.setDesc("SelfJoinTestEntity");
             testForeignAutoCreateEntity.getEntities().add(testEntity);
             session.create(testForeignAutoCreateEntity);
             ForeignAutoCreateForeignCollectionColumnTestEntity result = session.queryForId(
@@ -237,7 +241,7 @@ public class SessionImplTest extends BaseCoreTest {
 
             Assert.assertEquals(foreignTestEntity, resultBefore);
 
-            testEntity.setDesc("Test");
+            testEntity.setDesc("SelfJoinTestEntity");
             session.update(testEntity);
             session.refresh(resultBefore);
             Assert.assertEquals(resultBefore, foreignTestEntity);
@@ -259,7 +263,7 @@ public class SessionImplTest extends BaseCoreTest {
 
             Assert.assertEquals(foreignTestEntity.getEntities(), resultBefore.getEntities());
 
-            testEntity.setDesc("Test");
+            testEntity.setDesc("SelfJoinTestEntity");
             session.update(testEntity);
             session.refresh(resultBefore);
             Assert.assertEquals(resultBefore.getEntities(), foreignTestEntity.getEntities());
@@ -298,6 +302,155 @@ public class SessionImplTest extends BaseCoreTest {
             session.create(testLazy);
             TestLazyForeign result = session.queryForId(TestLazyForeign.class, 1);
             Assert.assertEquals(result, testLazy);
+        }
+    }
+
+    @Test
+    public void testExist() throws SQLException {
+        try (Session session = createSessionAndCreateTables(WithDefaultTestEntity.class)) {
+            WithDefaultTestEntity testEntity = new WithDefaultTestEntity();
+
+            session.create(testEntity);
+            Assert.assertTrue(session.exist(WithDefaultTestEntity.class, 1));
+        }
+    }
+
+    @Test
+    public void testCreateOrUpdateCreate() throws SQLException {
+        try (Session session = createSessionAndCreateTables(WithDefaultTestEntity.class)) {
+            WithDefaultTestEntity testEntity = new WithDefaultTestEntity();
+
+            testEntity.setName("test");
+            Dao.CreateOrUpdateStatus createOrUpdateStatus = session.createOrUpdate(testEntity);
+
+            Assert.assertTrue(createOrUpdateStatus.isCreated());
+            Assert.assertEquals(session.queryForId(WithDefaultTestEntity.class, 1), testEntity);
+        }
+    }
+
+    @Test
+    public void testCreateOrUpdateUpdate() throws SQLException {
+        try (Session session = createSessionAndCreateTables(WithDefaultTestEntity.class)) {
+            WithDefaultTestEntity testEntity = new WithDefaultTestEntity();
+
+            session.create(testEntity);
+            testEntity.setName("test");
+            Dao.CreateOrUpdateStatus createOrUpdateStatus = session.createOrUpdate(testEntity);
+
+            Assert.assertTrue(createOrUpdateStatus.isUpdated());
+            Assert.assertEquals(session.queryForId(WithDefaultTestEntity.class, 1), testEntity);
+        }
+    }
+
+    @Test
+    public void testUniqueResult() throws SQLException {
+        try (Session session = createSessionAndCreateTables(WithDefaultTestEntity.class)) {
+            WithDefaultTestEntity testEntity = new WithDefaultTestEntity();
+
+            testEntity.setName("SelfJoinTestEntity");
+            session.create(testEntity);
+            WithDefaultTestEntity testEntity1 = new WithDefaultTestEntity();
+
+            session.create(testEntity1);
+
+            SelectStatement<WithDefaultTestEntity> selectStatement = new SelectStatement<>(WithDefaultTestEntity.class);
+
+            selectStatement.where(new Criteria().add(Restrictions.eq("id", testEntity.getId())));
+            Assert.assertEquals(session.uniqueResult(selectStatement), testEntity);
+        }
+    }
+
+    @Test
+    public void testList() throws SQLException {
+        try (Session session = createSessionAndCreateTables(WithDefaultTestEntity.class)) {
+            WithDefaultTestEntity testEntity = new WithDefaultTestEntity();
+
+            testEntity.setName("SelfJoinTestEntity");
+            session.create(testEntity);
+            WithDefaultTestEntity testEntity1 = new WithDefaultTestEntity();
+
+            testEntity1.setName("Test1");
+            session.create(testEntity1);
+
+            SelectStatement<WithDefaultTestEntity> selectStatement = new SelectStatement<>(WithDefaultTestEntity.class);
+            List<WithDefaultTestEntity> testEntities = session.list(selectStatement);
+
+            Assert.assertEquals(2, testEntities.size());
+            Assert.assertEquals(testEntity, testEntities.get(0));
+            Assert.assertEquals(testEntity1, testEntities.get(1));
+        }
+    }
+
+    @Test
+    public void testQueryForLong() throws SQLException {
+        try (Session session = createSessionAndCreateTables(WithDefaultTestEntity.class)) {
+            WithDefaultTestEntity testEntity = new WithDefaultTestEntity();
+
+            testEntity.setName("SelfJoinTestEntity");
+            session.create(testEntity);
+            WithDefaultTestEntity testEntity1 = new WithDefaultTestEntity();
+
+            testEntity1.setName("Test1");
+            session.create(testEntity1);
+
+            SelectStatement<WithDefaultTestEntity> selectStatement = new SelectStatement<>(WithDefaultTestEntity.class);
+
+            selectStatement.countOff();
+            long result = session.queryForLong(selectStatement);
+
+            Assert.assertEquals(2, result);
+        }
+    }
+
+    @Test
+    public void testQueryForSelfJoin() throws SQLException {
+        try (Session session = createSessionAndCreateTables(SelfJoinTestEntity.class)) {
+            SelfJoinTestEntity foreign = new SelfJoinTestEntity();
+
+            session.create(foreign);
+            SelfJoinTestEntity root = new SelfJoinTestEntity();
+
+            root.setSelfJoinTestEntity(foreign);
+            session.create(root);
+
+            SelfJoinTestEntity resultRoot = session.queryForId(SelfJoinTestEntity.class, 2);
+
+            Assert.assertEquals(root, resultRoot);
+            Assert.assertEquals(resultRoot.getSelfJoinTestEntity(), foreign);
+            Assert.assertEquals(resultRoot.getSelfJoinTestEntity().getSelfJoinTestEntityList().size(), 1);
+            Assert.assertEquals(resultRoot.getSelfJoinTestEntity().getSelfJoinTestEntityList().get(0), root);
+        }
+    }
+
+    @Test
+    public void testForeignReference() throws SQLException {
+        try (Session session = createSessionAndCreateTables(UniqueFieldTestEntity.class, TableUniqueFieldTestEntity.class, ForeignFieldReferenceTestEntity.class)) {
+            UniqueFieldTestEntity uniqueFieldTestEntity = new UniqueFieldTestEntity();
+
+            uniqueFieldTestEntity.setName("Test");
+            session.create(uniqueFieldTestEntity);
+            ForeignFieldReferenceTestEntity referenceTestEntity = new ForeignFieldReferenceTestEntity();
+
+            referenceTestEntity.setUniqueFieldTestEntity(uniqueFieldTestEntity);
+            session.create(referenceTestEntity);
+            Assert.assertEquals(referenceTestEntity, session.queryForId(ForeignFieldReferenceTestEntity.class, 1));
+        }
+    }
+
+    @Test
+    public void testDeleteStatement() throws SQLException {
+        try (Session session = createSessionAndCreateTables()) {
+            session.create(new TestEntity());
+            session.create(new TestEntity());
+            session.create(new TestEntity());
+
+            Assert.assertEquals(3, session.queryForAll(TestEntity.class).size());
+            DeleteStatement deleteStatement = new DeleteStatement(TestEntity.class);
+
+            deleteStatement.where(
+                    new Criteria().add(Restrictions.eq("id", 2))
+            );
+            Assert.assertEquals(session.delete(deleteStatement), 1);
         }
     }
 }
