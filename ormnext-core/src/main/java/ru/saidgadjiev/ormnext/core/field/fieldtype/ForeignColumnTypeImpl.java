@@ -117,7 +117,7 @@ public class ForeignColumnTypeImpl extends BaseDatabaseColumnType implements For
 
     @Override
     public SqlType ormNextSqlType() {
-        return foreignDatabaseColumnType.ormNextSqlType();
+        return foreignDatabaseColumnType.foreignOrmNextSqlType();
     }
 
     /**

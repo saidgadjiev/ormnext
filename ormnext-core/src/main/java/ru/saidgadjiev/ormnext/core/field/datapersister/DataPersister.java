@@ -36,6 +36,15 @@ public interface DataPersister {
     SqlType getOrmNextSqlType();
 
     /**
+     * Foreign sql type.
+     *
+     * @return foreign sql type
+     *
+     *@see SqlType
+     */
+    SqlType getForeignOrmNextSqlType();
+
+    /**
      * Java sql type.
      *
      * @return sql type

@@ -103,4 +103,11 @@ public @interface DatabaseColumn {
      * @return if true column will be defined in create table
      */
     boolean defineInCreateTable() default true;
+
+    /**
+     * Column persister. It should have default constructor.
+     *
+     * @return column persister
+     */
+    Class<?> persisterClass() default Void.class;
 }

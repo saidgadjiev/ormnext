@@ -92,4 +92,9 @@ public abstract class BaseDatabaseColumnType implements DatabaseColumnType {
     public Class<?> getType() {
         return getField().getType();
     }
+
+    @Override
+    public SqlType foreignOrmNextSqlType() {
+        return dataPersister().getForeignOrmNextSqlType();
+    }
 }

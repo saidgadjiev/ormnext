@@ -59,6 +59,13 @@ public interface DatabaseColumnType extends EntityElement {
     SqlType ormNextSqlType();
 
     /**
+     * Foreign sql type.
+     *
+     * @return foreign sql type
+     */
+    SqlType foreignOrmNextSqlType();
+
+    /**
      * Return java sql type.
      *
      * @return java sql type

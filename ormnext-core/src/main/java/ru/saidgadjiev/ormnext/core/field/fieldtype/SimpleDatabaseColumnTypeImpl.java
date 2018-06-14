@@ -1,5 +1,6 @@
 package ru.saidgadjiev.ormnext.core.field.fieldtype;
 
+import ru.saidgadjiev.ormnext.core.exception.DefaultConstructorNotFoundException;
 import ru.saidgadjiev.ormnext.core.exception.InstantiationException;
 import ru.saidgadjiev.ormnext.core.field.*;
 import ru.saidgadjiev.ormnext.core.field.datapersister.ColumnConverter;
@@ -232,9 +233,20 @@ public final class SimpleDatabaseColumnTypeImpl extends BaseDatabaseColumnType {
         columnType.fieldAccessor = new FieldAccessor(field);
 
         if (!field.isAnnotationPresent(ForeignColumn.class)) {
-            DataType dataType = databaseColumn.dataType();
-            DataPersister dataPersister = dataType.equals(DataType.UNKNOWN)
-                    ? DataPersisterManager.lookup(field.getType()) : dataType.getDataPersister();
+            DataPersister dataPersister;
+
+            if (databaseColumn.persisterClass().equals(Void.class)) {
+                DataType dataType = databaseColumn.dataType();
+
+                dataPersister = dataType.equals(DataType.UNKNOWN)
+                        ? DataPersisterManager.lookup(field.getType()) : dataType.getDataPersister();
+            } else {
+                try {
+                    dataPersister = (DataPersister) databaseColumn.persisterClass().newInstance();
+                } catch (Exception ex) {
+                    throw new DefaultConstructorNotFoundException(databaseColumn.persisterClass());
+                }
+            }
 
             columnType.sqlType = dataPersister.getOrmNextSqlType();
             columnType.tableName = DatabaseEntityMetadataUtils.resolveTableName(field.getDeclaringClass());

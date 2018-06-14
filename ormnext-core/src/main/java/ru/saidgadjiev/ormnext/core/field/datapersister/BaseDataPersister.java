@@ -70,6 +70,11 @@ public abstract class BaseDataPersister implements DataPersister {
     }
 
     @Override
+    public SqlType getForeignOrmNextSqlType() {
+        return sqlType;
+    }
+
+    @Override
     public final void setObject(PreparableObject preparedStatement, int index, Object value) throws SQLException {
         if (value == null) {
             preparedStatement.setNull(index, javaSqlType);
