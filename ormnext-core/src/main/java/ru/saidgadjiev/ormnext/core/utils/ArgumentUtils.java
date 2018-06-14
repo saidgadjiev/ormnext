@@ -50,7 +50,7 @@ public final class ArgumentUtils {
                                 columnType
                         ));
                     } else if (!columnType.defaultIfNull()) {
-                        args.put(columnType, new Argument(columnType.dataType(), null));
+                        args.put(columnType, new Argument(columnType.dataPersister(), null));
                     }
                 }
             } else {
@@ -91,7 +91,7 @@ public final class ArgumentUtils {
                                 columnType
                         ));
                     } else if (!columnType.defaultIfNull()) {
-                        args.put(columnType, new Argument(columnType.dataType(), null));
+                        args.put(columnType, new Argument(columnType.dataPersister(), null));
                     }
                 }
             } else {
@@ -115,7 +115,7 @@ public final class ArgumentUtils {
      */
     public static Argument eject(Object object, DatabaseColumnType databaseColumnType) throws SQLException {
         if (object == null) {
-            return new Argument(databaseColumnType.dataType(), null);
+            return new Argument(databaseColumnType.dataPersister(), null);
         }
         return processConvertersToSqlValue(
                 databaseColumnType.access(object),
@@ -135,7 +135,7 @@ public final class ArgumentUtils {
     public static Argument processConvertersToSqlValue(Object javaValue, DatabaseColumnType databaseColumnType)
             throws SQLException {
         if (javaValue == null) {
-            return new Argument(databaseColumnType.dataType(), null);
+            return new Argument(databaseColumnType.dataPersister(), null);
         }
         Object result = javaValue;
 
@@ -145,7 +145,7 @@ public final class ArgumentUtils {
             }
         }
 
-        return new Argument(databaseColumnType.dataType(), result);
+        return new Argument(databaseColumnType.dataPersister(), result);
     }
 
     /**
@@ -160,7 +160,7 @@ public final class ArgumentUtils {
     public static Argument processConvertersToJavaValue(Object sqlValue, DatabaseColumnType databaseColumnType)
             throws SQLException {
         if (sqlValue == null) {
-            return new Argument(databaseColumnType.dataType(), null);
+            return new Argument(databaseColumnType.dataPersister(), null);
         }
         Object result = sqlValue;
 
@@ -170,6 +170,6 @@ public final class ArgumentUtils {
             }
         }
 
-        return new Argument(databaseColumnType.dataType(), result);
+        return new Argument(databaseColumnType.dataPersister(), result);
     }
 }

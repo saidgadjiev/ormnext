@@ -233,7 +233,7 @@ public final class DefaultVisitor extends NoActionVisitor {
             } else if (attributeDefinition.isGenerated()) {
                 sql.append(dialect.getGeneratedDefinition(attributeDefinition));
             } else {
-                sql.append(dialect.getTypeSqlPresent(attributeDefinition));
+                sql.append(dialect.getTypeSql(attributeDefinition));
                 sql.append(" ");
                 List<AttributeConstraint> attributeConstraints = attributeDefinition.getAttributeConstraints();
 

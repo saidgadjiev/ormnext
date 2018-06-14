@@ -26,12 +26,6 @@ public final class SimpleDatabaseColumnTypeImpl extends BaseDatabaseColumnType {
     private String columnName;
 
     /**
-     * Data type. It will be any integer value.
-     * @see DataType
-     */
-    private int dataType;
-
-    /**
      * Column field.
      */
     private Field field;
@@ -108,6 +102,13 @@ public final class SimpleDatabaseColumnTypeImpl extends BaseDatabaseColumnType {
     private boolean defineInCreateTable;
 
     /**
+     * Associated ormnext sql type.
+     *
+     * @see SqlType
+     */
+    private SqlType sqlType;
+
+    /**
      * Create a new instance only from {@link #build(Field)} method.
      */
     private SimpleDatabaseColumnTypeImpl() { }
@@ -138,8 +139,8 @@ public final class SimpleDatabaseColumnTypeImpl extends BaseDatabaseColumnType {
     }
 
     @Override
-    public int dataType() {
-        return dataType;
+    public SqlType ormNextSqlType() {
+        return sqlType;
     }
 
     @Override
@@ -207,6 +208,11 @@ public final class SimpleDatabaseColumnTypeImpl extends BaseDatabaseColumnType {
         return defineInCreateTable;
     }
 
+    @Override
+    public int sqlType() {
+        return dataPersister.getSqlType();
+    }
+
     /**
      * Method for build new instance by field.
      * @param field target field
@@ -226,13 +232,13 @@ public final class SimpleDatabaseColumnTypeImpl extends BaseDatabaseColumnType {
         columnType.fieldAccessor = new FieldAccessor(field);
 
         if (!field.isAnnotationPresent(ForeignColumn.class)) {
-            Integer dataType = databaseColumn.dataType();
-            DataPersister dataPersister = dataType.equals(DataType.UNKNOWN)
-                    ? DataPersisterManager.lookup(field.getType()) : DataPersisterManager.lookup(dataType);
+            DataType dataType = databaseColumn.dataType();
+            DataPersister dataPersister = dataType.equals(DataType.OTHER)
+                    ? DataPersisterManager.lookup(field.getType()) : dataType.getDataPersister();
 
+            columnType.sqlType = dataPersister.getOrmNextSqlType();
             columnType.tableName = DatabaseEntityMetadataUtils.resolveTableName(field.getDeclaringClass());
             columnType.dataPersister = dataPersister;
-            columnType.dataType = dataType.equals(DataType.UNKNOWN) ? dataPersister.getSqlType() : dataType;
             String defaultDefinition = databaseColumn.defaultDefinition();
 
             if (!defaultDefinition.isEmpty()) {

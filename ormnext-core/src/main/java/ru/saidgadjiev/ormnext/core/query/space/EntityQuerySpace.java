@@ -19,7 +19,10 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.common.TableRef;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.common.UpdateValue;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.condition.Equals;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.condition.Expression;
-import ru.saidgadjiev.ormnext.core.query.visitor.element.constraints.attribute.*;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.constraints.attribute.Default;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.constraints.attribute.NotNullConstraint;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.constraints.attribute.ReferencesConstraint;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.constraints.attribute.UniqueAttributeConstraint;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.constraints.table.ForeignKeyConstraint;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.constraints.table.UniqueConstraint;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.function.CountAll;
@@ -288,11 +291,7 @@ public class EntityQuerySpace {
                 continue;
             }
             AttributeDefinition attributeDefinition = new AttributeDefinition(
-                    columnType.columnName(),
-                    columnType.dataType(),
-                    columnType.length(),
-                    columnType.id(),
-                    columnType.generated()
+                    columnType
             );
 
             if (columnType.notNull()) {

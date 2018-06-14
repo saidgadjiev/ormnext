@@ -2,8 +2,6 @@ package ru.saidgadjiev.ormnext.core.dao;
 
 import ru.saidgadjiev.ormnext.core.connection.*;
 import ru.saidgadjiev.ormnext.core.dialect.Dialect;
-import ru.saidgadjiev.ormnext.core.field.DataPersisterManager;
-import ru.saidgadjiev.ormnext.core.field.datapersister.DataPersister;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.DatabaseColumnType;
 import ru.saidgadjiev.ormnext.core.loader.Argument;
 import ru.saidgadjiev.ormnext.core.loader.GeneratedKey;
@@ -299,9 +297,8 @@ public class DefaultDatabaseEngine implements DatabaseEngine<Connection> {
         for (Map.Entry<Integer, Argument> entry : args.entrySet()) {
             Argument argument = entry.getValue();
             Object value = argument.getValue();
-            DataPersister dataPersister = DataPersisterManager.lookup(argument.getDataType());
 
-            dataPersister.setObject(preparedStatement, entry.getKey(), value);
+            argument.getDataPersister().setObject(preparedStatement, entry.getKey(), value);
         }
     }
 

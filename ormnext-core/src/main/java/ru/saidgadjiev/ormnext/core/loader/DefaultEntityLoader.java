@@ -576,14 +576,14 @@ public class DefaultEntityLoader implements EntityLoader {
                     );
 
             for (Object arg : criterionArgument.getValues()) {
-                args.put(index.incrementAndGet(), new Argument(columnType.dataType(), arg));
+                args.put(index.incrementAndGet(), new Argument(columnType.dataPersister(), arg));
             }
         }
 
         for (Map.Entry<Integer, Object> entry : criteriaStatement.getUserProvidedArgs().entrySet()) {
             DataPersister dataPersister = DataPersisterManager.lookup(entry.getValue().getClass());
 
-            args.put(entry.getKey(), new Argument(dataPersister.getSqlType(), entry.getValue()));
+            args.put(entry.getKey(), new Argument(dataPersister, entry.getValue()));
         }
 
         return args;

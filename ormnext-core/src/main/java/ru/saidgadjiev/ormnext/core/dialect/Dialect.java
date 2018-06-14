@@ -10,6 +10,13 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.AttributeDefinition;
 public interface Dialect {
 
     /**
+     * Unique database name.
+     *
+     * @return database name
+     */
+    String getDatabaseName();
+
+    /**
      * Primary key definition part.
      *
      * @param primaryKeyDefinition primary key definition
@@ -45,7 +52,7 @@ public interface Dialect {
      * @return return type definition
      * @see AttributeDefinition
      */
-    String getTypeSqlPresent(AttributeDefinition def);
+    String getTypeSql(AttributeDefinition def);
 
     /**
      * True if support table foreign keys.

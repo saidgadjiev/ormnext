@@ -32,7 +32,7 @@ public @interface DatabaseColumn {
      * @return column type
      * @see DataType
      */
-    int dataType() default DataType.UNKNOWN;
+    DataType dataType() default DataType.OTHER;
 
     /**
      * Column length.

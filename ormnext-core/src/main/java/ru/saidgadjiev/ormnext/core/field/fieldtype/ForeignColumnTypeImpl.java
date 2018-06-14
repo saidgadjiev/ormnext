@@ -1,9 +1,6 @@
 package ru.saidgadjiev.ormnext.core.field.fieldtype;
 
-import ru.saidgadjiev.ormnext.core.field.FetchType;
-import ru.saidgadjiev.ormnext.core.field.FieldAccessor;
-import ru.saidgadjiev.ormnext.core.field.ForeignColumn;
-import ru.saidgadjiev.ormnext.core.field.ReferenceAction;
+import ru.saidgadjiev.ormnext.core.field.*;
 import ru.saidgadjiev.ormnext.core.field.datapersister.ColumnConverter;
 import ru.saidgadjiev.ormnext.core.field.datapersister.DataPersister;
 import ru.saidgadjiev.ormnext.core.table.internal.visitor.EntityMetadataVisitor;
@@ -119,8 +116,8 @@ public class ForeignColumnTypeImpl extends BaseDatabaseColumnType implements For
     }
 
     @Override
-    public int dataType() {
-        return foreignDatabaseColumnType.dataType();
+    public SqlType ormNextSqlType() {
+        return foreignDatabaseColumnType.ormNextSqlType();
     }
 
     /**

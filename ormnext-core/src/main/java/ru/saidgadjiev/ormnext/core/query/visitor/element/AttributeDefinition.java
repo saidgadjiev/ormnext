@@ -1,5 +1,7 @@
 package ru.saidgadjiev.ormnext.core.query.visitor.element;
 
+import ru.saidgadjiev.ormnext.core.field.SqlType;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.DatabaseColumnType;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryElement;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.constraints.attribute.AttributeConstraint;
@@ -16,23 +18,6 @@ import java.util.List;
 public class AttributeDefinition implements QueryElement {
 
     /**
-     * Column name.
-     */
-    private final String columnName;
-
-    /**
-     * Column type.
-     *
-     * @see ru.saidgadjiev.ormnext.core.field.DataType
-     */
-    private final int dataType;
-
-    /**
-     * Column length.
-     */
-    private final int length;
-
-    /**
      * Attribute constraints.
      *
      * @see AttributeConstraint
@@ -40,30 +25,17 @@ public class AttributeDefinition implements QueryElement {
     private List<AttributeConstraint> attributeConstraints = new ArrayList<>();
 
     /**
-     * Is id?.
+     * Database column type.
      */
-    private boolean id;
-
-    /**
-     * Is generated?
-     */
-    private boolean generated;
+    private DatabaseColumnType databaseColumnType;
 
     /**
      * Create a new instance.
      *
-     * @param columnName target column name.
-     * @param dataType   target column type
-     * @param length     target column length
-     * @param id         true if attr id
-     * @param generated  true if attr generated
+     * @param databaseColumnType target column type
      */
-    public AttributeDefinition(String columnName, int dataType, int length, boolean id, boolean generated) {
-        this.columnName = columnName;
-        this.dataType = dataType;
-        this.length = length;
-        this.id = id;
-        this.generated = generated;
+    public AttributeDefinition(DatabaseColumnType databaseColumnType) {
+        this.databaseColumnType = databaseColumnType;
     }
 
     /**
@@ -72,7 +44,7 @@ public class AttributeDefinition implements QueryElement {
      * @return current column name
      */
     public String getName() {
-        return columnName;
+        return databaseColumnType.columnName();
     }
 
     /**
@@ -80,8 +52,8 @@ public class AttributeDefinition implements QueryElement {
      *
      * @return current column type
      */
-    public int getDataType() {
-        return dataType;
+    public SqlType getSqlType() {
+        return databaseColumnType.ormNextSqlType();
     }
 
     /**
@@ -90,7 +62,7 @@ public class AttributeDefinition implements QueryElement {
      * @return current column length
      */
     public int getLength() {
-        return length;
+        return databaseColumnType.length();
     }
 
     /**
@@ -108,7 +80,7 @@ public class AttributeDefinition implements QueryElement {
      * @return true if attr is id
      */
     public boolean isId() {
-        return id;
+        return databaseColumnType.id();
     }
 
     /**
@@ -117,7 +89,16 @@ public class AttributeDefinition implements QueryElement {
      * @return true if attr is generated
      */
     public boolean isGenerated() {
-        return generated;
+        return databaseColumnType.generated();
+    }
+
+    /**
+     * Return current database column type.
+     *
+     * @return current database column type
+     */
+    public DatabaseColumnType getDatabaseColumnType() {
+        return databaseColumnType;
     }
 
     @Override

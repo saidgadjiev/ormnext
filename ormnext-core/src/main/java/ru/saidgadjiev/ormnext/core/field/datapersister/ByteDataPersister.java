@@ -2,7 +2,7 @@ package ru.saidgadjiev.ormnext.core.field.datapersister;
 
 import ru.saidgadjiev.ormnext.core.connection.DatabaseResults;
 import ru.saidgadjiev.ormnext.core.connection.PreparableObject;
-import ru.saidgadjiev.ormnext.core.field.DataType;
+import ru.saidgadjiev.ormnext.core.field.SqlType;
 
 import java.sql.SQLException;
 import java.sql.Types;
@@ -18,12 +18,7 @@ public class ByteDataPersister extends BaseDataPersister {
      * Create a new instance.
      */
     public ByteDataPersister() {
-        super(new Class<?>[] {Byte.class, byte.class}, Types.BIT);
-    }
-
-    @Override
-    public int getSqlType() {
-        return DataType.BYTE;
+        super(new Class<?>[] {Byte.class, byte.class}, Types.TINYINT, SqlType.BYTE);
     }
 
     @Override

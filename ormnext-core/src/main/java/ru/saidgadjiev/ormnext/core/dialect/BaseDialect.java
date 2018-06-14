@@ -1,9 +1,8 @@
 package ru.saidgadjiev.ormnext.core.dialect;
 
 import ru.saidgadjiev.ormnext.core.exception.UnknownTypeException;
+import ru.saidgadjiev.ormnext.core.field.SqlType;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.AttributeDefinition;
-
-import static ru.saidgadjiev.ormnext.core.field.DataType.*;
 
 /**
  * Base class for all of the {@link Dialect} classes that provide the per-database type functionality to create
@@ -14,49 +13,158 @@ import static ru.saidgadjiev.ormnext.core.field.DataType.*;
 public abstract class BaseDialect implements Dialect {
 
     @Override
-    public String getTypeSqlPresent(AttributeDefinition def) {
-        int dataType = def.getDataType();
-        StringBuilder sql = new StringBuilder();
+    public String getTypeSql(AttributeDefinition def) {
+        SqlType sqlType = def.getSqlType();
 
-        switch (dataType) {
-            case STRING:
-                sql.append("VARCHAR").append("(").append(def.getLength()).append(")");
-                break;
-            case INTEGER:
-                sql.append("INTEGER");
-                break;
+        switch (sqlType) {
             case BOOLEAN:
-                sql.append("BOOLEAN");
-                break;
-            case LONG:
-                sql.append("BIGINT");
-                break;
-            case FLOAT:
-                sql.append("FLOAT");
-                break;
-            case DOUBLE:
-                sql.append("DOUBLE");
-                break;
+                return getBooleanTypeSql(def);
             case BYTE:
-                sql.append("BYTE");
-                break;
-            case SHORT:
-                sql.append("SHORT");
-                break;
+                return getByteTypeSql(def);
             case DATE:
-                sql.append("DATE");
-                break;
+                return getDateTypeSql(def);
+            case DOUBLE:
+                return getDoubleTypeSql(def);
+            case FLOAT:
+                return getFloatTypeSql(def);
+            case INTEGER:
+                return getIntegerTypeSql(def);
+            case LONG:
+                return getLongTypeSql(def);
+            case SHORT:
+                return getShortTypeSql(def);
+            case STRING:
+                return getStringTypeSql(def);
             case TIME:
-                sql.append("TIME");
-                break;
+                return getTimeTypeSql(def);
             case TIMESTAMP:
-                sql.append("TIMESTAMP");
-                break;
+                return getTimestampTypeSql(def);
+            case OTHER:
+                return def.getDatabaseColumnType().dataPersister().getOtherTypeSql(this, def);
             default:
-                throw new UnknownTypeException(dataType);
+                throw new UnknownTypeException(def.getSqlType());
         }
+    }
 
-        return sql.toString();
+    /**
+     * Get {@link SqlType#TIMESTAMP} type present.
+     *
+     * @param def target attr def
+     * @return type sql present
+     */
+    @SuppressWarnings("PMD")
+    private String getTimestampTypeSql(AttributeDefinition def) {
+        return "TIMESTAMP";
+    }
+
+    /**
+     * Get {@link SqlType#TIME} type present.
+     *
+     * @param def target attr def
+     * @return type sql present
+     */
+    @SuppressWarnings("PMD")
+    private String getTimeTypeSql(AttributeDefinition def) {
+        return "TIME";
+    }
+
+    /**
+     * Get {@link SqlType#SHORT} type present.
+     *
+     * @param def target attr def
+     * @return type sql present
+     */
+    @SuppressWarnings("PMD")
+    private String getShortTypeSql(AttributeDefinition def) {
+        return "SHORT";
+    }
+
+    /**
+     * Get {@link SqlType#LONG} type present.
+     *
+     * @param def target attr def
+     * @return type sql present
+     */
+    @SuppressWarnings("PMD")
+    private String getLongTypeSql(AttributeDefinition def) {
+        return "BIGINT";
+    }
+
+    /**
+     * Get {@link SqlType#INTEGER} type present.
+     *
+     * @param def target attr def
+     * @return type sql present
+     */
+    @SuppressWarnings("PMD")
+    private String getIntegerTypeSql(AttributeDefinition def) {
+        return "INTEGER";
+    }
+
+    /**
+     * Get {@link SqlType#FLOAT} type present.
+     *
+     * @param def target attr def
+     * @return type sql present
+     */
+    @SuppressWarnings("PMD")
+    private String getFloatTypeSql(AttributeDefinition def) {
+        return "FLOAT";
+    }
+
+    /**
+     * Get {@link SqlType#DOUBLE} type present.
+     *
+     * @param def target attr def
+     * @return type sql present
+     */
+    @SuppressWarnings("PMD")
+    private String getDoubleTypeSql(AttributeDefinition def) {
+        return "DOUBLE";
+    }
+
+    /**
+     * Get {@link SqlType#DATE} type present.
+     *
+     * @param def target attr def
+     * @return type sql present
+     */
+    @SuppressWarnings("PMD")
+    private String getDateTypeSql(AttributeDefinition def) {
+        return "DATE";
+    }
+
+    /**
+     * Get {@link SqlType#BYTE} type present.
+     *
+     * @param def target attr def
+     * @return type sql present
+     */
+    @SuppressWarnings("PMD")
+    private String getByteTypeSql(AttributeDefinition def) {
+        return "BYTE";
+    }
+
+    /**
+     * Get {@link SqlType#BOOLEAN} type present.
+     *
+     * @param def target attr def
+     * @return type sql present
+     */
+    @SuppressWarnings("PMD")
+    protected String getBooleanTypeSql(AttributeDefinition def) {
+        return "BOOLEAN";
+    }
+
+    /**
+     * Get {@link SqlType#STRING} type present.
+     *
+     * @param def target attr def
+     * @return type sql present
+     */
+    @SuppressWarnings("PMD")
+    protected String getStringTypeSql(AttributeDefinition def) {
+        return "VARCHAR" + "(" + def.getLength() + ")";
     }
 
     @Override

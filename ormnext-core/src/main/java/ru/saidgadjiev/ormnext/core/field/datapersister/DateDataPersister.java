@@ -2,7 +2,7 @@ package ru.saidgadjiev.ormnext.core.field.datapersister;
 
 import ru.saidgadjiev.ormnext.core.connection.DatabaseResults;
 import ru.saidgadjiev.ormnext.core.connection.PreparableObject;
-import ru.saidgadjiev.ormnext.core.field.DataType;
+import ru.saidgadjiev.ormnext.core.field.SqlType;
 
 import java.sql.SQLException;
 import java.sql.Types;
@@ -19,12 +19,7 @@ public class DateDataPersister extends BaseDataPersister {
      * Create a new instance.
      */
     public DateDataPersister() {
-        super(new Class<?>[] {Date.class, java.sql.Date.class}, Types.DATE);
-    }
-
-    @Override
-    public int getSqlType() {
-        return DataType.DATE;
+        super(new Class<?>[] {Date.class, java.sql.Date.class}, Types.DATE, SqlType.DATE);
     }
 
     @Override

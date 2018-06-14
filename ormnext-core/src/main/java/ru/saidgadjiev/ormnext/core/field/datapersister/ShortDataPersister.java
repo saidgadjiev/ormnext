@@ -2,7 +2,7 @@ package ru.saidgadjiev.ormnext.core.field.datapersister;
 
 import ru.saidgadjiev.ormnext.core.connection.DatabaseResults;
 import ru.saidgadjiev.ormnext.core.connection.PreparableObject;
-import ru.saidgadjiev.ormnext.core.field.DataType;
+import ru.saidgadjiev.ormnext.core.field.SqlType;
 
 import java.sql.SQLException;
 import java.sql.Types;
@@ -18,12 +18,7 @@ public class ShortDataPersister extends BaseDataPersister {
      * Create a new instance.
      */
     public ShortDataPersister() {
-        super(new Class<?>[] {Short.class, short.class}, Types.SMALLINT);
-    }
-
-    @Override
-    public int getSqlType() {
-        return DataType.SHORT;
+        super(new Class<?>[] {Short.class, short.class}, Types.SMALLINT, SqlType.SHORT);
     }
 
     @Override

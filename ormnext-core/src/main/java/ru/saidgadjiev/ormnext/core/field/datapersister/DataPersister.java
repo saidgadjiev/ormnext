@@ -2,6 +2,9 @@ package ru.saidgadjiev.ormnext.core.field.datapersister;
 
 import ru.saidgadjiev.ormnext.core.connection.DatabaseResults;
 import ru.saidgadjiev.ormnext.core.connection.PreparableObject;
+import ru.saidgadjiev.ormnext.core.dialect.BaseDialect;
+import ru.saidgadjiev.ormnext.core.field.SqlType;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.AttributeDefinition;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.literals.SqlLiteral;
 
 import java.sql.PreparedStatement;
@@ -25,9 +28,18 @@ public interface DataPersister {
     List<Class<?>> getAssociatedClasses();
 
     /**
-     * Associated data type.
+     * Associated ormnext sql type.
      *
      * @return data type
+     * @see SqlType
+     */
+    SqlType getOrmNextSqlType();
+
+    /**
+     * Java sql type.
+     *
+     * @return sql type
+     * @see java.sql.Types
      */
     int getSqlType();
 
@@ -66,4 +78,13 @@ public interface DataPersister {
      * @return converted value
      */
     Object convertToPrimaryKey(Object value);
+
+    /**
+     * {@link SqlType#OTHER} sql present.
+     *
+     * @param baseDialect target dialect
+     * @param def target attr def
+     * @return sql present
+     */
+    String getOtherTypeSql(BaseDialect baseDialect, AttributeDefinition def);
 }

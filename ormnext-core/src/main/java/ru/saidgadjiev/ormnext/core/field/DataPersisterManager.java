@@ -1,7 +1,7 @@
 package ru.saidgadjiev.ormnext.core.field;
 
 import ru.saidgadjiev.ormnext.core.exception.PersisterNotFoundException;
-import ru.saidgadjiev.ormnext.core.field.datapersister.*;
+import ru.saidgadjiev.ormnext.core.field.datapersister.DataPersister;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,27 +17,23 @@ public final class DataPersisterManager {
     /**
      * Registered data persisters.
      */
-    private static Map<Integer, DataPersister> registeredPersisters = new HashMap<>();
+    private static final Map<Class<?>, DataPersister> REGISTERED_PERSISTERS = new HashMap<>();
 
     static {
-        registeredPersisters.put(DataType.STRING, new StringDataPersister());
-        registeredPersisters.put(DataType.INTEGER, new IntegerDataPersister());
-        registeredPersisters.put(DataType.BOOLEAN, new BooleanDataPersister());
-        registeredPersisters.put(DataType.LONG, new LongDataPersister());
-        registeredPersisters.put(DataType.FLOAT, new FloatDataPersister());
-        registeredPersisters.put(DataType.BYTE, new ByteDataPersister());
-        registeredPersisters.put(DataType.SHORT, new ShortDataPersister());
-        registeredPersisters.put(DataType.DATE, new DateDataPersister());
-        registeredPersisters.put(DataType.TIME, new TimeDataPersister());
-        registeredPersisters.put(DataType.TIMESTAMP, new TimeStampDataPersister());
-        registeredPersisters.put(DataType.UNKNOWN, null);
+        for (DataType dataType: DataType.values()) {
+            if (dataType.equals(DataType.OTHER)) {
+                continue;
+            }
+            dataType.getDataPersister()
+                    .getAssociatedClasses()
+                    .forEach(aClass -> REGISTERED_PERSISTERS.put(aClass, dataType.getDataPersister()));
+        }
     }
 
     /**
      * Util class can't be instantiated.
      */
-    private DataPersisterManager() {
-    }
+    private DataPersisterManager() { }
 
     /**
      * Try find data persister for requested class.
@@ -47,7 +43,7 @@ public final class DataPersisterManager {
      * @return resolver data persister
      */
     public static DataPersister lookup(Class<?> targetClazz) {
-        for (DataPersister persister : registeredPersisters.values()) {
+        for (DataPersister persister : REGISTERED_PERSISTERS.values()) {
             for (Class<?> clazz : persister.getAssociatedClasses()) {
                 if (clazz == targetClazz) {
                     return persister;
@@ -59,26 +55,12 @@ public final class DataPersisterManager {
     }
 
     /**
-     * Try find data persister for requested data type.
-     * Throw {@link PersisterNotFoundException} exception if persister not found.
+     * Register a new or replace data persister.
      *
-     * @param type target data type
-     * @return resolver data persister
-     */
-    public static DataPersister lookup(int type) {
-        if (registeredPersisters.containsKey(type)) {
-            return registeredPersisters.get(type);
-        }
-
-        throw new PersisterNotFoundException(type);
-    }
-
-    /**
-     * Register a new or replace data persister for {@code type}.
-     * @param type target data type
      * @param dataPersister target data persister
      */
-    public static void register(int type, DataPersister dataPersister) {
-        registeredPersisters.put(type, dataPersister);
+    public static void register(DataPersister dataPersister) {
+        dataPersister.getAssociatedClasses()
+                .forEach(aClass -> REGISTERED_PERSISTERS.put(aClass, dataPersister));
     }
 }

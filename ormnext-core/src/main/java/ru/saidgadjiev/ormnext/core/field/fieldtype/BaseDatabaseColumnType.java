@@ -1,5 +1,6 @@
 package ru.saidgadjiev.ormnext.core.field.fieldtype;
 
+import ru.saidgadjiev.ormnext.core.field.SqlType;
 import ru.saidgadjiev.ormnext.core.field.datapersister.ColumnConverter;
 
 import java.util.List;
@@ -38,13 +39,18 @@ public abstract class BaseDatabaseColumnType implements DatabaseColumnType {
     }
 
     @Override
-    public int dataType() {
+    public SqlType ormNextSqlType() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int sqlType() {
         throw new UnsupportedOperationException();
     }
 
     @Override
     public int length() {
-        return 0;
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -80,5 +86,10 @@ public abstract class BaseDatabaseColumnType implements DatabaseColumnType {
     @Override
     public boolean defineInCreateTable() {
         return true;
+    }
+
+    @Override
+    public Class<?> getType() {
+        return getField().getType();
     }
 }

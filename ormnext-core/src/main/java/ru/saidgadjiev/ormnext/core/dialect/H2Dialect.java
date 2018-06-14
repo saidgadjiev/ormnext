@@ -8,10 +8,15 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.AttributeDefinition;
 public class H2Dialect extends BaseDialect {
 
     @Override
+    public String getDatabaseName() {
+        return "h2";
+    }
+
+    @Override
     public String getPrimaryKeyDefinition(AttributeDefinition primaryKeyDefinition) {
         StringBuilder builder = new StringBuilder();
 
-        builder.append(" ").append(getTypeSqlPresent(primaryKeyDefinition));
+        builder.append(" ").append(getTypeSql(primaryKeyDefinition));
         if (primaryKeyDefinition.isGenerated()) {
             builder.append(" AUTO_INCREMENT");
         }

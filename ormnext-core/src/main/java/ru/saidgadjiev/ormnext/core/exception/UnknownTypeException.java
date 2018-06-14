@@ -1,5 +1,7 @@
 package ru.saidgadjiev.ormnext.core.exception;
 
+import ru.saidgadjiev.ormnext.core.field.SqlType;
+
 /**
  * Exception will be thrown when column type not defined.
  *
@@ -12,7 +14,7 @@ public class UnknownTypeException extends RuntimeException {
      *
      * @param type        target type
      */
-    public UnknownTypeException(int type) {
-        super("Type " + type + " unknown");
+    public UnknownTypeException(SqlType type) {
+        super("Type " + type.name() + " unknown");
     }
 }

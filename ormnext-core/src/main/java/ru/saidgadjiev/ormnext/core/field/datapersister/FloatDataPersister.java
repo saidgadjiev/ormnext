@@ -2,7 +2,7 @@ package ru.saidgadjiev.ormnext.core.field.datapersister;
 
 import ru.saidgadjiev.ormnext.core.connection.DatabaseResults;
 import ru.saidgadjiev.ormnext.core.connection.PreparableObject;
-import ru.saidgadjiev.ormnext.core.field.DataType;
+import ru.saidgadjiev.ormnext.core.field.SqlType;
 
 import java.sql.SQLException;
 import java.sql.Types;
@@ -18,12 +18,7 @@ public class FloatDataPersister extends BaseDataPersister {
      * Create a new instance.
      */
     public FloatDataPersister() {
-        super(new Class[] {Float.class, float.class}, Types.FLOAT);
-    }
-
-    @Override
-    public int getSqlType() {
-        return DataType.FLOAT;
+        super(new Class[] {Float.class, float.class}, Types.FLOAT, SqlType.FLOAT);
     }
 
     @Override

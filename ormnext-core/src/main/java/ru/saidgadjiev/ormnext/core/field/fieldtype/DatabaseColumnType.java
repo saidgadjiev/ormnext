@@ -1,5 +1,6 @@
 package ru.saidgadjiev.ormnext.core.field.fieldtype;
 
+import ru.saidgadjiev.ormnext.core.field.SqlType;
 import ru.saidgadjiev.ormnext.core.field.datapersister.ColumnConverter;
 import ru.saidgadjiev.ormnext.core.field.datapersister.DataPersister;
 import ru.saidgadjiev.ormnext.core.table.internal.visitor.EntityElement;
@@ -55,7 +56,15 @@ public interface DatabaseColumnType extends EntityElement {
      *
      * @return Return column type
      */
-    int dataType();
+    SqlType ormNextSqlType();
+
+    /**
+     * Return java sql type.
+     *
+     * @return java sql type
+     * @see java.sql.Types
+     */
+    int sqlType();
 
     /**
      * Access to field by object and return field value.
@@ -87,6 +96,13 @@ public interface DatabaseColumnType extends EntityElement {
      * @return field
      */
     Field getField();
+
+    /**
+     * Return column type.
+     *
+     * @return column type
+     */
+    Class<?> getType();
 
     /**
      * Column length.

@@ -1,5 +1,7 @@
 package ru.saidgadjiev.ormnext.core.loader;
 
+import ru.saidgadjiev.ormnext.core.field.datapersister.DataPersister;
+
 /**
  * Statement argument info.
  *
@@ -8,9 +10,9 @@ package ru.saidgadjiev.ormnext.core.loader;
 public class Argument {
 
     /**
-     * Data type.
+     * Data persister.
      */
-    private final int dataType;
+    private DataPersister dataPersister;
 
     /**
      * Argument.
@@ -19,11 +21,11 @@ public class Argument {
 
     /**
      * Create a new argument.
-     * @param dataType data type
+     * @param dataPersister target data persister
      * @param value value
      */
-    public Argument(int dataType, Object value) {
-        this.dataType = dataType;
+    public Argument(DataPersister dataPersister, Object value) {
+        this.dataPersister = dataPersister;
         this.value = value;
     }
 
@@ -31,8 +33,8 @@ public class Argument {
      * Return data type.
      * @return data type
      */
-    public int getDataType() {
-        return dataType;
+    public int getSqlType() {
+        return dataPersister.getSqlType();
     }
 
     /**
@@ -43,10 +45,19 @@ public class Argument {
         return value;
     }
 
+    /**
+     * Data persister.
+     *
+     * @return data persister
+     */
+    public DataPersister getDataPersister() {
+        return dataPersister;
+    }
+
     @Override
     public String toString() {
         return "Argument{"
-                + "dataType=" + dataType
+                + "dataPersister=" + dataPersister
                 + ", value=" + value
                 + '}';
     }
