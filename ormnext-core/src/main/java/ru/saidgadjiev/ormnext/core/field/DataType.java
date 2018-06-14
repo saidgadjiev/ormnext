@@ -92,7 +92,7 @@ public enum DataType {
     /**
      * Other data type.
      */
-    OTHER(null);
+    UNKNOWN(null);
 
     /**
      * Associated data persister.

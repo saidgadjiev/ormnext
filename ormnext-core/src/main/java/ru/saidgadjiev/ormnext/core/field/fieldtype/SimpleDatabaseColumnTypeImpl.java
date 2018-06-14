@@ -233,7 +233,7 @@ public final class SimpleDatabaseColumnTypeImpl extends BaseDatabaseColumnType {
 
         if (!field.isAnnotationPresent(ForeignColumn.class)) {
             DataType dataType = databaseColumn.dataType();
-            DataPersister dataPersister = dataType.equals(DataType.OTHER)
+            DataPersister dataPersister = dataType.equals(DataType.UNKNOWN)
                     ? DataPersisterManager.lookup(field.getType()) : dataType.getDataPersister();
 
             columnType.sqlType = dataPersister.getOrmNextSqlType();

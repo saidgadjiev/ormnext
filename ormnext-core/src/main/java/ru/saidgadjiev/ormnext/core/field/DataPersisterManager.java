@@ -21,7 +21,7 @@ public final class DataPersisterManager {
 
     static {
         for (DataType dataType: DataType.values()) {
-            if (dataType.equals(DataType.OTHER)) {
+            if (dataType.equals(DataType.UNKNOWN)) {
                 continue;
             }
             dataType.getDataPersister()
