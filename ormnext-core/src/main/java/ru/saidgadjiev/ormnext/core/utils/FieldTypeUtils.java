@@ -32,12 +32,12 @@ public final class FieldTypeUtils {
      * @return database column type
      */
     public static Optional<DatabaseColumnType> create(Field field) {
-        if (field.isAnnotationPresent(DatabaseColumn.class)) {
-            return Optional.ofNullable(SimpleDatabaseColumnTypeImpl.build(field));
-        } else if (field.isAnnotationPresent(ForeignCollectionField.class)) {
+        if (field.isAnnotationPresent(ForeignCollectionField.class)) {
             return Optional.ofNullable(ForeignCollectionColumnTypeImpl.build(field));
         } else if (field.isAnnotationPresent(ForeignColumn.class)) {
             return Optional.ofNullable(ForeignColumnTypeImpl.build(field));
+        } else if (field.isAnnotationPresent(DatabaseColumn.class)) {
+            return Optional.ofNullable(SimpleDatabaseColumnTypeImpl.build(field));
         }
 
         return Optional.empty();

@@ -13,19 +13,19 @@ public class CollectionEntityAliases {
     private final String collectionObjectKeyAlias;
 
     /**
-     * Foreign column alias.
+     * Collection column key alias.
      */
-    private String foreignColumnAlias;
+    private final String collectionOwnerColumnKeyAlias;
 
     /**
      * Create a new instance.
      *
-     * @param collectionObjectKeyAlias target collection owner key column alias
-     * @param foreignColumnAlias       target foreign column alias
+     * @param collectionObjectKeyAlias      target collection owner key column alias
+     * @param collectionOwnerColumnKeyAlias target collection owner key column alias
      */
-    public CollectionEntityAliases(String collectionObjectKeyAlias, String foreignColumnAlias) {
+    public CollectionEntityAliases(String collectionObjectKeyAlias, String collectionOwnerColumnKeyAlias) {
         this.collectionObjectKeyAlias = collectionObjectKeyAlias;
-        this.foreignColumnAlias = foreignColumnAlias;
+        this.collectionOwnerColumnKeyAlias = collectionOwnerColumnKeyAlias;
     }
 
     /**
@@ -38,11 +38,11 @@ public class CollectionEntityAliases {
     }
 
     /**
-     * Foreign column alias.
+     * Return collection column key alias.
      *
-     * @return foreign column alias
+     * @return collection column key alias
      */
-    public String getForeignColumnAlias() {
-        return foreignColumnAlias;
+    public String getCollectionOwnerColumnKeyAlias() {
+        return collectionOwnerColumnKeyAlias;
     }
 }

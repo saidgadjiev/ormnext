@@ -164,7 +164,6 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
             EntityAliases foreignEntityAliases = entityAliasResolverContext.resolveAliases(nextUID, foreignMetaData);
 
             entityQuerySpace.appendCollectionJoin(
-                    ownerMetaData.getPrimaryKeyColumnType().columnName(),
                     collectionColumnType,
                     ownerAliases,
                     foreignEntityAliases
@@ -179,9 +178,7 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
                     new CollectionQuerySpace(
                             new CollectionEntityAliases(
                                     foreignEntityAliases.getKeyAlias(),
-                                    foreignEntityAliases.getAliasByColumnName(
-                                            collectionColumnType.getForeignColumnName()
-                                    )
+                                    ownerAliases.getKeyAlias()
                             ),
                             ownerMetaData.getPrimaryKeyColumnType(),
                             foreignMetaData.getPrimaryKeyColumnType(),

@@ -116,13 +116,11 @@ public class EntityQuerySpace {
     /**
      * Append join for {@link ru.saidgadjiev.ormnext.core.field.ForeignCollectionField} column.
      *
-     * @param ownerPrimaryKeyColumnName   owner primary key column name
      * @param foreignCollectionColumnType column type
      * @param ownerAliases                owner aliases
      * @param joinTableAliases            join table aliases
      */
-    public void appendCollectionJoin(String ownerPrimaryKeyColumnName,
-                                     ForeignCollectionColumnTypeImpl foreignCollectionColumnType,
+    public void appendCollectionJoin(ForeignCollectionColumnTypeImpl foreignCollectionColumnType,
                                      EntityAliases ownerAliases,
                                      EntityAliases joinTableAliases) {
         Expression onExpression = new Expression();
@@ -130,7 +128,10 @@ public class EntityQuerySpace {
 
         andCondition.add(
                 new Equals(
-                        new ColumnSpec(ownerPrimaryKeyColumnName, ownerAliases.getTableAlias()),
+                        new ColumnSpec(
+                                foreignCollectionColumnType.getForeignColumnType().getForeignColumnName(),
+                                ownerAliases.getTableAlias()
+                        ),
                         new ColumnSpec(
                                 foreignCollectionColumnType.getForeignColumnName(),
                                 joinTableAliases.getTableAlias()

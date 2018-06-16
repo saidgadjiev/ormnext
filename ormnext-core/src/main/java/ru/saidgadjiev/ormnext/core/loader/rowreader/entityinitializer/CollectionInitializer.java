@@ -88,7 +88,7 @@ public class CollectionInitializer {
         Object collectionOwnerId = collectionQuerySpace
                 .getOwnerPrimaryKey()
                 .dataPersister()
-                .readValue(context.getDatabaseResults(), aliases.getForeignColumnAlias());
+                .readValue(context.getDatabaseResults(), aliases.getCollectionOwnerColumnKeyAlias());
 
         collectionOwnerId = ArgumentUtils.processConvertersToJavaValue(
                 collectionOwnerId,

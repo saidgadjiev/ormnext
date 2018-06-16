@@ -200,7 +200,7 @@ public class ForeignColumnTypeImpl extends BaseDatabaseColumnType implements For
 
     @Override
     public Optional<List<ColumnConverter<?, Object>>> getColumnConverters() {
-        return databaseColumnType == null ? super.getColumnConverters() : databaseColumnType.getColumnConverters();
+        return foreignDatabaseColumnType.getColumnConverters();
     }
 
     @Override
