@@ -5,6 +5,7 @@ import ru.saidgadjiev.ormnext.core.dao.Dao;
 import ru.saidgadjiev.ormnext.core.dao.Session;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.DeleteStatement;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.SelectStatement;
+import ru.saidgadjiev.ormnext.core.query.criteria.impl.UpdateStatement;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -240,6 +241,16 @@ public interface EntityLoader {
      * @throws SQLException any SQL exceptions
      */
     int delete(Session session, DeleteStatement deleteStatement) throws SQLException;
+
+    /**
+     * Update the database table rows by update statement.
+     *
+     * @param session         target session
+     * @param updateStatement target statement
+     * @return updated rows count
+     * @throws SQLException any SQL exceptions
+     */
+    int update(Session session, UpdateStatement updateStatement) throws SQLException;
 
     /**
      * Entity loader types.

@@ -3,6 +3,7 @@ package ru.saidgadjiev.ormnext.core.dao;
 import ru.saidgadjiev.ormnext.core.connection.DatabaseResults;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.DeleteStatement;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.SelectStatement;
+import ru.saidgadjiev.ormnext.core.query.criteria.impl.UpdateStatement;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -257,6 +258,15 @@ public interface Dao {
     int delete(DeleteStatement deleteStatement) throws SQLException;
 
     /**
+     * Update the database table rows by update statement.
+     *
+     * @param updateStatement target statement
+     * @return updated rows count
+     * @throws SQLException any SQL exceptions
+     */
+    int update(UpdateStatement updateStatement) throws SQLException;
+
+    /**
      * Create or update object status.
      */
     final class CreateOrUpdateStatus {
@@ -314,6 +324,15 @@ public interface Dao {
          */
         public int getRowCount() {
             return rowCount;
+        }
+
+        @Override
+        public String toString() {
+            return "CreateOrUpdateStatus{"
+                    + "updated=" + updated
+                    + ", created=" + created
+                    + ", rowCount=" + rowCount
+                    + '}';
         }
     }
 }

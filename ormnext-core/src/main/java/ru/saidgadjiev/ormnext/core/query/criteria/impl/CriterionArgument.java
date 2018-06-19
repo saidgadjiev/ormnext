@@ -11,6 +11,11 @@ import java.util.List;
 public class CriterionArgument {
 
     /**
+     * Hashcode magic number.
+     */
+    private static final int HASHCODE_MAGIC_NUMBER = 31;
+
+    /**
      * Property name.
      */
     private final String property;
@@ -44,5 +49,38 @@ public class CriterionArgument {
      */
     public List<Object> getValues() {
         return Arrays.asList(values);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        CriterionArgument that = (CriterionArgument) o;
+
+        if (property != null ? !property.equals(that.property) : that.property != null) {
+            return false;
+        }
+        // Probably incorrect - comparing Object[] arrays with Arrays.equals
+        return Arrays.equals(values, that.values);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = property != null ? property.hashCode() : 0;
+        result = HASHCODE_MAGIC_NUMBER * result + Arrays.hashCode(values);
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "CriterionArgument{"
+                + "property='" + property + '\''
+                + ", values=" + Arrays.toString(values)
+                + '}';
     }
 }

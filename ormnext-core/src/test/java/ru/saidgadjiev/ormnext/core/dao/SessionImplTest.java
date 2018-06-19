@@ -4,10 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import ru.saidgadjiev.ormnext.core.BaseCoreTest;
 import ru.saidgadjiev.ormnext.core.model.*;
-import ru.saidgadjiev.ormnext.core.query.criteria.impl.Criteria;
-import ru.saidgadjiev.ormnext.core.query.criteria.impl.DeleteStatement;
-import ru.saidgadjiev.ormnext.core.query.criteria.impl.Restrictions;
-import ru.saidgadjiev.ormnext.core.query.criteria.impl.SelectStatement;
+import ru.saidgadjiev.ormnext.core.query.criteria.impl.*;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -451,6 +448,25 @@ public class SessionImplTest extends BaseCoreTest {
                     new Criteria().add(Restrictions.eq("id", 2))
             );
             Assert.assertEquals(session.delete(deleteStatement), 1);
+        }
+    }
+
+    @Test
+    public void testUpdateStatement() throws SQLException {
+        try (Session session = createSessionAndCreateTables()) {
+            TestEntity testEntity = new TestEntity();
+
+            testEntity.setDesc("Test");
+
+            session.create(testEntity);
+
+            UpdateStatement updateStatement = new UpdateStatement(TestEntity.class);
+
+            updateStatement
+                    .set("desc", "Test1")
+                    .where(new Criteria().add(Restrictions.eq("id", 1)));
+            Assert.assertEquals(session.update(updateStatement), 1);
+            Assert.assertEquals("Test1", session.queryForId(TestEntity.class, 1).getDesc());
         }
     }
 }

@@ -13,10 +13,7 @@ import ru.saidgadjiev.ormnext.core.field.fieldtype.DatabaseColumnType;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignCollectionColumnTypeImpl;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignColumnTypeImpl;
 import ru.saidgadjiev.ormnext.core.loader.rowreader.RowResult;
-import ru.saidgadjiev.ormnext.core.query.criteria.impl.CriteriaStatement;
-import ru.saidgadjiev.ormnext.core.query.criteria.impl.CriterionArgument;
-import ru.saidgadjiev.ormnext.core.query.criteria.impl.DeleteStatement;
-import ru.saidgadjiev.ormnext.core.query.criteria.impl.SelectStatement;
+import ru.saidgadjiev.ormnext.core.query.criteria.impl.*;
 import ru.saidgadjiev.ormnext.core.query.space.EntityQuerySpace;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.*;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetadata;
@@ -489,6 +486,18 @@ public class DefaultEntityLoader implements EntityLoader {
                 session.getConnection(),
                 deleteQuery,
                 getArguments(entityPersister.getMetadata(), deleteStatement)
+        );
+    }
+
+    @Override
+    public int update(Session session, UpdateStatement updateStatement) throws SQLException {
+        DatabaseEntityPersister entityPersister = metaModel.getPersister(updateStatement.getEntityClass());
+        UpdateQuery updateQuery = entityPersister.getEntityQuerySpace().getUpdateQuery(updateStatement);
+
+        return databaseEngine.update(
+                session.getConnection(),
+                updateQuery,
+                getArguments(entityPersister.getMetadata(), updateStatement)
         );
     }
 

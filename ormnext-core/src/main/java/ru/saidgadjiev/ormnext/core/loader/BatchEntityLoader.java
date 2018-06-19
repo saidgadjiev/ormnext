@@ -8,6 +8,7 @@ import ru.saidgadjiev.ormnext.core.dao.SessionManager;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.DatabaseColumnType;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.DeleteStatement;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.SelectStatement;
+import ru.saidgadjiev.ormnext.core.query.criteria.impl.UpdateStatement;
 import ru.saidgadjiev.ormnext.core.query.space.EntityQuerySpace;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.CreateQuery;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.DeleteQuery;
@@ -267,6 +268,11 @@ public class BatchEntityLoader implements EntityLoader {
 
     @Override
     public int delete(Session session, DeleteStatement deleteStatement) {
+        throw new UnsupportedOperationException("Not supported for batch execute");
+    }
+
+    @Override
+    public int update(Session session, UpdateStatement updateStatement) throws SQLException {
         throw new UnsupportedOperationException("Not supported for batch execute");
     }
 }

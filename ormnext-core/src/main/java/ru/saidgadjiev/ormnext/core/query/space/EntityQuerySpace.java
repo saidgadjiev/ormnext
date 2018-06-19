@@ -7,6 +7,7 @@ import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignColumnTypeImpl;
 import ru.saidgadjiev.ormnext.core.loader.Argument;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.DeleteStatement;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.SelectStatement;
+import ru.saidgadjiev.ormnext.core.query.criteria.impl.UpdateStatement;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.*;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.clause.from.FromJoinedTables;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.clause.from.FromTable;
@@ -615,5 +616,23 @@ public class EntityQuerySpace {
         deleteQuery.accept(new SimpleQuerySpaceVisitor(rootEntityMetaData));
 
         return deleteQuery;
+    }
+
+    /**
+     * Create update query from update statement.
+     *
+     * @param updateStatement target update statement
+     * @return return update query
+     */
+    public UpdateQuery getUpdateQuery(UpdateStatement updateStatement) {
+        UpdateQuery updateQuery = new UpdateQuery(rootEntityMetaData.getTableName());
+
+        updateQuery.setWhere(updateStatement.getWhere());
+
+        updateQuery.addAll(updateStatement.getUpdateValues());
+
+        updateQuery.accept(new SimpleQuerySpaceVisitor(rootEntityMetaData));
+
+        return updateQuery;
     }
 }

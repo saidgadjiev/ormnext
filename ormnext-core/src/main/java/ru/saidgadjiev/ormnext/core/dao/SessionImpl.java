@@ -9,6 +9,7 @@ import ru.saidgadjiev.ormnext.core.dao.transaction.state.TransactionState;
 import ru.saidgadjiev.ormnext.core.loader.EntityLoader;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.DeleteStatement;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.SelectStatement;
+import ru.saidgadjiev.ormnext.core.query.criteria.impl.UpdateStatement;
 
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -252,6 +253,11 @@ public class SessionImpl implements Session, InternalTransaction {
     @Override
     public int delete(DeleteStatement deleteStatement) throws SQLException {
         return sessionManager.loader(loader).delete(this, deleteStatement);
+    }
+
+    @Override
+    public int update(UpdateStatement updateStatement) throws SQLException {
+        return sessionManager.loader(loader).update(this, updateStatement);
     }
 
     @Override
