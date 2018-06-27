@@ -9,6 +9,8 @@ import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
  */
 public class PropertyColumnSpec extends ColumnSpec {
 
+    private boolean resolved;
+
     /**
      * Create new instance with provided column name.
      * @param name target column name
@@ -24,6 +26,14 @@ public class PropertyColumnSpec extends ColumnSpec {
      */
     public PropertyColumnSpec(String name, String alias) {
         super(name, alias);
+    }
+
+    public void setResolved() {
+        resolved = true;
+    }
+
+    public boolean isResolved() {
+        return resolved;
     }
 
     @Override
