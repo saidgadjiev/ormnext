@@ -1,6 +1,7 @@
 package ru.saidgadjiev.ormnext.core.table.internal.metamodel;
 
 import ru.saidgadjiev.ormnext.core.exception.PropertyNotFoundException;
+import ru.saidgadjiev.ormnext.core.field.DatabaseColumn;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.*;
 import ru.saidgadjiev.ormnext.core.table.DatabaseEntity;
 import ru.saidgadjiev.ormnext.core.table.Index;
@@ -11,13 +12,8 @@ import ru.saidgadjiev.ormnext.core.utils.FieldTypeUtils;
 import ru.saidgadjiev.ormnext.core.validator.entity.EntityValidator;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
-
-import static ru.saidgadjiev.ormnext.core.utils.DatabaseEntityMetadataUtils.getColumnNameByPropertyName;
-import static ru.saidgadjiev.ormnext.core.utils.DatabaseEntityMetadataUtils.resolveTableName;
 
 /**
  * This class represent meta info entity class eg. holds entity class, resolved entity column types, table name.
@@ -72,7 +68,7 @@ public final class DatabaseEntityMetadata<T> implements EntityElement {
      *
      * @see DatabaseColumnType
      */
-    private List<DatabaseColumnType> fieldTypes;
+    private List<DatabaseColumnType> columnTypes;
 
     /**
      * Resolved primary key type.
@@ -83,6 +79,11 @@ public final class DatabaseEntityMetadata<T> implements EntityElement {
      * Table name.
      */
     private String tableName;
+
+    /**
+     * Cached table names.
+     */
+    private static final Map<Class<?>, String> RESOLVED_TABLE_NAMES = new HashMap<>();
 
     /**
      * Create a new instance. It may be only from {@link #build(Class)} method.
@@ -122,7 +123,7 @@ public final class DatabaseEntityMetadata<T> implements EntityElement {
                 .map(idbFieldType -> (ForeignCollectionColumnTypeImpl) idbFieldType)
                 .collect(Collectors.toList());
         this.uniqueColumns = uniqueColumns;
-        this.fieldTypes = columnTypes;
+        this.columnTypes = columnTypes;
     }
 
     /**
@@ -185,7 +186,7 @@ public final class DatabaseEntityMetadata<T> implements EntityElement {
      * @return all resolved column types
      */
     public List<DatabaseColumnType> getColumnTypes() {
-        return Collections.unmodifiableList(fieldTypes);
+        return Collections.unmodifiableList(columnTypes);
     }
 
     /**
@@ -204,6 +205,33 @@ public final class DatabaseEntityMetadata<T> implements EntityElement {
      */
     public List<IndexColumns> getIndexColumns() {
         return Collections.unmodifiableList(indexColumns);
+    }
+
+    public void checkProperty(String propertyName) {
+        for (DatabaseColumnType columnType: columnTypes) {
+            if (columnType.foreignCollectionColumnType()) {
+                continue;
+            }
+            if (columnType.getField().getName().equals(propertyName)) {
+                return;
+            }
+        }
+
+        throw new PropertyNotFoundException(tableClass, propertyName);
+    }
+
+    public Optional<String> getPropertyColumnName(String propertyName) {
+        for (DatabaseColumnType columnType : columnTypes) {
+            if (columnType.foreignCollectionColumnType()) {
+                continue;
+            }
+
+            if (columnType.getField().getName().equals(propertyName)) {
+                return Optional.ofNullable(columnType.columnName());
+            }
+        }
+
+        return Optional.empty();
     }
 
     /**
@@ -299,7 +327,7 @@ public final class DatabaseEntityMetadata<T> implements EntityElement {
         List<String> columns = new ArrayList<>();
 
         for (String propertyName : index.columns()) {
-            columns.add(getColumnNameByPropertyName(columnTypes, propertyName)
+            columns.add(getPropertyColumnName(columnTypes, propertyName)
                     .orElseThrow(() -> new PropertyNotFoundException(clazz, propertyName)));
         }
 
@@ -321,17 +349,81 @@ public final class DatabaseEntityMetadata<T> implements EntityElement {
         List<String> columns = new ArrayList<>();
 
         for (String propertyName : unique.columns()) {
-            columns.add(getColumnNameByPropertyName(columnTypes, propertyName)
+            columns.add(getPropertyColumnName(columnTypes, propertyName)
                     .orElseThrow(() -> new PropertyNotFoundException(clazz, propertyName)));
         }
 
         return columns;
     }
 
+    public static Optional<DatabaseColumnType> resolvePrimaryKey(Class<?> entityClass) {
+        for (Field field : entityClass.getDeclaredFields()) {
+            if (field.isAnnotationPresent(DatabaseColumn.class) && field.getAnnotation(DatabaseColumn.class).id()) {
+                return Optional.ofNullable(SimpleDatabaseColumnTypeImpl.build(field));
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    /**
+     * Resolve table name by entity class.
+     * @param entityClass entity class
+     * @return table name
+     */
+    public static String resolveTableName(Class<?> entityClass) {
+        if (RESOLVED_TABLE_NAMES.containsKey(entityClass)) {
+            return RESOLVED_TABLE_NAMES.get(entityClass);
+        }
+        String tableName = "";
+
+        if (entityClass.isAnnotationPresent(DatabaseEntity.class)) {
+            DatabaseEntity databaseEntity = entityClass.getAnnotation(DatabaseEntity.class);
+
+            tableName = databaseEntity.name();
+        }
+
+        tableName = tableName.isEmpty() ? entityClass.getSimpleName().toLowerCase() : tableName;
+        RESOLVED_TABLE_NAMES.put(entityClass, tableName);
+
+        return tableName;
+    }
+
+    /**
+     * Find column name by property name in requested column types.
+     * @param columnTypes target column types
+     * @param propertyName property name
+     * @return optional column name
+     */
+    private static Optional<String> getPropertyColumnName(List<DatabaseColumnType> columnTypes,
+                                                         String propertyName) {
+        for (DatabaseColumnType columnType : columnTypes) {
+            if (columnType.foreignCollectionColumnType()) {
+                continue;
+            }
+
+            if (columnType.getField().getName().equals(propertyName)) {
+                return Optional.ofNullable(columnType.columnName());
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    public static Optional<String> getPropertyColumnName(Class<?> entityClass, String propertyName) {
+        for (Field field: entityClass.getDeclaredFields()) {
+            if (field.getName().equals(propertyName)) {
+                return FieldTypeUtils.resolveColumnName(field);
+            }
+        }
+
+        return Optional.empty();
+    }
+
     @Override
     public void accept(EntityMetadataVisitor visitor) {
         if (visitor.start(this)) {
-            for (DatabaseColumnType columnType : fieldTypes) {
+            for (DatabaseColumnType columnType : columnTypes) {
                 columnType.accept(visitor);
             }
         }

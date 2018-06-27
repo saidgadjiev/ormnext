@@ -37,6 +37,12 @@ public class EntityAliasResolverContext {
         Map<String, String> columnAliases = new LinkedHashMap<>();
         Map<String, String> propertyNameAliases = new HashMap<>();
 
+        DatabaseColumnType primaryKey = entityMetadata.getPrimaryKeyColumnType();
+        String keyAlias = aliasCreator.createAlias(primaryKey.columnName());
+
+        propertyNameAliases.put(primaryKey.getField().getName(), keyAlias);
+        columnAliases.put(primaryKey.columnName(), keyAlias);
+
         for (DatabaseColumnType columnType: entityMetadata.getColumnTypes()) {
             if (columnType.foreignCollectionColumnType()) {
                 continue;
@@ -49,11 +55,6 @@ public class EntityAliasResolverContext {
             columnAliases.put(columnType.columnName(), resolvedAlias);
             propertyNameAliases.put(columnType.getField().getName(), resolvedAlias);
         }
-        DatabaseColumnType primaryKey = entityMetadata.getPrimaryKeyColumnType();
-        String keyAlias = aliasCreator.createAlias(primaryKey.columnName());
-
-        columnAliases.put(primaryKey.columnName(), keyAlias);
-        propertyNameAliases.put(primaryKey.getField().getName(), keyAlias);
         EntityAliases entityAliases = new EntityAliases(tableAlias, columnAliases, propertyNameAliases, keyAlias);
 
         resolvedEntityAliases.putIfAbsent(uid, entityAliases);

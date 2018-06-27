@@ -7,7 +7,6 @@ import ru.saidgadjiev.ormnext.core.field.SqlType;
 import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Types;
-import java.util.Date;
 
 /**
  * Type that persists a time type.
@@ -20,7 +19,7 @@ public class TimeDataPersister extends BaseDataPersister {
      * Create a new instance.
      */
     public TimeDataPersister() {
-        super(new Class<?>[] {Time.class, Date.class, java.sql.Date.class}, Types.TIME, SqlType.TIME);
+        super(new Class<?>[] {Time.class}, Types.TIME, SqlType.TIME);
     }
 
     @Override

@@ -261,6 +261,11 @@ public class SessionImpl implements Session, InternalTransaction {
     }
 
     @Override
+    public DatabaseResults query(SelectStatement<?> selectStatement) throws SQLException {
+        return sessionManager.loader(loader).query(this, selectStatement);
+    }
+
+    @Override
     public SessionManager getSessionManager() {
         return sessionManager;
     }

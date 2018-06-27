@@ -5,8 +5,8 @@ import ru.saidgadjiev.ormnext.core.exception.InstantiationException;
 import ru.saidgadjiev.ormnext.core.field.*;
 import ru.saidgadjiev.ormnext.core.field.datapersister.ColumnConverter;
 import ru.saidgadjiev.ormnext.core.field.datapersister.DataPersister;
+import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetadata;
 import ru.saidgadjiev.ormnext.core.table.internal.visitor.EntityMetadataVisitor;
-import ru.saidgadjiev.ormnext.core.utils.DatabaseEntityMetadataUtils;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -249,7 +249,7 @@ public final class SimpleDatabaseColumnTypeImpl extends BaseDatabaseColumnType {
             }
 
             columnType.sqlType = dataPersister.getOrmNextSqlType();
-            columnType.tableName = DatabaseEntityMetadataUtils.resolveTableName(field.getDeclaringClass());
+            columnType.tableName = DatabaseEntityMetadata.resolveTableName(field.getDeclaringClass());
             columnType.dataPersister = dataPersister;
             String defaultDefinition = databaseColumn.defaultDefinition();
 

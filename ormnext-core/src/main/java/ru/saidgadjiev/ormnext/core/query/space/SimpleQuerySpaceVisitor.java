@@ -5,8 +5,6 @@ import ru.saidgadjiev.ormnext.core.query.visitor.NoActionVisitor;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.ColumnSpec;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetadata;
 
-import static ru.saidgadjiev.ormnext.core.utils.DatabaseEntityMetadataUtils.getColumnNameByPropertyName;
-
 /**
  * Visitor for visit criteria statement. Use for replace property name by column name with aliases.
  * Use for simple statements which not need aliases.
@@ -33,8 +31,7 @@ public class SimpleQuerySpaceVisitor extends NoActionVisitor {
     public boolean visit(ColumnSpec columnSpec) {
         if (columnSpec.getAlias() == null) {
             String propertyName = columnSpec.getName();
-            String columnName = getColumnNameByPropertyName(
-                    databaseEntityMetadata.getColumnTypes(), propertyName
+            String columnName = databaseEntityMetadata.getPropertyColumnName(propertyName
             ).orElseThrow(() -> new PropertyNotFoundException(databaseEntityMetadata.getTableClass(), propertyName));
 
             columnSpec

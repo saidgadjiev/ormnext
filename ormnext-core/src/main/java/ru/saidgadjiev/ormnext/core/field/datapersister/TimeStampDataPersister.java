@@ -7,7 +7,6 @@ import ru.saidgadjiev.ormnext.core.field.SqlType;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
-import java.util.Date;
 
 /**
  * Type that persists a timestamp type.
@@ -20,7 +19,7 @@ public class TimeStampDataPersister extends BaseDataPersister {
      * Create a new instance.
      */
     public TimeStampDataPersister() {
-        super(new Class<?>[] {Date.class, java.sql.Date.class, Timestamp.class}, Types.TIMESTAMP, SqlType.TIMESTAMP);
+        super(new Class<?>[] {Timestamp.class}, Types.TIMESTAMP, SqlType.TIMESTAMP);
     }
 
     @Override

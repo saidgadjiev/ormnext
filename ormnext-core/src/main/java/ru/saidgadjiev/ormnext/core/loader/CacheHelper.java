@@ -48,10 +48,10 @@ public class CacheHelper {
                     .getMetadata()
                     .getPrimaryKeyColumnType();
 
-            ObjectCache objectCache = sessionFactoryCacheHolder.getObjectCache();
-
             for (Object object : objects) {
-                objectCache.put(object.getClass(), primaryKeyColumnType.access(object), object);
+                Object id = primaryKeyColumnType.access(object);
+
+                saveToCache(id, object);
             }
         }
     }
@@ -72,8 +72,11 @@ public class CacheHelper {
                         .getPersister(object.getClass())
                         .getMetadata()
                         .getPrimaryKeyColumnType();
+                id = primaryKeyColumnType.access(object);
 
-                objectCache.put(object.getClass(), primaryKeyColumnType.access(object), object);
+                if (id != null) {
+                    objectCache.put(object.getClass(), id, object);
+                }
             }
         }
     }

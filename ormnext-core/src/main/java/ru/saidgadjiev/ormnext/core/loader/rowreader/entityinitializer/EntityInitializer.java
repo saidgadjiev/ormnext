@@ -1,10 +1,14 @@
 package ru.saidgadjiev.ormnext.core.loader.rowreader.entityinitializer;
 
+import ru.saidgadjiev.ormnext.core.connection.DatabaseResults;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.DatabaseColumnType;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignColumnTypeImpl;
 import ru.saidgadjiev.ormnext.core.loader.ResultSetContext;
 import ru.saidgadjiev.ormnext.core.logger.Log;
 import ru.saidgadjiev.ormnext.core.logger.LoggerFactory;
+import ru.saidgadjiev.ormnext.core.query.criteria.impl.Criteria;
+import ru.saidgadjiev.ormnext.core.query.criteria.impl.Restrictions;
+import ru.saidgadjiev.ormnext.core.query.criteria.impl.SelectStatement;
 import ru.saidgadjiev.ormnext.core.table.internal.alias.EntityAliases;
 import ru.saidgadjiev.ormnext.core.table.internal.alias.UIDGenerator;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetadata;
@@ -15,6 +19,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static ru.saidgadjiev.ormnext.core.loader.ResultSetContext.EntityProcessingState;
 
@@ -75,6 +80,10 @@ public class EntityInitializer {
      */
     public Object startRead(ResultSetContext context) throws SQLException {
         DatabaseColumnType idColumnType = persister.getMetadata().getPrimaryKeyColumnType();
+
+        if (!context.isResultColumn(entityAliases.getKeyAlias())) {
+            return null;
+        }
         Object id = idColumnType.dataPersister().readValue(
                 context.getDatabaseResults(),
                 entityAliases.getKeyAlias()
@@ -116,18 +125,23 @@ public class EntityInitializer {
                 continue;
             }
             if (columnType.id()) {
+                ++i;
                 continue;
             }
-            Object value = columnType.dataPersister().readValue(
-                    context.getDatabaseResults(),
-                    columnAliases.get(i++)
-            );
+            String currentAlias = columnAliases.get(i++);
 
-            value = ArgumentUtils.processConvertersToJavaValue(value, columnType).getValue();
+            if (context.isResultColumn(currentAlias)) {
+                Object value = columnType.dataPersister().readValue(
+                        context.getDatabaseResults(),
+                        currentAlias
+                );
 
-            values.add(new ResultSetValue(value, context.getDatabaseResults().wasNull()));
-            if (columnType.unique()) {
-                context.addEntry(value, entityInstance);
+                value = ArgumentUtils.processConvertersToJavaValue(value, columnType).getValue();
+
+                values.add(new ResultSetValue(value, context.getDatabaseResults().wasNull()));
+                if (columnType.unique()) {
+                    context.addEntry(value, entityInstance);
+                }
             }
         }
         processingState.setValuesFromResultSet(values);
@@ -163,49 +177,74 @@ public class EntityInitializer {
         DatabaseEntityMetadata<?> entityMetadata = persister.getMetadata();
         Object entityInstance = processingState.getEntityInstance();
         List<ResultSetValue> values = processingState.getValues();
-        int i = 0;
+        List<String> aliases = entityAliases.getColumnAliases();
+        int valueIndex = 0;
+        int aliasIndex = 0;
 
         for (DatabaseColumnType columnType : entityMetadata.getColumnTypes()) {
             if (columnType.foreignCollectionColumnType()) {
                 continue;
             }
             if (columnType.id()) {
+                ++aliasIndex;
                 continue;
             }
-            if (columnType.databaseColumnType()) {
-                ResultSetValue resultSetValue = values.get(i++);
-                Object value = resultSetValue.getValue();
+            String alias = aliases.get(aliasIndex++);
 
-                columnType.assign(entityInstance, value);
-            }
-            if (columnType.foreignColumnType()) {
-                ForeignColumnTypeImpl foreignColumnType = (ForeignColumnTypeImpl) columnType;
-                ResultSetValue resultSetValue = values.get(i++);
+            if (context.isResultColumn(alias)) {
+                ResultSetValue resultSetValue = values.get(valueIndex++);
 
-                if (!resultSetValue.isWasNull()) {
-                    switch (foreignColumnType.getFetchType()) {
-                        case LAZY:
-                            LOG.debug(
-                                    "Found lazy entity %s %s",
-                                    foreignColumnType.getField().getDeclaringClass().getName(),
-                                    foreignColumnType.getField().getName()
-                            );
-                            Object proxy = persister.createProxy(
-                                    foreignColumnType.getForeignFieldClass(),
-                                    foreignColumnType.getForeignDatabaseColumnType().getField().getName(),
-                                    resultSetValue.getValue()
-                            );
+                if (columnType.databaseColumnType()) {
+                    Object value = resultSetValue.getValue();
 
-                            columnType.assign(entityInstance, proxy);
-                            break;
-                        case EAGER:
-                            columnType.assign(entityInstance, context.getEntry(
-                                    foreignColumnType.getForeignFieldClass(),
-                                    resultSetValue.getValue()
-                            ));
-                            break;
-                        default:
-                            break;
+                    columnType.assign(entityInstance, value);
+                }
+                if (columnType.foreignColumnType()) {
+                    ForeignColumnTypeImpl foreignColumnType = (ForeignColumnTypeImpl) columnType;
+
+                    if (!resultSetValue.isWasNull()) {
+                        switch (foreignColumnType.getFetchType()) {
+                            case LAZY:
+                                LOG.debug(
+                                        "Found lazy entity %s %s",
+                                        foreignColumnType.getField().getDeclaringClass().getName(),
+                                        foreignColumnType.getField().getName()
+                                );
+                                Object proxy = persister.createProxy(
+                                        foreignColumnType.getForeignFieldClass(),
+                                        foreignColumnType.getForeignDatabaseColumnType().getField().getName(),
+                                        resultSetValue.getValue()
+                                );
+
+                                columnType.assign(entityInstance, proxy);
+                                break;
+                            case EAGER:
+                                Object value = context.getEntry(
+                                        foreignColumnType.getForeignFieldClass(),
+                                        resultSetValue.getValue()
+                                );
+
+                                if (value == null) {
+                                    String propertyName = foreignColumnType.getForeignDatabaseColumnType()
+                                            .getField()
+                                            .getName();
+
+                                    SelectStatement<?> selectStatement = new SelectStatement<>(
+                                            foreignColumnType.getForeignFieldClass()
+                                    );
+
+                                    selectStatement.where(new Criteria()
+                                            .add(Restrictions.eq(propertyName, resultSetValue.getValue()))
+                                    );
+
+                                    value = context.getSession().uniqueResult(selectStatement);
+                                }
+
+                                columnType.assign(entityInstance, value);
+                                break;
+                            default:
+                                break;
+                        }
                     }
                 }
             }

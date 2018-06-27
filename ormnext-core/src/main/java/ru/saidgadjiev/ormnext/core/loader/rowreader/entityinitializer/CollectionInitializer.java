@@ -19,6 +19,7 @@ import java.lang.reflect.Field;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static ru.saidgadjiev.ormnext.core.loader.ResultSetContext.EntityProcessingState;
@@ -77,32 +78,34 @@ public class CollectionInitializer {
         DatabaseColumnType collectionObjectPrimaryKey = collectionQuerySpace.getCollectionObjectPrimaryKey();
         DataPersister collectionObjectDataPersister = collectionObjectPrimaryKey.dataPersister();
 
-        Object collectionObjectId = collectionObjectDataPersister.readValue(
-                context.getDatabaseResults(),
-                aliases.getCollectionObjectKeyAlias()
-        );
+        if (context.isResultColumn(aliases.getCollectionObjectKeyAlias())) {
+            Object collectionObjectId = collectionObjectDataPersister.readValue(
+                    context.getDatabaseResults(),
+                    aliases.getCollectionObjectKeyAlias()
+            );
 
-        if (context.getDatabaseResults().wasNull()) {
-            return;
+            if (context.getDatabaseResults().wasNull()) {
+                return;
+            }
+            Object collectionOwnerId = collectionQuerySpace
+                    .getOwnerPrimaryKey()
+                    .dataPersister()
+                    .readValue(context.getDatabaseResults(), aliases.getCollectionOwnerColumnKeyAlias());
+
+            collectionOwnerId = ArgumentUtils.processConvertersToJavaValue(
+                    collectionOwnerId,
+                    collectionQuerySpace.getOwnerPrimaryKey()
+            ).getValue();
+            EntityProcessingState processingState = context.getProcessingState(uid, collectionOwnerId);
+
+            collectionObjectId = ArgumentUtils.processConvertersToJavaValue(
+                    collectionObjectId,
+                    collectionObjectPrimaryKey
+            ).getValue();
+            ForeignCollectionColumnTypeImpl collectionColumnType = collectionQuerySpace.getForeignCollectionColumnType();
+
+            processingState.addCollectionObjectId(collectionColumnType.getCollectionObjectClass(), collectionObjectId);
         }
-        Object collectionOwnerId = collectionQuerySpace
-                .getOwnerPrimaryKey()
-                .dataPersister()
-                .readValue(context.getDatabaseResults(), aliases.getCollectionOwnerColumnKeyAlias());
-
-        collectionOwnerId = ArgumentUtils.processConvertersToJavaValue(
-                collectionOwnerId,
-                collectionQuerySpace.getOwnerPrimaryKey()
-        ).getValue();
-        EntityProcessingState processingState = context.getProcessingState(uid, collectionOwnerId);
-
-        collectionObjectId = ArgumentUtils.processConvertersToJavaValue(
-                collectionObjectId,
-                collectionObjectPrimaryKey
-        ).getValue();
-        ForeignCollectionColumnTypeImpl collectionColumnType = collectionQuerySpace.getForeignCollectionColumnType();
-
-        processingState.addCollectionObjectId(collectionColumnType.getCollectionObjectClass(), collectionObjectId);
     }
 
     /**
@@ -133,15 +136,18 @@ public class CollectionInitializer {
         ForeignCollectionColumnTypeImpl collectionColumnType = collectionQuerySpace.getForeignCollectionColumnType();
 
         if (collectionColumnType.getFetchType().equals(FetchType.EAGER)) {
-            processingState.getCollectionObjectIds(collectionColumnType.getCollectionObjectClass())
-                    .ifPresent(objects -> {
-                        for (Object collectionObjectId : objects) {
-                            collectionColumnType.add(instance, resultSetContext.getEntry(
-                                    collectionColumnType.getCollectionObjectClass(),
-                                    collectionObjectId
-                            ));
-                        }
-                    });
+            Optional<List<Object>> collectionObjectIdsOptional = processingState.getCollectionObjectIds(collectionColumnType.getCollectionObjectClass());
+
+            if (collectionObjectIdsOptional.isPresent()) {
+                for (Object collectionObjectId : collectionObjectIdsOptional.get()) {
+                    Object object = resultSetContext.getEntry(
+                            collectionColumnType.getCollectionObjectClass(),
+                            collectionObjectId
+                    );
+
+                    collectionColumnType.add(instance, object);
+                }
+            }
         } else {
             Field field = collectionColumnType.getField();
 

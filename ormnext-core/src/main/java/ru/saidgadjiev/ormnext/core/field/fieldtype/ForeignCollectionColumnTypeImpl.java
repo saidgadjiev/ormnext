@@ -5,8 +5,8 @@ import ru.saidgadjiev.ormnext.core.field.FieldAccessor;
 import ru.saidgadjiev.ormnext.core.field.ForeignCollectionField;
 import ru.saidgadjiev.ormnext.core.field.datapersister.ColumnConverter;
 import ru.saidgadjiev.ormnext.core.field.datapersister.DataPersister;
+import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetadata;
 import ru.saidgadjiev.ormnext.core.table.internal.visitor.EntityMetadataVisitor;
-import ru.saidgadjiev.ormnext.core.utils.DatabaseEntityMetadataUtils;
 import ru.saidgadjiev.ormnext.core.utils.FieldTypeUtils;
 
 import java.lang.reflect.Field;
@@ -241,10 +241,10 @@ public class ForeignCollectionColumnTypeImpl extends BaseDatabaseColumnType impl
         } else {
             foreignField = FieldTypeUtils.findFieldByName(foreignFieldName, collectionObjectClass).get();
         }
-        fieldType.tableName = DatabaseEntityMetadataUtils.resolveTableName(field.getDeclaringClass());
+        fieldType.tableName = DatabaseEntityMetadata.resolveTableName(field.getDeclaringClass());
         fieldType.foreignField = foreignField;
         fieldType.foreignColumnName = FieldTypeUtils.resolveForeignColumnTypeName(foreignField);
-        fieldType.foreignTableName = DatabaseEntityMetadataUtils.resolveTableName(foreignField.getDeclaringClass());
+        fieldType.foreignTableName = DatabaseEntityMetadata.resolveTableName(foreignField.getDeclaringClass());
         fieldType.foreignAutoCreate = foreignCollectionField.foreignAutoCreate();
         fieldType.foreignColumnType = ForeignColumnTypeImpl.build(foreignField);
 

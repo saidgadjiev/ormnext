@@ -1,6 +1,7 @@
 package ru.saidgadjiev.ormnext.core.loader;
 
 import ru.saidgadjiev.ormnext.core.connection.DatabaseResults;
+import ru.saidgadjiev.ormnext.core.connection.UserDatabaseResultsImpl;
 import ru.saidgadjiev.ormnext.core.dao.Dao;
 import ru.saidgadjiev.ormnext.core.dao.DatabaseEngine;
 import ru.saidgadjiev.ormnext.core.dao.Session;
@@ -19,7 +20,6 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.*;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetadata;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.MetaModel;
 import ru.saidgadjiev.ormnext.core.table.internal.persister.DatabaseEntityPersister;
-import ru.saidgadjiev.ormnext.core.utils.DatabaseEntityMetadataUtils;
 
 import java.sql.SQLException;
 import java.util.*;
@@ -405,7 +405,7 @@ public class DefaultEntityLoader implements EntityLoader {
     @Override
     public <T> List<T> list(Session session, SelectStatement<T> selectStatement) throws SQLException {
         DatabaseEntityPersister entityPersister = metaModel.getPersister(selectStatement.getEntityClass());
-        SelectQuery selectQuery = entityPersister.getEntityQuerySpace().getBySelectStatement(selectStatement);
+        SelectQuery selectQuery = entityPersister.getEntityQuerySpace().getSelectQuery(selectStatement);
 
         try (DatabaseResults databaseResults = databaseEngine.select(
                 session.getConnection(),
@@ -426,7 +426,7 @@ public class DefaultEntityLoader implements EntityLoader {
     public long queryForLong(Session session, SelectStatement<?> selectStatement)
             throws SQLException {
         DatabaseEntityPersister entityPersister = metaModel.getPersister(selectStatement.getEntityClass());
-        SelectQuery selectQuery = entityPersister.getEntityQuerySpace().getSelectForLongResult(selectStatement);
+        SelectQuery selectQuery = entityPersister.getEntityQuerySpace().getSelectQuery(selectStatement);
 
         try (DatabaseResults databaseResults = databaseEngine.select(
                 session.getConnection(),
@@ -443,7 +443,7 @@ public class DefaultEntityLoader implements EntityLoader {
 
     @Override
     public DatabaseResults query(Session session, String query) throws SQLException {
-        return databaseEngine.query(session.getConnection(), query);
+        return new UserDatabaseResultsImpl(null, databaseEngine.query(session.getConnection(), query));
     }
 
     @Override
@@ -498,6 +498,21 @@ public class DefaultEntityLoader implements EntityLoader {
                 session.getConnection(),
                 updateQuery,
                 getArguments(entityPersister.getMetadata(), updateStatement)
+        );
+    }
+
+    @Override
+    public DatabaseResults query(Session session, SelectStatement<?> selectStatement) throws SQLException {
+        DatabaseEntityPersister entityPersister = metaModel.getPersister(selectStatement.getEntityClass());
+        SelectQuery selectQuery = entityPersister.getEntityQuerySpace().getSelectQuery(selectStatement);
+
+        return new UserDatabaseResultsImpl(
+                entityPersister.getAliases(),
+                databaseEngine.select(
+                        session.getConnection(),
+                        selectQuery,
+                        getArguments(entityPersister.getMetadata(), selectStatement)
+                )
         );
     }
 
@@ -567,7 +582,7 @@ public class DefaultEntityLoader implements EntityLoader {
     /**
      * Obtain arguments {@link Argument} from criteria query.
      *
-     * @param metadata        target table meta data
+     * @param metadata          target table meta data
      * @param criteriaStatement target criteria query
      * @return argument index map
      */
@@ -577,12 +592,12 @@ public class DefaultEntityLoader implements EntityLoader {
         AtomicInteger index = new AtomicInteger();
 
         for (CriterionArgument criterionArgument : criteriaStatement.getArgs()) {
-            DatabaseColumnType columnType = DatabaseEntityMetadataUtils
-                    .getDataTypeByPropertyName(metadata.getColumnTypes(), criterionArgument.getProperty())
-                    .orElseThrow(() -> new PropertyNotFoundException(
-                            metadata.getTableClass(),
-                            criterionArgument.getProperty())
-                    );
+            DatabaseColumnType columnType =
+                    getDataTypeByPropertyName(metadata.getColumnTypes(), criterionArgument.getProperty())
+                            .orElseThrow(() -> new PropertyNotFoundException(
+                                    metadata.getTableClass(),
+                                    criterionArgument.getProperty())
+                            );
 
             for (Object arg : criterionArgument.getValues()) {
                 args.put(index.incrementAndGet(), new Argument(columnType.dataPersister(), arg));
@@ -596,6 +611,28 @@ public class DefaultEntityLoader implements EntityLoader {
         }
 
         return args;
+    }
+
+    /**
+     * Find column type by property name in requested column types.
+     *
+     * @param columnTypes  target column types
+     * @param propertyName target property name
+     * @return optional column type
+     */
+    private static Optional<DatabaseColumnType> getDataTypeByPropertyName(List<DatabaseColumnType> columnTypes,
+                                                                          String propertyName) {
+        for (DatabaseColumnType columnType : columnTypes) {
+            if (columnType.foreignCollectionColumnType()) {
+                continue;
+            }
+
+            if (columnType.getField().getName().equals(propertyName)) {
+                return Optional.of(columnType);
+            }
+        }
+
+        return Optional.empty();
     }
 
     /**

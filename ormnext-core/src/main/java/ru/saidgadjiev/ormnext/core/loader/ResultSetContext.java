@@ -4,7 +4,9 @@ import ru.saidgadjiev.ormnext.core.connection.DatabaseResults;
 import ru.saidgadjiev.ormnext.core.dao.Session;
 import ru.saidgadjiev.ormnext.core.loader.rowreader.entityinitializer.ResultSetValue;
 
+import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Temporary result set context.
@@ -23,6 +25,8 @@ public class ResultSetContext {
      * Database results.
      */
     private DatabaseResults databaseResults;
+
+    private Set<String> resultColumns;
 
     /**
      * Map for associate uid with processing state.
@@ -152,7 +156,24 @@ public class ResultSetContext {
      * @return object from cache or else null if it not exist
      */
     public Object getEntry(Class<?> tClass, Object id) {
-        return cache.get(tClass).get(id);
+        Map<Object, Object> idDataMap = cache.get(tClass);
+
+        if (idDataMap == null) {
+            return null;
+        }
+
+        return idDataMap.get(id);
+    }
+
+    public synchronized boolean isResultColumn(String columnName) throws SQLException {
+        if (resultColumns == null) {
+            resultColumns = databaseResults.getMetaData().getResultColumnNames()
+                    .stream()
+                    .map(String::toLowerCase)
+                    .collect(Collectors.toSet());
+        }
+
+        return resultColumns.contains(columnName);
     }
 
     /**

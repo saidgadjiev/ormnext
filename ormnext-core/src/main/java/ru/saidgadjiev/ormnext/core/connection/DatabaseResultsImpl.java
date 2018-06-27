@@ -147,4 +147,9 @@ public abstract class DatabaseResultsImpl implements DatabaseResults {
     public <T> T getResultsObject() {
         return (T) resultSet;
     }
+
+    @Override
+    public DatabaseResultsMetadata getMetaData() throws SQLException {
+        return new DatabaseResultsMetadataImpl(resultSet.getMetaData());
+    }
 }

@@ -3,8 +3,10 @@ package ru.saidgadjiev.ormnext.core.dao;
 import org.junit.Assert;
 import org.junit.Test;
 import ru.saidgadjiev.ormnext.core.BaseCoreTest;
+import ru.saidgadjiev.ormnext.core.connection.DatabaseResults;
 import ru.saidgadjiev.ormnext.core.model.*;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.*;
+import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetadata;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -57,7 +59,7 @@ public class SessionImplTest extends BaseCoreTest {
         try (Session session = createSessionAndCreateTables()) {
             TestEntity entity = new TestEntity();
 
-            entity.setDesc("SelfJoinTestEntity");
+            entity.setDesc("Test");
             session.create(entity);
             entity.setDesc("TestDesc");
             session.update(entity);
@@ -99,7 +101,7 @@ public class SessionImplTest extends BaseCoreTest {
         try (Session session = createSessionAndCreateTables()) {
             TestEntity entity = new TestEntity();
 
-            entity.setDesc("SelfJoinTestEntity");
+            entity.setDesc("Test");
             session.create(entity);
             ForeignTestEntity foreignTestEntity = new ForeignTestEntity();
 
@@ -118,7 +120,7 @@ public class SessionImplTest extends BaseCoreTest {
             session.create(foreignCollectionTestEntity);
             TestEntity entity = new TestEntity();
 
-            entity.setDesc("SelfJoinTestEntity");
+            entity.setDesc("Test");
             entity.setForeignCollectionTestEntity(foreignCollectionTestEntity);
             session.create(entity);
 
@@ -137,7 +139,7 @@ public class SessionImplTest extends BaseCoreTest {
         try (Session session = createSessionAndCreateTables()) {
             TestEntity entity = new TestEntity();
 
-            entity.setDesc("SelfJoinTestEntity");
+            entity.setDesc("Test");
             session.create(entity);
             ForeignTestEntity foreignTestEntity = new ForeignTestEntity();
 
@@ -159,7 +161,7 @@ public class SessionImplTest extends BaseCoreTest {
             session.create(foreignCollectionTestEntity);
             TestEntity entity = new TestEntity();
 
-            entity.setDesc("SelfJoinTestEntity");
+            entity.setDesc("Test");
             entity.setForeignCollectionTestEntity(foreignCollectionTestEntity);
             session.create(entity);
 
@@ -193,7 +195,7 @@ public class SessionImplTest extends BaseCoreTest {
                     new ForeignAutoCreateForeignColumnTestEntity();
             TestEntity testEntity = new TestEntity();
 
-            testEntity.setDesc("SelfJoinTestEntity");
+            testEntity.setDesc("Test");
             testForeignAutoCreateEntity.setTestEntity(testEntity);
             session.create(testForeignAutoCreateEntity);
             ForeignAutoCreateForeignColumnTestEntity result = session.queryForId(
@@ -212,7 +214,7 @@ public class SessionImplTest extends BaseCoreTest {
                     new ForeignAutoCreateForeignCollectionColumnTestEntity();
             TestEntity testEntity = new TestEntity();
 
-            testEntity.setDesc("SelfJoinTestEntity");
+            testEntity.setDesc("Test");
             testForeignAutoCreateEntity.getEntities().add(testEntity);
             session.create(testForeignAutoCreateEntity);
             ForeignAutoCreateForeignCollectionColumnTestEntity result = session.queryForId(
@@ -238,7 +240,7 @@ public class SessionImplTest extends BaseCoreTest {
 
             Assert.assertEquals(foreignTestEntity, resultBefore);
 
-            testEntity.setDesc("SelfJoinTestEntity");
+            testEntity.setDesc("Test");
             session.update(testEntity);
             session.refresh(resultBefore);
             Assert.assertEquals(resultBefore, foreignTestEntity);
@@ -260,7 +262,7 @@ public class SessionImplTest extends BaseCoreTest {
 
             Assert.assertEquals(foreignTestEntity.getEntities(), resultBefore.getEntities());
 
-            testEntity.setDesc("SelfJoinTestEntity");
+            testEntity.setDesc("Test");
             session.update(testEntity);
             session.refresh(resultBefore);
             Assert.assertEquals(resultBefore.getEntities(), foreignTestEntity.getEntities());
@@ -344,7 +346,7 @@ public class SessionImplTest extends BaseCoreTest {
         try (Session session = createSessionAndCreateTables(WithDefaultTestEntity.class)) {
             WithDefaultTestEntity testEntity = new WithDefaultTestEntity();
 
-            testEntity.setName("SelfJoinTestEntity");
+            testEntity.setName("Test");
             session.create(testEntity);
             WithDefaultTestEntity testEntity1 = new WithDefaultTestEntity();
 
@@ -362,7 +364,7 @@ public class SessionImplTest extends BaseCoreTest {
         try (Session session = createSessionAndCreateTables(WithDefaultTestEntity.class)) {
             WithDefaultTestEntity testEntity = new WithDefaultTestEntity();
 
-            testEntity.setName("SelfJoinTestEntity");
+            testEntity.setName("Test");
             session.create(testEntity);
             WithDefaultTestEntity testEntity1 = new WithDefaultTestEntity();
 
@@ -383,7 +385,7 @@ public class SessionImplTest extends BaseCoreTest {
         try (Session session = createSessionAndCreateTables(WithDefaultTestEntity.class)) {
             WithDefaultTestEntity testEntity = new WithDefaultTestEntity();
 
-            testEntity.setName("SelfJoinTestEntity");
+            testEntity.setName("Test");
             session.create(testEntity);
             WithDefaultTestEntity testEntity1 = new WithDefaultTestEntity();
 
@@ -467,6 +469,60 @@ public class SessionImplTest extends BaseCoreTest {
                     .where(new Criteria().add(Restrictions.eq("id", 1)));
             Assert.assertEquals(session.update(updateStatement), 1);
             Assert.assertEquals("Test1", session.queryForId(TestEntity.class, 1).getDesc());
+        }
+    }
+
+    @Test
+    public void testQuerySelectStatement() throws SQLException {
+        try (Session session = createSessionAndCreateTables(WithDefaultTestEntity.class)) {
+            WithDefaultTestEntity testEntity = new WithDefaultTestEntity();
+
+            testEntity.setName("Test");
+            session.create(testEntity);
+
+            SelectStatement<WithDefaultTestEntity> selectStatement = new SelectStatement<>(WithDefaultTestEntity.class);
+
+            selectStatement.select("id");
+            selectStatement.withoutJoins(true);
+            selectStatement.where(new Criteria()
+                .add(Restrictions.eq("name", "Test"))
+            );
+
+            try (DatabaseResults databaseResults = session.query(selectStatement)) {
+                while (databaseResults.next()) {
+                    Assert.assertEquals(1, databaseResults.getInt(DatabaseEntityMetadata.getPropertyColumnName(WithDefaultTestEntity.class, "id").get()));
+                }
+            }
+        }
+    }
+
+    @Test
+    public void testListSelectStatement() throws SQLException {
+        try (Session session = createSessionAndCreateTables(
+                ForeignCollectionTestEntity.class,
+                ForeignAutoCreateForeignCollectionColumnTestEntity.class,
+                TestEntity.class)
+        ) {
+            ForeignCollectionTestEntity collectionTestEntity = new ForeignCollectionTestEntity();
+
+            session.create(collectionTestEntity);
+            TestEntity testEntity = new TestEntity();
+
+            testEntity.setDesc("Test");
+            testEntity.setForeignCollectionTestEntity(collectionTestEntity);
+            session.create(testEntity);
+
+            SelectStatement<TestEntity> selectStatement = new SelectStatement<>(TestEntity.class);
+
+            selectStatement.select("id").select("foreignCollectionTestEntity");
+            selectStatement.where(new Criteria()
+                    .add(Restrictions.eq("desc", "Test"))
+            );
+
+            List<TestEntity> entities = session.list(selectStatement);
+
+            Assert.assertEquals(1, entities.size());
+            Assert.assertEquals(entities.get(0), testEntity);
         }
     }
 }

@@ -3,8 +3,8 @@ package ru.saidgadjiev.ormnext.core.field.fieldtype;
 import ru.saidgadjiev.ormnext.core.field.*;
 import ru.saidgadjiev.ormnext.core.field.datapersister.ColumnConverter;
 import ru.saidgadjiev.ormnext.core.field.datapersister.DataPersister;
+import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetadata;
 import ru.saidgadjiev.ormnext.core.table.internal.visitor.EntityMetadataVisitor;
-import ru.saidgadjiev.ormnext.core.utils.DatabaseEntityMetadataUtils;
 import ru.saidgadjiev.ormnext.core.utils.FieldTypeUtils;
 import ru.saidgadjiev.ormnext.core.validator.entity.PrimaryKeyValidator;
 
@@ -262,7 +262,7 @@ public class ForeignColumnTypeImpl extends BaseDatabaseColumnType implements For
         DatabaseColumnType foreignDatabaseColumnType;
 
         if (foreignFieldName.isEmpty()) {
-            foreignDatabaseColumnType = DatabaseEntityMetadataUtils.resolvePrimaryKey(field.getType()).get();
+            foreignDatabaseColumnType = DatabaseEntityMetadata.resolvePrimaryKey(field.getType()).get();
         } else {
             foreignDatabaseColumnType = FieldTypeUtils.create(FieldTypeUtils.findFieldByName(
                     foreignFieldName,
@@ -278,7 +278,7 @@ public class ForeignColumnTypeImpl extends BaseDatabaseColumnType implements For
         foreignColumnType.fieldAccessor = new FieldAccessor(field);
         foreignColumnType.columnName = foreignColumn.columnName().isEmpty()
                 ? field.getName().toLowerCase() : foreignColumn.columnName();
-        foreignColumnType.tableName = DatabaseEntityMetadataUtils.resolveTableName(field.getDeclaringClass());
+        foreignColumnType.tableName = DatabaseEntityMetadata.resolveTableName(field.getDeclaringClass());
         foreignColumnType.databaseColumnType = SimpleDatabaseColumnTypeImpl.build(field);
         foreignColumnType.onDelete = foreignColumn.onDelete();
         foreignColumnType.onUpdate = foreignColumn.onUpdate();

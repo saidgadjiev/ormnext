@@ -3,10 +3,10 @@ package ru.saidgadjiev.ormnext.core.utils;
 import ru.saidgadjiev.ormnext.core.field.DatabaseColumn;
 import ru.saidgadjiev.ormnext.core.field.ForeignCollectionField;
 import ru.saidgadjiev.ormnext.core.field.ForeignColumn;
-import ru.saidgadjiev.ormnext.core.field.fieldtype.SimpleDatabaseColumnTypeImpl;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.DatabaseColumnType;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignCollectionColumnTypeImpl;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignColumnTypeImpl;
-import ru.saidgadjiev.ormnext.core.field.fieldtype.DatabaseColumnType;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.SimpleDatabaseColumnTypeImpl;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -93,5 +93,32 @@ public final class FieldTypeUtils {
                 ? field.getName().toLowerCase() : foreignColumn.columnName();
 
         return columnName + ForeignColumnTypeImpl.ID_SUFFIX;
+    }
+
+    public static Optional<String> resolveColumnName(Field field) {
+        if (field.isAnnotationPresent(ForeignCollectionField.class)) {
+            return Optional.empty();
+        } else if (field.isAnnotationPresent(ForeignColumn.class)) {
+
+            ForeignColumn foreignColumn = field.getAnnotation(ForeignColumn.class);
+
+            String columnName = foreignColumn.columnName().isEmpty()
+                    ? field.getName().toLowerCase() : foreignColumn.columnName();
+
+            if (columnName.endsWith(ForeignColumnTypeImpl.ID_SUFFIX)) {
+                return Optional.of(columnName);
+            }
+
+            return Optional.of(columnName + ForeignColumnTypeImpl.ID_SUFFIX);
+        } else if (field.isAnnotationPresent(DatabaseColumn.class)) {
+            DatabaseColumn databaseColumn = field.getAnnotation(DatabaseColumn.class);
+
+            String columnName = databaseColumn.columnName().isEmpty()
+                    ? field.getName().toLowerCase() : databaseColumn.columnName();
+
+            return Optional.of(columnName);
+        }
+
+        return Optional.empty();
     }
 }

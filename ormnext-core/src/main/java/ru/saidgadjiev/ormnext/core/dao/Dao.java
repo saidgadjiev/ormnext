@@ -266,6 +266,8 @@ public interface Dao {
      */
     int update(UpdateStatement updateStatement) throws SQLException;
 
+    DatabaseResults query(SelectStatement<?> selectStatement) throws SQLException;
+
     /**
      * Create or update object status.
      */

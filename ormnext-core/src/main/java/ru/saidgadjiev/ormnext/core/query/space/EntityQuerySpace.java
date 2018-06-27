@@ -508,10 +508,18 @@ public class EntityQuerySpace {
      * @param selectStatement target select query
      * @return select statement
      */
-    public SelectQuery getBySelectStatement(SelectStatement selectStatement) {
+    public SelectQuery getSelectQuery(SelectStatement<?> selectStatement) {
         SelectQuery selectQuery = new SelectQuery();
 
-        selectQuery.setSelectColumnsStrategy(selectColumnsList);
+        if (selectStatement.getSelectOperands().isEmpty()) {
+            selectQuery.setSelectColumnsStrategy(selectColumnsList);
+        } else {
+            SelectColumnsList selectColumnsList = new SelectColumnsList();
+
+            selectColumnsList.addAll(selectStatement.getSelectOperands());
+
+            selectQuery.setSelectColumnsStrategy(selectColumnsList);
+        }
         if (selectStatement.isWithoutJoins()) {
             selectQuery.setFrom(
                     new FromTable(
@@ -527,44 +535,6 @@ public class EntityQuerySpace {
         selectQuery.setHaving(selectStatement.getHaving());
         selectQuery.setLimit(selectStatement.getLimit());
         selectQuery.setOffset(selectStatement.getOffset());
-        selectQuery.accept(new SelectQuerySpaceVisitor(rootEntityMetaData, rootEntityAliases));
-
-        return selectQuery;
-    }
-
-    /**
-     * Make and return select with long result column statement.
-     *
-     * @param selectStatement target select query
-     * @return select with long result column statement
-     */
-    public SelectQuery getSelectForLongResult(SelectStatement selectStatement) {
-        SelectQuery selectQuery = new SelectQuery();
-
-        if (selectStatement.isWithoutJoins()) {
-            selectQuery.setFrom(
-                    new FromTable(
-                            new TableRef(rootEntityMetaData.getTableName()).alias(rootEntityAliases.getTableAlias())
-                    )
-            );
-        } else {
-            selectQuery.setFrom(fromJoinedTables);
-        }
-        selectQuery.setWhere(selectStatement.getWhere());
-        selectQuery.setGroupBy(selectStatement.getGroupBy());
-        selectQuery.setOrderBy(selectStatement.getOrderBy());
-        selectQuery.setHaving(selectStatement.getHaving());
-        selectQuery.setLimit(selectStatement.getLimit());
-        selectQuery.setOffset(selectStatement.getOffset());
-        SelectColumnsList selectColumnsList = new SelectColumnsList();
-
-        if (selectStatement.getSelectOperand() == null) {
-            throw new IllegalArgumentException(
-                    "Select operand does not provided for queryForLong query. "
-                            + "Please use provide it for requested select statement.");
-        }
-        selectColumnsList.addColumn(selectStatement.getSelectOperand());
-        selectQuery.setSelectColumnsStrategy(selectColumnsList);
         selectQuery.accept(new SelectQuerySpaceVisitor(rootEntityMetaData, rootEntityAliases));
 
         return selectQuery;

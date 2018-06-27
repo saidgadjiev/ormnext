@@ -6,16 +6,15 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.Limit;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.Offset;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.clause.*;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.ColumnSpec;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.DisplayedColumn;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.DisplayedColumnSpec;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.DisplayedOperand;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.condition.Expression;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.function.CountAll;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.function.CountColumn;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.function.Function;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * This class represent select query.
@@ -77,7 +76,7 @@ public class SelectStatement<T> implements QueryElement, CriteriaStatement {
      *
      * @see DisplayedOperand
      */
-    private DisplayedOperand selectOperand;
+    private Collection<DisplayedColumnSpec> selectOperands = new ArrayList<>();
 
     /**
      * Provided user args.
@@ -182,7 +181,7 @@ public class SelectStatement<T> implements QueryElement, CriteriaStatement {
      * @return this for chain
      */
     public SelectStatement<T> countOff() {
-        selectOperand = new DisplayedOperand(new CountAll());
+        selectOperands.add(new DisplayedOperand(new CountAll()));
 
         return this;
     }
@@ -194,7 +193,13 @@ public class SelectStatement<T> implements QueryElement, CriteriaStatement {
      * @return this for chain
      */
     public SelectStatement<T> countOff(String property) {
-        selectOperand = new DisplayedOperand(new CountColumn(new ColumnSpec(property)));
+        selectOperands.add(new DisplayedOperand(new CountColumn(new ColumnSpec(property))));
+
+        return this;
+    }
+
+    public SelectStatement<T> select(String property) {
+        selectOperands.add(new DisplayedColumn(new ColumnSpec(property)));
 
         return this;
     }
@@ -298,8 +303,8 @@ public class SelectStatement<T> implements QueryElement, CriteriaStatement {
      *
      * @return select operand
      */
-    public DisplayedOperand getSelectOperand() {
-        return selectOperand;
+    public Collection<DisplayedColumnSpec> getSelectOperands() {
+        return selectOperands;
     }
 
     /**

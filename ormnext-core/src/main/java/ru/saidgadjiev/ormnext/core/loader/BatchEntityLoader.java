@@ -275,4 +275,9 @@ public class BatchEntityLoader implements EntityLoader {
     public int update(Session session, UpdateStatement updateStatement) throws SQLException {
         throw new UnsupportedOperationException("Not supported for batch execute");
     }
+
+    @Override
+    public DatabaseResults query(Session session, SelectStatement<?> selectStatement) throws SQLException {
+        throw new UnsupportedOperationException("Not supported for batch execute");
+    }
 }

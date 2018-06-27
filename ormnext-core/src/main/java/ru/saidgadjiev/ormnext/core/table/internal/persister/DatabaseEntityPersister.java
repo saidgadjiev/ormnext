@@ -209,4 +209,8 @@ public class DatabaseEntityPersister {
     public EntityQuerySpace getEntityQuerySpace() {
         return entityQuerySpace;
     }
+
+    public EntityAliases getAliases() {
+        return rootEntityInitializer.getEntityAliases();
+    }
 }

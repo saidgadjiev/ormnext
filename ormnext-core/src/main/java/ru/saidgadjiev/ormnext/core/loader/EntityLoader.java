@@ -253,6 +253,16 @@ public interface EntityLoader {
     int update(Session session, UpdateStatement updateStatement) throws SQLException;
 
     /**
+     * Execute seelct statement by database engine and return results.
+     *
+     * @param session target session
+     * @param selectStatement   target statement
+     * @return database results
+     * @throws SQLException any SQL exceptions
+     */
+    DatabaseResults query(Session session, SelectStatement<?> selectStatement) throws SQLException;
+
+    /**
      * Entity loader types.
      */
     enum Loader {
