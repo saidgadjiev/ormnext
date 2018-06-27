@@ -10,6 +10,7 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.clause.select.SelectCol
 import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.ColumnSpec;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.DisplayedColumn;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.DisplayedOperand;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.PropertyColumnSpec;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.common.TableRef;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.common.UpdateValue;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.condition.*;
@@ -101,6 +102,8 @@ public interface QueryVisitor {
      * @see ColumnSpec
      */
     boolean visit(ColumnSpec columnSpec);
+
+    boolean visit(PropertyColumnSpec propertyColumnSpec);
 
     /**
      * Visit {@link TableRef} element.

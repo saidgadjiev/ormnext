@@ -3,6 +3,7 @@ package ru.saidgadjiev.ormnext.core.query.space;
 import ru.saidgadjiev.ormnext.core.exception.PropertyNotFoundException;
 import ru.saidgadjiev.ormnext.core.query.visitor.NoActionVisitor;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.ColumnSpec;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.PropertyColumnSpec;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetadata;
 
 /**
@@ -35,6 +36,20 @@ public class SimpleQuerySpaceVisitor extends NoActionVisitor {
             ).orElseThrow(() -> new PropertyNotFoundException(databaseEntityMetadata.getTableClass(), propertyName));
 
             columnSpec
+                    .name(columnName);
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean visit(PropertyColumnSpec propertyColumnSpec) {
+        if (propertyColumnSpec.getAlias() == null) {
+            String propertyName = propertyColumnSpec.getName();
+            String columnName = databaseEntityMetadata.getPropertyColumnName(propertyName
+            ).orElseThrow(() -> new PropertyNotFoundException(databaseEntityMetadata.getTableClass(), propertyName));
+
+            propertyColumnSpec
                     .name(columnName);
         }
 

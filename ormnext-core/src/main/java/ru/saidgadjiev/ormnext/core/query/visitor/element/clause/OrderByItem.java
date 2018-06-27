@@ -31,7 +31,7 @@ public class OrderByItem implements QueryElement {
      * @param asc target sort direction
      * @param columns target order by columns
      */
-    public OrderByItem(boolean asc, ColumnSpec ... columns) {
+    public OrderByItem(boolean asc, ColumnSpec... columns) {
         this(columns);
         this.asc = asc;
     }
@@ -40,7 +40,7 @@ public class OrderByItem implements QueryElement {
      * Create new order by with provided columns. Use sort direction ASC by default.
      * @param columns target order by columns
      */
-    public OrderByItem(ColumnSpec ... columns) {
+    public OrderByItem(ColumnSpec... columns) {
         this.columns = Arrays.asList(columns);
     }
 
