@@ -2,6 +2,7 @@ package ru.saidgadjiev.ormnext.core.query.criteria.impl;
 
 import ru.saidgadjiev.ormnext.core.query.visitor.element.clause.GroupByItem;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.ColumnSpec;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.PropertyColumnSpec;
 
 /**
  * This class has static method for create group by item.
@@ -21,6 +22,6 @@ public final class Group {
      * @return new group by item
      */
     public static GroupByItem groupBy(String property) {
-        return new GroupByItem(new ColumnSpec(property));
+        return new GroupByItem(new PropertyColumnSpec(property));
     }
 }

@@ -2,6 +2,7 @@ package ru.saidgadjiev.ormnext.core.query.criteria.impl;
 
 import ru.saidgadjiev.ormnext.core.query.visitor.element.AndCondition;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.ColumnSpec;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.PropertyColumnSpec;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.condition.Expression;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.condition.OperandCondition;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.function.CountExpression;
@@ -29,7 +30,7 @@ public final class Projections {
         Expression expression = new Expression();
         AndCondition andCondition = new AndCondition();
 
-        andCondition.add(new OperandCondition(new ColumnSpec(propertyName)));
+        andCondition.add(new OperandCondition(new PropertyColumnSpec(propertyName)));
         expression.add(andCondition);
 
         return new SUM(expression);
@@ -44,7 +45,7 @@ public final class Projections {
         Expression expression = new Expression();
         AndCondition andCondition = new AndCondition();
 
-        andCondition.add(new OperandCondition(new ColumnSpec(propertyName)));
+        andCondition.add(new OperandCondition(new PropertyColumnSpec(propertyName)));
         expression.add(andCondition);
 
         return new CountExpression(expression);

@@ -196,7 +196,7 @@ public class SelectStatement<T> implements QueryElement, CriteriaStatement {
     }
 
     public SelectStatement<T> select(String property) {
-        selectOperands.add(new DisplayedColumn(new ColumnSpec(property)));
+        selectOperands.add(new DisplayedColumn(new PropertyColumnSpec(property)));
 
         return this;
     }

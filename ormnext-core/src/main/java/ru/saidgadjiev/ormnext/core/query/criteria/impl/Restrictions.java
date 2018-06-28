@@ -1,7 +1,7 @@
 package ru.saidgadjiev.ormnext.core.query.criteria.impl;
 
 import ru.saidgadjiev.ormnext.core.query.criteria.api.Criterion;
-import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.ColumnSpec;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.PropertyColumnSpec;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.condition.*;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.function.Function;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.literals.Param;
@@ -25,7 +25,7 @@ public final class Restrictions {
      * @return Criterion
      */
     public static Criterion eq(String property, Object value) {
-        return new CriterionImpl(new Equals(new ColumnSpec(property), new Param()), property, value);
+        return new CriterionImpl(new Equals(new PropertyColumnSpec(property), new Param()), property, value);
     }
 
     /**
@@ -45,7 +45,7 @@ public final class Restrictions {
      * @return Criterion
      */
     public static Criterion ge(String property, Object value) {
-        return new CriterionImpl(new GreaterThanOrEquals(new ColumnSpec(property), new Param()), property, value);
+        return new CriterionImpl(new GreaterThanOrEquals(new PropertyColumnSpec(property), new Param()), property, value);
     }
 
     /**
@@ -65,7 +65,7 @@ public final class Restrictions {
      * @return Criterion
      */
     public static Criterion gt(String property, Object value) {
-        return new CriterionImpl(new GreaterThan(new ColumnSpec(property), new Param()), property, value);
+        return new CriterionImpl(new GreaterThan(new PropertyColumnSpec(property), new Param()), property, value);
     }
 
     /**
@@ -85,7 +85,7 @@ public final class Restrictions {
      * @return Criterion
      */
     public static Criterion le(String property, Object value) {
-        return new CriterionImpl(new LessThanOrEquals(new ColumnSpec(property), new Param()), property, value);
+        return new CriterionImpl(new LessThanOrEquals(new PropertyColumnSpec(property), new Param()), property, value);
     }
 
     /**
@@ -104,7 +104,7 @@ public final class Restrictions {
      * @return Criterion
      */
     public static Criterion lt(String property, Object value) {
-        return new CriterionImpl(new LessThan(new ColumnSpec(property), new Param()), property, value);
+        return new CriterionImpl(new LessThan(new PropertyColumnSpec(property), new Param()), property, value);
     }
     /**
      * Create less than restriction from requested function {@link Function}.
@@ -124,7 +124,7 @@ public final class Restrictions {
         return new Criterion() {
             @Override
             public Condition getCondition() {
-                return new IsNull(new ColumnSpec(property));
+                return new IsNull(new PropertyColumnSpec(property));
             }
 
             @Override
@@ -142,7 +142,7 @@ public final class Restrictions {
         return new Criterion() {
             @Override
             public Condition getCondition() {
-                return new NotNull(new ColumnSpec(property));
+                return new NotNull(new PropertyColumnSpec(property));
             }
 
             @Override
@@ -161,7 +161,7 @@ public final class Restrictions {
         return new Criterion() {
             @Override
             public Condition getCondition() {
-                return new Like(new ColumnSpec(property), pattern);
+                return new Like(new PropertyColumnSpec(property), pattern);
             }
 
             @Override
@@ -178,7 +178,7 @@ public final class Restrictions {
      * @return Criterion
      */
     public static Criterion between(String property, Object low, Object high) {
-        return new CriterionImpl(new Between(new ColumnSpec(property), new Param(), new Param()), null, low, high);
+        return new CriterionImpl(new Between(new PropertyColumnSpec(property), new Param(), new Param()), null, low, high);
     }
     /**
      * Create "!" restriction from requested criterion {@link Criterion}.
@@ -195,7 +195,7 @@ public final class Restrictions {
      * @return Criterion
      */
     public static Criterion in(String property, Object... values) {
-        InValues inValues = new InValues(new ColumnSpec(property));
+        InValues inValues = new InValues(new PropertyColumnSpec(property));
 
         for (int i = 0; i < values.length; ++i) {
             inValues.addValue(new Param());
@@ -210,7 +210,7 @@ public final class Restrictions {
      * @return Criterion
      */
     public static Criterion notIn(String property, Object... values) {
-        NotInValues notInValues = new NotInValues(new ColumnSpec(property));
+        NotInValues notInValues = new NotInValues(new PropertyColumnSpec(property));
 
         for (int i = 0; i < values.length; ++i) {
             notInValues.addValue(new Param());

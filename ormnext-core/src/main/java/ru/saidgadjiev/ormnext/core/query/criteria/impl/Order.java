@@ -2,6 +2,7 @@ package ru.saidgadjiev.ormnext.core.query.criteria.impl;
 
 import ru.saidgadjiev.ormnext.core.query.visitor.element.clause.OrderByItem;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.ColumnSpec;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.PropertyColumnSpec;
 
 /**
  * This class has static method for create order by item.
@@ -24,7 +25,7 @@ public final class Order {
         OrderByItem orderByItem = new OrderByItem();
 
         for (String property : properties) {
-            orderByItem.addColumn(new ColumnSpec(property));
+            orderByItem.addColumn(new PropertyColumnSpec(property));
         }
 
         return orderByItem;
@@ -39,7 +40,7 @@ public final class Order {
         OrderByItem orderByItem = new OrderByItem(false);
 
         for (String property : properties) {
-            orderByItem.addColumn(new ColumnSpec(property));
+            orderByItem.addColumn(new PropertyColumnSpec(property));
         }
 
         return orderByItem;
