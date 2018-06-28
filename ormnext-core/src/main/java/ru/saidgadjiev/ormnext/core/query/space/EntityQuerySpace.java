@@ -536,9 +536,8 @@ public class EntityQuerySpace {
         selectQuery.setLimit(selectStatement.getLimit());
         selectQuery.setOffset(selectStatement.getOffset());
 
-        selectQuery.accept(new SetTableAlias(rootEntityAliases.getTableAlias()));
-        selectQuery.accept(new SetDisplayedColumnAlias(rootEntityAliases));
         selectQuery.accept(new ResolvePropertyColumn(rootEntityMetaData));
+        selectQuery.accept(new SetColumnAliases(rootEntityAliases));
 
         return selectQuery;
     }
@@ -586,7 +585,7 @@ public class EntityQuerySpace {
 
         deleteQuery.setWhere(deleteStatement.getWhere());
 
-        deleteQuery.accept(new SetTableAlias(rootEntityAliases.getTableAlias()));
+        deleteQuery.accept(new ResolvePropertyColumn(rootEntityMetaData));
 
         return deleteQuery;
     }
@@ -604,7 +603,7 @@ public class EntityQuerySpace {
 
         updateQuery.addAll(updateStatement.getUpdateValues());
 
-        updateQuery.accept(new SetTableAlias(rootEntityAliases.getTableAlias()));
+        updateQuery.accept(new ResolvePropertyColumn(rootEntityMetaData));
 
         return updateQuery;
     }
