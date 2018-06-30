@@ -6,12 +6,22 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.PropertyColu
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetadata;
 
 /**
- * Created by said on 27.06.2018.
+ * Visitor for resolve property columns.
+ *
+ * @author Said Gadjiev
  */
 public class ResolvePropertyColumn extends NoActionVisitor {
 
+    /**
+     * Entity metadata.
+     */
     private final DatabaseEntityMetadata<?> entityMetadata;
 
+    /**
+     * Create a new instance.
+     *
+     * @param entityMetadata target metadata
+     */
     public ResolvePropertyColumn(DatabaseEntityMetadata<?> entityMetadata) {
         this.entityMetadata = entityMetadata;
     }

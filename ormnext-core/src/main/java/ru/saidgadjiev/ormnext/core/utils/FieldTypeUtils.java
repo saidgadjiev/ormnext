@@ -95,6 +95,12 @@ public final class FieldTypeUtils {
         return columnName + ForeignColumnTypeImpl.ID_SUFFIX;
     }
 
+    /**
+     * Resolve column name by field.
+     *
+     * @param field target field
+     * @return field column name
+     */
     public static Optional<String> resolveColumnName(Field field) {
         if (field.isAnnotationPresent(ForeignCollectionField.class)) {
             return Optional.empty();

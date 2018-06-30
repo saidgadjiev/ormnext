@@ -43,10 +43,7 @@ public class EntityAliasResolverContext {
         propertyNameAliases.put(primaryKey.getField().getName(), keyAlias);
         columnAliases.put(primaryKey.columnName(), keyAlias);
 
-        for (DatabaseColumnType columnType: entityMetadata.getColumnTypes()) {
-            if (columnType.foreignCollectionColumnType()) {
-                continue;
-            }
+        for (DatabaseColumnType columnType: entityMetadata.getDisplayedColumnTypes()) {
             if (columnType.id()) {
                 continue;
             }

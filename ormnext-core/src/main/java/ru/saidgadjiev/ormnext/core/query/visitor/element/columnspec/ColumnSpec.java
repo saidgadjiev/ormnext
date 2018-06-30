@@ -20,7 +20,7 @@ public class ColumnSpec implements Operand {
      * Column alias.
      * @see Alias
      */
-    protected Alias alias;
+    private Alias alias;
 
     /**
      * Create new instance with provided column name.

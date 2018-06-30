@@ -1,6 +1,5 @@
 package ru.saidgadjiev.ormnext.core.loader.rowreader.entityinitializer;
 
-import ru.saidgadjiev.ormnext.core.connection.DatabaseResults;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.DatabaseColumnType;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignColumnTypeImpl;
 import ru.saidgadjiev.ormnext.core.loader.ResultSetContext;
@@ -19,7 +18,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static ru.saidgadjiev.ormnext.core.loader.ResultSetContext.EntityProcessingState;
 
@@ -120,10 +118,7 @@ public class EntityInitializer {
         List<String> columnAliases = entityAliases.getColumnAliases();
         int i = 0;
 
-        for (DatabaseColumnType columnType : entityMetadata.getColumnTypes()) {
-            if (columnType.foreignCollectionColumnType()) {
-                continue;
-            }
+        for (DatabaseColumnType columnType : entityMetadata.getDisplayedColumnTypes()) {
             if (columnType.id()) {
                 ++i;
                 continue;

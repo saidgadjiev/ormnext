@@ -1,7 +1,6 @@
 package ru.saidgadjiev.ormnext.core.query.criteria.impl;
 
 import ru.saidgadjiev.ormnext.core.query.visitor.element.AndCondition;
-import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.ColumnSpec;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.PropertyColumnSpec;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.condition.Expression;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.condition.OperandCondition;

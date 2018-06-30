@@ -5,19 +5,26 @@ import ru.saidgadjiev.ormnext.core.table.internal.alias.EntityAliases;
 import java.sql.*;
 
 /**
- * Database result set implementation for retrieve results from {@link ResultSet}.
- * It delegate close method.
+ * Database result set decorator for access by property name.
  *
  * @author Said Gadjiev
  */
 public class UserDatabaseResultsImpl implements DatabaseResults {
 
+    /**
+     * Entity aliases.
+     */
     private EntityAliases entityAliases;
 
+    /**
+     * Database results.
+     */
     private DatabaseResults databaseResults;
 
     /**
      * Create a new instance.
+     *
+     * @param entityAliases target entity aliases
      * @param databaseResults target database results
      */
     public UserDatabaseResultsImpl(EntityAliases entityAliases,
@@ -227,6 +234,12 @@ public class UserDatabaseResultsImpl implements DatabaseResults {
         databaseResults.close();
     }
 
+    /**
+     * Return true if property can be resolved.
+     *
+     * @param propertyName target property name
+     * @return true if property can be resolved
+     */
     private boolean canResolveAlias(String propertyName) {
         if (entityAliases == null) {
             return false;

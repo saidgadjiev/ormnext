@@ -7,10 +7,7 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.clause.from.FromJoinedT
 import ru.saidgadjiev.ormnext.core.query.visitor.element.clause.from.FromTable;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.clause.select.SelectAll;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.clause.select.SelectColumnsList;
-import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.ColumnSpec;
-import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.DisplayedColumn;
-import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.DisplayedColumnSpec;
-import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.DisplayedOperand;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.*;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.common.TableRef;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.common.UpdateValue;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.condition.*;
@@ -656,6 +653,28 @@ public final class DefaultVisitor extends NoActionVisitor {
     public boolean visit(IsNull isNull) {
         isNull.getOperand().accept(this);
         sql.append(" IS NULL ");
+
+        return false;
+    }
+
+    @Override
+    public boolean visit(DisplayedPropertyColumn displayedPropertyColumn) {
+        displayedPropertyColumn.getColumnSpec().accept(this);
+        if (displayedPropertyColumn.getAlias() != null) {
+            sql.append(" AS ");
+            displayedPropertyColumn.getAlias().accept(this);
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean visit(PropertyColumnSpec propertyColumnSpec) {
+        if (propertyColumnSpec.getAlias() != null) {
+            propertyColumnSpec.getAlias().accept(this);
+            sql.append(".");
+        }
+        sql.append(escapeEntity).append(propertyColumnSpec.getName()).append(escapeEntity);
 
         return false;
     }

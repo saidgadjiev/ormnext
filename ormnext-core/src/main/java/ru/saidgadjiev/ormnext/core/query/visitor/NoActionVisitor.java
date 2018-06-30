@@ -7,10 +7,7 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.clause.from.FromSubQuer
 import ru.saidgadjiev.ormnext.core.query.visitor.element.clause.from.FromTable;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.clause.select.SelectAll;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.clause.select.SelectColumnsList;
-import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.ColumnSpec;
-import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.DisplayedColumn;
-import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.DisplayedOperand;
-import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.PropertyColumnSpec;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.*;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.common.TableRef;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.common.UpdateValue;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.condition.*;
@@ -358,5 +355,10 @@ public class NoActionVisitor implements QueryVisitor {
     @Override
     public void visit(UniqueAttributeConstraint uniqueAttributeConstraint) {
 
+    }
+
+    @Override
+    public boolean visit(DisplayedPropertyColumn displayedPropertyColumn) {
+        return true;
     }
 }

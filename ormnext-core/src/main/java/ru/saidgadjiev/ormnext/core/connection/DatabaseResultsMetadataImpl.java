@@ -5,10 +5,23 @@ import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Database results metadata implementation fro {@link ResultSetMetaData}.
+ *
+ * @author Said Gadjiev
+ */
 public class DatabaseResultsMetadataImpl implements DatabaseResultsMetadata {
 
-    private ResultSetMetaData resultSetMetaData;
+    /**
+     * MetaData object.
+     */
+    private final ResultSetMetaData resultSetMetaData;
 
+    /**
+     * Create a new instance.
+     *
+     * @param resultSetMetaData target metadata
+     */
     public DatabaseResultsMetadataImpl(ResultSetMetaData resultSetMetaData) {
         this.resultSetMetaData = resultSetMetaData;
 

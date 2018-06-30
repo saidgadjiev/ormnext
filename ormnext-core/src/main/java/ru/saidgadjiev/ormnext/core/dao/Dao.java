@@ -266,6 +266,13 @@ public interface Dao {
      */
     int update(UpdateStatement updateStatement) throws SQLException;
 
+    /**
+     * Execute query statement and return results.
+     *
+     * @param selectStatement target statement
+     * @return query results
+     * @throws SQLException any SQL exceptions
+     */
     DatabaseResults query(SelectStatement<?> selectStatement) throws SQLException;
 
     /**

@@ -210,6 +210,11 @@ public class DatabaseEntityPersister {
         return entityQuerySpace;
     }
 
+    /**
+     * Return entity aliases.
+     *
+     * @return entity aliases
+     */
     public EntityAliases getAliases() {
         return rootEntityInitializer.getEntityAliases();
     }

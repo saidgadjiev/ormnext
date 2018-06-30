@@ -45,7 +45,11 @@ public final class Restrictions {
      * @return Criterion
      */
     public static Criterion ge(String property, Object value) {
-        return new CriterionImpl(new GreaterThanOrEquals(new PropertyColumnSpec(property), new Param()), property, value);
+        return new CriterionImpl(
+                new GreaterThanOrEquals(new PropertyColumnSpec(property), new Param()),
+                property,
+                value
+        );
     }
 
     /**
@@ -178,7 +182,11 @@ public final class Restrictions {
      * @return Criterion
      */
     public static Criterion between(String property, Object low, Object high) {
-        return new CriterionImpl(new Between(new PropertyColumnSpec(property), new Param(), new Param()), null, low, high);
+        return new CriterionImpl(
+                new Between(new PropertyColumnSpec(property), new Param(), new Param()),
+                property,
+                low,
+                high);
     }
     /**
      * Create "!" restriction from requested criterion {@link Criterion}.

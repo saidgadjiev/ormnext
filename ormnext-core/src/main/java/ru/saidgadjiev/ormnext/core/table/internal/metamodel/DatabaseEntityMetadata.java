@@ -190,6 +190,20 @@ public final class DatabaseEntityMetadata<T> implements EntityElement {
     }
 
     /**
+     * Return column types which can be used in select list. All expect {@link ForeignCollectionColumnTypeImpl}.
+     *
+     * @return column types which can be used in select list
+     */
+    public List<DatabaseColumnType> getDisplayedColumnTypes() {
+        return Collections.unmodifiableList(
+                columnTypes
+                .stream()
+                .filter(databaseColumnType -> !databaseColumnType.foreignCollectionColumnType())
+                .collect(Collectors.toList())
+        );
+    }
+
+    /**
      * Return unique columns.
      *
      * @return unique columns
@@ -207,19 +221,12 @@ public final class DatabaseEntityMetadata<T> implements EntityElement {
         return Collections.unmodifiableList(indexColumns);
     }
 
-    public void checkProperty(String propertyName) {
-        for (DatabaseColumnType columnType: columnTypes) {
-            if (columnType.foreignCollectionColumnType()) {
-                continue;
-            }
-            if (columnType.getField().getName().equals(propertyName)) {
-                return;
-            }
-        }
-
-        throw new PropertyNotFoundException(tableClass, propertyName);
-    }
-
+    /**
+     * Return column name by property name.
+     *
+     * @param propertyName target property name
+     * @return column name by property name
+     */
     public Optional<String> getPropertyColumnName(String propertyName) {
         for (DatabaseColumnType columnType : columnTypes) {
             if (columnType.foreignCollectionColumnType()) {
@@ -356,6 +363,12 @@ public final class DatabaseEntityMetadata<T> implements EntityElement {
         return columns;
     }
 
+    /**
+     * Resolve entity primary key column type.
+     *
+     * @param entityClass target entity class
+     * @return entity primary key column type
+     */
     public static Optional<DatabaseColumnType> resolvePrimaryKey(Class<?> entityClass) {
         for (Field field : entityClass.getDeclaredFields()) {
             if (field.isAnnotationPresent(DatabaseColumn.class) && field.getAnnotation(DatabaseColumn.class).id()) {
@@ -410,6 +423,13 @@ public final class DatabaseEntityMetadata<T> implements EntityElement {
         return Optional.empty();
     }
 
+    /**
+     * Return property column name.
+     *
+     * @param entityClass target entity class
+     * @param propertyName target property name
+     * @return property column name
+     */
     public static Optional<String> getPropertyColumnName(Class<?> entityClass, String propertyName) {
         for (Field field: entityClass.getDeclaredFields()) {
             if (field.getName().equals(propertyName)) {

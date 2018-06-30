@@ -7,10 +7,7 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.clause.from.FromSubQuer
 import ru.saidgadjiev.ormnext.core.query.visitor.element.clause.from.FromTable;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.clause.select.SelectAll;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.clause.select.SelectColumnsList;
-import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.ColumnSpec;
-import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.DisplayedColumn;
-import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.DisplayedOperand;
-import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.PropertyColumnSpec;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.*;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.common.TableRef;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.common.UpdateValue;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.condition.*;
@@ -103,6 +100,13 @@ public interface QueryVisitor {
      */
     boolean visit(ColumnSpec columnSpec);
 
+    /**
+     * Visit {@link PropertyColumnSpec} element.
+     *
+     * @param propertyColumnSpec target visitor element
+     * @return true if need visit another visitor elements that contained in {@code equals} else false
+     * @see PropertyColumnSpec
+     */
     boolean visit(PropertyColumnSpec propertyColumnSpec);
 
     /**
@@ -633,4 +637,13 @@ public interface QueryVisitor {
      * @see UniqueAttributeConstraint
      */
     void visit(UniqueAttributeConstraint uniqueAttributeConstraint);
+
+    /**
+     * Visit {@link DisplayedPropertyColumn} element.
+     *
+     * @param displayedPropertyColumn target visitor element
+     * @return true if need visit another visitor elements that contained in {@code equals} else false
+     * @see DisplayedPropertyColumn
+     */
+    boolean visit(DisplayedPropertyColumn displayedPropertyColumn);
 }

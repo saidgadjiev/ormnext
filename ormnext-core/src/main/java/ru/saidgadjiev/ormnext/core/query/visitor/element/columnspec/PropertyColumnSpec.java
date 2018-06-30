@@ -9,6 +9,9 @@ import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
  */
 public class PropertyColumnSpec extends ColumnSpec {
 
+    /**
+     * True if this element was resolved.
+     */
     private boolean resolved;
 
     /**
@@ -28,10 +31,18 @@ public class PropertyColumnSpec extends ColumnSpec {
         super(name, alias);
     }
 
+    /**
+     * Set resolved for this element.
+     */
     public void setResolved() {
         resolved = true;
     }
 
+    /**
+     * Is resolved?
+     *
+     * @return is resolved?
+     */
     public boolean isResolved() {
         return resolved;
     }
@@ -39,7 +50,7 @@ public class PropertyColumnSpec extends ColumnSpec {
     @Override
     public void accept(QueryVisitor visitor) {
         if (visitor.visit(this)) {
-            alias.accept(visitor);
+            getAlias().accept(visitor);
         }
     }
 }

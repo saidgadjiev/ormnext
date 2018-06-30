@@ -1,7 +1,6 @@
 package ru.saidgadjiev.ormnext.core.query.criteria.impl;
 
 import ru.saidgadjiev.ormnext.core.query.visitor.element.clause.GroupByItem;
-import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.ColumnSpec;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.PropertyColumnSpec;
 
 /**

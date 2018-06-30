@@ -5,7 +5,10 @@ import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.Limit;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.Offset;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.clause.*;
-import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.*;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.DisplayedColumnSpec;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.DisplayedOperand;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.PropertyColumnSpec;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.DisplayedPropertyColumn;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.condition.Expression;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.function.CountAll;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.function.CountColumn;
@@ -195,8 +198,14 @@ public class SelectStatement<T> implements QueryElement, CriteriaStatement {
         return this;
     }
 
+    /**
+     * Add select property. It must be from main table.
+     *
+     * @param property target property
+     * @return this for chain
+     */
     public SelectStatement<T> select(String property) {
-        selectOperands.add(new DisplayedColumn(new PropertyColumnSpec(property)));
+        selectOperands.add(new DisplayedPropertyColumn(new PropertyColumnSpec(property)));
 
         return this;
     }

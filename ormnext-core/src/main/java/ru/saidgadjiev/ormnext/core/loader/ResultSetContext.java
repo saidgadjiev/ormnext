@@ -26,6 +26,9 @@ public class ResultSetContext {
      */
     private DatabaseResults databaseResults;
 
+    /**
+     * Resultset columns.
+     */
     private Set<String> resultColumns;
 
     /**
@@ -165,6 +168,13 @@ public class ResultSetContext {
         return idDataMap.get(id);
     }
 
+    /**
+     * Check is column contains in resultset.
+     *
+     * @param columnName target column name
+     * @return true if column is contains in resultset
+     * @throws SQLException any SQL exceptions
+     */
     public synchronized boolean isResultColumn(String columnName) throws SQLException {
         if (resultColumns == null) {
             resultColumns = databaseResults.getMetaData().getResultColumnNames()

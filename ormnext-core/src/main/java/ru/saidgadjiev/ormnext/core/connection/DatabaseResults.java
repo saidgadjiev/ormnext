@@ -233,6 +233,12 @@ public interface DatabaseResults extends AutoCloseable {
      */
     <T> T getResultsObject();
 
+    /**
+     * Return results metadata.
+     *
+     * @return results metadata
+     * @throws SQLException throws SQL exceptions
+     */
     DatabaseResultsMetadata getMetaData() throws SQLException;
 
     /**

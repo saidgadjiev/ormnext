@@ -102,9 +102,9 @@ public class CollectionInitializer {
                     collectionObjectId,
                     collectionObjectPrimaryKey
             ).getValue();
-            ForeignCollectionColumnTypeImpl collectionColumnType = collectionQuerySpace.getForeignCollectionColumnType();
+            ForeignCollectionColumnTypeImpl columnType = collectionQuerySpace.getForeignCollectionColumnType();
 
-            processingState.addCollectionObjectId(collectionColumnType.getCollectionObjectClass(), collectionObjectId);
+            processingState.addCollectionObjectId(columnType.getCollectionObjectClass(), collectionObjectId);
         }
     }
 
@@ -136,7 +136,9 @@ public class CollectionInitializer {
         ForeignCollectionColumnTypeImpl collectionColumnType = collectionQuerySpace.getForeignCollectionColumnType();
 
         if (collectionColumnType.getFetchType().equals(FetchType.EAGER)) {
-            Optional<List<Object>> collectionObjectIdsOptional = processingState.getCollectionObjectIds(collectionColumnType.getCollectionObjectClass());
+            Optional<List<Object>> collectionObjectIdsOptional = processingState.getCollectionObjectIds(
+                    collectionColumnType.getCollectionObjectClass()
+            );
 
             if (collectionObjectIdsOptional.isPresent()) {
                 for (Object collectionObjectId : collectionObjectIdsOptional.get()) {

@@ -155,20 +155,20 @@ public class EntityQuerySpace {
      * @param databaseEntityMetadata table meta data
      */
     public void appendSelectColumns(EntityAliases aliases, DatabaseEntityMetadata<?> databaseEntityMetadata) {
-        List<DatabaseColumnType> columnTypes = databaseEntityMetadata.getColumnTypes();
+        List<DatabaseColumnType> columnTypes = databaseEntityMetadata.getDisplayedColumnTypes();
         List<String> columnAliases = aliases.getColumnAliases();
 
-        for (int i = 0, a = 0; i < columnTypes.size(); ++i) {
+        for (int i = 0; i < columnTypes.size(); ++i) {
+            if (columnTypes.get(i).foreignCollectionColumnType()) {
+                continue;
+            }
             DatabaseColumnType columnType = columnTypes.get(i);
 
             if (columnTypes.get(i).id()) {
                 appendDisplayedColumn(columnType.columnName(), aliases.getTableAlias(), aliases.getKeyAlias());
                 continue;
             }
-            if (columnTypes.get(i).foreignCollectionColumnType()) {
-                continue;
-            }
-            appendDisplayedColumn(columnType.columnName(), aliases.getTableAlias(), columnAliases.get(a++));
+            appendDisplayedColumn(columnType.columnName(), aliases.getTableAlias(), columnAliases.get(i));
         }
     }
 
@@ -537,7 +537,7 @@ public class EntityQuerySpace {
         selectQuery.setOffset(selectStatement.getOffset());
 
         selectQuery.accept(new ResolvePropertyColumn(rootEntityMetaData));
-        selectQuery.accept(new SetColumnAliases(rootEntityAliases));
+        selectQuery.accept(new SetPropertyColumnAliases(rootEntityAliases));
 
         return selectQuery;
     }

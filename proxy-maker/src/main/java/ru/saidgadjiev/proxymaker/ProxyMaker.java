@@ -102,7 +102,7 @@ public class ProxyMaker {
      * Unique integer index generator. Used for make dynamic proxy class name unique.
      */
     private UIDGenerator uidGenerator = new UIDGenerator() {
-        private AtomicInteger uid = new AtomicInteger();
+        private AtomicInteger uid = new AtomicInteger(0);
 
         @Override
         public int nextUID() {
@@ -237,7 +237,7 @@ public class ProxyMaker {
         String key = getKey();
 
         if (PROXY_CACHE.containsKey(key)) {
-            createInstance(PROXY_CACHE.get(key), handler);
+            return createInstance(PROXY_CACHE.get(key), handler);
         }
 
         resolveSuperClassAndClassName();

@@ -490,7 +490,7 @@ public class SessionImplTest extends BaseCoreTest {
 
             try (DatabaseResults databaseResults = session.query(selectStatement)) {
                 while (databaseResults.next()) {
-                    Assert.assertEquals(1, databaseResults.getInt(DatabaseEntityMetadata.getPropertyColumnName(WithDefaultTestEntity.class, "id").get()));
+                    Assert.assertEquals(1, databaseResults.getInt("id"));
                 }
             }
         }
@@ -522,7 +522,11 @@ public class SessionImplTest extends BaseCoreTest {
             List<TestEntity> entities = session.list(selectStatement);
 
             Assert.assertEquals(1, entities.size());
-            Assert.assertEquals(entities.get(0), testEntity);
+            TestEntity result = entities.get(0);
+
+            Assert.assertEquals(result.getId(), testEntity.getId());
+            Assert.assertNull(result.getDesc());
+            Assert.assertNotNull(result.getForeignCollectionTestEntity());
         }
     }
 }
