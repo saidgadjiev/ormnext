@@ -1,14 +1,12 @@
 package ru.saidgadjiev.ormnext.core.dao;
 
+import ru.saidgadjiev.ormnext.core.cache.Cache;
+import ru.saidgadjiev.ormnext.core.cache.CacheEvict;
 import ru.saidgadjiev.ormnext.core.cache.ObjectCache;
 import ru.saidgadjiev.ormnext.core.connection.source.ConnectionSource;
-import ru.saidgadjiev.ormnext.core.loader.CacheHelper;
-import ru.saidgadjiev.ormnext.core.loader.EntityLoader;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.MetaModel;
 
 import java.sql.SQLException;
-
-import static ru.saidgadjiev.ormnext.core.loader.EntityLoader.*;
 
 /**
  * The main contract here is the creation of {@link Session} instances.
@@ -37,42 +35,50 @@ public interface SessionManager extends AutoCloseable {
     MetaModel getMetaModel();
 
     /**
-     * Provide object cache.
-     *
-     * @param objectCache target object cache
-     * @see ObjectCache
-     */
-    void setObjectCache(ObjectCache objectCache);
-
-    /**
-     * Enable default object cache. Default cache implementation is
-     * {@link ru.saidgadjiev.ormnext.core.cache.ReferenceObjectCache}.
+     * Enable default object cache.
      */
     void enableDefaultCache();
 
     /**
      * Return current database engine.
      *
+     * @param <T> connection type
      * @return current database engine
      * @see DatabaseEngine
      */
-    DatabaseEngine getDatabaseEngine();
+    <T> DatabaseEngine<T> getDatabaseEngine();
 
     /**
-     * Cache helper.
+     * Upgrade framework by cache.
      *
-     * @return current cache helper
-     * @see CacheHelper
+     * @param cache target cache part
      */
-    CacheHelper cacheHelper();
+    void upgrade(Cache cache);
 
     /**
-     * Return entity loader associated with requested loader type {@link Loader}.
+     * Provide object cache.
      *
-     * @param loader target loader
-     * @return entity loader
+     * @param entityClass target entity class
+     * @param objectCache target object cache
+     * @see ObjectCache
      */
-    EntityLoader loader(Loader loader);
+    void setObjectCache(Class<?> entityClass, ObjectCache objectCache);
+
+    /**
+     * Provide object cache.
+     *
+     * @param entityClass target entity classes
+     * @param objectCache target object cache
+     * @see ObjectCache
+     */
+    void setObjectCache(Class<?>[] entityClass, ObjectCache objectCache);
+
+    /**
+     * Return ormnext cache evict api.
+     *
+     * @return cache evict api
+     */
+    CacheEvict getCacheEvictApi();
 
     /**
      * Close all resources in this {@link SessionManager}.

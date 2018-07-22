@@ -1,6 +1,7 @@
 package ru.saidgadjiev.ormnext.core.loader;
 
 import ru.saidgadjiev.ormnext.core.connection.DatabaseResults;
+import ru.saidgadjiev.ormnext.core.dao.CacheSessionManager;
 import ru.saidgadjiev.ormnext.core.dao.Session;
 import ru.saidgadjiev.ormnext.core.loader.rowreader.entityinitializer.ResultSetValue;
 
@@ -44,21 +45,14 @@ public class ResultSetContext {
     private Map<Class<?>, Map<Object, Object>> cache = new HashMap<>();
 
     /**
-     * Cache helper.
-     */
-    private final CacheHelper cacheHelper;
-
-    /**
      * Create a new instance.
      *
      * @param session         target session
      * @param databaseResults target database results
-     * @param cacheHelper     target cache helper
      */
-    public ResultSetContext(Session session, DatabaseResults databaseResults, CacheHelper cacheHelper) {
+    public ResultSetContext(Session session, DatabaseResults databaseResults) {
         this.session = session;
         this.databaseResults = databaseResults;
-        this.cacheHelper = cacheHelper;
     }
 
     /**
@@ -130,12 +124,13 @@ public class ResultSetContext {
     }
 
     /**
-     * Return cache helper.
+     * Put object to cache.
      *
-     * @return cache helper
+     * @param id   target object id
+     * @param data target object
      */
-    public CacheHelper getCacheHelper() {
-        return cacheHelper;
+    public void putToCache(Object id, Object data) {
+        ((CacheSessionManager) session.getSessionManager()).putToCache(id, data);
     }
 
     /**

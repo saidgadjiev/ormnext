@@ -3,10 +3,9 @@ package ru.saidgadjiev.ormnext.core.loader.rowreader;
 /**
  * Read database row result.
  *
- * @param <T> result type
  * @author Said Gadjiev
  */
-public class RowResult<T> {
+public class RowResult {
 
     /**
      * Read object id.
@@ -16,7 +15,7 @@ public class RowResult<T> {
     /**
      * Read result.
      */
-    private final T result;
+    private final Object result;
 
     /**
      * True if is a new result.
@@ -30,7 +29,7 @@ public class RowResult<T> {
      * @param isNew  true if a new result
      * @param id     target read id
      */
-    public RowResult(Object id, T result, boolean isNew) {
+    public RowResult(Object id, Object result, boolean isNew) {
         this.id = id;
         this.result = result;
         this.isNew = isNew;
@@ -41,7 +40,7 @@ public class RowResult<T> {
      *
      * @return result
      */
-    public T getResult() {
+    public Object getResult() {
         return result;
     }
 

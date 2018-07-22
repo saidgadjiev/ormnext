@@ -1,13 +1,13 @@
 package ru.saidgadjiev.ormnext.core.cache;
 
+import java.util.Collection;
+
 /**
  * Object cache.
  *
- * @param <ID> cached id type
- * @param <T>  cached object type
  * @author Said Gadjiev
  */
-public interface ObjectCache<ID, T> {
+public interface ObjectCache {
 
     /**
      * Register class for use in cache. This will be called before any other method for the particular class is
@@ -15,7 +15,7 @@ public interface ObjectCache<ID, T> {
      *
      * @param tClass target entity class
      */
-    void registerClass(Class<T> tClass);
+    void registerClass(Class<?> tClass);
 
     /**
      * Put an object in the cache that has a certain class and id.
@@ -24,7 +24,7 @@ public interface ObjectCache<ID, T> {
      * @param id     target entity object id
      * @param data   target entity object
      */
-    void put(Class<T> tClass, ID id, T data);
+    void put(Class<?> tClass, Object id, Object data);
 
     /**
      * Lookup in the cache for an object of a certain class that has a certain id.
@@ -33,7 +33,15 @@ public interface ObjectCache<ID, T> {
      * @param id     target entity id
      * @return entity object associated with id
      */
-    T get(Class<T> tClass, ID id);
+    Object get(Class<?> tClass, Object id);
+
+    /**
+     * Retrieve all cached objects by entity type.
+     *
+     * @param tClass target entity type
+     * @return cached objects
+     */
+    Collection<Object> getAll(Class<?> tClass);
 
     /**
      * True if cache contains object cached with id {@code id}.
@@ -42,7 +50,7 @@ public interface ObjectCache<ID, T> {
      * @param id     id
      * @return true if cache contains object cached with id {@code id}
      */
-    boolean contains(Class<T> tClass, ID id);
+    boolean contains(Class<?> tClass, Object id);
 
     /**
      * Remove cached value associated with id {@code id} from cache.
@@ -50,14 +58,14 @@ public interface ObjectCache<ID, T> {
      * @param tClass object class
      * @param id     id
      */
-    void invalidate(Class<T> tClass, ID id);
+    void invalidate(Class<?> tClass, Object id);
 
     /**
      * Remove all cached value by requested type.
      *
      * @param tClass cached value type
      */
-    void invalidateAll(Class<T> tClass);
+    void invalidateAll(Class<?> tClass);
 
     /**
      * Remove all cached values, but not remove registered classes.
@@ -75,5 +83,5 @@ public interface ObjectCache<ID, T> {
      * @param tClass target entity class
      * @return cache size
      */
-    long size(Class<T> tClass);
+    long size(Class<?> tClass);
 }

@@ -2,6 +2,8 @@ package ru.saidgadjiev.ormnext.core.dao;
 
 import ru.saidgadjiev.ormnext.core.connection.source.ConnectionSource;
 import ru.saidgadjiev.ormnext.core.dialect.Dialect;
+import ru.saidgadjiev.ormnext.core.loader.DefaultEntityLoader;
+import ru.saidgadjiev.ormnext.core.loader.EntityLoader;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.MetaModel;
 
 import java.sql.SQLException;
@@ -51,7 +53,7 @@ public class SessionManagerBuilder {
      * @param classes target classes
      * @return this for chain
      */
-    public SessionManagerBuilder entities(Class<?> ... classes) {
+    public SessionManagerBuilder entities(Class<?>... classes) {
         entityClasses.addAll(Arrays.asList(classes));
 
         return this;
@@ -122,39 +124,64 @@ public class SessionManagerBuilder {
         }
         MetaModel metaModel = new MetaModel(entityClasses);
 
-        SessionManager sessionManager = new SessionManagerImpl(connectionSource, metaModel, engine);
+        SessionManager sessionManager = new SessionManagerImpl(
+                connectionSource,
+                createLoaders(engine, metaModel),
+                metaModel,
+                engine);
 
         try (Session session = sessionManager.createSession()) {
-            doTableOperations(session);
+            doTableOperations(entityClasses, session);
         }
 
         return sessionManager;
     }
 
+
+    /**
+     * Create entity loaders.
+     *
+     * @param databaseEngine target database engine
+     * @param metaModel target meta model
+     * @return entity loaders
+     */
+    private Map<EntityLoader.Loader, EntityLoader> createLoaders(DatabaseEngine<?> databaseEngine,
+                                                                 MetaModel metaModel) {
+        Map<EntityLoader.Loader, EntityLoader> registeredLoaders = new HashMap<>();
+
+        registeredLoaders.put(EntityLoader.Loader.DEFAULT_LOADER, new DefaultEntityLoader(databaseEngine, metaModel));
+
+        return registeredLoaders;
+    }
+
     /**
      * Do table operation.
      *
+     * @param classes target entity classes
      * @param session target session
      * @throws SQLException any SQL exceptions
      * @see TableOperation
      */
-    private void doTableOperations(Session session) throws SQLException {
+    private void doTableOperations(Collection<Class<?>> classes, Session session) throws SQLException {
         switch (tableOperation) {
             case CREATE:
-                session.createTables(true, entityClasses.toArray(new Class<?>[entityClasses.size()]));
+                session.createTables(classes.toArray(new Class<?>[classes.size()]), true);
 
                 break;
             case CLEAR:
-                session.clearTables(entityClasses.toArray(new Class<?>[entityClasses.size()]));
+                session.clearTables(classes.toArray(new Class<?>[classes.size()]));
 
                 break;
             case DROP_CREATE:
-                List<Class<?>> reversedEntityClasses = new ArrayList<>(entityClasses);
+                List<Class<?>> reversedEntityClasses = new ArrayList<>(classes);
 
                 Collections.reverse(reversedEntityClasses);
 
-                session.dropTables(true, reversedEntityClasses.toArray(new Class<?>[reversedEntityClasses.size()]));
-                session.createTables(true, entityClasses.toArray(new Class<?>[entityClasses.size()]));
+                session.dropTables(
+                        reversedEntityClasses.toArray(new Class<?>[reversedEntityClasses.size()]),
+                        true
+                );
+                session.createTables(classes.toArray(new Class<?>[classes.size()]), true);
                 break;
             default:
                 break;

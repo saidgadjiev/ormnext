@@ -199,7 +199,7 @@ public class ForeignCollectionColumnTypeImpl extends BaseDatabaseColumnType impl
      *
      * @return associated foreign column type
      */
-    public ForeignColumnTypeImpl getForeignColumnType() {
+    public ForeignColumnType getForeignColumnType() {
         return foreignColumnType;
     }
 

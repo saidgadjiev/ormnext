@@ -101,7 +101,7 @@ public class EntityInitializer {
 
             processingState.setNew(true);
             processingState.setEntityInstance(entityInstance);
-            LOG.debug("Create new instance %s", persister.getMetadata().getTableClass().getName());
+            LOG.debug("Create a new instance %s", persister.getMetadata().getTableClass().getName());
         } else {
             processingState.setNew(false);
             entityInstance = processingState.getEntityInstance();
@@ -112,7 +112,7 @@ public class EntityInitializer {
         primaryKey.assign(entityInstance, id);
 
         context.addEntry(id, entityInstance);
-        context.getCacheHelper().saveToCache(id, entityInstance);
+        context.putToCache(id, entityInstance);
         List<ResultSetValue> values = new ArrayList<>();
 
         List<String> columnAliases = entityAliases.getColumnAliases();
@@ -201,9 +201,8 @@ public class EntityInitializer {
                         switch (foreignColumnType.getFetchType()) {
                             case LAZY:
                                 LOG.debug(
-                                        "Found lazy entity %s %s",
-                                        foreignColumnType.getField().getDeclaringClass().getName(),
-                                        foreignColumnType.getField().getName()
+                                        "Found lazy entity %s",
+                                        foreignColumnType.getField().toString()
                                 );
                                 Object proxy = persister.createProxy(
                                         foreignColumnType.getForeignFieldClass(),

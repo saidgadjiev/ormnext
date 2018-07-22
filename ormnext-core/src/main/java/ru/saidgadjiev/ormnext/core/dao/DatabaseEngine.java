@@ -161,5 +161,13 @@ public interface DatabaseEngine<T> {
      * @return dialect
      */
     Dialect getDialect();
+
+    /**
+     * Return prepared query by {@link SqlStatement}.
+     *
+     * @param sqlStatement target sql statement
+     * @return prepared query
+     */
+    String prepareQuery(SqlStatement sqlStatement);
 }
 

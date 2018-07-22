@@ -22,7 +22,7 @@ public interface RowReader {
      * @throws SQLException any SQL exceptions
      * @see RowResult
      */
-    RowResult<Object> startRead(ResultSetContext resultSetContext) throws SQLException;
+    RowResult startRead(ResultSetContext resultSetContext) throws SQLException;
 
     /**
      * Finish read. Second phase.

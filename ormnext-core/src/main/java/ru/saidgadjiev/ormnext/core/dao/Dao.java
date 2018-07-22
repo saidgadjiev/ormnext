@@ -47,42 +47,42 @@ public interface Dao {
     /**
      * Create table in the database.
      *
-     * @param ifNotExist  append if not exist part if true
      * @param entityClass target table class
+     * @param ifNotExist  append if not exist part if true
      * @return true if table created or false
      * @throws SQLException on any SQL problems
      */
-    boolean createTable(boolean ifNotExist, Class<?> entityClass) throws SQLException;
+    boolean createTable(Class<?> entityClass, boolean ifNotExist) throws SQLException;
 
     /**
      * Create tables in the database.
      *
-     * @param ifNotExist    append if not exist part if true
      * @param entityClasses target tables classes
+     * @param ifNotExist    append if not exist part if true
      * @return table class, create status map
      * @throws SQLException on any SQL problems
      */
-    Map<Class<?>, Boolean> createTables(boolean ifNotExist, Class<?>... entityClasses) throws SQLException;
+    Map<Class<?>, Boolean> createTables(Class<?>[] entityClasses, boolean ifNotExist) throws SQLException;
 
     /**
      * Drop requested table from the database.
      *
-     * @param ifExist     append if exist part if true
      * @param entityClass target table class
+     * @param ifExist     append if exist part if true
      * @return true if drop is success or false
      * @throws SQLException on any SQL problems
      */
-    boolean dropTable(boolean ifExist, Class<?> entityClass) throws SQLException;
+    boolean dropTable(Class<?> entityClass, boolean ifExist) throws SQLException;
 
     /**
      * Drop requested tables from the database.
      *
-     * @param ifExist       append if exist part if true
      * @param entityClasses target tables classes
+     * @param ifExist       append if exist part if true
      * @return table class, create status map
      * @throws SQLException on any SQL problems
      */
-    Map<Class<?>, Boolean> dropTables(boolean ifExist, Class<?>... entityClasses) throws SQLException;
+    Map<Class<?>, Boolean> dropTables(Class<?>[] entityClasses, boolean ifExist) throws SQLException;
 
     /**
      * Clear database table.
@@ -214,19 +214,6 @@ public interface Dao {
      * @throws SQLException any SQL exceptions
      */
     DatabaseResults query(String query) throws SQLException;
-
-    /**
-     * Start batch execute.
-     */
-    void batch();
-
-    /**
-     * Execute batch. This should be called after call {@link #batch}.
-     *
-     * @return batch results
-     * @throws SQLException any SQL exceptions
-     */
-    int[] executeBatch() throws SQLException;
 
     /**
      * Return query result object.

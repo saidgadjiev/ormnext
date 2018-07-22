@@ -1,5 +1,6 @@
 package ru.saidgadjiev.ormnext.core.loader.rowreader.entityinitializer;
 
+import ru.saidgadjiev.ormnext.core.connection.DatabaseResults;
 import ru.saidgadjiev.ormnext.core.field.FetchType;
 import ru.saidgadjiev.ormnext.core.field.datapersister.DataPersister;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.DatabaseColumnType;
@@ -177,5 +178,12 @@ public class CollectionInitializer {
                     );
             }
         }
+    }
+
+    private Object readCollectionOwnerKey(DatabaseResults results) {
+        CollectionQuerySpace collectionQuerySpace = collectionLoader.getCollectionQuerySpace();
+        ForeignCollectionColumnTypeImpl collectionColumnType = collectionQuerySpace.getForeignCollectionColumnType();
+
+        collectionColumnType.getForeignColumnType().dataPersister().readValue(results, );
     }
 }

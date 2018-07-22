@@ -144,11 +144,32 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
 
     @Override
     public boolean start(ForeignCollectionColumnTypeImpl collectionColumnType) {
-        if (!visitedColumnTypes.add(collectionColumnType)) {
+        if (collectionColumnType.getForeignField().getDeclaringClass()
+                .equals(collectionColumnType.getField().getDeclaringClass())) {
+            if (!visitedColumnTypes.add(collectionColumnType)) {
+                LOGGER.debug("Detected circular references for " + collectionColumnType.getField());
+
+                return false;
+            }
+
+            return handleCollectionColumnType(collectionColumnType);
+        }
+        if (!visitedColumnTypes.add(collectionColumnType.getForeignColumnType())) {
             LOGGER.debug("Detected circular references for " + collectionColumnType.getField());
 
             return false;
         }
+
+        return handleCollectionColumnType(collectionColumnType);
+    }
+
+    /**
+     * Handle collection column type.
+     *
+     * @param collectionColumnType target collection column type
+     * @return true if need visit finish method
+     */
+    private boolean handleCollectionColumnType(ForeignCollectionColumnTypeImpl collectionColumnType) {
         DatabaseEntityMetadata<?> ownerMetaData = metaModel.getPersister(
                 collectionColumnType.getField().getDeclaringClass()
         ).getMetadata();

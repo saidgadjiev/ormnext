@@ -12,7 +12,7 @@ public class SimpleMain {
     public static void main(String[] args) throws SQLException {
         try (SessionManager sessionManager = TestUtils.h2SessionManager(Test.class)) {
             try (Session session = sessionManager.createSession()) {
-                session.createTable(true, Test.class);
+                session.createTable(Test.class, true);
                 Test test = new Test();
 
                 session.create(test);

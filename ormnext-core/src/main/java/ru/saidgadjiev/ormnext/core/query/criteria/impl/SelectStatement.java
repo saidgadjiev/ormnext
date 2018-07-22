@@ -1,14 +1,12 @@
 package ru.saidgadjiev.ormnext.core.query.criteria.impl;
 
-import ru.saidgadjiev.ormnext.core.query.visitor.QueryElement;
-import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.Limit;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.Offset;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.clause.*;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.DisplayedColumnSpec;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.DisplayedOperand;
-import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.PropertyColumnSpec;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.DisplayedPropertyColumn;
+import ru.saidgadjiev.ormnext.core.query.visitor.element.columnspec.PropertyColumnSpec;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.condition.Expression;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.function.CountAll;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.function.CountColumn;
@@ -22,7 +20,7 @@ import java.util.*;
  * @param <T> entity type
  * @author Said Gadjiev
  */
-public class SelectStatement<T> implements QueryElement, CriteriaStatement {
+public class SelectStatement<T> implements CriteriaStatement {
 
     /**
      * Target entity class.
@@ -334,21 +332,5 @@ public class SelectStatement<T> implements QueryElement, CriteriaStatement {
         }
 
         return args;
-    }
-
-    @Override
-    public void accept(QueryVisitor visitor) {
-        if (where != null) {
-            where.expression().accept(visitor);
-        }
-        if (orderBy != null) {
-            orderBy.accept(visitor);
-        }
-        if (groupBy != null) {
-            groupBy.accept(visitor);
-        }
-        if (having != null) {
-            having.expression().accept(visitor);
-        }
     }
 }

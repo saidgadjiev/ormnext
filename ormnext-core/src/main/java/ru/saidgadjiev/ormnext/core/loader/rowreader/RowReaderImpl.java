@@ -47,7 +47,7 @@ public class RowReaderImpl implements RowReader {
     }
 
     @Override
-    public RowResult<Object> startRead(ResultSetContext resultSetContext) throws SQLException {
+    public RowResult startRead(ResultSetContext resultSetContext) throws SQLException {
         Object readedId = rootEntityInitializer.startRead(resultSetContext);
 
         for (EntityInitializer entityInitializer : entityInitializers) {
@@ -61,7 +61,7 @@ public class RowReaderImpl implements RowReader {
                 readedId
         );
 
-        return new RowResult<>(
+        return new RowResult(
                 entityProcessingState.getKey(),
                 entityProcessingState.getEntityInstance(),
                 entityProcessingState.isNew()

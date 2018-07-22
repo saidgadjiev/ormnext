@@ -97,4 +97,23 @@ public abstract class BaseDatabaseColumnType implements DatabaseColumnType {
     public SqlType foreignOrmNextSqlType() {
         return dataPersister().getForeignOrmNextSqlType();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        ForeignColumnTypeImpl that = (ForeignColumnTypeImpl) o;
+
+        return getField().equals(that.getField());
+    }
+
+    @Override
+    public int hashCode() {
+        return getField().hashCode();
+    }
 }

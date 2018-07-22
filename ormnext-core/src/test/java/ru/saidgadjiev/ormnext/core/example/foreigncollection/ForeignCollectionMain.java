@@ -12,7 +12,7 @@ public class ForeignCollectionMain {
     public static void main(String[] args) throws SQLException {
         try (SessionManager sessionManager = TestUtils.h2SessionManager(Test.class, TestForeignCollection.class)) {
             try (Session session = sessionManager.createSession()) {
-                session.createTables(true, new Class[] {Test.class, TestForeignCollection.class});
+                session.createTables(new Class[] {Test.class, TestForeignCollection.class}, true);
                 Test test = new Test();
 
                 session.create(test);

@@ -93,11 +93,10 @@ public abstract class AbstractLazyCollection<T> implements Collection<T> {
 
             session.close();
             LOG.debug(
-                    "Lazy collection %s %s lazy initialized",
-                    field.getDeclaringClass().getName(),
-                    field.getName()
+                    "Collection %s lazy initialized with items %s",
+                    field.toString(),
+                    loadedObjects
             );
-            LOG.debug("Loaded objects %s", loadedObjects);
         } catch (SQLException ex) {
             throw new RuntimeException(ex);
         }
@@ -123,9 +122,8 @@ public abstract class AbstractLazyCollection<T> implements Collection<T> {
 
             session.close();
             LOG.debug(
-                    "Lazy collection %s %s read size %s",
-                    field.getDeclaringClass().getName(),
-                    field.getName(),
+                    "Collection %s lazy read size %s",
+                    field.toString(),
                     cachedSize
             );
         } catch (SQLException e) {

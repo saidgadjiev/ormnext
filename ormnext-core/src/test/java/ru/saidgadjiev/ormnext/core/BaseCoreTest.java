@@ -41,21 +41,22 @@ public class BaseCoreTest {
         }
     }
 
-    protected Session createSessionAndCreateTables(Class<?> ... classes) throws SQLException {
+    protected Session createSessionAndCreateTables(Class<?>... classes) throws SQLException {
         Session session = sessionManager.createSession();
 
         if (classes.length == 0) {
-            session.createTables(true,
-                    ForeignCollectionTestEntity.class,
-                    ForeignAutoCreateForeignCollectionColumnTestEntity.class,
-                    TestEntity.class,
-                    ForeignTestEntity.class,
-                    WithDefaultTestEntity.class,
-                    ForeignAutoCreateForeignColumnTestEntity.class
+            session.createTables(new Class[]{
+                            ForeignCollectionTestEntity.class,
+                            ForeignAutoCreateForeignCollectionColumnTestEntity.class,
+                            TestEntity.class,
+                            ForeignTestEntity.class,
+                            WithDefaultTestEntity.class,
+                            ForeignAutoCreateForeignColumnTestEntity.class},
+                    true
             );
         } else {
-            for (Class<?> clazz: classes) {
-                session.createTable(true, clazz);
+            for (Class<?> clazz : classes) {
+                session.createTable(clazz, true);
             }
         }
 

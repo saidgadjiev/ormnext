@@ -5,7 +5,6 @@ import ru.saidgadjiev.ormnext.core.connection.UserDatabaseResultsImpl;
 import ru.saidgadjiev.ormnext.core.dao.Dao;
 import ru.saidgadjiev.ormnext.core.dao.DatabaseEngine;
 import ru.saidgadjiev.ormnext.core.dao.Session;
-import ru.saidgadjiev.ormnext.core.dao.SessionManager;
 import ru.saidgadjiev.ormnext.core.exception.GeneratedValueNotFoundException;
 import ru.saidgadjiev.ormnext.core.exception.PropertyNotFoundException;
 import ru.saidgadjiev.ormnext.core.field.DataPersisterManager;
@@ -48,19 +47,14 @@ public class DefaultEntityLoader implements EntityLoader {
     private DatabaseEngine<?> databaseEngine;
 
     /**
-     * Cache helper.
-     */
-    private CacheHelper cacheHelper;
-
-    /**
      * Create a new instance.
      *
-     * @param sessionManager session manager
+     * @param databaseEngine target database engine
+     * @param metaModel      target meta model
      */
-    public DefaultEntityLoader(SessionManager sessionManager) {
-        this.databaseEngine = sessionManager.getDatabaseEngine();
-        this.metaModel = sessionManager.getMetaModel();
-        this.cacheHelper = sessionManager.cacheHelper();
+    public DefaultEntityLoader(DatabaseEngine<?> databaseEngine, MetaModel metaModel) {
+        this.databaseEngine = databaseEngine;
+        this.metaModel = metaModel;
     }
 
     @Override
@@ -92,8 +86,6 @@ public class DefaultEntityLoader implements EntityLoader {
 
             if (idField.generated()) {
                 processGeneratedKey(generatedKey, idField, object);
-            } else {
-                cacheHelper.saveToCache(null, object);
             }
 
             foreignAutoCreateForeignCollection(session, object, entityMetadata);
@@ -151,8 +143,6 @@ public class DefaultEntityLoader implements EntityLoader {
                 for (Object object : objects) {
                     processGeneratedKey(generatedKeyIterator.next(), idField, object);
                 }
-            } else {
-                cacheHelper.saveToCache(objects, objects[0].getClass());
             }
             for (Object object : objects) {
                 foreignAutoCreateForeignCollection(session, object, entityMetadata);
@@ -174,15 +164,13 @@ public class DefaultEntityLoader implements EntityLoader {
     private void processGeneratedKey(GeneratedKey generatedKey, DatabaseColumnType idColumnType, Object object) {
         if (generatedKey.get() != null) {
             idColumnType.assign(object, idColumnType.dataPersister().convertToPrimaryKey(generatedKey.get()));
-            cacheHelper.saveToCache(generatedKey.get(), object);
         } else {
             throw new GeneratedValueNotFoundException(idColumnType.getField());
         }
     }
 
     @Override
-    public boolean createTable(Session session, Class<?> tClass, boolean ifNotExist)
-            throws SQLException {
+    public boolean createTable(Session session, Class<?> tClass, boolean ifNotExist) throws SQLException {
         EntityQuerySpace entityQuerySpace = metaModel.getPersister(tClass).getEntityQuerySpace();
         CreateTableQuery createTableQuery = entityQuerySpace.getCreateTableQuery(
                 databaseEngine.getDialect(),
@@ -193,8 +181,7 @@ public class DefaultEntityLoader implements EntityLoader {
     }
 
     @Override
-    public boolean dropTable(Session session, Class<?> tClass, boolean ifExist)
-            throws SQLException {
+    public boolean dropTable(Session session, Class<?> tClass, boolean ifExist) throws SQLException {
         EntityQuerySpace entityQuerySpace = metaModel.getPersister(tClass).getEntityQuerySpace();
         DropTableQuery dropTableQuery = entityQuerySpace.getDropTableQuery(ifExist);
 
@@ -213,7 +200,8 @@ public class DefaultEntityLoader implements EntityLoader {
 
         arguments.put(primaryKeyColumnType, id);
         try {
-            int result = databaseEngine.update(
+
+            return databaseEngine.update(
                     session.getConnection(),
                     updateQuery,
                     new HashMap<Integer, Argument>() {{
@@ -222,10 +210,6 @@ public class DefaultEntityLoader implements EntityLoader {
                         arguments.forEach((key, value) -> put(index.incrementAndGet(), value));
                     }}
             );
-
-            cacheHelper.saveToCache(id.getValue(), object);
-
-            return result;
         } catch (Exception ex) {
             throw new SQLException(ex);
         }
@@ -239,17 +223,13 @@ public class DefaultEntityLoader implements EntityLoader {
 
             DeleteQuery deleteQuery = entityPersister.getEntityQuerySpace().getDeleteByIdQuery();
 
-            int result = databaseEngine.delete(
+            return databaseEngine.delete(
                     session.getConnection(),
                     deleteQuery,
                     new HashMap<Integer, Argument>() {{
                         put(1, id);
                     }}
             );
-
-            cacheHelper.delete(object.getClass(), id.getValue());
-
-            return result;
         } catch (Exception ex) {
             throw new SQLException(ex);
         }
@@ -264,32 +244,23 @@ public class DefaultEntityLoader implements EntityLoader {
                 entityPersister.getMetadata().getPrimaryKeyColumnType()
         );
 
-        int result = databaseEngine.delete(
+        return databaseEngine.delete(
                 session.getConnection(),
                 deleteQuery,
                 new HashMap<Integer, Argument>() {{
                     put(1, idArgument);
                 }}
         );
-
-        cacheHelper.delete(tClass, idArgument.getValue());
-
-        return result;
     }
 
     @Override
-    public <T> T queryForId(Session session, Class<T> tClass, Object id) throws SQLException {
+    public Object queryForId(Session session, Class<?> tClass, Object id) throws SQLException {
         DatabaseEntityPersister entityPersister = metaModel.getPersister(tClass);
         EntityQuerySpace entityQuerySpace = entityPersister.getEntityQuerySpace();
         Argument idArgument = processConvertersToSqlValue(
                 id,
                 entityPersister.getMetadata().getPrimaryKeyColumnType()
         );
-        Optional<Object> instance = cacheHelper.get(tClass, idArgument.getValue());
-
-        if (instance.isPresent()) {
-            return (T) instance.get();
-        }
 
         try (DatabaseResults databaseResults = databaseEngine.select(
                 session.getConnection(),
@@ -298,14 +269,12 @@ public class DefaultEntityLoader implements EntityLoader {
                     put(1, idArgument);
                 }}
         )) {
-            List<RowResult<T>> rowResults = entityPersister.load(session, databaseResults);
+            List<RowResult> rowResults = entityPersister.load(session, databaseResults);
 
             if (!rowResults.isEmpty()) {
-                RowResult<T> rowResult = rowResults.iterator().next();
+                RowResult rowResult = rowResults.iterator().next();
 
-                cacheHelper.saveToCache(rowResult.getId(), rowResult.getResult());
-
-                return (T) rowResult.getResult();
+                return rowResult.getResult();
             }
         }
 
@@ -313,7 +282,7 @@ public class DefaultEntityLoader implements EntityLoader {
     }
 
     @Override
-    public <T> List<T> queryForAll(Session session, Class<T> tClass) throws SQLException {
+    public List<Object> queryForAll(Session session, Class<?> tClass) throws SQLException {
         DatabaseEntityPersister entityPersister = metaModel.getPersister(tClass);
         EntityQuerySpace entityQuerySpace = entityPersister.getEntityQuerySpace();
 
@@ -322,11 +291,7 @@ public class DefaultEntityLoader implements EntityLoader {
                 entityQuerySpace.getSelectAll(),
                 Collections.emptyMap()
         )) {
-            List<RowResult<T>> results = entityPersister.load(session, databaseResults);
-
-            for (RowResult<T> result : results) {
-                cacheHelper.saveToCache(result.getId(), result.getResult());
-            }
+            List<RowResult> results = entityPersister.load(session, databaseResults);
 
             return results.stream().map(RowResult::getResult).collect(Collectors.toList());
         }
@@ -346,10 +311,10 @@ public class DefaultEntityLoader implements EntityLoader {
                     put(1, idArgument);
                 }}
         )) {
-            List<RowResult<Object>> rowResults = entityPersister.load(session, databaseResults);
+            List<RowResult> rowResults = entityPersister.load(session, databaseResults);
 
             if (!rowResults.isEmpty()) {
-                RowResult<Object> rowResult = rowResults.iterator().next();
+                RowResult rowResult = rowResults.iterator().next();
                 Object newObject = rowResult.getResult();
 
                 for (DatabaseColumnType columnType : entityPersister.getMetadata().getColumnTypes()) {
@@ -357,7 +322,6 @@ public class DefaultEntityLoader implements EntityLoader {
 
                     columnType.assign(object, newValue);
                 }
-                cacheHelper.saveToCache(rowResult.getId(), object);
 
                 return true;
             }
@@ -403,7 +367,7 @@ public class DefaultEntityLoader implements EntityLoader {
     }
 
     @Override
-    public <T> List<T> list(Session session, SelectStatement<T> selectStatement) throws SQLException {
+    public List<Object> list(Session session, SelectStatement selectStatement) throws SQLException {
         DatabaseEntityPersister entityPersister = metaModel.getPersister(selectStatement.getEntityClass());
         SelectQuery selectQuery = entityPersister.getEntityQuerySpace().getSelectQuery(selectStatement);
 
@@ -412,18 +376,14 @@ public class DefaultEntityLoader implements EntityLoader {
                 selectQuery,
                 getArguments(entityPersister.getMetadata(), selectStatement)
         )) {
-            List<RowResult<T>> results = entityPersister.load(session, databaseResults);
-
-            for (RowResult<T> result : results) {
-                cacheHelper.saveToCache(result.getId(), result.getResult());
-            }
+            List<RowResult> results = entityPersister.load(session, databaseResults);
 
             return results.stream().map(RowResult::getResult).collect(Collectors.toList());
         }
     }
 
     @Override
-    public long queryForLong(Session session, SelectStatement<?> selectStatement)
+    public long queryForLong(Session session, SelectStatement selectStatement)
             throws SQLException {
         DatabaseEntityPersister entityPersister = metaModel.getPersister(selectStatement.getEntityClass());
         SelectQuery selectQuery = entityPersister.getEntityQuerySpace().getSelectQuery(selectStatement);
@@ -462,9 +422,6 @@ public class DefaultEntityLoader implements EntityLoader {
                 id,
                 persister.getMetadata().getPrimaryKeyColumnType()
         );
-        if (cacheHelper.get(entityClass, idArgument.getValue()).isPresent()) {
-            return true;
-        }
 
         try (DatabaseResults results = databaseEngine.select(
                 session.getConnection(),
@@ -502,7 +459,7 @@ public class DefaultEntityLoader implements EntityLoader {
     }
 
     @Override
-    public DatabaseResults query(Session session, SelectStatement<?> selectStatement) throws SQLException {
+    public DatabaseResults query(Session session, SelectStatement selectStatement) throws SQLException {
         DatabaseEntityPersister entityPersister = metaModel.getPersister(selectStatement.getEntityClass());
         SelectQuery selectQuery = entityPersister.getEntityQuerySpace().getSelectQuery(selectStatement);
 

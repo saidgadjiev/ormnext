@@ -13,6 +13,7 @@ import static ru.saidgadjiev.ormnext.core.query.criteria.impl.Restrictions.eq;
  *
  * @author Said Gadjiev
  */
+@SuppressWarnings("PMD")
 public class CollectionQuerySpace {
 
     /**
@@ -44,12 +45,12 @@ public class CollectionQuerySpace {
     /**
      * SelectQuery collection items statement.
      */
-    private final SelectStatement loadCollectionQuery;
+    private final SelectStatement<?> loadCollectionQuery;
 
     /**
      * SelectQuery collection items count statement.
      */
-    private final SelectStatement countOffCriteria;
+    private final SelectStatement<?> countOffCriteria;
 
     /**
      * Create a new query space.
@@ -131,6 +132,6 @@ public class CollectionQuerySpace {
      * @return collection object primary key
      */
     public DatabaseColumnType getCollectionObjectPrimaryKey() {
-        return collectionObjectPrimaryKey;
+        return foreignCollectionColumnType.getForeignColumnType();
     }
 }

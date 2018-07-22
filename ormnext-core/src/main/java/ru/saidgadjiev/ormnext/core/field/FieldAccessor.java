@@ -103,8 +103,6 @@ public class FieldAccessor {
         } else {
             getterName = "get" + field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1);
         }
-        LOG.debug("Try find method %s in %s", getterName, field.getDeclaringClass().getName());
-
         try {
             Method getter = field.getDeclaringClass().getDeclaredMethod(getterName);
 
@@ -116,17 +114,16 @@ public class FieldAccessor {
             this.getter = makeGetter(lookup, getterHandle);
 
             LOG.debug(
-                    "Resolved getter %s for %s %s",
+                    "Resolve getter %s for %s",
                     getterName,
-                    field.getDeclaringClass().getName(),
-                    field.getName()
+                    field.toString()
             );
             return true;
         } catch (Throwable ex) {
             LOG.error(
-                    "Method %s not found in %s use right access to field",
+                    "Getter %s for %s not found",
                     getterName,
-                    field.getDeclaringClass().getName()
+                    field.toString()
             );
             return false;
         }
@@ -148,7 +145,6 @@ public class FieldAccessor {
             setterName = "set" + field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1);
         }
         try {
-            LOG.debug("Try find method %s in %s", setterName, field.getDeclaringClass().getName());
             Method setter = field.getDeclaringClass().getDeclaredMethod(setterName, field.getType());
             lookupConstructor.setAccessible(true);
             MethodHandles.Lookup lookup = lookupConstructor.newInstance(field.getDeclaringClass());
@@ -160,16 +156,15 @@ public class FieldAccessor {
             this.setter = makeSetter(lookup, setterHandle);
 
             LOG.debug(
-                    "Resolved setter %s for %s %s",
+                    "Resolve setter %s for %s",
                     setterName,
-                    field.getDeclaringClass().getName(),
-                    field.getName()
+                    field.toString()
             );
             return true;
         } catch (Throwable ex) {
-            LOG.error("Method %s not found in %s use right access to field",
+            LOG.error("Setter %s for %s not found",
                     setterName,
-                    field.getDeclaringClass().getName()
+                    field.toString()
             );
             return false;
         }
@@ -183,12 +178,6 @@ public class FieldAccessor {
      */
     private void resolveFieldSetter(Field field, Constructor<MethodHandles.Lookup> lookupConstructor) {
         try {
-            LOG.debug(
-                    "Try reflection field direct assign %s %s",
-                    field.getDeclaringClass().getName(),
-                    field.getName()
-            );
-
             lookupConstructor.setAccessible(true);
             MethodHandles.Lookup lookup = lookupConstructor.newInstance(field.getDeclaringClass());
             lookupConstructor.setAccessible(false);
@@ -210,12 +199,6 @@ public class FieldAccessor {
      */
     private void resolveFieldGetter(Field field, Constructor<MethodHandles.Lookup> lookupConstructor) {
         try {
-            LOG.debug(
-                    "Try reflection field direct access %s %s",
-                    field.getDeclaringClass().getName(),
-                    field.getName()
-            );
-
             lookupConstructor.setAccessible(true);
             MethodHandles.Lookup lookup = lookupConstructor.newInstance(field.getDeclaringClass());
             lookupConstructor.setAccessible(false);

@@ -54,7 +54,8 @@ public class DefaultDatabaseEngine implements DatabaseEngine<Connection> {
                                   SelectQuery selectQuery,
                                   Map<Integer, Argument> args) throws SQLException {
         String query = getQuery(selectQuery);
-        LOG.debug("Select: " + query + " args: " + args);
+
+        traceSql(query, args);
         Connection connection = databaseConnection.getConnection();
 
         PreparedStatement preparedStatement = connection.prepareStatement(query);
@@ -84,7 +85,8 @@ public class DefaultDatabaseEngine implements DatabaseEngine<Connection> {
                       DatabaseColumnType primaryKey,
                       GeneratedKey generatedKey) throws SQLException {
         String query = getQuery(createQuery);
-        LOG.debug("Create: " + query + " args: " + args);
+
+        traceSql(query, args);
         Connection connection = databaseConnection.getConnection();
 
         try (PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
@@ -111,7 +113,8 @@ public class DefaultDatabaseEngine implements DatabaseEngine<Connection> {
                       DatabaseColumnType primaryKey,
                       List<GeneratedKey> generatedKeys) throws SQLException {
         String query = getQuery(createQuery);
-        LOG.debug("Create: " + query + " args: " + argList);
+
+        traceSql(query, argList);
         Connection connection = databaseConnection.getConnection();
         Iterator<GeneratedKey> generatedKeyIterator = generatedKeys.iterator();
 
@@ -148,6 +151,7 @@ public class DefaultDatabaseEngine implements DatabaseEngine<Connection> {
             for (SqlStatement sqlStatement : sqlStatements) {
                 String query = getQuery(sqlStatement);
 
+                traceSql(query, null);
                 statement.addBatch(query);
             }
 
@@ -183,7 +187,8 @@ public class DefaultDatabaseEngine implements DatabaseEngine<Connection> {
                       DeleteQuery deleteQuery,
                       Map<Integer, Argument> args) throws SQLException {
         String query = getQuery(deleteQuery);
-        LOG.debug("Delete: " + query + " args: " + args);
+
+        traceSql(query, args);
         Connection originialConnection = databaseConnection.getConnection();
 
         try (PreparedStatement preparedQuery = originialConnection.prepareStatement(query)) {
@@ -198,7 +203,8 @@ public class DefaultDatabaseEngine implements DatabaseEngine<Connection> {
                       UpdateQuery updateQuery,
                       Map<Integer, Argument> args) throws SQLException {
         String query = getQuery(updateQuery);
-        LOG.debug("Update: " + query + " args: " + args);
+
+        traceSql(query, args);
         Connection originialConnection = databaseConnection.getConnection();
 
         try (PreparedStatement preparedQuery = originialConnection.prepareStatement(query)) {
@@ -214,7 +220,7 @@ public class DefaultDatabaseEngine implements DatabaseEngine<Connection> {
         Connection connection = databaseConnection.getConnection();
         String sql = getQuery(createTableQuery);
 
-        LOG.debug("Create table: " + sql);
+        traceSql(sql, null);
         try (Statement statement = connection.createStatement()) {
             statement.execute(getQuery(createTableQuery));
 
@@ -226,9 +232,11 @@ public class DefaultDatabaseEngine implements DatabaseEngine<Connection> {
     public boolean dropTable(DatabaseConnection<Connection> databaseConnection,
                              DropTableQuery dropTableQuery) throws SQLException {
         Connection connection = databaseConnection.getConnection();
+        String query = getQuery(dropTableQuery);
 
+        traceSql(query, null);
         try (Statement statement = connection.createStatement()) {
-            statement.execute(getQuery(dropTableQuery));
+            statement.execute(query);
 
             return true;
         }
@@ -238,9 +246,11 @@ public class DefaultDatabaseEngine implements DatabaseEngine<Connection> {
     public void createIndex(DatabaseConnection<Connection> databaseConnection,
                             CreateIndexQuery createIndexQuery) throws SQLException {
         Connection connection = databaseConnection.getConnection();
+        String sql = getQuery(createIndexQuery);
 
+        traceSql(sql, null);
         try (Statement statement = connection.createStatement()) {
-            statement.execute(getQuery(createIndexQuery));
+            statement.execute(sql);
         } catch (Exception ex) {
             throw new SQLException(ex);
         }
@@ -250,9 +260,11 @@ public class DefaultDatabaseEngine implements DatabaseEngine<Connection> {
     public void dropIndex(DatabaseConnection<Connection> databaseConnection,
                           DropIndexQuery dropIndexQuery) throws SQLException {
         Connection connection = databaseConnection.getConnection();
+        String sql = getQuery(dropIndexQuery);
 
+        traceSql(sql, null);
         try (Statement statement = connection.createStatement()) {
-            statement.execute(getQuery(dropIndexQuery));
+            statement.execute(sql);
         } catch (Exception ex) {
             throw new SQLException(ex);
         }
@@ -260,8 +272,8 @@ public class DefaultDatabaseEngine implements DatabaseEngine<Connection> {
 
     @Override
     public DatabaseResults query(DatabaseConnection<Connection> databaseConnection, String query) throws SQLException {
+        traceSql(query, null);
         Connection connection = databaseConnection.getConnection();
-
         Statement statement = connection.createStatement();
 
         try {
@@ -283,6 +295,11 @@ public class DefaultDatabaseEngine implements DatabaseEngine<Connection> {
     @Override
     public Dialect getDialect() {
         return dialect;
+    }
+
+    @Override
+    public String prepareQuery(SqlStatement sqlStatement) {
+        return getQuery(sqlStatement);
     }
 
     /**
@@ -314,5 +331,19 @@ public class DefaultDatabaseEngine implements DatabaseEngine<Connection> {
         queryElement.accept(defaultVisitor);
 
         return defaultVisitor.getQuery();
+    }
+
+    /**
+     * Trace sql.
+     *
+     * @param query target query
+     * @param args target args
+     */
+    private void traceSql(String query, Object args) {
+        if (args == null) {
+            LOG.debug("SQL(" + query + ")");
+        } else {
+            LOG.debug("SQL(" + query + ") args(" + args + ")");
+        }
     }
 }

@@ -44,8 +44,7 @@ public interface EntityLoader {
      * @return true if table create success
      * @throws SQLException any SQL exceptions
      */
-    boolean createTable(Session session, Class<?> tClass, boolean ifNotExist)
-            throws SQLException;
+    boolean createTable(Session session, Class<?> tClass, boolean ifNotExist) throws SQLException;
 
     /**
      * Drop table from the database.
@@ -56,8 +55,7 @@ public interface EntityLoader {
      * @return true if table drop success
      * @throws SQLException any SQL exceptions
      */
-    boolean dropTable(Session session, Class<?> tClass, boolean ifExist)
-            throws SQLException;
+    boolean dropTable(Session session, Class<?> tClass, boolean ifExist) throws SQLException;
 
     /**
      * Update an object in the database.
@@ -93,25 +91,23 @@ public interface EntityLoader {
     /**
      * Return the object associated with the id or null if none.
      *
-     * @param <T>     result object type
      * @param session target session
      * @param tClass  result object class
      * @param id      target id
      * @return object associated with requested id
      * @throws SQLException any SQL exceptions
      */
-    <T> T queryForId(Session session, Class<T> tClass, Object id) throws SQLException;
+    Object queryForId(Session session, Class<?> tClass, Object id) throws SQLException;
 
     /**
      * Return all objects from table.
      *
-     * @param <T>     table type
      * @param session target session
      * @param tClass  result table class
      * @return all objects from requested table
      * @throws SQLException any SQL exceptions
      */
-    <T> List<T> queryForAll(Session session, Class<T> tClass) throws SQLException;
+    List<Object> queryForAll(Session session, Class<?> tClass) throws SQLException;
 
     /**
      * Refresh requested object.
@@ -154,13 +150,12 @@ public interface EntityLoader {
     /**
      * Return all objects by select query.
      *
-     * @param <T>             table type
      * @param session         target session
      * @param selectStatement target query
      * @return objects list
      * @throws SQLException any SQL exceptions
      */
-    <T> List<T> list(Session session, SelectStatement<T> selectStatement) throws SQLException;
+    List<Object> list(Session session, SelectStatement<?> selectStatement) throws SQLException;
 
     /**
      * Return long result by select query.
@@ -170,8 +165,7 @@ public interface EntityLoader {
      * @return result long value
      * @throws SQLException any SQL exceptions
      */
-    long queryForLong(Session session, SelectStatement<?> selectStatement)
-            throws SQLException;
+    long queryForLong(Session session, SelectStatement<?> selectStatement) throws SQLException;
 
     /**
      * Execute query by database engine and return results.
@@ -182,24 +176,6 @@ public interface EntityLoader {
      * @throws SQLException any SQL exceptions
      */
     DatabaseResults query(Session session, String query) throws SQLException;
-
-    /**
-     * Start batch execute.
-     */
-    default void batch() {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Execute batch queries.
-     *
-     * @param session target session
-     * @return batch results
-     * @throws SQLException any SQL exceptions
-     */
-    default int[] executeBatch(Session session) throws SQLException {
-        throw new UnsupportedOperationException();
-    }
 
     /**
      * Clear table.
@@ -266,11 +242,6 @@ public interface EntityLoader {
      * Entity loader types.
      */
     enum Loader {
-
-        /**
-         * Batch entity loader.
-         */
-        BATCH_LOADER,
 
         /**
          * Default entity loader.

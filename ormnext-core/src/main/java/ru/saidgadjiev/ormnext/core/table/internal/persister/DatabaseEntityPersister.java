@@ -113,22 +113,20 @@ public class DatabaseEntityPersister {
     /**
      * Load entity object list from database results.
      *
-     * @param <T>             target result object type
      * @param session         target session
      * @param databaseResults target database results
      * @return object list
      * @throws SQLException any SQL exceptions
      */
-    public <T> List<RowResult<T>> load(Session session, DatabaseResults databaseResults) throws SQLException {
+    public List<RowResult> load(Session session, DatabaseResults databaseResults) throws SQLException {
         ResultSetContext resultSetContext = new ResultSetContext(
                 session,
-                databaseResults,
-                sessionManager.cacheHelper()
+                databaseResults
         );
-        List<RowResult<T>> results = new ArrayList<>();
+        List<RowResult> results = new ArrayList<>();
 
         while (databaseResults.next()) {
-            RowResult<T> rowResult = (RowResult<T>) rowReader.startRead(resultSetContext);
+            RowResult rowResult = rowReader.startRead(resultSetContext);
 
             if (rowResult.isNew()) {
                 results.add(rowResult);
