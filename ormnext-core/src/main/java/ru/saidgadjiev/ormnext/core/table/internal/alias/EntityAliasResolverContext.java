@@ -22,9 +22,9 @@ public class EntityAliasResolverContext {
 
     /**
      * Unique alias creator.
-     * @see AliasCreator
+     * @see AliasGenerator
      */
-    private AliasCreator aliasCreator = new AliasCreator();
+    private AliasGenerator aliasGenerator = new LongAliasGenerator();
 
     /**
      * Create aliases for uid.
@@ -33,12 +33,12 @@ public class EntityAliasResolverContext {
      * @return entity aliases
      */
     public EntityAliases resolveAliases(String uid, DatabaseEntityMetadata<?> entityMetadata) {
-        String tableAlias = aliasCreator.createAlias(entityMetadata.getTableName());
+        String tableAlias = aliasGenerator.generate(entityMetadata.getTableName());
         Map<String, String> columnAliases = new LinkedHashMap<>();
         Map<String, String> propertyNameAliases = new HashMap<>();
 
         DatabaseColumnType primaryKey = entityMetadata.getPrimaryKeyColumnType();
-        String keyAlias = aliasCreator.createAlias(primaryKey.columnName());
+        String keyAlias = aliasGenerator.generate(primaryKey.columnName());
 
         propertyNameAliases.put(primaryKey.getField().getName(), keyAlias);
         columnAliases.put(primaryKey.columnName(), keyAlias);
@@ -47,7 +47,7 @@ public class EntityAliasResolverContext {
             if (columnType.id()) {
                 continue;
             }
-            String resolvedAlias = aliasCreator.createAlias(columnType.columnName());
+            String resolvedAlias = aliasGenerator.generate(columnType.columnName());
 
             columnAliases.put(columnType.columnName(), resolvedAlias);
             propertyNameAliases.put(columnType.getField().getName(), resolvedAlias);

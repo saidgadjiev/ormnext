@@ -50,6 +50,11 @@ public class EntityInitializer {
     private final DatabaseEntityPersister persister;
 
     /**
+     * Current initializer entity metadata.
+     */
+    private final DatabaseEntityMetadata<?> metadata;
+
+    /**
      * Current entity column aliases.
      *
      * @see EntityAliases
@@ -67,6 +72,8 @@ public class EntityInitializer {
         this.uid = uid;
         this.persister = persister;
         this.entityAliases = entityAliases;
+
+        metadata = persister.getMetadata();
     }
 
     /**
@@ -93,53 +100,22 @@ public class EntityInitializer {
         id = ArgumentUtils.processConvertersToJavaValue(id, idColumnType).getValue();
 
         EntityProcessingState processingState = context.getProcessingState(uid, id);
-        Object entityInstance;
-
         LOG.debug("Processing %s id %s", persister.getMetadata().getTableClass().getName(), id);
-        if (processingState.getEntityInstance() == null) {
-            entityInstance = persister.instance();
 
-            processingState.setNew(true);
-            processingState.setEntityInstance(entityInstance);
-            LOG.debug("Create a new instance %s", persister.getMetadata().getTableClass().getName());
-        } else {
-            processingState.setNew(false);
-            entityInstance = processingState.getEntityInstance();
-        }
-        DatabaseEntityMetadata<?> entityMetadata = persister.getMetadata();
-        DatabaseColumnType primaryKey = entityMetadata.getPrimaryKeyColumnType();
+        Object entityInstance = createOrGetEntity(processingState);
+        DatabaseColumnType primaryKey = metadata.getPrimaryKeyColumnType();
 
         primaryKey.assign(entityInstance, id);
 
-        context.addEntry(id, entityInstance);
-        context.putToCache(id, entityInstance);
-        List<ResultSetValue> values = new ArrayList<>();
-
-        List<String> columnAliases = entityAliases.getColumnAliases();
-        int i = 0;
-
-        for (DatabaseColumnType columnType : entityMetadata.getDisplayedColumnTypes()) {
-            if (columnType.id()) {
-                ++i;
-                continue;
-            }
-            String currentAlias = columnAliases.get(i++);
-
-            if (context.isResultColumn(currentAlias)) {
-                Object value = columnType.dataPersister().readValue(
-                        context.getDatabaseResults(),
-                        currentAlias
-                );
-
-                value = ArgumentUtils.processConvertersToJavaValue(value, columnType).getValue();
-
-                values.add(new ResultSetValue(value, context.getDatabaseResults().wasNull()));
-                if (columnType.unique()) {
-                    context.addEntry(value, entityInstance);
-                }
-            }
+        if (context.getEntry(entityInstance.getClass(), id) == null) {
+            context.addEntry(id, entityInstance);
+            context.putToCache(id, entityInstance);
         }
+
+        List<ResultSetValue> values = readResultSet(context, entityInstance);
+
         processingState.setValuesFromResultSet(values);
+
         LOG.debug("Values read from resultset %s", values);
 
         return id;
@@ -242,6 +218,69 @@ public class EntityInitializer {
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * Read values from result set.
+     *
+     * @param context target context
+     * @param entityInstance target entity instance. It use for put temporary cache
+     * @return read values
+     * @throws SQLException any SQL exceptions
+     */
+    private List<ResultSetValue> readResultSet(ResultSetContext context, Object entityInstance) throws SQLException {
+        List<ResultSetValue> values = new ArrayList<>();
+
+        List<String> columnAliases = entityAliases.getColumnAliases();
+        int i = 0;
+
+        for (DatabaseColumnType columnType : metadata.getDisplayedColumnTypes()) {
+            if (columnType.id()) {
+                ++i;
+                continue;
+            }
+            String currentAlias = columnAliases.get(i++);
+
+            if (context.isResultColumn(currentAlias)) {
+                Object value = columnType.dataPersister().readValue(
+                        context.getDatabaseResults(),
+                        currentAlias
+                );
+
+                value = ArgumentUtils.processConvertersToJavaValue(value, columnType).getValue();
+
+                values.add(new ResultSetValue(value, context.getDatabaseResults().wasNull()));
+                if (columnType.unique()) {
+                    context.addEntry(value, entityInstance);
+                }
+            }
+        }
+
+        return values;
+    }
+
+    /**
+     * Create or get entity instance.
+     *
+     * @param processingState target processing state
+     * @return entity instance
+     */
+    private Object createOrGetEntity(EntityProcessingState processingState) {
+        Object entityInstance;
+
+        if (processingState.getEntityInstance() == null) {
+            entityInstance = persister.instance();
+
+            processingState.setNew(true);
+            processingState.setEntityInstance(entityInstance);
+
+            LOG.debug("Create a new instance %s", persister.getMetadata().getTableClass().getName());
+
+            return entityInstance;
+        } else {
+            processingState.setNew(false);
+            return processingState.getEntityInstance();
         }
     }
 

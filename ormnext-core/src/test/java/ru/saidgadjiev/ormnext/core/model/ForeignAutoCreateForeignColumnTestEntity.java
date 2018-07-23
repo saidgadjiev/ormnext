@@ -12,7 +12,7 @@ public class ForeignAutoCreateForeignColumnTestEntity {
     private String desc;
 
     @ForeignColumn(foreignAutoCreate = true)
-    private TestEntity testEntity;
+    private A a;
 
     public int getId() {
         return id;
@@ -30,12 +30,12 @@ public class ForeignAutoCreateForeignColumnTestEntity {
         this.desc = desc;
     }
 
-    public TestEntity getTestEntity() {
-        return testEntity;
+    public A getA() {
+        return a;
     }
 
-    public void setTestEntity(TestEntity testEntity) {
-        this.testEntity = testEntity;
+    public void setA(A a) {
+        this.a = a;
     }
 
     @Override
@@ -47,14 +47,14 @@ public class ForeignAutoCreateForeignColumnTestEntity {
 
         if (id != that.id) return false;
         if (desc != null ? !desc.equals(that.desc) : that.desc != null) return false;
-        return testEntity != null ? testEntity.equals(that.testEntity) : that.testEntity == null;
+        return a != null ? a.equals(that.a) : that.a == null;
     }
 
     @Override
     public int hashCode() {
         int result = id;
         result = 31 * result + (desc != null ? desc.hashCode() : 0);
-        result = 31 * result + (testEntity != null ? testEntity.hashCode() : 0);
+        result = 31 * result + (a != null ? a.hashCode() : 0);
         return result;
     }
 }

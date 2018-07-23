@@ -1,10 +1,10 @@
 package ru.saidgadjiev.ormnext.core.loader.rowreader.entityinitializer;
 
-import ru.saidgadjiev.ormnext.core.connection.DatabaseResults;
 import ru.saidgadjiev.ormnext.core.field.FetchType;
 import ru.saidgadjiev.ormnext.core.field.datapersister.DataPersister;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.DatabaseColumnType;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignCollectionColumnTypeImpl;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignColumnType;
 import ru.saidgadjiev.ormnext.core.loader.ResultSetContext;
 import ru.saidgadjiev.ormnext.core.loader.object.collection.CollectionLoader;
 import ru.saidgadjiev.ormnext.core.loader.object.collection.LazyList;
@@ -46,7 +46,7 @@ public class CollectionInitializer {
     /**
      * Collection owner uid generated with {@link UIDGenerator}.
      */
-    private final String uid;
+    private String uid;
 
     /**
      * Collection load helper class.
@@ -54,6 +54,21 @@ public class CollectionInitializer {
      * @see CollectionLoader
      */
     private final CollectionLoader collectionLoader;
+
+    /**
+     * Collection query space.
+     */
+    private final CollectionQuerySpace querySpace;
+
+    /**
+     * Foreign collection column type.
+     */
+    private final ForeignCollectionColumnTypeImpl collectionColumnType;
+
+    /**
+     * Aliases.
+     */
+    private final CollectionEntityAliases aliases;
 
     /**
      * Create a new instance.
@@ -65,6 +80,10 @@ public class CollectionInitializer {
                                  CollectionLoader collectionLoader) {
         this.uid = ownerUID;
         this.collectionLoader = collectionLoader;
+
+        querySpace = collectionLoader.getCollectionQuerySpace();
+        collectionColumnType = querySpace.getForeignCollectionColumnType();
+        aliases = querySpace.getCollectionEntityAliases();
     }
 
     /**
@@ -74,38 +93,10 @@ public class CollectionInitializer {
      * @throws SQLException any SQL exceptions
      */
     public void startRead(ResultSetContext context) throws SQLException {
-        CollectionQuerySpace collectionQuerySpace = collectionLoader.getCollectionQuerySpace();
-        CollectionEntityAliases aliases = collectionQuerySpace.getCollectionEntityAliases();
-        DatabaseColumnType collectionObjectPrimaryKey = collectionQuerySpace.getCollectionObjectPrimaryKey();
-        DataPersister collectionObjectDataPersister = collectionObjectPrimaryKey.dataPersister();
-
-        if (context.isResultColumn(aliases.getCollectionObjectKeyAlias())) {
-            Object collectionObjectId = collectionObjectDataPersister.readValue(
-                    context.getDatabaseResults(),
-                    aliases.getCollectionObjectKeyAlias()
-            );
-
-            if (context.getDatabaseResults().wasNull()) {
-                return;
-            }
-            Object collectionOwnerId = collectionQuerySpace
-                    .getOwnerPrimaryKey()
-                    .dataPersister()
-                    .readValue(context.getDatabaseResults(), aliases.getCollectionOwnerColumnKeyAlias());
-
-            collectionOwnerId = ArgumentUtils.processConvertersToJavaValue(
-                    collectionOwnerId,
-                    collectionQuerySpace.getOwnerPrimaryKey()
-            ).getValue();
-            EntityProcessingState processingState = context.getProcessingState(uid, collectionOwnerId);
-
-            collectionObjectId = ArgumentUtils.processConvertersToJavaValue(
-                    collectionObjectId,
-                    collectionObjectPrimaryKey
-            ).getValue();
-            ForeignCollectionColumnTypeImpl columnType = collectionQuerySpace.getForeignCollectionColumnType();
-
-            processingState.addCollectionObjectId(columnType.getCollectionObjectClass(), collectionObjectId);
+        if (collectionColumnType.getFetchType().equals(FetchType.EAGER)) {
+            readEagerCollection(context);
+        } else {
+            readLazyCollection(context);
         }
     }
 
@@ -119,7 +110,7 @@ public class CollectionInitializer {
 
         if (processingStates != null) {
             for (Map.Entry<Object, EntityProcessingState> entry : processingStates.entrySet()) {
-                loadCollection(resultSetContext, entry.getKey(), entry.getValue());
+                loadCollection(resultSetContext, entry.getValue());
             }
         }
     }
@@ -127,63 +118,159 @@ public class CollectionInitializer {
     /**
      * This method execute second phase operations for read first phase collection object id.
      *
-     * @param resultSetContext context
-     * @param processingState  processing state
-     * @param id               current id
+     * @param context context
+     * @param state   processing state
      */
-    private void loadCollection(ResultSetContext resultSetContext, Object id, EntityProcessingState processingState) {
-        CollectionQuerySpace collectionQuerySpace = collectionLoader.getCollectionQuerySpace();
-        Object instance = processingState.getEntityInstance();
-        ForeignCollectionColumnTypeImpl collectionColumnType = collectionQuerySpace.getForeignCollectionColumnType();
-
+    private void loadCollection(ResultSetContext context, EntityProcessingState state) {
         if (collectionColumnType.getFetchType().equals(FetchType.EAGER)) {
-            Optional<List<Object>> collectionObjectIdsOptional = processingState.getCollectionObjectIds(
-                    collectionColumnType.getCollectionObjectClass()
+            loadEagerCollection(context, state);
+        } else {
+            loadLazyCollection(context, state);
+        }
+    }
+
+    /**
+     * Handle start read for eager collection.
+     *
+     * @param context target context
+     * @throws SQLException any SQL exceptions
+     */
+    private void readEagerCollection(ResultSetContext context) throws SQLException {
+        DatabaseColumnType collectionObjectPrimaryKey = querySpace.getCollectionObjectPrimaryKey();
+        DataPersister collectionObjectDataPersister = collectionObjectPrimaryKey.dataPersister();
+
+        if (context.isResultColumn(aliases.getCollectionObjectKeyAlias())) {
+            Object collectionObjectId = collectionObjectDataPersister.readValue(
+                    context.getDatabaseResults(),
+                    aliases.getCollectionObjectKeyAlias()
             );
 
-            if (collectionObjectIdsOptional.isPresent()) {
-                for (Object collectionObjectId : collectionObjectIdsOptional.get()) {
-                    Object object = resultSetContext.getEntry(
-                            collectionColumnType.getCollectionObjectClass(),
-                            collectionObjectId
-                    );
-
-                    collectionColumnType.add(instance, object);
-                }
+            if (context.getDatabaseResults().wasNull()) {
+                return;
             }
-        } else {
-            Field field = collectionColumnType.getField();
+            EntityProcessingState processingState = getCurrentProcessingState(context);
 
-            LOG.debug("Found lazy collection %s %s", field.getDeclaringClass().getName(), field.getName());
-            switch (collectionColumnType.getCollectionType()) {
-                case LIST:
-                    collectionColumnType.assign(instance, new LazyList(
-                            collectionLoader,
-                            resultSetContext.getSession().getSessionManager(),
-                            id,
-                            (List) collectionColumnType.access(instance))
-                    );
-                    break;
-                case SET:
-                    collectionColumnType.assign(instance, new LazySet(
-                            collectionLoader,
-                            resultSetContext.getSession().getSessionManager(),
-                            id,
-                            (Set) collectionColumnType.access(instance))
-                    );
-                    break;
-                default:
-                    throw new RuntimeException(
-                            "Unknown collection type " + collectionColumnType.getField().getType()
-                    );
+            collectionObjectId = ArgumentUtils.processConvertersToJavaValue(
+                    collectionObjectId,
+                    collectionObjectPrimaryKey
+            ).getValue();
+
+            ForeignCollectionColumnTypeImpl columnType = querySpace.getForeignCollectionColumnType();
+
+            processingState.addCollectionObjectId(columnType.getCollectionObjectClass(), collectionObjectId);
+        }
+    }
+
+    /**
+     * Read eager collection.
+     *
+     * @param context target context
+     * @throws SQLException any SQL exceptions
+     */
+    private void readLazyCollection(ResultSetContext context) throws SQLException {
+        EntityProcessingState processingState = getCurrentProcessingState(context);
+
+        if (processingState != null && processingState.getLazyCollectionOwnerKey() == null) {
+            ForeignColumnType foreignColumnType = collectionColumnType.getForeignColumnType();
+
+            Object ownerForeignKey = foreignColumnType.dataPersister().readValue(
+                    context.getDatabaseResults(),
+                    aliases.getCollectionObjectKeyAlias()
+            );
+
+            if (context.getDatabaseResults().wasNull()) {
+                ownerForeignKey = null;
+            }
+            ownerForeignKey = ArgumentUtils.processConvertersToJavaValue(
+                    ownerForeignKey,
+                    foreignColumnType
+            ).getValue();
+
+            processingState.setLazyCollectionOwnerKey(ownerForeignKey);
+        }
+    }
+
+    /**
+     * Load eager collection objects.
+     *
+     * @param context         target context
+     * @param processingState target processing state
+     */
+    private void loadEagerCollection(ResultSetContext context, EntityProcessingState processingState) {
+        Object instance = processingState.getEntityInstance();
+
+        Optional<Set<Object>> collectionObjectIdsOptional = processingState.getCollectionObjectIds(
+                collectionColumnType.getCollectionObjectClass()
+        );
+
+        if (collectionObjectIdsOptional.isPresent()) {
+            for (Object collectionObjectId : collectionObjectIdsOptional.get()) {
+                Object object = context.getEntry(
+                        collectionColumnType.getCollectionObjectClass(),
+                        collectionObjectId
+                );
+
+                collectionColumnType.add(instance, object);
             }
         }
     }
 
-    private Object readCollectionOwnerKey(DatabaseResults results) {
-        CollectionQuerySpace collectionQuerySpace = collectionLoader.getCollectionQuerySpace();
-        ForeignCollectionColumnTypeImpl collectionColumnType = collectionQuerySpace.getForeignCollectionColumnType();
+    /**
+     * Load lazy collection objects.
+     *
+     * @param context target context
+     * @param state   target processing state
+     */
+    private void loadLazyCollection(ResultSetContext context, EntityProcessingState state) {
+        Object instance = state.getEntityInstance();
+        Field field = collectionColumnType.getField();
 
-        collectionColumnType.getForeignColumnType().dataPersister().readValue(results, );
+        LOG.debug("Found lazy collection %s %s", field.getDeclaringClass().getName(), field.getName());
+        switch (collectionColumnType.getCollectionType()) {
+            case LIST:
+                collectionColumnType.assign(instance, new LazyList(
+                        collectionLoader,
+                        context.getSession().getSessionManager(),
+                        state.getLazyCollectionOwnerKey(),
+                        (List) collectionColumnType.access(instance))
+                );
+                break;
+            case SET:
+                collectionColumnType.assign(instance, new LazySet(
+                        collectionLoader,
+                        context.getSession().getSessionManager(),
+                        state.getLazyCollectionOwnerKey(),
+                        (Set) collectionColumnType.access(instance))
+                );
+                break;
+            default:
+                throw new RuntimeException(
+                        "Unknown collection type " + collectionColumnType.getField().getType()
+                );
+        }
+    }
+
+    /**
+     * Return current processing state.
+     *
+     * @param context target context
+     * @return processing state
+     * @throws SQLException any SQL exceptions
+     */
+    private EntityProcessingState getCurrentProcessingState(ResultSetContext context) throws SQLException {
+        Object collectionOwnerId = querySpace
+                .getOwnerPrimaryKey()
+                .dataPersister()
+                .readValue(context.getDatabaseResults(), aliases.getCollectionOwnerColumnKeyAlias());
+
+        if (context.getDatabaseResults().wasNull()) {
+            return null;
+        }
+        collectionOwnerId = ArgumentUtils.processConvertersToJavaValue(
+                collectionOwnerId,
+                querySpace.getOwnerPrimaryKey()
+        ).getValue();
+
+        return context.getProcessingState(uid, collectionOwnerId);
     }
 }

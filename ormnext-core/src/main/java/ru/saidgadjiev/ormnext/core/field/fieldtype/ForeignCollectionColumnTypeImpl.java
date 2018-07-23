@@ -190,6 +190,7 @@ public class ForeignCollectionColumnTypeImpl extends BaseDatabaseColumnType impl
      *
      * @return foreign field
      */
+    @Override
     public Field getForeignField() {
         return foreignField;
     }
@@ -199,6 +200,7 @@ public class ForeignCollectionColumnTypeImpl extends BaseDatabaseColumnType impl
      *
      * @return associated foreign column type
      */
+    @Override
     public ForeignColumnType getForeignColumnType() {
         return foreignColumnType;
     }

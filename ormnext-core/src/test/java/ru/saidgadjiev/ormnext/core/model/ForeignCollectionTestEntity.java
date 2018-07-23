@@ -2,7 +2,6 @@ package ru.saidgadjiev.ormnext.core.model;
 
 import ru.saidgadjiev.ormnext.core.field.DatabaseColumn;
 import ru.saidgadjiev.ormnext.core.field.ForeignCollectionField;
-import ru.saidgadjiev.ormnext.core.field.ForeignColumn;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +12,7 @@ public class ForeignCollectionTestEntity {
     private int id;
 
     @ForeignCollectionField
-    private List<TestEntity> entities = new ArrayList<>();
+    private List<A> entities = new ArrayList<>();
 
     public int getId() {
         return id;
@@ -23,11 +22,11 @@ public class ForeignCollectionTestEntity {
         this.id = id;
     }
 
-    public List<TestEntity> getEntities() {
+    public List<A> getEntities() {
         return entities;
     }
 
-    public void setEntities(List<TestEntity> entities) {
+    public void setEntities(List<A> entities) {
         this.entities = entities;
     }
 

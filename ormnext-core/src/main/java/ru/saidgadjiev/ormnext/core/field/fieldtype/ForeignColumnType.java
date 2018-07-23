@@ -2,6 +2,8 @@ package ru.saidgadjiev.ormnext.core.field.fieldtype;
 
 import ru.saidgadjiev.ormnext.core.field.FetchType;
 
+import java.lang.reflect.Field;
+
 /**
  * This interface represent foreign database column type.
  * Which annotated with {@link ru.saidgadjiev.ormnext.core.field.ForeignColumn}
@@ -39,4 +41,18 @@ public interface ForeignColumnType extends DatabaseColumnType {
      * @return foreign column name
      */
     String getForeignColumnName();
+
+    /**
+     * Return foreign field.
+     *
+     * @return foreign field
+     */
+    Field getForeignField();
+
+    /**
+     * Return foreign column type.
+     *
+     * @return foreign column type
+     */
+    DatabaseColumnType getForeignColumnType();
 }

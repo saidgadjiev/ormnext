@@ -1,14 +1,11 @@
 package ru.saidgadjiev.ormnext.core.table.internal.visitor;
 
 import ru.saidgadjiev.ormnext.core.field.FetchType;
-import ru.saidgadjiev.ormnext.core.field.fieldtype.DatabaseColumnType;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignCollectionColumnTypeImpl;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignColumnTypeImpl;
 import ru.saidgadjiev.ormnext.core.loader.object.collection.CollectionLoader;
 import ru.saidgadjiev.ormnext.core.loader.rowreader.entityinitializer.CollectionInitializer;
 import ru.saidgadjiev.ormnext.core.loader.rowreader.entityinitializer.EntityInitializer;
-import ru.saidgadjiev.ormnext.core.logger.Log;
-import ru.saidgadjiev.ormnext.core.logger.LoggerFactory;
 import ru.saidgadjiev.ormnext.core.query.space.CollectionQuerySpace;
 import ru.saidgadjiev.ormnext.core.query.space.EntityQuerySpace;
 import ru.saidgadjiev.ormnext.core.table.internal.alias.CollectionEntityAliases;
@@ -26,11 +23,6 @@ import java.util.*;
  * @author Said Gadjiev
  */
 public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
-
-    /**
-     * Logger.
-     */
-    private static final Log LOGGER = LoggerFactory.getLogger(DefaultEntityMetadataVisitor.class);
 
     /**
      * Meta model.
@@ -72,7 +64,7 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
     /**
      * Already visited column types. For avoid recursion.
      */
-    private Set<DatabaseColumnType> visitedColumnTypes = new HashSet<>();
+    private Set<String> visitedFields = new HashSet<>();
 
     /**
      * Uid stack. Stack use for retrieve column owner aliases from {@link #entityAliasResolverContext}.
@@ -111,12 +103,8 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
 
     @Override
     public boolean start(ForeignColumnTypeImpl foreignColumnType) {
-        if (!visitedColumnTypes.add(foreignColumnType)) {
-            LOGGER.debug("Detected circular references for " + foreignColumnType.getField());
-
-            return false;
-        }
-        if (!foreignColumnType.getFetchType().equals(FetchType.EAGER)) {
+        if (!visitedFields.add(foreignColumnType.getField().toString())
+                || !foreignColumnType.getFetchType().equals(FetchType.EAGER)) {
             return false;
         }
         EntityAliases ownerAliases = entityAliasResolverContext.getAliases(parentUidStack.peek());
@@ -144,32 +132,37 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
 
     @Override
     public boolean start(ForeignCollectionColumnTypeImpl collectionColumnType) {
-        if (collectionColumnType.getForeignField().getDeclaringClass()
+        if (collectionColumnType.getCollectionObjectClass()
                 .equals(collectionColumnType.getField().getDeclaringClass())) {
-            if (!visitedColumnTypes.add(collectionColumnType)) {
-                LOGGER.debug("Detected circular references for " + collectionColumnType.getField());
+            if (!visitedFields.add(collectionColumnType.getField().toString())) {
+                return false;
+            }
+            if (collectionColumnType.getFetchType().equals(FetchType.EAGER)) {
+                startEagerCollection(collectionColumnType);
+                finish(collectionColumnType);
+                finish(collectionColumnType);
+                startEagerCollection(collectionColumnType);
+
+                return true;
+            } else {
+                startLazyCollection(collectionColumnType);
+                finish(collectionColumnType);
+                startLazyCollection(collectionColumnType);
 
                 return false;
             }
-
-            return handleCollectionColumnType(collectionColumnType);
-        }
-        if (!visitedColumnTypes.add(collectionColumnType.getForeignColumnType())) {
-            LOGGER.debug("Detected circular references for " + collectionColumnType.getField());
-
+        } else if (!visitedFields.add(collectionColumnType.getField().toString())) {
             return false;
         }
 
-        return handleCollectionColumnType(collectionColumnType);
+        if (collectionColumnType.getFetchType().equals(FetchType.EAGER)) {
+            return startEagerCollection(collectionColumnType);
+        } else {
+            return startLazyCollection(collectionColumnType);
+        }
     }
 
-    /**
-     * Handle collection column type.
-     *
-     * @param collectionColumnType target collection column type
-     * @return true if need visit finish method
-     */
-    private boolean handleCollectionColumnType(ForeignCollectionColumnTypeImpl collectionColumnType) {
+    private boolean startEagerCollection(ForeignCollectionColumnTypeImpl collectionColumnType) {
         DatabaseEntityMetadata<?> ownerMetaData = metaModel.getPersister(
                 collectionColumnType.getField().getDeclaringClass()
         ).getMetadata();
@@ -178,67 +171,74 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
         DatabaseEntityMetadata<?> foreignMetaData = metaModel.getPersister(
                 collectionColumnType.getCollectionObjectClass()
         ).getMetadata();
+        String nextUID = uidGenerator.nextUID();
 
-        if (collectionColumnType.getFetchType().equals(FetchType.EAGER)) {
-            String nextUID = uidGenerator.nextUID();
+        EntityAliases foreignEntityAliases = entityAliasResolverContext.resolveAliases(nextUID, foreignMetaData);
 
-            EntityAliases foreignEntityAliases = entityAliasResolverContext.resolveAliases(nextUID, foreignMetaData);
+        entityQuerySpace.appendCollectionJoin(
+                collectionColumnType,
+                ownerAliases,
+                foreignEntityAliases
+        );
+        entityQuerySpace.appendSelectColumns(foreignEntityAliases, foreignMetaData);
+        entityInitializerMap.put(nextUID, new EntityInitializer(
+                nextUID,
+                foreignEntityAliases,
+                metaModel.getPersister(foreignMetaData.getTableClass())
+        ));
 
-            entityQuerySpace.appendCollectionJoin(
-                    collectionColumnType,
-                    ownerAliases,
-                    foreignEntityAliases
-            );
-            entityQuerySpace.appendSelectColumns(foreignEntityAliases, foreignMetaData);
-            entityInitializerMap.put(nextUID, new EntityInitializer(
-                    nextUID,
-                    foreignEntityAliases,
-                    metaModel.getPersister(foreignMetaData.getTableClass())
-            ));
-            CollectionLoader collectionLoader = new CollectionLoader(
-                    new CollectionQuerySpace(
-                            new CollectionEntityAliases(
-                                    foreignEntityAliases.getKeyAlias(),
-                                    ownerAliases.getKeyAlias()
-                            ),
-                            ownerMetaData.getPrimaryKeyColumnType(),
-                            foreignMetaData.getPrimaryKeyColumnType(),
-                            collectionColumnType
-                    )
-            );
+        CollectionLoader collectionLoader = new CollectionLoader(
+                new CollectionQuerySpace(
+                        new CollectionEntityAliases(
+                                foreignEntityAliases.getKeyAlias(),
+                                ownerAliases.getKeyAlias()
+                        ),
+                        ownerMetaData.getPrimaryKeyColumnType(),
+                        foreignMetaData.getPrimaryKeyColumnType(),
+                        collectionColumnType
+                )
+        );
 
-            collectionInitializers.add(
-                    new CollectionInitializer(
-                            parentUidStack.peek(),
-                            collectionLoader
-                    )
-            );
-            parentUidStack.push(nextUID);
-            foreignMetaData.accept(this);
+        collectionInitializers.add(
+                new CollectionInitializer(
+                        parentUidStack.peek(),
+                        collectionLoader
+                )
+        );
+        parentUidStack.push(nextUID);
+        foreignMetaData.accept(this);
 
-            return true;
-        } else {
-            CollectionLoader collectionLoader = new CollectionLoader(
-                    new CollectionQuerySpace(
-                            new CollectionEntityAliases(
-                                    ownerAliases.getKeyAlias(),
-                                    ownerAliases.getKeyAlias()
-                            ),
-                            ownerMetaData.getPrimaryKeyColumnType(),
-                            foreignMetaData.getPrimaryKeyColumnType(),
-                            collectionColumnType
-                    )
-            );
+        return true;
+    }
 
-            collectionInitializers.add(
-                    new CollectionInitializer(
-                            parentUidStack.peek(),
-                            collectionLoader
-                    )
-            );
+    private boolean startLazyCollection(ForeignCollectionColumnTypeImpl collectionColumnType) {
+        DatabaseEntityMetadata<?> ownerMetaData = metaModel.getPersister(
+                collectionColumnType.getField().getDeclaringClass()
+        ).getMetadata();
+        EntityAliases ownerAliases = entityAliasResolverContext.getAliases(parentUidStack.peek());
 
-            return false;
-        }
+        CollectionLoader collectionLoader = new CollectionLoader(
+                new CollectionQuerySpace(
+                        new CollectionEntityAliases(
+                                ownerAliases.getAliasByColumnName(
+                                        collectionColumnType.getForeignColumnType().getForeignColumnName()
+                                ),
+                                ownerAliases.getKeyAlias()
+                        ),
+                        ownerMetaData.getPrimaryKeyColumnType(),
+                        collectionColumnType.getForeignColumnType(),
+                        collectionColumnType
+                )
+        );
+
+        collectionInitializers.add(
+                new CollectionInitializer(
+                        parentUidStack.peek(),
+                        collectionLoader
+                )
+        );
+
+        return false;
     }
 
     @Override

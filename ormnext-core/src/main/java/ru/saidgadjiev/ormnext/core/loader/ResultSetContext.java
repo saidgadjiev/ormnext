@@ -205,12 +205,17 @@ public class ResultSetContext {
         /**
          * Read collection object ids from result set.
          */
-        private Map<Class<?>, List<Object>> collectionObjectIds = new HashMap<>();
+        private Map<Class<?>, Set<Object>> collectionObjectIds = new HashMap<>();
 
         /**
          * Entity key.
          */
         private Object key;
+
+        /**
+         * Lazy collection owner key.
+         */
+        private Object lazyCollectionOwnerKey;
 
         /**
          * Provide entity instance.
@@ -274,7 +279,7 @@ public class ResultSetContext {
          */
         public void addCollectionObjectId(Class<?> collectionClass, Object id) {
             if (!collectionObjectIds.containsKey(collectionClass)) {
-                collectionObjectIds.put(collectionClass, new ArrayList<>());
+                collectionObjectIds.put(collectionClass, new LinkedHashSet<>());
             }
             collectionObjectIds.get(collectionClass).add(id);
         }
@@ -285,7 +290,7 @@ public class ResultSetContext {
          * @param collectionClass target collection class
          * @return read collection object ids
          */
-        public Optional<List<Object>> getCollectionObjectIds(Class<?> collectionClass) {
+        public Optional<Set<Object>> getCollectionObjectIds(Class<?> collectionClass) {
             return Optional.ofNullable(collectionObjectIds.get(collectionClass));
         }
 
@@ -305,6 +310,24 @@ public class ResultSetContext {
          */
         public void setKey(Object key) {
             this.key = key;
+        }
+
+        /**
+         * Provide lazy collection owner key.
+         *
+         * @param key target key
+         */
+        public void setLazyCollectionOwnerKey(Object key) {
+            this.lazyCollectionOwnerKey = key;
+        }
+
+        /**
+         * Return lazy collection owner key.
+         *
+         * @return lazy collection owner key
+         */
+        public Object getLazyCollectionOwnerKey() {
+            return lazyCollectionOwnerKey;
         }
     }
 }

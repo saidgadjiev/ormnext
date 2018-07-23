@@ -18,7 +18,9 @@ public class BaseCoreTest {
     public static void setUpClass() throws SQLException {
         System.setProperty(LoggerFactory.LOG_ENABLED_PROPERTY, "true");
         sessionManager = TestUtils.h2SessionManager(
-                TestEntity.class,
+                A.class,
+                SelfJoinA.class,
+                SelfJoinLazyA.class,
                 ForeignTestEntity.class,
                 ForeignCollectionTestEntity.class,
                 WithDefaultTestEntity.class,
@@ -27,7 +29,6 @@ public class BaseCoreTest {
                 TestLazyCollection.class,
                 TestLazy.class,
                 TestLazyForeign.class,
-                SelfJoinTestEntity.class,
                 UniqueFieldTestEntity.class,
                 TableUniqueFieldTestEntity.class,
                 ForeignFieldReferenceTestEntity.class
@@ -48,7 +49,7 @@ public class BaseCoreTest {
             session.createTables(new Class[]{
                             ForeignCollectionTestEntity.class,
                             ForeignAutoCreateForeignCollectionColumnTestEntity.class,
-                            TestEntity.class,
+                            A.class,
                             ForeignTestEntity.class,
                             WithDefaultTestEntity.class,
                             ForeignAutoCreateForeignColumnTestEntity.class},

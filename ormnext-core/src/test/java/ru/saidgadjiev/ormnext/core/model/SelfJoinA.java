@@ -1,22 +1,25 @@
 package ru.saidgadjiev.ormnext.core.model;
 
 import ru.saidgadjiev.ormnext.core.field.DatabaseColumn;
+import ru.saidgadjiev.ormnext.core.field.FetchType;
 import ru.saidgadjiev.ormnext.core.field.ForeignCollectionField;
 import ru.saidgadjiev.ormnext.core.field.ForeignColumn;
+import ru.saidgadjiev.ormnext.core.table.DatabaseEntity;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class SelfJoinTestEntity {
+@DatabaseEntity(name = "a")
+public class SelfJoinA {
 
     @DatabaseColumn(id = true, generated = true)
     private int id;
 
     @ForeignColumn
-    private SelfJoinTestEntity selfJoinTestEntity;
+    private SelfJoinA a;
 
     @ForeignCollectionField
-    private List<SelfJoinTestEntity> selfJoinTestEntityList = new ArrayList<>();
+    private List<SelfJoinA> as = new ArrayList<>();
 
     public int getId() {
         return id;
@@ -26,20 +29,20 @@ public class SelfJoinTestEntity {
         this.id = id;
     }
 
-    public SelfJoinTestEntity getSelfJoinTestEntity() {
-        return selfJoinTestEntity;
+    public SelfJoinA getA() {
+        return a;
     }
 
-    public void setSelfJoinTestEntity(SelfJoinTestEntity selfJoinTestEntity) {
-        this.selfJoinTestEntity = selfJoinTestEntity;
+    public void setA(SelfJoinA a) {
+        this.a = a;
     }
 
-    public List<SelfJoinTestEntity> getSelfJoinTestEntityList() {
-        return selfJoinTestEntityList;
+    public List<SelfJoinA> getAs() {
+        return as;
     }
 
-    public void setSelfJoinTestEntityList(List<SelfJoinTestEntity> selfJoinTestEntityList) {
-        this.selfJoinTestEntityList = selfJoinTestEntityList;
+    public void setAs(List<SelfJoinA> as) {
+        this.as = as;
     }
 
     @Override
@@ -47,9 +50,9 @@ public class SelfJoinTestEntity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        SelfJoinTestEntity that = (SelfJoinTestEntity) o;
+        SelfJoinA selfJoinA = (SelfJoinA) o;
 
-        return id == that.id;
+        return id == selfJoinA.id;
     }
 
     @Override

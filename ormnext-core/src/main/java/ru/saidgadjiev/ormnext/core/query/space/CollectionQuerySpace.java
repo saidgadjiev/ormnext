@@ -132,6 +132,6 @@ public class CollectionQuerySpace {
      * @return collection object primary key
      */
     public DatabaseColumnType getCollectionObjectPrimaryKey() {
-        return foreignCollectionColumnType.getForeignColumnType();
+        return collectionObjectPrimaryKey;
     }
 }

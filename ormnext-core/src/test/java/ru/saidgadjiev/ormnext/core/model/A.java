@@ -3,7 +3,7 @@ package ru.saidgadjiev.ormnext.core.model;
 import ru.saidgadjiev.ormnext.core.field.DatabaseColumn;
 import ru.saidgadjiev.ormnext.core.field.ForeignColumn;
 
-public class TestEntity {
+public class A {
 
     @DatabaseColumn(id = true, generated = true)
     private int id;
@@ -54,7 +54,7 @@ public class TestEntity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        TestEntity entity = (TestEntity) o;
+        A entity = (A) o;
 
         if (id != entity.id) return false;
         if (desc != null ? !desc.equals(entity.desc) : entity.desc != null) return false;

@@ -179,6 +179,16 @@ public class ForeignColumnTypeImpl extends BaseDatabaseColumnType implements For
     }
 
     @Override
+    public Field getForeignField() {
+        return foreignDatabaseColumnType.getField();
+    }
+
+    @Override
+    public DatabaseColumnType getForeignColumnType() {
+        return databaseColumnType;
+    }
+
+    @Override
     public boolean foreignColumnType() {
         return true;
     }

@@ -9,7 +9,7 @@ public class ForeignTestEntity {
     private int id;
 
     @ForeignColumn
-    private TestEntity entity;
+    private A entity;
 
     public int getId() {
         return id;
@@ -19,11 +19,11 @@ public class ForeignTestEntity {
         this.id = id;
     }
 
-    public TestEntity getEntity() {
+    public A getEntity() {
         return entity;
     }
 
-    public void setEntity(TestEntity entity) {
+    public void setEntity(A entity) {
         this.entity = entity;
     }
 

@@ -10,12 +10,12 @@ public class CollectionEntityAliases {
     /**
      * Collection column key alias.
      */
-    private final String collectionObjectKeyAlias;
+    private String collectionObjectKeyAlias;
 
     /**
      * Collection column key alias.
      */
-    private final String collectionOwnerColumnKeyAlias;
+    private String collectionOwnerColumnKeyAlias;
 
     /**
      * Create a new instance.
