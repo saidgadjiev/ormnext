@@ -4,6 +4,7 @@ import ru.saidgadjiev.ormnext.core.dao.SessionManager;
 import ru.saidgadjiev.ormnext.core.exception.NotRegisteredEntityFoundException;
 import ru.saidgadjiev.ormnext.core.table.internal.persister.DatabaseEntityPersister;
 
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,7 +40,7 @@ public class MetaModel {
      *
      * @param sessionManager session manager
      */
-    public void init(SessionManager sessionManager) {
+    public void init(SessionManager sessionManager) throws SQLException {
         for (Class<?> persisterClass : persisterClasses) {
             metadataMap.put(persisterClass, new DatabaseEntityPersister(
                             DatabaseEntityMetadata.build(persisterClass),

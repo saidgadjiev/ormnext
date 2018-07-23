@@ -9,7 +9,6 @@ import ru.saidgadjiev.ormnext.core.table.DatabaseEntity;
 import java.util.ArrayList;
 import java.util.List;
 
-@DatabaseEntity(name = "a")
 public class SelfJoinLazyA {
 
     @DatabaseColumn(id = true, generated = true)

@@ -10,6 +10,7 @@ import ru.saidgadjiev.ormnext.core.table.internal.visitor.EntityMetadataVisitor;
 import ru.saidgadjiev.ormnext.core.utils.FieldTypeUtils;
 
 import java.lang.reflect.Field;
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -206,7 +207,7 @@ public class ForeignCollectionColumnTypeImpl extends BaseDatabaseColumnType impl
     }
 
     @Override
-    public void accept(EntityMetadataVisitor visitor) {
+    public void accept(EntityMetadataVisitor visitor) throws SQLException {
         if (visitor.start(this)) {
             visitor.finish(this);
         }

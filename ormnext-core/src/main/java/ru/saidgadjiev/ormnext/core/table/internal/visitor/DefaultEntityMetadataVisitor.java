@@ -3,10 +3,10 @@ package ru.saidgadjiev.ormnext.core.table.internal.visitor;
 import ru.saidgadjiev.ormnext.core.field.FetchType;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignCollectionColumnTypeImpl;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignColumnTypeImpl;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.SimpleDatabaseColumnTypeImpl;
 import ru.saidgadjiev.ormnext.core.loader.object.collection.CollectionLoader;
-import ru.saidgadjiev.ormnext.core.loader.rowreader.entityinitializer.CollectionInitializer;
-import ru.saidgadjiev.ormnext.core.loader.rowreader.entityinitializer.EntityInitializer;
-import ru.saidgadjiev.ormnext.core.query.space.CollectionQuerySpace;
+import ru.saidgadjiev.ormnext.core.loader.rowreader.entityinitializer.CollectionContext;
+import ru.saidgadjiev.ormnext.core.loader.rowreader.entityinitializer.EntityContext;
 import ru.saidgadjiev.ormnext.core.query.space.EntityQuerySpace;
 import ru.saidgadjiev.ormnext.core.table.internal.alias.CollectionEntityAliases;
 import ru.saidgadjiev.ormnext.core.table.internal.alias.EntityAliasResolverContext;
@@ -15,6 +15,7 @@ import ru.saidgadjiev.ormnext.core.table.internal.alias.UIDGenerator;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetadata;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.MetaModel;
 
+import java.sql.SQLException;
 import java.util.*;
 
 /**
@@ -50,16 +51,16 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
      * Entity initializer map.
      * Map associate uid with initializer.
      *
-     * @see EntityInitializer
+     * @see EntityContext
      */
-    private Map<String, EntityInitializer> entityInitializerMap = new LinkedHashMap<>();
+    private Map<String, EntityContext> entityInitializerMap = new LinkedHashMap<>();
 
     /**
      * Collection initializer list.
      *
-     * @see CollectionInitializer
+     * @see CollectionContext
      */
-    private List<CollectionInitializer> collectionInitializers = new ArrayList<>();
+    private List<CollectionContext> collectionContexts = new ArrayList<>();
 
     /**
      * Already visited column types. For avoid recursion.
@@ -91,7 +92,7 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
                                         MetaModel metaModel,
                                         EntityAliasResolverContext entityAliasResolverContext,
                                         UIDGenerator uidGenerator,
-                                        EntityInitializer rootInitializer) {
+                                        EntityContext rootInitializer) {
         this.entityAliasResolverContext = entityAliasResolverContext;
         this.uidGenerator = uidGenerator;
         this.metaModel = metaModel;
@@ -102,7 +103,7 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
     }
 
     @Override
-    public boolean start(ForeignColumnTypeImpl foreignColumnType) {
+    public boolean start(ForeignColumnTypeImpl foreignColumnType) throws SQLException {
         if (!visitedFields.add(foreignColumnType.getField().toString())
                 || !foreignColumnType.getFetchType().equals(FetchType.EAGER)) {
             return false;
@@ -119,7 +120,7 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
         entityQuerySpace.appendJoin(foreignColumnType, ownerAliases, foreignEntityAliases);
         entityQuerySpace.appendSelectColumns(foreignEntityAliases, foreignMetaData);
 
-        entityInitializerMap.put(nextUID, new EntityInitializer(
+        entityInitializerMap.put(nextUID, new EntityContext(
                 nextUID,
                 foreignEntityAliases,
                 metaModel.getPersister(foreignMetaData.getTableClass())
@@ -131,7 +132,7 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
     }
 
     @Override
-    public boolean start(ForeignCollectionColumnTypeImpl collectionColumnType) {
+    public boolean start(ForeignCollectionColumnTypeImpl collectionColumnType) throws SQLException {
         if (collectionColumnType.getCollectionObjectClass()
                 .equals(collectionColumnType.getField().getDeclaringClass())) {
             if (!visitedFields.add(collectionColumnType.getField().toString())) {
@@ -162,7 +163,7 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
         }
     }
 
-    private boolean startEagerCollection(ForeignCollectionColumnTypeImpl collectionColumnType) {
+    private boolean startEagerCollection(ForeignCollectionColumnTypeImpl collectionColumnType) throws SQLException {
         DatabaseEntityMetadata<?> ownerMetaData = metaModel.getPersister(
                 collectionColumnType.getField().getDeclaringClass()
         ).getMetadata();
@@ -181,28 +182,23 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
                 foreignEntityAliases
         );
         entityQuerySpace.appendSelectColumns(foreignEntityAliases, foreignMetaData);
-        entityInitializerMap.put(nextUID, new EntityInitializer(
+        entityInitializerMap.put(nextUID, new EntityContext(
                 nextUID,
                 foreignEntityAliases,
                 metaModel.getPersister(foreignMetaData.getTableClass())
         ));
 
-        CollectionLoader collectionLoader = new CollectionLoader(
-                new CollectionQuerySpace(
+        CollectionLoader collectionLoader = new CollectionLoader(collectionColumnType);
+
+        collectionContexts.add(
+                new CollectionContext(
+                        parentUidStack.peek(),
                         new CollectionEntityAliases(
                                 foreignEntityAliases.getKeyAlias(),
                                 ownerAliases.getKeyAlias()
                         ),
-                        ownerMetaData.getPrimaryKeyColumnType(),
-                        foreignMetaData.getPrimaryKeyColumnType(),
-                        collectionColumnType
-                )
-        );
-
-        collectionInitializers.add(
-                new CollectionInitializer(
-                        parentUidStack.peek(),
-                        collectionLoader
+                        collectionLoader,
+                        ownerMetaData
                 )
         );
         parentUidStack.push(nextUID);
@@ -217,24 +213,19 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
         ).getMetadata();
         EntityAliases ownerAliases = entityAliasResolverContext.getAliases(parentUidStack.peek());
 
-        CollectionLoader collectionLoader = new CollectionLoader(
-                new CollectionQuerySpace(
+        CollectionLoader collectionLoader = new CollectionLoader(collectionColumnType);
+
+        collectionContexts.add(
+                new CollectionContext(
+                        parentUidStack.peek(),
                         new CollectionEntityAliases(
                                 ownerAliases.getAliasByColumnName(
                                         collectionColumnType.getForeignColumnType().getForeignColumnName()
                                 ),
                                 ownerAliases.getKeyAlias()
                         ),
-                        ownerMetaData.getPrimaryKeyColumnType(),
-                        collectionColumnType.getForeignColumnType(),
-                        collectionColumnType
-                )
-        );
-
-        collectionInitializers.add(
-                new CollectionInitializer(
-                        parentUidStack.peek(),
-                        collectionLoader
+                        collectionLoader,
+                        ownerMetaData
                 )
         );
 
@@ -252,6 +243,16 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
     }
 
     @Override
+    public boolean start(SimpleDatabaseColumnTypeImpl databaseColumnType) {
+        return false;
+    }
+
+    @Override
+    public void finish(SimpleDatabaseColumnTypeImpl databaseColumnType) {
+
+    }
+
+    @Override
     public boolean start(DatabaseEntityMetadata<?> databaseEntityMetadata) {
         return true;
     }
@@ -261,7 +262,7 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
      *
      * @return built initializers
      */
-    public List<EntityInitializer> getEntityInitializers() {
+    public List<EntityContext> getEntityInitializers() {
         return new ArrayList<>(entityInitializerMap.values());
     }
 
@@ -270,8 +271,8 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
      *
      * @return built collection initializers
      */
-    public List<CollectionInitializer> getCollectionInitializers() {
-        return collectionInitializers;
+    public List<CollectionContext> getCollectionContexts() {
+        return collectionContexts;
     }
 
     /**

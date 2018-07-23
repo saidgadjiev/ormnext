@@ -12,6 +12,7 @@ import ru.saidgadjiev.ormnext.core.utils.FieldTypeUtils;
 import ru.saidgadjiev.ormnext.core.validator.entity.EntityValidator;
 
 import java.lang.reflect.Field;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -441,7 +442,7 @@ public final class DatabaseEntityMetadata<T> implements EntityElement {
     }
 
     @Override
-    public void accept(EntityMetadataVisitor visitor) {
+    public void accept(EntityMetadataVisitor visitor) throws SQLException {
         if (visitor.start(this)) {
             for (DatabaseColumnType columnType : columnTypes) {
                 columnType.accept(visitor);

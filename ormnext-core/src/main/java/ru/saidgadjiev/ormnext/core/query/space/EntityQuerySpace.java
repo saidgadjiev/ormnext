@@ -511,7 +511,7 @@ public class EntityQuerySpace {
      * @param selectStatement target select query
      * @return select statement
      */
-    public SelectQuery getSelectQuery(SelectStatement selectStatement) {
+    public SelectQuery getSelectQuery(SelectStatement<?> selectStatement) {
         SelectQuery selectQuery = new SelectQuery();
 
         if (selectStatement.getSelectOperands().isEmpty()) {

@@ -30,7 +30,7 @@ public abstract class AbstractLazyCollection<T> implements Collection<T> {
     /**
      * Current session manager.
      */
-    private SessionManager sessionManager;
+    private Session session;
 
     /**
      * Collection owner id.
@@ -63,16 +63,15 @@ public abstract class AbstractLazyCollection<T> implements Collection<T> {
      * Create a new lazy collection.
      *
      * @param collectionLoader collection loader
-     * @param sessionManager   session manager
      * @param ownerId          owner object id
      * @param collection       original collection
      */
     public AbstractLazyCollection(CollectionLoader collectionLoader,
-                                  SessionManager sessionManager,
+                                  Session session,
                                   Object ownerId,
                                   Collection<T> collection) {
         this.collectionLoader = collectionLoader;
-        this.sessionManager = sessionManager;
+        this.session = session;
         this.ownerId = ownerId;
         this.collection = collection;
     }
@@ -85,13 +84,11 @@ public abstract class AbstractLazyCollection<T> implements Collection<T> {
             return;
         }
         try {
-            Session session = sessionManager.createSession();
             Collection<?> loadedObjects = collectionLoader.loadCollection(session, ownerId);
 
             collection.addAll((Collection<? extends T>) loadedObjects);
-            Field field = collectionLoader.getCollectionQuerySpace().getForeignCollectionColumnType().getField();
+            Field field = collectionLoader.getForeignCollectionColumnType().getField();
 
-            session.close();
             LOG.debug(
                     "Collection %s lazy initialized with items %s",
                     field.toString(),
@@ -115,12 +112,9 @@ public abstract class AbstractLazyCollection<T> implements Collection<T> {
             return false;
         }
         try {
-            Session session = sessionManager.createSession();
-
             cachedSize = collectionLoader.loadSize(session, ownerId);
-            Field field = collectionLoader.getCollectionQuerySpace().getForeignCollectionColumnType().getField();
+            Field field = collectionLoader.getForeignCollectionColumnType().getField();
 
-            session.close();
             LOG.debug(
                     "Collection %s lazy read size %s",
                     field.toString(),

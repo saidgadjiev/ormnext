@@ -51,21 +51,20 @@ public class OrmNextMethodHandler implements MethodHandler {
     /**
      * Session manager.
      */
-    private SessionManager sessionManager;
+    private Session session;
 
     /**
      * Create a new instance for lazy initialize entity object.
      *
-     * @param sessionManager  target session manager
      * @param entityClass     target entity class
      * @param keyPropertyName target entity object key property name
      * @param key             target entity object key
      */
-    public OrmNextMethodHandler(SessionManager sessionManager,
+    public OrmNextMethodHandler(Session session,
                                 Class<?> entityClass,
                                 String keyPropertyName,
                                 Object key) {
-        this.sessionManager = sessionManager;
+        this.session = session;
         this.entityClass = entityClass;
         this.keyPropertyName = keyPropertyName;
         this.key = key;
@@ -78,7 +77,6 @@ public class OrmNextMethodHandler implements MethodHandler {
                 SelectStatement<?> selectStatement = new SelectStatement<>(entityClass);
 
                 selectStatement.where(new Criteria().add(Restrictions.eq(keyPropertyName, key)));
-                Session session = sessionManager.createSession();
                 target = session.uniqueResult(selectStatement);
                 initialized = true;
                 session.close();

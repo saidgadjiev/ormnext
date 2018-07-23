@@ -1,5 +1,7 @@
 package ru.saidgadjiev.ormnext.core.table.internal.visitor;
 
+import java.sql.SQLException;
+
 /**
  * Visitor element for visitor pattern.
  *
@@ -11,5 +13,5 @@ public interface EntityElement {
      * Method use for accept visitor.
      * @param visitor target visitor
      */
-    void accept(EntityMetadataVisitor visitor);
+    void accept(EntityMetadataVisitor visitor) throws SQLException;
 }

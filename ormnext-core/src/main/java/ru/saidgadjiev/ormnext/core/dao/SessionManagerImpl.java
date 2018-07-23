@@ -58,7 +58,7 @@ public class SessionManagerImpl implements CacheSessionManager {
     SessionManagerImpl(ConnectionSource<?> connectionSource,
                        Map<EntityLoader.Loader, EntityLoader> registeredLoaders,
                        MetaModel metaModel,
-                       DatabaseEngine<?> databaseEngine) {
+                       DatabaseEngine<?> databaseEngine) throws SQLException {
         this.dataSource = connectionSource;
         this.metaModel = metaModel;
         this.databaseEngine = databaseEngine;

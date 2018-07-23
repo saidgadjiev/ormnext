@@ -9,6 +9,7 @@ import ru.saidgadjiev.ormnext.core.utils.FieldTypeUtils;
 import ru.saidgadjiev.ormnext.core.validator.entity.PrimaryKeyValidator;
 
 import java.lang.reflect.Field;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
@@ -249,7 +250,7 @@ public class ForeignColumnTypeImpl extends BaseDatabaseColumnType implements For
     }
 
     @Override
-    public void accept(EntityMetadataVisitor visitor) {
+    public void accept(EntityMetadataVisitor visitor) throws SQLException {
         if (visitor.start(this)) {
             visitor.finish(this);
         }

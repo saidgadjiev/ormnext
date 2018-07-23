@@ -1,5 +1,6 @@
 package ru.saidgadjiev.ormnext.core.loader.object.collection;
 
+import ru.saidgadjiev.ormnext.core.dao.Session;
 import ru.saidgadjiev.ormnext.core.dao.SessionManager;
 
 import java.util.Collection;
@@ -23,15 +24,14 @@ public class LazyList<T> extends AbstractLazyCollection<T> implements List<T> {
      * Create a new lazy list.
      *
      * @param collectionLoader collection loader
-     * @param sessionManager   session manager
      * @param ownerId          owner id
      * @param list             original collection
      */
     public LazyList(CollectionLoader collectionLoader,
-                    SessionManager sessionManager,
+                    Session session,
                     Object ownerId,
                     List<T> list) {
-        super(collectionLoader, sessionManager, ownerId, list);
+        super(collectionLoader, session, ownerId, list);
         this.list = list;
     }
 

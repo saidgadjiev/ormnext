@@ -10,6 +10,7 @@ import ru.saidgadjiev.ormnext.core.table.internal.visitor.EntityMetadataVisitor;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -308,6 +309,9 @@ public final class SimpleDatabaseColumnTypeImpl extends BaseDatabaseColumnType {
     }
 
     @Override
-    public void accept(EntityMetadataVisitor visitor) {
+    public void accept(EntityMetadataVisitor visitor) throws SQLException {
+        if (visitor.start(this)) {
+            visitor.finish(this);
+        }
     }
 }

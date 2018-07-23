@@ -3,7 +3,8 @@ package ru.saidgadjiev.ormnext.core.loader;
 import ru.saidgadjiev.ormnext.core.connection.DatabaseResults;
 import ru.saidgadjiev.ormnext.core.dao.CacheSessionManager;
 import ru.saidgadjiev.ormnext.core.dao.Session;
-import ru.saidgadjiev.ormnext.core.loader.rowreader.entityinitializer.ResultSetValue;
+import ru.saidgadjiev.ormnext.core.loader.rowreader.ResultSetRow;
+import ru.saidgadjiev.ormnext.core.loader.rowreader.ResultSetValue;
 
 import java.sql.SQLException;
 import java.util.*;
@@ -44,15 +45,25 @@ public class ResultSetContext {
      */
     private Map<Class<?>, Map<Object, Object>> cache = new HashMap<>();
 
+    private ResultSetRow currentRow;
+
     /**
      * Create a new instance.
      *
      * @param session         target session
      * @param databaseResults target database results
      */
-    public ResultSetContext(Session session, DatabaseResults databaseResults) {
+    public ResultSetContext(Session session, DatabaseResults databaseResults) throws SQLException {
         this.session = session;
         this.databaseResults = databaseResults;
+
+        if (resultColumns == null) {
+            resultColumns = databaseResults.getMetaData().getResultColumnNames()
+                    .stream()
+                    .map(String::toLowerCase)
+                    .collect(Collectors.toSet());
+        }
+
     }
 
     /**
@@ -80,7 +91,7 @@ public class ResultSetContext {
      * @param id  target entity object id
      * @return processing state
      */
-    public EntityProcessingState getProcessingState(String uid, Object id) {
+    public EntityProcessingState getOrCreateProcessingState(String uid, Object id) {
         Map<Object, EntityProcessingState> entityProcessingStateMap = putIfAbsent(
                 processingStateMap,
                 uid,
@@ -93,6 +104,12 @@ public class ResultSetContext {
         return putIfAbsent(entityProcessingStateMap, id, entityProcessingState);
     }
 
+    public EntityProcessingState getProcessingState(String uid, Object id) {
+        Map<Object, EntityProcessingState> entityProcessingStateMap = processingStateMap.get(uid);
+
+        return entityProcessingStateMap == null ? null : entityProcessingStateMap.get(id);
+    }
+
     /**
      * Return all processing states associated with requested uid.
      *
@@ -101,6 +118,14 @@ public class ResultSetContext {
      */
     public Map<Object, EntityProcessingState> getProcessingStates(String uid) {
         return processingStateMap.get(uid);
+    }
+
+    public ResultSetRow getCurrentRow() {
+        return currentRow;
+    }
+
+    public void setCurrentRow(ResultSetRow currentRow) {
+        this.currentRow = currentRow;
     }
 
     /**
@@ -163,6 +188,10 @@ public class ResultSetContext {
         return idDataMap.get(id);
     }
 
+    public Set<String> getResultColumns() {
+        return resultColumns;
+    }
+
     /**
      * Check is column contains in resultset.
      *
@@ -171,13 +200,6 @@ public class ResultSetContext {
      * @throws SQLException any SQL exceptions
      */
     public synchronized boolean isResultColumn(String columnName) throws SQLException {
-        if (resultColumns == null) {
-            resultColumns = databaseResults.getMetaData().getResultColumnNames()
-                    .stream()
-                    .map(String::toLowerCase)
-                    .collect(Collectors.toSet());
-        }
-
         return resultColumns.contains(columnName);
     }
 
@@ -200,7 +222,7 @@ public class ResultSetContext {
         /**
          * Read values from result set.
          */
-        private List<ResultSetValue> values;
+        private ResultSetRow values;
 
         /**
          * Read collection object ids from result set.
@@ -231,7 +253,7 @@ public class ResultSetContext {
          *
          * @param values read values
          */
-        public void setValuesFromResultSet(List<ResultSetValue> values) {
+        public void setValuesFromResultSet(ResultSetRow values) {
             this.values = values;
         }
 
@@ -249,7 +271,7 @@ public class ResultSetContext {
          *
          * @return read values
          */
-        public List<ResultSetValue> getValues() {
+        public ResultSetRow getValues() {
             return values;
         }
 

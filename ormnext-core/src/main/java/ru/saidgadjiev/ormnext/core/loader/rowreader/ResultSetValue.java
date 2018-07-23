@@ -1,4 +1,4 @@
-package ru.saidgadjiev.ormnext.core.loader.rowreader.entityinitializer;
+package ru.saidgadjiev.ormnext.core.loader.rowreader;
 
 /**
  * Value retrieved from result set.
@@ -15,7 +15,7 @@ public class ResultSetValue {
     /**
      * True if retrieved value was sql null.
      */
-    private final boolean wasNull;
+    private boolean wasNull = true;
 
     /**
      * Create a new instance.
@@ -42,7 +42,7 @@ public class ResultSetValue {
      *
      * @return true if it is was null
      */
-    public boolean isWasNull() {
+    public boolean wasNull() {
         return wasNull;
     }
 

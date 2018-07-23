@@ -1,10 +1,14 @@
 package ru.saidgadjiev.ormnext.core.loader.object.collection;
 
 import ru.saidgadjiev.ormnext.core.dao.Session;
-import ru.saidgadjiev.ormnext.core.query.space.CollectionQuerySpace;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignCollectionColumnTypeImpl;
+import ru.saidgadjiev.ormnext.core.query.criteria.impl.Criteria;
+import ru.saidgadjiev.ormnext.core.query.criteria.impl.SelectStatement;
 
 import java.sql.SQLException;
 import java.util.List;
+
+import static ru.saidgadjiev.ormnext.core.query.criteria.impl.Restrictions.eq;
 
 /**
  * Collection loader.
@@ -14,17 +18,33 @@ import java.util.List;
 public class CollectionLoader {
 
     /**
-     * Collection query space.
-     * @see CollectionQuerySpace
+     * SelectQuery collection items statement.
      */
-    private CollectionQuerySpace collectionQuerySpace;
+    private final SelectStatement loadCollectionQuery;
+
+    /**
+     * SelectQuery collection items count statement.
+     */
+    private final SelectStatement<?> countOffCriteria;
+
+    private ForeignCollectionColumnTypeImpl foreignCollectionColumnType;
 
     /**
      * Create a new loader.
-     * @param collectionQuerySpace collection entity query space
      */
-    public CollectionLoader(CollectionQuerySpace collectionQuerySpace) {
-        this.collectionQuerySpace = collectionQuerySpace;
+    public CollectionLoader(ForeignCollectionColumnTypeImpl foreignCollectionColumnType) {
+
+        this.loadCollectionQuery =
+                new SelectStatement<>(foreignCollectionColumnType.getCollectionObjectClass())
+                        .where(new Criteria()
+                                .add(eq(foreignCollectionColumnType.getForeignField().getName(), null)));
+        this.countOffCriteria =
+                new SelectStatement<>(foreignCollectionColumnType.getCollectionObjectClass())
+                        .withoutJoins(true)
+                        .countOff()
+                        .where(new Criteria()
+                                .add(eq(foreignCollectionColumnType.getForeignField().getName(), null)));
+        this.foreignCollectionColumnType = foreignCollectionColumnType;
     }
 
     /**
@@ -35,7 +55,7 @@ public class CollectionLoader {
      * @throws SQLException any SQL exceptions
      */
     public List<Object> loadCollection(Session session, Object id) throws SQLException {
-        return session.list(collectionQuerySpace.getLoadCollectionQuery().setObject(1, id));
+        return session.list(loadCollectionQuery.setObject(1, id));
     }
 
     /**
@@ -46,15 +66,10 @@ public class CollectionLoader {
      * @throws SQLException any SQL exceptions
      */
     public long loadSize(Session session, Object id) throws SQLException {
-        return session.queryForLong(collectionQuerySpace.getCountOffCriteria().setObject(1, id));
+        return session.queryForLong(countOffCriteria.setObject(1, id));
     }
 
-    /**
-     * Return collection query space.
-     *
-     * @return collection query space
-     */
-    public CollectionQuerySpace getCollectionQuerySpace() {
-        return collectionQuerySpace;
+    public ForeignCollectionColumnTypeImpl getForeignCollectionColumnType() {
+        return foreignCollectionColumnType;
     }
 }

@@ -16,7 +16,7 @@ public final class TestUtils {
     public static SessionManager h2SessionManager(Class<?>... entityClasses) throws SQLException {
         JdbcDataSource dataSource = new JdbcDataSource();
 
-        dataSource.setURL("jdbc:h2:mem:h2testdatabase");
+        dataSource.setURL("jdbc:h2:mem:");
         return new SessionManagerBuilder()
                 .entities(entityClasses).dialect(new H2Dialect())
                 .connectionSource(new DataSourceConnectionSource(dataSource))

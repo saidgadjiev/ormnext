@@ -8,7 +8,7 @@ import ru.saidgadjiev.ormnext.core.loader.object.OrmNextMethodHandler;
 import ru.saidgadjiev.ormnext.core.loader.rowreader.RowReader;
 import ru.saidgadjiev.ormnext.core.loader.rowreader.RowReaderImpl;
 import ru.saidgadjiev.ormnext.core.loader.rowreader.RowResult;
-import ru.saidgadjiev.ormnext.core.loader.rowreader.entityinitializer.EntityInitializer;
+import ru.saidgadjiev.ormnext.core.loader.rowreader.entityinitializer.EntityContext;
 import ru.saidgadjiev.ormnext.core.query.space.EntityQuerySpace;
 import ru.saidgadjiev.ormnext.core.table.internal.alias.EntityAliasResolverContext;
 import ru.saidgadjiev.ormnext.core.table.internal.alias.EntityAliases;
@@ -63,9 +63,9 @@ public class DatabaseEntityPersister {
     /**
      * Entity root initializer.
      *
-     * @see EntityInitializer
+     * @see EntityContext
      */
-    private EntityInitializer rootEntityInitializer;
+    private EntityContext rootEntityContext;
 
     /**
      * Unique uid generator. It use for associate aliases with entity initializer.
@@ -101,13 +101,13 @@ public class DatabaseEntityPersister {
     }
 
     /**
-     * Initialize entity initializer {@link EntityInitializer} for root entity.
+     * Initialize entity initializer {@link EntityContext} for root entity.
      */
     private void initRootInitializer() {
         String nextUID = uidGenerator.nextUID();
         EntityAliases entityAliases = aliasResolverContext.resolveAliases(nextUID, databaseEntityMetadata);
 
-        rootEntityInitializer = new EntityInitializer(nextUID, entityAliases, this);
+        rootEntityContext = new EntityContext(nextUID, entityAliases, this);
     }
 
     /**
@@ -143,20 +143,20 @@ public class DatabaseEntityPersister {
      * @param metaModel target meta model
      * @see MetaModel
      */
-    public void initialize(MetaModel metaModel) {
+    public void initialize(MetaModel metaModel) throws SQLException {
         DefaultEntityMetadataVisitor visitor = new DefaultEntityMetadataVisitor(
                 databaseEntityMetadata,
                 metaModel,
                 aliasResolverContext,
                 uidGenerator,
-                rootEntityInitializer
+                rootEntityContext
         );
 
         databaseEntityMetadata.accept(visitor);
         rowReader = new RowReaderImpl(
                 visitor.getEntityInitializers(),
-                visitor.getCollectionInitializers(),
-                rootEntityInitializer
+                visitor.getCollectionContexts(),
+                rootEntityContext
         );
         entityQuerySpace = visitor.getEntityQuerySpace();
     }
@@ -171,11 +171,11 @@ public class DatabaseEntityPersister {
      * @return new proxy object
      * @throws SQLException any SQL exceptions
      */
-    public Object createProxy(Class<?> entityClass, String keyPropertyName, Object key) throws SQLException {
+    public Object createProxy(Session session, Class<?> entityClass, String keyPropertyName, Object key) throws SQLException {
         try {
             return proxyMaker
                     .superClass(entityClass)
-                    .make(new OrmNextMethodHandler(sessionManager, entityClass, keyPropertyName, key));
+                    .make(new OrmNextMethodHandler(session, entityClass, keyPropertyName, key));
         } catch (Exception ex) {
             throw new SQLException(ex);
         }
@@ -214,6 +214,6 @@ public class DatabaseEntityPersister {
      * @return entity aliases
      */
     public EntityAliases getAliases() {
-        return rootEntityInitializer.getEntityAliases();
+        return rootEntityContext.getEntityAliases();
     }
 }
