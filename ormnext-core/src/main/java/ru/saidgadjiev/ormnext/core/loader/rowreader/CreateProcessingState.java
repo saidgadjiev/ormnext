@@ -83,22 +83,23 @@ public class CreateProcessingState implements EntityMetadataVisitor {
                 processingState.setNew(true);
                 processingState.setEntityInstance(entityInstance);
                 databaseColumnType.assign(entityInstance, id);
-            } else {
-                processingState.setNew(false);
-
-                entityInstance = processingState.getEntityInstance();
-            }
-            if (resultSetContext.getEntry(entityInstance.getClass(), id) == null) {
+                processingState.setValuesFromResultSet(resultSetContext.getCurrentRow().getValues(aliases));
                 resultSetContext.addEntry(id, entityInstance);
                 resultSetContext.putToCache(id, entityInstance);
+            } else {
+                processingState.setNew(false);
             }
-            processingState.setValuesFromResultSet(resultSetContext.getCurrentRow());
         }
         return false;
     }
 
     @Override
     public void finish(SimpleDatabaseColumnTypeImpl databaseColumnType) {
+
+    }
+
+    @Override
+    public void finish(DatabaseEntityMetadata<?> entityMetadata) {
 
     }
 }

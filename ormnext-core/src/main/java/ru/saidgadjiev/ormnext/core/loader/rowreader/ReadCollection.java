@@ -71,6 +71,11 @@ public class ReadCollection implements EntityMetadataVisitor {
 
     }
 
+    @Override
+    public void finish(DatabaseEntityMetadata<?> entityMetadata) {
+
+    }
+
     private void readEagerCollection(ForeignCollectionColumnTypeImpl collectionColumnType) throws SQLException {
         if (resultSetContext.isResultColumn(aliases.getCollectionObjectKeyAlias())) {
             ResultSetValue collectionValue = resultSetContext.getCurrentRow().get(

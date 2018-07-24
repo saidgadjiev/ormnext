@@ -447,6 +447,7 @@ public final class DatabaseEntityMetadata<T> implements EntityElement {
             for (DatabaseColumnType columnType : columnTypes) {
                 columnType.accept(visitor);
             }
+            visitor.finish(this);
         }
     }
 }

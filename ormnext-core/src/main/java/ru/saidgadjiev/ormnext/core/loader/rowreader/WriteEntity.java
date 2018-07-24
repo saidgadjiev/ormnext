@@ -122,4 +122,9 @@ public class WriteEntity implements EntityMetadataVisitor {
     public void finish(SimpleDatabaseColumnTypeImpl databaseColumnType) {
 
     }
+
+    @Override
+    public void finish(DatabaseEntityMetadata<?> entityMetadata) {
+
+    }
 }

@@ -55,22 +55,20 @@ public class RowReaderImpl implements RowReader {
         ResultSetRow resultSetRow = new ResultSetRow();
 
         ReadEntity rootReadEntity = new ReadEntity(
-                rootEntityContext.getEntityAliases(),
-                resultSetContext.getDatabaseResults(),
-                resultSetContext.getResultColumns()
+                rootEntityContext,
+                resultSetContext,
+                resultSetRow
         );
 
         rootEntityContext.getMetadata().accept(rootReadEntity);
-        resultSetRow.addAll(rootReadEntity.getValues());
         for (EntityContext entityContext : entityContexts) {
             ReadEntity readEntity = new ReadEntity(
-                    entityContext.getEntityAliases(),
-                    resultSetContext.getDatabaseResults(),
-                    resultSetContext.getResultColumns()
+                    entityContext,
+                    resultSetContext,
+                    resultSetRow
             );
 
             entityContext.getMetadata().accept(readEntity);
-            resultSetRow.addAll(readEntity.getValues());
         }
         resultSetContext.setCurrentRow(resultSetRow);
 

@@ -55,4 +55,6 @@ public interface EntityMetadataVisitor {
     boolean start(SimpleDatabaseColumnTypeImpl databaseColumnType)  throws SQLException;
 
     void finish(SimpleDatabaseColumnTypeImpl databaseColumnType);
+
+    void finish(DatabaseEntityMetadata<?> entityMetadata);
 }

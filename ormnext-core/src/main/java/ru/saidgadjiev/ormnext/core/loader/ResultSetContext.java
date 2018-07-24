@@ -222,7 +222,7 @@ public class ResultSetContext {
         /**
          * Read values from result set.
          */
-        private ResultSetRow values;
+        private Map<String, ResultSetValue> values;
 
         /**
          * Read collection object ids from result set.
@@ -253,7 +253,7 @@ public class ResultSetContext {
          *
          * @param values read values
          */
-        public void setValuesFromResultSet(ResultSetRow values) {
+        public void setValuesFromResultSet(Map<String, ResultSetValue> values) {
             this.values = values;
         }
 
@@ -271,7 +271,7 @@ public class ResultSetContext {
          *
          * @return read values
          */
-        public ResultSetRow getValues() {
+        public Map<String, ResultSetValue> getValues() {
             return values;
         }
 

@@ -81,6 +81,11 @@ public class WriteCollection implements EntityMetadataVisitor {
 
     }
 
+    @Override
+    public void finish(DatabaseEntityMetadata<?> entityMetadata) {
+
+    }
+
     private void loadEagerCollection(ForeignCollectionColumnTypeImpl collectionColumnType) {
         Object instance = processingState.getEntityInstance();
 

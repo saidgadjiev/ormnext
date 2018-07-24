@@ -253,6 +253,11 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
     }
 
     @Override
+    public void finish(DatabaseEntityMetadata<?> entityMetadata) {
+
+    }
+
+    @Override
     public boolean start(DatabaseEntityMetadata<?> databaseEntityMetadata) {
         return true;
     }

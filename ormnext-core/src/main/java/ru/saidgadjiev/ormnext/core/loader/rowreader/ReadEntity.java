@@ -5,12 +5,14 @@ import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignCollectionColumnTypeIm
 import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignColumnTypeImpl;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.SimpleDatabaseColumnTypeImpl;
 import ru.saidgadjiev.ormnext.core.loader.ResultSetContext;
+import ru.saidgadjiev.ormnext.core.loader.rowreader.entityinitializer.EntityContext;
 import ru.saidgadjiev.ormnext.core.table.internal.alias.EntityAliases;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetadata;
 import ru.saidgadjiev.ormnext.core.table.internal.visitor.EntityMetadataVisitor;
 import ru.saidgadjiev.ormnext.core.utils.ArgumentUtils;
 
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -20,7 +22,11 @@ import java.util.Set;
  */
 public class ReadEntity implements EntityMetadataVisitor {
 
-    private Map<String, ResultSetValue> values = new LinkedHashMap<>();
+    private final ResultSetContext resultSetContext;
+
+    private final EntityContext entityContext;
+
+    private Map<String, ResultSetValue> values = new HashMap<>();
 
     private EntityAliases entityAliases;
 
@@ -28,12 +34,19 @@ public class ReadEntity implements EntityMetadataVisitor {
 
     private Set<String> resultColumns;
 
-    public ReadEntity(EntityAliases entityAliases,
-                      DatabaseResults databaseResults,
-                      Set<String> resultColumns) {
-        this.entityAliases = entityAliases;
-        this.databaseResults = databaseResults;
-        this.resultColumns = resultColumns;
+    private ResultSetRow resultSetRow;
+
+    private boolean skip = false;
+
+    public ReadEntity(EntityContext entityContext,
+                      ResultSetContext resultSetContext,
+                      ResultSetRow resultSetRow) {
+        this.entityContext = entityContext;
+        this.resultSetContext = resultSetContext;
+        this.entityAliases = entityContext.getEntityAliases();
+        this.databaseResults = resultSetContext.getDatabaseResults();
+        this.resultColumns = resultSetContext.getResultColumns();
+        this.resultSetRow = resultSetRow;
     }
 
     @Override
@@ -42,7 +55,10 @@ public class ReadEntity implements EntityMetadataVisitor {
     }
 
     @Override
-    public boolean start(ForeignColumnTypeImpl foreignColumnType) throws SQLException  {
+    public boolean start(ForeignColumnTypeImpl foreignColumnType) throws SQLException {
+        if (skip) {
+            return false;
+        }
         String alias = entityAliases.getAliasByColumnName(foreignColumnType.columnName());
 
         if (resultColumns.contains(alias)) {
@@ -52,7 +68,10 @@ public class ReadEntity implements EntityMetadataVisitor {
             );
 
             value = ArgumentUtils.processConvertersToJavaValue(value, foreignColumnType).getValue();
-            values.put(alias, new ResultSetValue(value, databaseResults.wasNull()));
+            ResultSetValue resultSetValue = new ResultSetValue(value, databaseResults.wasNull());
+
+            resultSetRow.add(alias, resultSetValue);
+            values.put(alias, resultSetValue);
         }
 
         return false;
@@ -75,13 +94,23 @@ public class ReadEntity implements EntityMetadataVisitor {
 
     @Override
     public boolean start(SimpleDatabaseColumnTypeImpl databaseColumnType) throws SQLException {
-        String alias = entityAliases.getAliasByColumnName(databaseColumnType.columnName());
+        if (skip) {
+            return false;
+        }
+        if (databaseColumnType.id()) {
+            checkProcessingState(databaseColumnType);
+        } else {
+            String alias = entityAliases.getAliasByColumnName(databaseColumnType.columnName());
 
-        if (resultColumns.contains(alias)) {
-            Object value = databaseColumnType.dataPersister().readValue(databaseResults, alias);
+            if (resultColumns.contains(alias)) {
+                Object value = databaseColumnType.dataPersister().readValue(databaseResults, alias);
 
-            value = ArgumentUtils.processConvertersToJavaValue(value, databaseColumnType).getValue();
-            values.put(alias, new ResultSetValue(value, databaseResults.wasNull()));
+                value = ArgumentUtils.processConvertersToJavaValue(value, databaseColumnType).getValue();
+                ResultSetValue resultSetValue = new ResultSetValue(value, databaseResults.wasNull());
+
+                resultSetRow.add(alias, new ResultSetValue(value, databaseResults.wasNull()));
+                values.put(alias, resultSetValue);
+            }
         }
 
         return false;
@@ -92,7 +121,21 @@ public class ReadEntity implements EntityMetadataVisitor {
 
     }
 
-    public Map<String, ResultSetValue> getValues() {
-        return values;
+    @Override
+    public void finish(DatabaseEntityMetadata<?> entityMetadata) {
+        resultSetRow.addValues(entityAliases, values);
+    }
+
+    private void checkProcessingState(SimpleDatabaseColumnTypeImpl databaseColumnType) throws SQLException {
+        String alias = entityAliases.getKeyAlias();
+        Object key = databaseColumnType.dataPersister().readValue(databaseResults, alias);
+        ResultSetContext.EntityProcessingState processingState = resultSetContext.getProcessingState(
+                entityContext.getUid(),
+                key
+        );
+
+        if (processingState != null) {
+            skip = true;
+        }
     }
 }
