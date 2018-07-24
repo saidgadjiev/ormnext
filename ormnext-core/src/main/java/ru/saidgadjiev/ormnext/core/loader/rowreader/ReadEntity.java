@@ -128,14 +128,23 @@ public class ReadEntity implements EntityMetadataVisitor {
 
     private void checkProcessingState(SimpleDatabaseColumnTypeImpl databaseColumnType) throws SQLException {
         String alias = entityAliases.getKeyAlias();
-        Object key = databaseColumnType.dataPersister().readValue(databaseResults, alias);
-        ResultSetContext.EntityProcessingState processingState = resultSetContext.getProcessingState(
-                entityContext.getUid(),
-                key
-        );
 
-        if (processingState != null) {
-            skip = true;
+        if (resultSetContext.isResultColumn(alias)) {
+            Object key = databaseColumnType.dataPersister().readValue(databaseResults, alias);
+            ResultSetContext.EntityProcessingState processingState = resultSetContext.getProcessingState(
+                    entityContext.getUid(),
+                    key
+            );
+
+            key = ArgumentUtils.processConvertersToJavaValue(key, databaseColumnType).getValue();
+            ResultSetValue resultSetValue = new ResultSetValue(key, databaseResults.wasNull());
+
+            resultSetRow.add(alias, resultSetValue);
+            values.put(alias, resultSetValue);
+
+            if (processingState != null) {
+                skip = true;
+            }
         }
     }
 }
