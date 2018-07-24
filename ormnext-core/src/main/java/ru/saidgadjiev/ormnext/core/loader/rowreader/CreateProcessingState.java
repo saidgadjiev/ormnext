@@ -4,6 +4,7 @@ import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignCollectionColumnTypeIm
 import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignColumnTypeImpl;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.SimpleDatabaseColumnTypeImpl;
 import ru.saidgadjiev.ormnext.core.loader.ResultSetContext;
+import ru.saidgadjiev.ormnext.core.loader.rowreader.entityinitializer.EntityContext;
 import ru.saidgadjiev.ormnext.core.table.internal.alias.EntityAliases;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetadata;
 import ru.saidgadjiev.ormnext.core.table.internal.persister.DatabaseEntityPersister;
@@ -25,14 +26,12 @@ public class CreateProcessingState implements EntityMetadataVisitor {
 
     private EntityAliases aliases;
 
-    public CreateProcessingState(ResultSetContext resultSetContext,
-                                 DatabaseEntityPersister persister,
-                                 String uid,
-                                 EntityAliases aliases) {
+    CreateProcessingState(EntityContext entityContext,
+                          ResultSetContext resultSetContext) {
         this.resultSetContext = resultSetContext;
-        this.persister = persister;
-        this.uid = uid;
-        this.aliases = aliases;
+        this.persister = entityContext.getPersister();
+        this.uid = entityContext.getUid();
+        this.aliases = entityContext.getEntityAliases();
     }
 
     @Override

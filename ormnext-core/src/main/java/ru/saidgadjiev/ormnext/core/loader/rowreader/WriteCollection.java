@@ -32,7 +32,7 @@ public class WriteCollection implements EntityMetadataVisitor {
 
     private CollectionLoader collectionLoader;
 
-    public WriteCollection(ResultSetContext resultSetContext,
+    WriteCollection(ResultSetContext resultSetContext,
                            EntityProcessingState processingState,
                            CollectionLoader collectionLoader) {
         this.resultSetContext = resultSetContext;

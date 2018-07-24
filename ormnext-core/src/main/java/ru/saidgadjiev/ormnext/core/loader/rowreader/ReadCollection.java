@@ -25,7 +25,7 @@ public class ReadCollection implements EntityMetadataVisitor {
 
     private String uid;
 
-    public ReadCollection(CollectionContext collectionContext, ResultSetContext resultSetContext) {
+    ReadCollection(CollectionContext collectionContext, ResultSetContext resultSetContext) {
         this.aliases = collectionContext.getAliases();
         this.resultSetContext = resultSetContext;
         this.uid = collectionContext.getUid();

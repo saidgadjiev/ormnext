@@ -45,7 +45,7 @@ public class ReadEntity implements EntityMetadataVisitor {
 
     private boolean skip = false;
 
-    public ReadEntity(EntityContext entityContext,
+    ReadEntity(EntityContext entityContext,
                       ResultSetContext resultSetContext,
                       ResultSetRow resultSetRow) {
         this.entityContext = entityContext;

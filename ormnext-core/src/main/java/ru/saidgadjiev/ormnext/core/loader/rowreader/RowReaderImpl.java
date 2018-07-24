@@ -73,20 +73,16 @@ public class RowReaderImpl implements RowReader {
         resultSetContext.setCurrentRow(resultSetRow);
 
         CreateProcessingState rootState = new CreateProcessingState(
-                resultSetContext,
-                rootEntityContext.getPersister(),
-                rootEntityContext.getUid(),
-                rootEntityContext.getEntityAliases()
+                rootEntityContext,
+                resultSetContext
         );
 
         rootEntityContext.getMetadata().accept(rootState);
 
         for (EntityContext entityContext : entityContexts) {
             CreateProcessingState state = new CreateProcessingState(
-                    resultSetContext,
-                    entityContext.getPersister(),
-                    entityContext.getUid(),
-                    entityContext.getEntityAliases()
+                    entityContext,
+                    resultSetContext
             );
 
             entityContext.getMetadata().accept(state);

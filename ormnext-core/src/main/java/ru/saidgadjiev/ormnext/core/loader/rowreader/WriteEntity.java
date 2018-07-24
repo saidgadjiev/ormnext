@@ -28,7 +28,7 @@ public class WriteEntity implements EntityMetadataVisitor {
 
     private DatabaseEntityPersister persister;
 
-    public WriteEntity(ResultSetContext context,
+    WriteEntity(ResultSetContext context,
                        ResultSetContext.EntityProcessingState processingState,
                        EntityAliases entityAliases,
                        DatabaseEntityPersister persister) {

@@ -10,6 +10,7 @@ import ru.saidgadjiev.ormnext.core.query.criteria.impl.SelectStatement;
 import ru.saidgadjiev.proxymaker.MethodHandler;
 
 import java.lang.reflect.Method;
+import java.sql.SQLException;
 
 /**
  * This implementation {@link MethodHandler}
@@ -17,7 +18,7 @@ import java.lang.reflect.Method;
  *
  * @author Said Gadjiev
  */
-public class OrmNextMethodHandler implements MethodHandler {
+public class OrmNextMethodHandler implements MethodHandler, Lazy {
 
     /**
      * Logger.
@@ -73,15 +74,7 @@ public class OrmNextMethodHandler implements MethodHandler {
     @Override
     public Object invoke(Method method, Object[] args) {
         try {
-            if (!initialized) {
-                SelectStatement<?> selectStatement = new SelectStatement<>(entityClass);
-
-                selectStatement.where(new Criteria().add(Restrictions.eq(keyPropertyName, key)));
-                target = session.uniqueResult(selectStatement);
-                initialized = true;
-                session.close();
-                LOG.debug("Entity %s with key %s lazy initialized", entityClass.getName(), key);
-            }
+            initialize(session);
 
             return method.invoke(target, args);
         } catch (Exception ex) {
@@ -89,4 +82,20 @@ public class OrmNextMethodHandler implements MethodHandler {
         }
     }
 
+    private void initialize(Session session) throws SQLException {
+        if (!initialized) {
+            SelectStatement<?> selectStatement = new SelectStatement<>(entityClass);
+
+            selectStatement.where(new Criteria().add(Restrictions.eq(keyPropertyName, key)));
+            target = session.uniqueResult(selectStatement);
+            initialized = true;
+            session.close();
+            LOG.debug("Entity %s with key %s lazy initialized", entityClass.getName(), key);
+        }
+    }
+
+    @Override
+    public void load(Session session) throws SQLException {
+        initialize(session);
+    }
 }
