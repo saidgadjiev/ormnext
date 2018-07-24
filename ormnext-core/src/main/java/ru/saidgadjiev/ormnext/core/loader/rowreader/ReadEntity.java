@@ -13,28 +13,35 @@ import ru.saidgadjiev.ormnext.core.utils.ArgumentUtils;
 
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * Created by said on 23.07.2018.
+ * Read values from result set.
+ *
+ * @author Said Gadjiev
  */
 public class ReadEntity implements EntityMetadataVisitor {
 
+    /**
+     * Result set context.
+     */
     private final ResultSetContext resultSetContext;
 
+    /**
+     * Entity context.
+     */
     private final EntityContext entityContext;
 
-    private Map<String, ResultSetValue> values = new HashMap<>();
+    private final Map<String, ResultSetValue> values = new HashMap<>();
 
-    private EntityAliases entityAliases;
+    private final EntityAliases entityAliases;
 
-    private DatabaseResults databaseResults;
+    private final DatabaseResults databaseResults;
 
-    private Set<String> resultColumns;
+    private final Set<String> resultColumns;
 
-    private ResultSetRow resultSetRow;
+    private final ResultSetRow resultSetRow;
 
     private boolean skip = false;
 
@@ -97,20 +104,18 @@ public class ReadEntity implements EntityMetadataVisitor {
         if (skip) {
             return false;
         }
-        if (databaseColumnType.id()) {
-            checkProcessingState(databaseColumnType);
-        } else {
-            String alias = entityAliases.getAliasByColumnName(databaseColumnType.columnName());
+        String alias = entityAliases.getAliasByColumnName(databaseColumnType.columnName());
 
-            if (resultColumns.contains(alias)) {
-                Object value = databaseColumnType.dataPersister().readValue(databaseResults, alias);
+        if (resultColumns.contains(alias)) {
+            Object value = databaseColumnType.dataPersister().readValue(databaseResults, alias);
 
-                value = ArgumentUtils.processConvertersToJavaValue(value, databaseColumnType).getValue();
-                ResultSetValue resultSetValue = new ResultSetValue(value, databaseResults.wasNull());
+            value = ArgumentUtils.processConvertersToJavaValue(value, databaseColumnType).getValue();
+            ResultSetValue resultSetValue = new ResultSetValue(value, databaseResults.wasNull());
 
-                resultSetRow.add(alias, new ResultSetValue(value, databaseResults.wasNull()));
-                values.put(alias, resultSetValue);
-            }
+            resultSetRow.add(alias, new ResultSetValue(value, databaseResults.wasNull()));
+            values.put(alias, resultSetValue);
+
+            checkProcessingState(databaseColumnType, resultSetValue);
         }
 
         return false;
@@ -126,21 +131,13 @@ public class ReadEntity implements EntityMetadataVisitor {
         resultSetRow.addValues(entityAliases, values);
     }
 
-    private void checkProcessingState(SimpleDatabaseColumnTypeImpl databaseColumnType) throws SQLException {
-        String alias = entityAliases.getKeyAlias();
-
-        if (resultSetContext.isResultColumn(alias)) {
-            Object key = databaseColumnType.dataPersister().readValue(databaseResults, alias);
+    private void checkProcessingState(SimpleDatabaseColumnTypeImpl databaseColumnType,
+                                      ResultSetValue resultSetValue) throws SQLException {
+        if (databaseColumnType.id()) {
             ResultSetContext.EntityProcessingState processingState = resultSetContext.getProcessingState(
                     entityContext.getUid(),
-                    key
+                    resultSetValue.getValue()
             );
-
-            key = ArgumentUtils.processConvertersToJavaValue(key, databaseColumnType).getValue();
-            ResultSetValue resultSetValue = new ResultSetValue(key, databaseResults.wasNull());
-
-            resultSetRow.add(alias, resultSetValue);
-            values.put(alias, resultSetValue);
 
             if (processingState != null) {
                 skip = true;

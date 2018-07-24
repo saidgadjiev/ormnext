@@ -5,6 +5,7 @@ import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignCollectionColumnTypeIm
 import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignColumnTypeImpl;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.SimpleDatabaseColumnTypeImpl;
 import ru.saidgadjiev.ormnext.core.loader.ResultSetContext;
+import ru.saidgadjiev.ormnext.core.loader.rowreader.entityinitializer.CollectionContext;
 import ru.saidgadjiev.ormnext.core.table.internal.alias.CollectionEntityAliases;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetadata;
 import ru.saidgadjiev.ormnext.core.table.internal.visitor.EntityMetadataVisitor;
@@ -24,10 +25,10 @@ public class ReadCollection implements EntityMetadataVisitor {
 
     private String uid;
 
-    public ReadCollection(CollectionEntityAliases aliases, ResultSetContext resultSetContext, String uid) {
-        this.aliases = aliases;
+    public ReadCollection(CollectionContext collectionContext, ResultSetContext resultSetContext) {
+        this.aliases = collectionContext.getAliases();
         this.resultSetContext = resultSetContext;
-        this.uid = uid;
+        this.uid = collectionContext.getUid();
     }
 
     @Override
@@ -85,6 +86,7 @@ public class ReadCollection implements EntityMetadataVisitor {
             if (collectionValue.wasNull()) {
                 return;
             }
+
             Object collectionOwnerId = resultSetContext.getCurrentRow().get(
                     aliases.getCollectionOwnerColumnKeyAlias()
             ).getValue();
@@ -104,15 +106,19 @@ public class ReadCollection implements EntityMetadataVisitor {
         ResultSetValue collectionValue = resultSetContext.getCurrentRow().get(
                 aliases.getCollectionOwnerColumnKeyAlias()
         );
+
+        if (collectionValue.wasNull()) {
+            return;
+        }
+
         EntityProcessingState processingState = resultSetContext.getProcessingState(uid, collectionValue.getValue());
 
-        if (processingState != null && processingState.getLazyCollectionOwnerKey() == null) {
-            ResultSetValue ownerForeignKeyValue = resultSetContext.getCurrentRow().get(
+        if (processingState.getLazyCollectionOwnerKey() == null) {
+            ResultSetValue ownerForeignKeyValue = processingState.getValues().get(
                     aliases.getCollectionObjectKeyAlias()
             );
 
             processingState.setLazyCollectionOwnerKey(ownerForeignKeyValue.getValue());
         }
     }
-
 }

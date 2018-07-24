@@ -10,6 +10,7 @@ import ru.saidgadjiev.ormnext.core.table.internal.persister.DatabaseEntityPersis
 import ru.saidgadjiev.ormnext.core.table.internal.visitor.EntityMetadataVisitor;
 
 import java.sql.SQLException;
+import java.util.Map;
 
 /**
  * Created by said on 23.07.2018.
@@ -68,11 +69,13 @@ public class CreateProcessingState implements EntityMetadataVisitor {
                 return false;
             }
 
-            ResultSetValue idValue = resultSetContext.getCurrentRow().get(idAlias);
+            Map<String, ResultSetValue> values = resultSetContext.getCurrentRow().getValues(aliases);
+            ResultSetValue idValue = values.get(idAlias);
 
             if (idValue.wasNull()) {
                 return false;
             }
+
             Object id = idValue.getValue();
             ResultSetContext.EntityProcessingState processingState = resultSetContext.getOrCreateProcessingState(uid, id);
             Object entityInstance;
@@ -83,7 +86,8 @@ public class CreateProcessingState implements EntityMetadataVisitor {
                 processingState.setNew(true);
                 processingState.setEntityInstance(entityInstance);
                 databaseColumnType.assign(entityInstance, id);
-                processingState.setValuesFromResultSet(resultSetContext.getCurrentRow().getValues(aliases));
+                processingState.setValuesFromResultSet(values);
+
                 resultSetContext.addEntry(id, entityInstance);
                 resultSetContext.putToCache(id, entityInstance);
             } else {

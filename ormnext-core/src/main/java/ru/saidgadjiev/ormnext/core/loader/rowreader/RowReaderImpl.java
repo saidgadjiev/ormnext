@@ -94,9 +94,8 @@ public class RowReaderImpl implements RowReader {
 
         for (CollectionContext collectionContext : collectionContexts) {
             ReadCollection readCollection = new ReadCollection(
-                    collectionContext.getAliases(),
-                    resultSetContext,
-                    collectionContext.getUid()
+                    collectionContext,
+                    resultSetContext
             );
 
             collectionContext.getMetadata().accept(readCollection);
