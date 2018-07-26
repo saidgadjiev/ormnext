@@ -8,6 +8,7 @@ import ru.saidgadjiev.ormnext.core.dao.transaction.state.InternalTransaction;
 import ru.saidgadjiev.ormnext.core.dao.transaction.state.TransactionState;
 import ru.saidgadjiev.ormnext.core.loader.EntityLoader;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.DeleteStatement;
+import ru.saidgadjiev.ormnext.core.query.criteria.impl.Query;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.SelectStatement;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.UpdateStatement;
 
@@ -221,8 +222,8 @@ public class SessionImpl implements Session, InternalTransaction {
     }
 
     @Override
-    public DatabaseResults query(String query) throws SQLException {
-        return loaders.get(loader).query(this, query);
+    public DatabaseResults query(Query query) throws SQLException {
+        return loaders.get(loader).query(this, query.getQuery());
     }
 
     @Override
@@ -259,6 +260,11 @@ public class SessionImpl implements Session, InternalTransaction {
     @Override
     public SessionManager getSessionManager() {
         return sessionManager;
+    }
+
+    @Override
+    public boolean isClosed() throws SQLException{
+        return connection.isClosed() || sessionManager.isClosed();
     }
 
     @Override

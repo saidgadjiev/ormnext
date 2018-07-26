@@ -1,5 +1,6 @@
 package ru.saidgadjiev.ormnext.core.loader.rowreader;
 
+import ru.saidgadjiev.ormnext.core.field.fieldtype.DatabaseColumnType;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignCollectionColumnTypeImpl;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignColumnTypeImpl;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.SimpleDatabaseColumnTypeImpl;
@@ -12,6 +13,8 @@ import ru.saidgadjiev.ormnext.core.table.internal.visitor.EntityMetadataVisitor;
 
 import java.sql.SQLException;
 import java.util.Map;
+
+import static ru.saidgadjiev.ormnext.core.loader.ResultSetContext.EntityProcessingState;
 
 /**
  * Created by said on 23.07.2018.
@@ -36,7 +39,7 @@ public class CreateProcessingState implements EntityMetadataVisitor {
 
     @Override
     public boolean start(DatabaseEntityMetadata<?> databaseEntityMetadata) throws SQLException {
-        return true;
+        return createProcessingState(databaseEntityMetadata.getPrimaryKeyColumnType());
     }
 
     @Override
@@ -61,38 +64,18 @@ public class CreateProcessingState implements EntityMetadataVisitor {
 
     @Override
     public boolean start(SimpleDatabaseColumnTypeImpl databaseColumnType) throws SQLException {
-        if (databaseColumnType.id()) {
-            String idAlias = aliases.getAliasByColumnName(databaseColumnType.columnName());
+        String alias = aliases.getAliasByColumnName(databaseColumnType.columnName());
 
-            if (!resultSetContext.isResultColumn(idAlias)) {
-                return false;
-            }
-
+        if (databaseColumnType.unique() && resultSetContext.isResultColumn(alias)) {
             Map<String, ResultSetValue> values = resultSetContext.getCurrentRow().getValues(aliases);
-            ResultSetValue idValue = values.get(idAlias);
+            ResultSetValue idValue = values.get(aliases.getKeyAlias());
+            EntityProcessingState processingState = resultSetContext.getProcessingState(uid, idValue.getValue());
+            Object entityInstance = processingState.getEntityInstance();
+            ResultSetValue uniqueValue = values.get(alias);
 
-            if (idValue.wasNull()) {
-                return false;
-            }
-
-            Object id = idValue.getValue();
-            ResultSetContext.EntityProcessingState processingState = resultSetContext.getOrCreateProcessingState(uid, id);
-            Object entityInstance;
-
-            if (processingState.getEntityInstance() == null) {
-                entityInstance = persister.instance();
-
-                processingState.setNew(true);
-                processingState.setEntityInstance(entityInstance);
-                databaseColumnType.assign(entityInstance, id);
-                processingState.setValuesFromResultSet(values);
-
-                resultSetContext.addEntry(id, entityInstance);
-                resultSetContext.putToCache(id, entityInstance);
-            } else {
-                processingState.setNew(false);
-            }
+            resultSetContext.addEntry(uniqueValue.getValue(), entityInstance);
         }
+
         return false;
     }
 
@@ -104,5 +87,40 @@ public class CreateProcessingState implements EntityMetadataVisitor {
     @Override
     public void finish(DatabaseEntityMetadata<?> entityMetadata) {
 
+    }
+
+    private boolean createProcessingState(DatabaseColumnType idColumnType) throws SQLException {
+        String idAlias = aliases.getKeyAlias();
+
+        if (!resultSetContext.isResultColumn(idAlias)) {
+            return false;
+        }
+
+        Map<String, ResultSetValue> values = resultSetContext.getCurrentRow().getValues(aliases);
+        ResultSetValue idValue = values.get(idAlias);
+
+        if (idValue.wasNull()) {
+            return false;
+        }
+
+        Object id = idValue.getValue();
+        EntityProcessingState processingState = resultSetContext.getOrCreateProcessingState(uid, id);
+        Object entityInstance;
+
+        if (processingState.getEntityInstance() == null) {
+            entityInstance = persister.instance();
+
+            processingState.setNew(true);
+            processingState.setEntityInstance(entityInstance);
+            idColumnType.assign(entityInstance, id);
+            processingState.setValuesFromResultSet(values);
+
+            resultSetContext.addEntry(id, entityInstance);
+            resultSetContext.putToCache(id, entityInstance);
+        } else {
+            processingState.setNew(false);
+        }
+
+        return true;
     }
 }

@@ -2,7 +2,6 @@ package ru.saidgadjiev.ormnext.core.table.internal.persister;
 
 import ru.saidgadjiev.ormnext.core.connection.DatabaseResults;
 import ru.saidgadjiev.ormnext.core.dao.Session;
-import ru.saidgadjiev.ormnext.core.dao.SessionManager;
 import ru.saidgadjiev.ormnext.core.loader.ResultSetContext;
 import ru.saidgadjiev.ormnext.core.loader.object.OrmNextMethodHandler;
 import ru.saidgadjiev.ormnext.core.loader.rowreader.RowReader;
@@ -49,11 +48,6 @@ public class DatabaseEntityPersister {
     private Instantiator instantiator;
 
     /**
-     * Current session manager.
-     */
-    private SessionManager sessionManager;
-
-    /**
      * Entity results reader.
      *
      * @see RowReader
@@ -90,12 +84,10 @@ public class DatabaseEntityPersister {
      * Create a new instance.
      *
      * @param databaseEntityMetadata entity metadata
-     * @param sessionManager         session manager
      */
-    public DatabaseEntityPersister(DatabaseEntityMetadata<?> databaseEntityMetadata, SessionManager sessionManager) {
+    public DatabaseEntityPersister(DatabaseEntityMetadata<?> databaseEntityMetadata) {
         this.databaseEntityMetadata = databaseEntityMetadata;
         this.instantiator = new ObjectInstantiator(databaseEntityMetadata.getTableClass());
-        this.sessionManager = sessionManager;
 
         initRootInitializer();
     }

@@ -1,7 +1,6 @@
 package ru.saidgadjiev.ormnext.core.loader.object;
 
 import ru.saidgadjiev.ormnext.core.dao.Session;
-import ru.saidgadjiev.ormnext.core.dao.SessionManager;
 import ru.saidgadjiev.ormnext.core.logger.Log;
 import ru.saidgadjiev.ormnext.core.logger.LoggerFactory;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.Criteria;
@@ -95,7 +94,7 @@ public class OrmNextMethodHandler implements MethodHandler, Lazy {
     }
 
     @Override
-    public void load(Session session) throws SQLException {
-        initialize(session);
+    public void attach(Session session) {
+        this.session = session;
     }
 }

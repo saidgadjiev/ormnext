@@ -1,6 +1,5 @@
 package ru.saidgadjiev.ormnext.core.table.internal.metamodel;
 
-import ru.saidgadjiev.ormnext.core.dao.SessionManager;
 import ru.saidgadjiev.ormnext.core.exception.NotRegisteredEntityFoundException;
 import ru.saidgadjiev.ormnext.core.table.internal.persister.DatabaseEntityPersister;
 
@@ -37,14 +36,11 @@ public class MetaModel {
 
     /**
      * Initialize meta model.
-     *
-     * @param sessionManager session manager
      */
-    public void init(SessionManager sessionManager) throws SQLException {
+    public void init() throws SQLException {
         for (Class<?> persisterClass : persisterClasses) {
             metadataMap.put(persisterClass, new DatabaseEntityPersister(
-                            DatabaseEntityMetadata.build(persisterClass),
-                            sessionManager
+                            DatabaseEntityMetadata.build(persisterClass)
                     )
             );
         }

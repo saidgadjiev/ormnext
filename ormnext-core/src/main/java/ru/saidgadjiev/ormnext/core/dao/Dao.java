@@ -2,6 +2,7 @@ package ru.saidgadjiev.ormnext.core.dao;
 
 import ru.saidgadjiev.ormnext.core.connection.DatabaseResults;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.DeleteStatement;
+import ru.saidgadjiev.ormnext.core.query.criteria.impl.Query;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.SelectStatement;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.UpdateStatement;
 
@@ -213,7 +214,7 @@ public interface Dao {
      * @return database results
      * @throws SQLException any SQL exceptions
      */
-    DatabaseResults query(String query) throws SQLException;
+    DatabaseResults query(Query query) throws SQLException;
 
     /**
      * Return query result object.

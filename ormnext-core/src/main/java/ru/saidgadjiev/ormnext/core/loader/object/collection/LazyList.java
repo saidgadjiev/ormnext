@@ -1,7 +1,6 @@
 package ru.saidgadjiev.ormnext.core.loader.object.collection;
 
 import ru.saidgadjiev.ormnext.core.dao.Session;
-import ru.saidgadjiev.ormnext.core.dao.SessionManager;
 
 import java.util.Collection;
 import java.util.List;

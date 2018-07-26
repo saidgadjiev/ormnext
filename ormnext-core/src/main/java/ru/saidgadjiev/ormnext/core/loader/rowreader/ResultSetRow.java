@@ -2,10 +2,8 @@ package ru.saidgadjiev.ormnext.core.loader.rowreader;
 
 import ru.saidgadjiev.ormnext.core.table.internal.alias.EntityAliases;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.function.Consumer;
 
 /**
  * Created by said on 23.07.2018.

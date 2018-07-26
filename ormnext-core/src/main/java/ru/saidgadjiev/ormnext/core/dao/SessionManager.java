@@ -26,6 +26,8 @@ public interface SessionManager extends AutoCloseable {
      */
     Session createSession() throws SQLException;
 
+    Session currentSession() throws SQLException;
+
     /**
      * Return current meta model.
      *
@@ -79,6 +81,8 @@ public interface SessionManager extends AutoCloseable {
      * @return cache evict api
      */
     CacheEvict getCacheEvictApi();
+
+    boolean isClosed();
 
     /**
      * Close all resources in this {@link SessionManager}.

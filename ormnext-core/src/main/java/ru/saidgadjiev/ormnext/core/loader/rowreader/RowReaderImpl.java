@@ -7,9 +7,8 @@ import ru.saidgadjiev.ormnext.core.loader.rowreader.entityinitializer.EntityCont
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 
-import static ru.saidgadjiev.ormnext.core.loader.ResultSetContext.*;
+import static ru.saidgadjiev.ormnext.core.loader.ResultSetContext.EntityProcessingState;
 
 /**
  * Reader implementation.

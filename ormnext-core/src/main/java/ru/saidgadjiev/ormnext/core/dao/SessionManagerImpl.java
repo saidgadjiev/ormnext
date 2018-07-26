@@ -5,6 +5,8 @@ import ru.saidgadjiev.ormnext.core.cache.CacheEvict;
 import ru.saidgadjiev.ormnext.core.cache.ObjectCache;
 import ru.saidgadjiev.ormnext.core.connection.DatabaseConnection;
 import ru.saidgadjiev.ormnext.core.connection.source.ConnectionSource;
+import ru.saidgadjiev.ormnext.core.dao.context.CurrentSessionContext;
+import ru.saidgadjiev.ormnext.core.dao.context.ThreadLocalCurrentSessionContext;
 import ru.saidgadjiev.ormnext.core.loader.EntityLoader;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.MetaModel;
 
@@ -47,6 +49,10 @@ public class SessionManagerImpl implements CacheSessionManager {
      */
     private DatabaseEngine<?> databaseEngine;
 
+    private CurrentSessionContext sessionContext;
+
+    private boolean closed = false;
+
     /**
      * Create new instance from requested options. It can be create only from {@link SessionManagerBuilder}.
      *
@@ -64,7 +70,9 @@ public class SessionManagerImpl implements CacheSessionManager {
         this.databaseEngine = databaseEngine;
         this.registeredLoaders = registeredLoaders;
 
-        this.metaModel.init(this);
+        sessionContext = new ThreadLocalCurrentSessionContext(this);
+
+        this.metaModel.init();
     }
 
     @Override
@@ -79,6 +87,11 @@ public class SessionManagerImpl implements CacheSessionManager {
         } else {
             return new SessionImpl(dataSource, registeredLoaders, databaseConnection, this);
         }
+    }
+
+    @Override
+    public Session currentSession() throws SQLException {
+        return sessionContext.currentSession();
     }
 
     @Override
@@ -125,12 +138,20 @@ public class SessionManagerImpl implements CacheSessionManager {
     }
 
     @Override
+    public boolean isClosed() {
+        return closed;
+    }
+
+    @Override
     public void close() throws SQLException {
         if (cache != null) {
             cache.close();
         }
         dataSource.close();
+        closed = true;
     }
+
+
 
     @Override
     public void putToCache(Object id, Object data) {

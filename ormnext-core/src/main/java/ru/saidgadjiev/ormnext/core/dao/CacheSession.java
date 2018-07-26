@@ -6,6 +6,7 @@ import ru.saidgadjiev.ormnext.core.connection.DatabaseResults;
 import ru.saidgadjiev.ormnext.core.logger.Log;
 import ru.saidgadjiev.ormnext.core.logger.LoggerFactory;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.DeleteStatement;
+import ru.saidgadjiev.ormnext.core.query.criteria.impl.Query;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.SelectStatement;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.UpdateStatement;
 
@@ -63,6 +64,11 @@ public class CacheSession implements Session {
     @Override
     public SessionManager getSessionManager() {
         return session.getSessionManager();
+    }
+
+    @Override
+    public boolean isClosed() throws SQLException {
+        return session.isClosed();
     }
 
     @Override
@@ -264,8 +270,18 @@ public class CacheSession implements Session {
     }
 
     @Override
-    public DatabaseResults query(String query) throws SQLException {
-        return session.query(query);
+    public DatabaseResults query(Query query) throws SQLException {
+        Optional<DatabaseResults> resultsOptional = cache.query(query);
+
+        if (resultsOptional.isPresent()) {
+            return resultsOptional.get();
+        }
+
+        DatabaseResults results = session.query(query);
+
+        cache.cacheQuery(query, results);
+
+        return results;
     }
 
     @Override

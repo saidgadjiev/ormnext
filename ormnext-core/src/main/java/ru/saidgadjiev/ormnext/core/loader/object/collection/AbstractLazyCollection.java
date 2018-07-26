@@ -1,7 +1,7 @@
 package ru.saidgadjiev.ormnext.core.loader.object.collection;
 
 import ru.saidgadjiev.ormnext.core.dao.Session;
-import ru.saidgadjiev.ormnext.core.loader.object.LazyCollection;
+import ru.saidgadjiev.ormnext.core.loader.object.Lazy;
 import ru.saidgadjiev.ormnext.core.logger.Log;
 import ru.saidgadjiev.ormnext.core.logger.LoggerFactory;
 
@@ -20,7 +20,7 @@ import java.util.stream.Stream;
  * @param <T> value type
  * @author Said Gadjiev
  */
-public abstract class AbstractLazyCollection<T> implements Collection<T>, LazyCollection {
+public abstract class AbstractLazyCollection<T> implements Collection<T>, Lazy {
 
     /**
      * Logger.
@@ -79,7 +79,7 @@ public abstract class AbstractLazyCollection<T> implements Collection<T>, LazyCo
     /**
      * Read collection items and add all to original collection {@link #collection}.
      */
-    private void read() {
+    final void read() {
         if (initialized) {
             return;
         }
@@ -266,15 +266,8 @@ public abstract class AbstractLazyCollection<T> implements Collection<T>, LazyCo
     }
 
     @Override
-    public void load(Session session) {
+    public void attach(Session session) {
         this.session = session;
-        read();
-    }
-
-    @Override
-    public void loadSize(Session session) {
-        this.session = session;
-        readSize();
     }
 
     @Override

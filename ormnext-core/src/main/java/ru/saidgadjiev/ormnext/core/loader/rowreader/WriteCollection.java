@@ -1,7 +1,5 @@
 package ru.saidgadjiev.ormnext.core.loader.rowreader;
 
-import ru.saidgadjiev.ormnext.core.dao.Session;
-import ru.saidgadjiev.ormnext.core.dao.SessionManager;
 import ru.saidgadjiev.ormnext.core.field.FetchType;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignCollectionColumnTypeImpl;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignColumnTypeImpl;
@@ -13,13 +11,12 @@ import ru.saidgadjiev.ormnext.core.loader.object.collection.LazySet;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetadata;
 import ru.saidgadjiev.ormnext.core.table.internal.visitor.EntityMetadataVisitor;
 
-import java.lang.reflect.Field;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static ru.saidgadjiev.ormnext.core.loader.ResultSetContext.*;
+import static ru.saidgadjiev.ormnext.core.loader.ResultSetContext.EntityProcessingState;
 
 /**
  * Created by said on 23.07.2018.

@@ -1,7 +1,9 @@
 package ru.saidgadjiev.ormnext.core.cache;
 
+import ru.saidgadjiev.ormnext.core.connection.DatabaseResults;
 import ru.saidgadjiev.ormnext.core.dao.DatabaseEngine;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.DeleteStatement;
+import ru.saidgadjiev.ormnext.core.query.criteria.impl.Query;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.SelectStatement;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.UpdateStatement;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.MetaModel;
@@ -238,4 +240,8 @@ public interface Cache extends Closeable {
      * Close cache resources.
      */
     void close();
+
+    Optional<DatabaseResults> query(Query query);
+
+    void cacheQuery(Query query, DatabaseResults results);
 }

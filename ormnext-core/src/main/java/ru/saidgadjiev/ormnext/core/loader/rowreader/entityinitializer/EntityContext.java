@@ -1,8 +1,6 @@
 package ru.saidgadjiev.ormnext.core.loader.rowreader.entityinitializer;
 
 import ru.saidgadjiev.ormnext.core.loader.ResultSetContext;
-import ru.saidgadjiev.ormnext.core.logger.Log;
-import ru.saidgadjiev.ormnext.core.logger.LoggerFactory;
 import ru.saidgadjiev.ormnext.core.table.internal.alias.EntityAliases;
 import ru.saidgadjiev.ormnext.core.table.internal.alias.UIDGenerator;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetadata;
