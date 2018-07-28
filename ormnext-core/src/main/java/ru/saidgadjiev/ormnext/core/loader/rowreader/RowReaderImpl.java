@@ -93,7 +93,7 @@ public class RowReaderImpl implements RowReader {
                     resultSetContext
             );
 
-            collectionContext.getMetadata().accept(readCollection);
+            collectionContext.getColumnType().accept(readCollection);
         }
 
         Object readId = resultSetRow.get(rootEntityContext.getEntityAliases().getKeyAlias()).getValue();

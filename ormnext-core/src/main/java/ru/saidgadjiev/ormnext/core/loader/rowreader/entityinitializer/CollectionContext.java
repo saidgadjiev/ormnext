@@ -1,5 +1,6 @@
 package ru.saidgadjiev.ormnext.core.loader.rowreader.entityinitializer;
 
+import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignCollectionColumnTypeImpl;
 import ru.saidgadjiev.ormnext.core.loader.object.collection.CollectionLoader;
 import ru.saidgadjiev.ormnext.core.table.internal.alias.CollectionEntityAliases;
 import ru.saidgadjiev.ormnext.core.table.internal.alias.UIDGenerator;
@@ -68,5 +69,9 @@ public class CollectionContext {
 
     public CollectionLoader getCollectionLoader() {
         return collectionLoader;
+    }
+
+    public ForeignCollectionColumnTypeImpl getColumnType() {
+        return collectionLoader.getForeignCollectionColumnType();
     }
 }

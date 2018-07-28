@@ -215,6 +215,22 @@ public class UserDatabaseResultsImpl implements DatabaseResults {
     }
 
     @Override
+    public Object getObject(int columnId) throws SQLException {
+        return databaseResults.getObject(columnId);
+    }
+
+    @Override
+    public Object getObject(String columnLabel) throws SQLException {
+        if (canResolveAlias(columnLabel)) {
+            String alias = entityAliases.getAliasByPropertyName(columnLabel);
+
+            return databaseResults.getObject(alias);
+        }
+
+        return databaseResults.getObject(columnLabel);
+    }
+
+    @Override
     public boolean wasNull() throws SQLException {
         return databaseResults.wasNull();
     }

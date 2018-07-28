@@ -128,6 +128,7 @@ public class ReadEntity implements EntityMetadataVisitor {
 
     @Override
     public void finish(DatabaseEntityMetadata<?> entityMetadata) {
+        resultSetRow.addAll(values);
         resultSetRow.addValues(entityAliases, values);
     }
 
@@ -141,6 +142,7 @@ public class ReadEntity implements EntityMetadataVisitor {
 
             if (processingState != null) {
                 skip = true;
+                values.putAll(processingState.getValues());
             }
         }
     }

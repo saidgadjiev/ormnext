@@ -218,6 +218,10 @@ public interface DatabaseResults extends AutoCloseable {
      */
     Timestamp getTimestamp(int columnId) throws SQLException;
 
+    Object getObject(int columnId) throws SQLException;
+
+    Object getObject(String columnLabel) throws SQLException;
+
     /**
      * Return true if last read value from result set was sql null.
      *

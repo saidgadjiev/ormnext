@@ -139,6 +139,16 @@ public abstract class DatabaseResultsImpl implements DatabaseResults {
     }
 
     @Override
+    public Object getObject(String columnLabel) throws SQLException {
+        return resultSet.getObject(columnLabel);
+    }
+
+    @Override
+    public Object getObject(int columnId) throws SQLException {
+        return resultSet.getObject(columnId);
+    }
+
+    @Override
     public boolean wasNull() throws SQLException {
         return resultSet.wasNull();
     }
