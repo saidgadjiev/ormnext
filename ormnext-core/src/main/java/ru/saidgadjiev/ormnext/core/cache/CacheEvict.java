@@ -8,86 +8,86 @@ package ru.saidgadjiev.ormnext.core.cache;
 public interface CacheEvict {
 
     /**
-     * Evict all list results {@link ru.saidgadjiev.ormnext.core.dao.Dao#list)} by entity type.
+     * Evict all list results by entity type.
      *
      * @param entityType target entity type
      */
     void evictList(Class<?> entityType);
 
     /**
-     * Evict all list results {@link ru.saidgadjiev.ormnext.core.dao.Dao#list)}.
+     * Evict all list results.
      */
     void evictList();
 
     /**
-     * Evict query for long result {@link ru.saidgadjiev.ormnext.core.dao.Dao#queryForAll(Class)} by entity type.
+     * Evict query for long result by entity type.
      *
      * @param entityType target entity type
      */
     void evictQueryForLong(Class<?> entityType);
 
     /**
-     * Evict all query for long results {@link ru.saidgadjiev.ormnext.core.dao.Dao#queryForLong)}.
+     * Evict all query for long results.
      */
     void evictQueryForLong();
 
     /**
-     * Evict unique results {@link ru.saidgadjiev.ormnext.core.dao.Dao#uniqueResult)} by entity type.
+     * Evict unique results by entity type.
      *
      * @param entityType target entity type
      */
     void evictUniqueResult(Class<?> entityType);
 
     /**
-     * Evict all unique results {@link ru.saidgadjiev.ormnext.core.dao.Dao#uniqueResult)}.
+     * Evict all unique results.
      */
     void evictUniqueResult();
 
     /**
-     * Evict countOff {@link ru.saidgadjiev.ormnext.core.dao.Dao#countOff(Class)} by entity type.
+     * Evict countOff by entity type.
      *
      * @param entityType target entity type
      */
     void evictCountOff(Class<?> entityType);
 
     /**
-     * Evict all countOff results {@link ru.saidgadjiev.ormnext.core.dao.Dao#countOff(Class)}.
+     * Evict all countOff results.
      */
     void evictCountOff();
 
     /**
-     * Evict exist {@link ru.saidgadjiev.ormnext.core.dao.Dao#exist(Class, Object)} by entity type.
+     * Evict exist by entity type.
      *
      * @param entityType target entity type
      */
     void evictExist(Class<?> entityType);
 
     /**
-     * Evict all exist results {@link ru.saidgadjiev.ormnext.core.dao.Dao#exist(Class, Object)}.
+     * Evict all exist results.
      */
     void evictExist();
 
     /**
-     * Evict query for all results {@link ru.saidgadjiev.ormnext.core.dao.Dao#queryForAll(Class)} by entity type.
+     * Evict query for all results by entity type.
      *
      * @param entityType target entity type
      */
     void evictQueryForAll(Class<?> entityType);
 
     /**
-     * Evict all query for long results {@link ru.saidgadjiev.ormnext.core.dao.Dao#queryForAll(Class)}.
+     * Evict all query for long results.
      */
     void evictQueryForAll();
 
     /**
-     * Evict limit offset list results {@link ru.saidgadjiev.ormnext.core.dao.Dao#list)} by entity type.
+     * Evict limit offset list results by entity type.
      *
      * @param entityType target entity type
      */
     void evictLimitedList(Class<?> entityType);
 
     /**
-     * Evict limit offset list results {@link ru.saidgadjiev.ormnext.core.dao.Dao#list)}.
+     * Evict limit offset list results.
      */
     void evictLimitedList();
 
