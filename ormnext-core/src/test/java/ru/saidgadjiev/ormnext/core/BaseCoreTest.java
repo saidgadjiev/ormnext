@@ -16,7 +16,6 @@ public class BaseCoreTest {
 
     @BeforeClass
     public static void setUpClass() throws SQLException {
-        System.setProperty(LoggerFactory.LOG_ENABLED_PROPERTY, "true");
         sessionManager = TestUtils.h2SessionManager(
                 A.class,
                 SelfJoinA.class,
