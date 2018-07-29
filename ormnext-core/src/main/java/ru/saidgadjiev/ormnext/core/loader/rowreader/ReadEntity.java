@@ -33,21 +33,46 @@ public class ReadEntity implements EntityMetadataVisitor {
      */
     private final EntityContext entityContext;
 
+    /**
+     * Read values.
+     */
     private final Map<String, ResultSetValue> values = new HashMap<>();
 
+    /**
+     * Entity aliases.
+     */
     private final EntityAliases entityAliases;
 
+    /**
+     * Database results.
+     */
     private final DatabaseResults databaseResults;
 
+    /**
+     * Result columns.
+     */
     private final Set<String> resultColumns;
 
+    /**
+     * Result row.
+     */
     private final ResultSetRow resultSetRow;
 
+    /**
+     * Finish read flag.
+     */
     private boolean skip = false;
 
+    /**
+     * Create a new instance.
+     *
+     * @param entityContext    target entity context
+     * @param resultSetContext target result set context
+     * @param resultSetRow     target result set row
+     */
     ReadEntity(EntityContext entityContext,
-                      ResultSetContext resultSetContext,
-                      ResultSetRow resultSetRow) {
+               ResultSetContext resultSetContext,
+               ResultSetRow resultSetRow) {
         this.entityContext = entityContext;
         this.resultSetContext = resultSetContext;
         this.entityAliases = entityContext.getEntityAliases();
@@ -132,6 +157,13 @@ public class ReadEntity implements EntityMetadataVisitor {
         resultSetRow.addValues(entityAliases, values);
     }
 
+    /**
+     * Check is finish read results.
+     *
+     * @param databaseColumnType target column type
+     * @param resultSetValue target read value
+     * @throws SQLException any SQL exceptions
+     */
     private void checkProcessingState(SimpleDatabaseColumnTypeImpl databaseColumnType,
                                       ResultSetValue resultSetValue) throws SQLException {
         if (databaseColumnType.id()) {

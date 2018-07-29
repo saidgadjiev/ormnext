@@ -218,8 +218,22 @@ public interface DatabaseResults extends AutoCloseable {
      */
     Timestamp getTimestamp(int columnId) throws SQLException;
 
+    /**
+     * Retrieve object {@link Object} value from result set by column number.
+     *
+     * @param columnId target column number
+     * @return retrieved object value
+     * @throws SQLException any SQL exceptions
+     */
     Object getObject(int columnId) throws SQLException;
 
+    /**
+     * Retrieve object {@link Object} value from result set by column name.
+     *
+     * @param columnLabel target column number
+     * @return retrieved object value
+     * @throws SQLException any SQL exceptions
+     */
     Object getObject(String columnLabel) throws SQLException;
 
     /**

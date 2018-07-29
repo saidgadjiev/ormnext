@@ -11,7 +11,9 @@ public interface EntityElement {
 
     /**
      * Method use for accept visitor.
+     *
      * @param visitor target visitor
+     * @throws SQLException any SQL exceptions
      */
     void accept(EntityMetadataVisitor visitor) throws SQLException;
 }

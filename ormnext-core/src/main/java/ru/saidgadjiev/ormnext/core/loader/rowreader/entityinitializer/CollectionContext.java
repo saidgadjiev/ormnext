@@ -31,6 +31,9 @@ public class CollectionContext {
      */
     private final CollectionLoader collectionLoader;
 
+    /**
+     * Database metadata.
+     */
     private DatabaseEntityMetadata<?> metadata;
 
     /**
@@ -41,6 +44,8 @@ public class CollectionContext {
     /**
      * Create a new instance.
      *
+     * @param metadata         collection owner database entity metadata
+     * @param aliases          collection aliases
      * @param ownerUID         owner uid
      * @param collectionLoader collection load helper
      */
@@ -55,22 +60,47 @@ public class CollectionContext {
         this.aliases = aliases;
     }
 
+    /**
+     * Return collection aliases.
+     *
+     * @return collection aliases
+     */
     public CollectionEntityAliases getAliases() {
         return aliases;
     }
 
+    /**
+     * Return uid.
+     *
+     * @return uid
+     */
     public String getUid() {
         return uid;
     }
 
+    /**
+     * Return database metadata.
+     *
+     * @return database metadata
+     */
     public DatabaseEntityMetadata<?> getMetadata() {
         return metadata;
     }
 
+    /**
+     * Return collection loader.
+     *
+     * @return collection loader
+     */
     public CollectionLoader getCollectionLoader() {
         return collectionLoader;
     }
 
+    /**
+     * Return collection column type.
+     *
+     * @return collection column type
+     */
     public ForeignCollectionColumnTypeImpl getColumnType() {
         return collectionLoader.getForeignCollectionColumnType();
     }

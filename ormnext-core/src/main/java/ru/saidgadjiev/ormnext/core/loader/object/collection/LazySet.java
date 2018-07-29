@@ -15,6 +15,7 @@ public class LazySet<T> extends AbstractLazyCollection<T> implements Set<T> {
     /**
      * Create a new lazy set.
      *
+     * @param session target session
      * @param collectionLoader collection loader
      * @param ownerId          owner id
      * @param set              original collection

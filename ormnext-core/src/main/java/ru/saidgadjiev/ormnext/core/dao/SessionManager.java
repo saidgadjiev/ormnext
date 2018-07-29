@@ -1,7 +1,6 @@
 package ru.saidgadjiev.ormnext.core.dao;
 
 import ru.saidgadjiev.ormnext.core.cache.Cache;
-import ru.saidgadjiev.ormnext.core.cache.CacheEvict;
 import ru.saidgadjiev.ormnext.core.cache.ObjectCache;
 import ru.saidgadjiev.ormnext.core.connection.source.ConnectionSource;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.MetaModel;
@@ -26,6 +25,12 @@ public interface SessionManager extends AutoCloseable {
      */
     Session createSession() throws SQLException;
 
+    /**
+     * Obtain current session.
+     *
+     * @return current session
+     * @throws SQLException any exceptions
+     */
     Session currentSession() throws SQLException;
 
     /**
@@ -80,8 +85,13 @@ public interface SessionManager extends AutoCloseable {
      *
      * @return cache evict api
      */
-    CacheEvict getCacheEvictApi();
+    Cache getCache();
 
+    /**
+     * True if session manager is closed.
+     *
+     * @return true if session manager is closed
+     */
     boolean isClosed();
 
     /**

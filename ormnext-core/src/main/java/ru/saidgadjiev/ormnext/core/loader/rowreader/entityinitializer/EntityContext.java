@@ -74,10 +74,20 @@ public class EntityContext {
         return entityAliases;
     }
 
+    /**
+     * Retrieve owner database entity metadata.
+     *
+     * @return owner database entity metadata
+     */
     public DatabaseEntityMetadata<?> getMetadata() {
         return metadata;
     }
 
+    /**
+     * Retrieve owner database entity persister.
+     *
+     * @return owner database entity persister
+     */
     public DatabaseEntityPersister getPersister() {
         return persister;
     }

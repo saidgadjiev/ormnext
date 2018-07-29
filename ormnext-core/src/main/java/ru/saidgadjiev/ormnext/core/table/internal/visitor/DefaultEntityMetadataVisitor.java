@@ -163,75 +163,6 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
         }
     }
 
-    private boolean startEagerCollection(ForeignCollectionColumnTypeImpl collectionColumnType) throws SQLException {
-        DatabaseEntityMetadata<?> ownerMetaData = metaModel.getPersister(
-                collectionColumnType.getField().getDeclaringClass()
-        ).getMetadata();
-        EntityAliases ownerAliases = entityAliasResolverContext.getAliases(parentUidStack.peek());
-
-        DatabaseEntityMetadata<?> foreignMetaData = metaModel.getPersister(
-                collectionColumnType.getCollectionObjectClass()
-        ).getMetadata();
-        String nextUID = uidGenerator.nextUID();
-
-        EntityAliases foreignEntityAliases = entityAliasResolverContext.resolveAliases(nextUID, foreignMetaData);
-
-        entityQuerySpace.appendCollectionJoin(
-                collectionColumnType,
-                ownerAliases,
-                foreignEntityAliases
-        );
-        entityQuerySpace.appendSelectColumns(foreignEntityAliases, foreignMetaData);
-        entityInitializerMap.put(nextUID, new EntityContext(
-                nextUID,
-                foreignEntityAliases,
-                metaModel.getPersister(foreignMetaData.getTableClass())
-        ));
-
-        CollectionLoader collectionLoader = new CollectionLoader(collectionColumnType);
-
-        collectionContexts.add(
-                new CollectionContext(
-                        parentUidStack.peek(),
-                        new CollectionEntityAliases(
-                                foreignEntityAliases.getKeyAlias(),
-                                ownerAliases.getKeyAlias()
-                        ),
-                        collectionLoader,
-                        ownerMetaData
-                )
-        );
-        parentUidStack.push(nextUID);
-        foreignMetaData.accept(this);
-
-        return true;
-    }
-
-    private boolean startLazyCollection(ForeignCollectionColumnTypeImpl collectionColumnType) {
-        DatabaseEntityMetadata<?> ownerMetaData = metaModel.getPersister(
-                collectionColumnType.getField().getDeclaringClass()
-        ).getMetadata();
-        EntityAliases ownerAliases = entityAliasResolverContext.getAliases(parentUidStack.peek());
-
-        CollectionLoader collectionLoader = new CollectionLoader(collectionColumnType);
-
-        collectionContexts.add(
-                new CollectionContext(
-                        parentUidStack.peek(),
-                        new CollectionEntityAliases(
-                                ownerAliases.getAliasByColumnName(
-                                        collectionColumnType.getForeignColumnType().getForeignColumnName()
-                                ),
-                                ownerAliases.getKeyAlias()
-                        ),
-                        collectionLoader,
-                        ownerMetaData
-                )
-        );
-
-        return false;
-    }
-
     @Override
     public void finish(ForeignColumnTypeImpl foreignColumnType) {
         parentUidStack.pop();
@@ -287,5 +218,87 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
      */
     public EntityQuerySpace getEntityQuerySpace() {
         return entityQuerySpace;
+    }
+
+    /**
+     * Append eager collection join.
+     *
+     * @param collectionColumnType target column type
+     * @return true if handle success
+     * @throws SQLException any exceptions
+     */
+    private boolean startEagerCollection(ForeignCollectionColumnTypeImpl collectionColumnType) throws SQLException {
+        DatabaseEntityMetadata<?> ownerMetaData = metaModel.getPersister(
+                collectionColumnType.getField().getDeclaringClass()
+        ).getMetadata();
+        EntityAliases ownerAliases = entityAliasResolverContext.getAliases(parentUidStack.peek());
+
+        DatabaseEntityMetadata<?> foreignMetaData = metaModel.getPersister(
+                collectionColumnType.getCollectionObjectClass()
+        ).getMetadata();
+        String nextUID = uidGenerator.nextUID();
+
+        EntityAliases foreignEntityAliases = entityAliasResolverContext.resolveAliases(nextUID, foreignMetaData);
+
+        entityQuerySpace.appendCollectionJoin(
+                collectionColumnType,
+                ownerAliases,
+                foreignEntityAliases
+        );
+        entityQuerySpace.appendSelectColumns(foreignEntityAliases, foreignMetaData);
+        entityInitializerMap.put(nextUID, new EntityContext(
+                nextUID,
+                foreignEntityAliases,
+                metaModel.getPersister(foreignMetaData.getTableClass())
+        ));
+
+        CollectionLoader collectionLoader = new CollectionLoader(collectionColumnType);
+
+        collectionContexts.add(
+                new CollectionContext(
+                        parentUidStack.peek(),
+                        new CollectionEntityAliases(
+                                foreignEntityAliases.getKeyAlias(),
+                                ownerAliases.getKeyAlias()
+                        ),
+                        collectionLoader,
+                        ownerMetaData
+                )
+        );
+        parentUidStack.push(nextUID);
+        foreignMetaData.accept(this);
+
+        return true;
+    }
+
+    /**
+     * Append lazy collection join.
+     *
+     * @param collectionColumnType target column type
+     * @return true if handle success
+     */
+    private boolean startLazyCollection(ForeignCollectionColumnTypeImpl collectionColumnType) {
+        DatabaseEntityMetadata<?> ownerMetaData = metaModel.getPersister(
+                collectionColumnType.getField().getDeclaringClass()
+        ).getMetadata();
+        EntityAliases ownerAliases = entityAliasResolverContext.getAliases(parentUidStack.peek());
+
+        CollectionLoader collectionLoader = new CollectionLoader(collectionColumnType);
+
+        collectionContexts.add(
+                new CollectionContext(
+                        parentUidStack.peek(),
+                        new CollectionEntityAliases(
+                                ownerAliases.getAliasByColumnName(
+                                        collectionColumnType.getForeignColumnType().getForeignColumnName()
+                                ),
+                                ownerAliases.getKeyAlias()
+                        ),
+                        collectionLoader,
+                        ownerMetaData
+                )
+        );
+
+        return false;
     }
 }

@@ -27,10 +27,15 @@ public class CollectionLoader {
      */
     private final SelectStatement<?> countOffCriteria;
 
+    /**
+     * Collection column type.
+     */
     private ForeignCollectionColumnTypeImpl foreignCollectionColumnType;
 
     /**
      * Create a new loader.
+     *
+     * @param foreignCollectionColumnType target collection column type
      */
     public CollectionLoader(ForeignCollectionColumnTypeImpl foreignCollectionColumnType) {
 
@@ -69,6 +74,11 @@ public class CollectionLoader {
         return session.queryForLong(countOffCriteria.setObject(1, id));
     }
 
+    /**
+     * Return current collection column type.
+     *
+     * @return collection column type
+     */
     public ForeignCollectionColumnTypeImpl getForeignCollectionColumnType() {
         return foreignCollectionColumnType;
     }

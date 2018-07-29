@@ -136,6 +136,13 @@ public class RowReaderImpl implements RowReader {
         }
     }
 
+    /**
+     * Write results to entity instances.
+     *
+     * @param resultSetContext target result set context
+     * @param entityContext target entity context
+     * @throws SQLException any SQL exceptions
+     */
     private void writeEntity(ResultSetContext resultSetContext, EntityContext entityContext) throws SQLException {
         Map<Object, EntityProcessingState> processingStates = resultSetContext.getProcessingStates(
                 entityContext.getUid()

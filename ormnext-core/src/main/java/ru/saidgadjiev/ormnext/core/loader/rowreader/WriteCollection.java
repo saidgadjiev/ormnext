@@ -19,19 +19,37 @@ import java.util.Set;
 import static ru.saidgadjiev.ormnext.core.loader.ResultSetContext.EntityProcessingState;
 
 /**
- * Created by said on 23.07.2018.
+ * Write collection to entity instance.
+ *
+ * @author Said Gadjiev
  */
 public class WriteCollection implements EntityMetadataVisitor {
 
+    /**
+     * Result set context.
+     */
     private ResultSetContext resultSetContext;
 
+    /**
+     * Processing state.
+     */
     private EntityProcessingState processingState;
 
+    /**
+     * Collection loader.
+     */
     private CollectionLoader collectionLoader;
 
+    /**
+     * Create a new instance.
+     *
+     * @param resultSetContext target result set context
+     * @param processingState  target processing state
+     * @param collectionLoader target collection loader
+     */
     WriteCollection(ResultSetContext resultSetContext,
-                           EntityProcessingState processingState,
-                           CollectionLoader collectionLoader) {
+                    EntityProcessingState processingState,
+                    CollectionLoader collectionLoader) {
         this.resultSetContext = resultSetContext;
         this.processingState = processingState;
         this.collectionLoader = collectionLoader;
@@ -83,6 +101,11 @@ public class WriteCollection implements EntityMetadataVisitor {
 
     }
 
+    /**
+     * Load eager collection.
+     *
+     * @param collectionColumnType target collection column type.
+     */
     private void loadEagerCollection(ForeignCollectionColumnTypeImpl collectionColumnType) {
         Object instance = processingState.getEntityInstance();
 
@@ -102,6 +125,11 @@ public class WriteCollection implements EntityMetadataVisitor {
         }
     }
 
+    /**
+     * Load lazy collection.
+     *
+     * @param collectionColumnType target column type
+     */
     private void loadLazyCollection(ForeignCollectionColumnTypeImpl collectionColumnType) {
         Object instance = processingState.getEntityInstance();
 

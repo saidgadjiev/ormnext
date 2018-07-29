@@ -1,7 +1,5 @@
 package ru.saidgadjiev.ormnext.core.cache;
 
-import ru.saidgadjiev.ormnext.core.query.criteria.impl.SelectStatement;
-
 /**
  * Cache evict api.
  *
@@ -10,21 +8,14 @@ import ru.saidgadjiev.ormnext.core.query.criteria.impl.SelectStatement;
 public interface CacheEvict {
 
     /**
-     * Evict list results {@link ru.saidgadjiev.ormnext.core.dao.Dao#list(SelectStatement)}.
-     *
-     * @param selectStatement target select statement
-     */
-    void evictList(SelectStatement<?> selectStatement);
-
-    /**
-     * Evict all list results {@link ru.saidgadjiev.ormnext.core.dao.Dao#list(SelectStatement)} by entity type.
+     * Evict all list results {@link ru.saidgadjiev.ormnext.core.dao.Dao#list)} by entity type.
      *
      * @param entityType target entity type
      */
     void evictList(Class<?> entityType);
 
     /**
-     * Evict all list results {@link ru.saidgadjiev.ormnext.core.dao.Dao#list(SelectStatement)}.
+     * Evict all list results {@link ru.saidgadjiev.ormnext.core.dao.Dao#list)}.
      */
     void evictList();
 
@@ -36,33 +27,19 @@ public interface CacheEvict {
     void evictQueryForLong(Class<?> entityType);
 
     /**
-     * Evict query for long result {@link ru.saidgadjiev.ormnext.core.dao.Dao#queryForLong(SelectStatement)}.
-     *
-     * @param selectStatement target select statement
-     */
-    void evictQueryForLong(SelectStatement<?> selectStatement);
-
-    /**
-     * Evict all query for long results {@link ru.saidgadjiev.ormnext.core.dao.Dao#queryForLong(SelectStatement)}.
+     * Evict all query for long results {@link ru.saidgadjiev.ormnext.core.dao.Dao#queryForLong)}.
      */
     void evictQueryForLong();
 
     /**
-     * Evict unique result {@link ru.saidgadjiev.ormnext.core.dao.Dao#uniqueResult(SelectStatement)}.
-     *
-     * @param selectStatement target select statement
-     */
-    void evictUniqueResult(SelectStatement<?> selectStatement);
-
-    /**
-     * Evict unique results {@link ru.saidgadjiev.ormnext.core.dao.Dao#uniqueResult(SelectStatement)} by entity type.
+     * Evict unique results {@link ru.saidgadjiev.ormnext.core.dao.Dao#uniqueResult)} by entity type.
      *
      * @param entityType target entity type
      */
     void evictUniqueResult(Class<?> entityType);
 
     /**
-     * Evict all unique results {@link ru.saidgadjiev.ormnext.core.dao.Dao#uniqueResult(SelectStatement)}.
+     * Evict all unique results {@link ru.saidgadjiev.ormnext.core.dao.Dao#uniqueResult)}.
      */
     void evictUniqueResult();
 
@@ -103,22 +80,14 @@ public interface CacheEvict {
     void evictQueryForAll();
 
     /**
-     * Evict limited list results {@link ru.saidgadjiev.ormnext.core.dao.Dao#list(SelectStatement)}.
-     * It mean select statement with limit offset.
-     *
-     * @param selectStatement target select statement
-     */
-    void evictLimitedList(SelectStatement<?> selectStatement);
-
-    /**
-     * Evict limit offset list results {@link ru.saidgadjiev.ormnext.core.dao.Dao#list(SelectStatement)} by entity type.
+     * Evict limit offset list results {@link ru.saidgadjiev.ormnext.core.dao.Dao#list)} by entity type.
      *
      * @param entityType target entity type
      */
     void evictLimitedList(Class<?> entityType);
 
     /**
-     * Evict limit offset list results {@link ru.saidgadjiev.ormnext.core.dao.Dao#list(SelectStatement)}.
+     * Evict limit offset list results {@link ru.saidgadjiev.ormnext.core.dao.Dao#list)}.
      */
     void evictLimitedList();
 
@@ -153,12 +122,4 @@ public interface CacheEvict {
      * Flush all caches.
      */
     void flush();
-
-    /**
-     * Retrieve object cache.
-     *
-     * @param entityType target entity type
-     * @return object cache
-     */
-    ObjectCache getCache(Class<?> entityType);
 }

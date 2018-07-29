@@ -36,6 +36,8 @@ public class MetaModel {
 
     /**
      * Initialize meta model.
+     *
+     * @throws SQLException any exceptions
      */
     public void init() throws SQLException {
         for (Class<?> persisterClass : persisterClasses) {

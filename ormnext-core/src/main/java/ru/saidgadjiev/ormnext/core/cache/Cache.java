@@ -209,6 +209,22 @@ public interface Cache extends Closeable {
     Optional<Object> uniqueResult(SelectStatement<?> selectStatement);
 
     /**
+     * Retrieve cached query results.
+     *
+     * @param query target query
+     * @return query results
+     */
+    Optional<DatabaseResults> query(Query query);
+
+    /**
+     * Cache query results.
+     *
+     * @param query target query
+     * @param results target query results
+     */
+    void cacheQuery(Query query, DatabaseResults results);
+
+    /**
      * Enable default cache.
      */
     void enableDefaultCache();
@@ -230,6 +246,14 @@ public interface Cache extends Closeable {
     void setCache(Class<?>[] entityTypes, ObjectCache objectCache);
 
     /**
+     * Retrieve object cache.
+     *
+     * @param entityType target entity type
+     * @return object cache
+     */
+    ObjectCache getCache(Class<?> entityType);
+
+    /**
      * Evict api.
      *
      * @return cache evict api
@@ -240,8 +264,4 @@ public interface Cache extends Closeable {
      * Close cache resources.
      */
     void close();
-
-    Optional<DatabaseResults> query(Query query);
-
-    void cacheQuery(Query query, DatabaseResults results);
 }

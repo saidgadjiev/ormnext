@@ -1,7 +1,7 @@
 package ru.saidgadjiev.ormnext.core.loader;
 
+import ru.saidgadjiev.ormnext.core.cache.Cache;
 import ru.saidgadjiev.ormnext.core.connection.DatabaseResults;
-import ru.saidgadjiev.ormnext.core.dao.CacheSessionManager;
 import ru.saidgadjiev.ormnext.core.dao.Session;
 import ru.saidgadjiev.ormnext.core.loader.rowreader.ResultSetRow;
 import ru.saidgadjiev.ormnext.core.loader.rowreader.ResultSetValue;
@@ -45,6 +45,11 @@ public class ResultSetContext {
      */
     private Map<Class<?>, Map<Object, Object>> cache = new HashMap<>();
 
+    /**
+     * Current read result set row.
+     *
+     * @see ResultSetRow
+     */
     private ResultSetRow currentRow;
 
     /**
@@ -52,6 +57,7 @@ public class ResultSetContext {
      *
      * @param session         target session
      * @param databaseResults target database results
+     * @throws SQLException any SQL exceptions
      */
     public ResultSetContext(Session session, DatabaseResults databaseResults) throws SQLException {
         this.session = session;
@@ -104,6 +110,13 @@ public class ResultSetContext {
         return putIfAbsent(entityProcessingStateMap, id, entityProcessingState);
     }
 
+    /**
+     * Retrieve exist processing state.
+     *
+     * @param uid target uid
+     * @param id  target id
+     * @return processing state
+     */
     public EntityProcessingState getProcessingState(String uid, Object id) {
         Map<Object, EntityProcessingState> entityProcessingStateMap = processingStateMap.get(uid);
 
@@ -120,10 +133,20 @@ public class ResultSetContext {
         return processingStateMap.get(uid);
     }
 
+    /**
+     * Retrieve current result set row.
+     *
+     * @return current result set row
+     */
     public ResultSetRow getCurrentRow() {
         return currentRow;
     }
 
+    /**
+     * Provide current result set row.
+     *
+     * @param currentRow target result set row
+     */
     public void setCurrentRow(ResultSetRow currentRow) {
         this.currentRow = currentRow;
     }
@@ -155,7 +178,11 @@ public class ResultSetContext {
      * @param data target object
      */
     public void putToCache(Object id, Object data) {
-        ((CacheSessionManager) session.getSessionManager()).putToCache(id, data);
+        Cache cache = session.getSessionManager().getCache();
+
+        if (cache != null) {
+            cache.putToCache(id, data);
+        }
     }
 
     /**
@@ -188,6 +215,11 @@ public class ResultSetContext {
         return idDataMap.get(id);
     }
 
+    /**
+     * Return result columns.
+     *
+     * @return result columns
+     */
     public Set<String> getResultColumns() {
         return resultColumns;
     }

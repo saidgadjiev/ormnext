@@ -47,6 +47,12 @@ public interface Session extends AutoCloseable, Dao {
      */
     <T> DatabaseConnection<T> getConnection();
 
+    /**
+     * True if session is closed.
+     *
+     * @return true if session is closed
+     * @throws SQLException any SQL exceptions
+     */
     boolean isClosed() throws SQLException;
 
     /**

@@ -62,6 +62,7 @@ public abstract class AbstractLazyCollection<T> implements Collection<T>, Lazy {
     /**
      * Create a new lazy collection.
      *
+     * @param session target session
      * @param collectionLoader collection loader
      * @param ownerId          owner object id
      * @param collection       original collection

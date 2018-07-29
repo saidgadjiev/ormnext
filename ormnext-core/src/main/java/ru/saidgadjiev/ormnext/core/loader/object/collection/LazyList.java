@@ -22,6 +22,7 @@ public class LazyList<T> extends AbstractLazyCollection<T> implements List<T> {
     /**
      * Create a new lazy list.
      *
+     * @param session target session
      * @param collectionLoader collection loader
      * @param ownerId          owner id
      * @param list             original collection

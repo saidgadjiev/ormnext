@@ -133,6 +133,7 @@ public class DatabaseEntityPersister {
      * Perssiter initialize method.
      *
      * @param metaModel target meta model
+     * @throws SQLException any exceptions
      * @see MetaModel
      */
     public void initialize(MetaModel metaModel) throws SQLException {
@@ -157,13 +158,15 @@ public class DatabaseEntityPersister {
      * Create new proxy object which will be use for lazy instantiation
      * {@link ru.saidgadjiev.ormnext.core.field.ForeignColumn}.
      *
+     * @param session         target session
      * @param entityClass     target entity class
      * @param key             target entity id
      * @param keyPropertyName target key property name
      * @return new proxy object
      * @throws SQLException any SQL exceptions
      */
-    public Object createProxy(Session session, Class<?> entityClass, String keyPropertyName, Object key) throws SQLException {
+    public Object createProxy(Session session, Class<?> entityClass, String keyPropertyName, Object key)
+            throws SQLException {
         try {
             return proxyMaker
                     .superClass(entityClass)

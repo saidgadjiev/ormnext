@@ -15,16 +15,33 @@ import java.sql.SQLException;
 import static ru.saidgadjiev.ormnext.core.loader.ResultSetContext.EntityProcessingState;
 
 /**
- * Created by said on 23.07.2018.
+ * Read collection values from result set.
+ *
+ * @author Said Gadjiev
  */
 public class ReadCollection implements EntityMetadataVisitor {
 
+    /**
+     * Aliases.
+     */
     private CollectionEntityAliases aliases;
 
+    /**
+     * Result set context.
+     */
     private ResultSetContext resultSetContext;
 
+    /**
+     * Uid.
+     */
     private String uid;
 
+    /**
+     * Create a new instance.
+     *
+     * @param collectionContext target collection context
+     * @param resultSetContext  target result set context
+     */
     ReadCollection(CollectionContext collectionContext, ResultSetContext resultSetContext) {
         this.aliases = collectionContext.getAliases();
         this.resultSetContext = resultSetContext;
@@ -77,6 +94,12 @@ public class ReadCollection implements EntityMetadataVisitor {
 
     }
 
+    /**
+     * Read eager values from result set.
+     *
+     * @param collectionColumnType target collection column type
+     * @throws SQLException any SQL exceptions
+     */
     private void readEagerCollection(ForeignCollectionColumnTypeImpl collectionColumnType) throws SQLException {
         if (resultSetContext.isResultColumn(aliases.getCollectionObjectKeyAlias())) {
             ResultSetValue collectionValue = resultSetContext.getCurrentRow().get(
@@ -102,6 +125,11 @@ public class ReadCollection implements EntityMetadataVisitor {
         }
     }
 
+    /**
+     * Read lazy values from result set.
+     *
+     * @throws SQLException any SQL exceptions
+     */
     private void readLazyCollection() throws SQLException {
         ResultSetValue collectionValue = resultSetContext.getCurrentRow().get(
                 aliases.getCollectionOwnerColumnKeyAlias()

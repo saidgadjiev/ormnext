@@ -263,7 +263,7 @@ public class SessionImpl implements Session, InternalTransaction {
     }
 
     @Override
-    public boolean isClosed() throws SQLException{
+    public boolean isClosed() throws SQLException {
         return connection.isClosed() || sessionManager.isClosed();
     }
 

@@ -3,9 +3,16 @@ package ru.saidgadjiev.ormnext.core.loader.object;
 import ru.saidgadjiev.ormnext.core.dao.Session;
 
 /**
- * Created by said on 25.07.2018.
+ * Lazy interface.
+ *
+ * @author Said Gadjiev
  */
 public interface Lazy {
 
+    /**
+     * Attach session to lazy object.
+     *
+     * @param session target session
+     */
     void attach(Session session);
 }

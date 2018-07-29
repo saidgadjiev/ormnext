@@ -49,13 +49,14 @@ public class OrmNextMethodHandler implements MethodHandler, Lazy {
     private final Object key;
 
     /**
-     * Session manager.
+     * Session.
      */
     private Session session;
 
     /**
      * Create a new instance for lazy initialize entity object.
      *
+     * @param session         target session
      * @param entityClass     target entity class
      * @param keyPropertyName target entity object key property name
      * @param key             target entity object key
@@ -81,6 +82,12 @@ public class OrmNextMethodHandler implements MethodHandler, Lazy {
         }
     }
 
+    /**
+     * Initialize lazy object.
+     *
+     * @param session target session
+     * @throws SQLException any SQL exceptions
+     */
     private void initialize(Session session) throws SQLException {
         if (!initialized) {
             SelectStatement<?> selectStatement = new SelectStatement<>(entityClass);

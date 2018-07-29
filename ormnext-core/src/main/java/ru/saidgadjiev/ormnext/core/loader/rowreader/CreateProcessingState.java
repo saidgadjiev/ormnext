@@ -17,18 +17,38 @@ import java.util.Map;
 import static ru.saidgadjiev.ormnext.core.loader.ResultSetContext.EntityProcessingState;
 
 /**
- * Created by said on 23.07.2018.
+ * Create processing states.
+ *
+ * @author Said Gadjiev
  */
 public class CreateProcessingState implements EntityMetadataVisitor {
 
+    /**
+     * Result set context.
+     */
     private ResultSetContext resultSetContext;
 
+    /**
+     * Uid.
+     */
     private String uid;
 
+    /**
+     * Persister.
+     */
     private DatabaseEntityPersister persister;
 
+    /**
+     * Aliases.
+     */
     private EntityAliases aliases;
 
+    /**
+     * Create a new instance.
+     *
+     * @param entityContext    target entity context
+     * @param resultSetContext target result set context
+     */
     CreateProcessingState(EntityContext entityContext,
                           ResultSetContext resultSetContext) {
         this.resultSetContext = resultSetContext;
@@ -89,6 +109,13 @@ public class CreateProcessingState implements EntityMetadataVisitor {
 
     }
 
+    /**
+     * Create processing state.
+     *
+     * @param idColumnType target id column type
+     * @return true if a new processing state created
+     * @throws SQLException any SQL exceptions
+     */
     private boolean createProcessingState(DatabaseColumnType idColumnType) throws SQLException {
         String idAlias = aliases.getKeyAlias();
 

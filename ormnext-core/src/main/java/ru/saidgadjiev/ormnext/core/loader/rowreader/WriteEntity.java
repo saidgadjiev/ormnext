@@ -16,22 +16,44 @@ import ru.saidgadjiev.ormnext.core.table.internal.visitor.EntityMetadataVisitor;
 import java.sql.SQLException;
 
 /**
- * Created by said on 23.07.2018.
+ * Write results to entity instance.
+ *
+ * @author Said Gadjiev
  */
 public class WriteEntity implements EntityMetadataVisitor {
 
+    /**
+     * Result set context.
+     */
     private ResultSetContext context;
 
+    /**
+     * Processing state.
+     */
     private ResultSetContext.EntityProcessingState processingState;
 
+    /**
+     * Entity aliases.
+     */
     private EntityAliases entityAliases;
 
+    /**
+     * Persister.
+     */
     private DatabaseEntityPersister persister;
 
+    /**
+     * Create a new visitor instance.
+     *
+     * @param context         target context
+     * @param processingState target processing state
+     * @param entityAliases   target entity aliases
+     * @param persister       target persister
+     */
     WriteEntity(ResultSetContext context,
-                       ResultSetContext.EntityProcessingState processingState,
-                       EntityAliases entityAliases,
-                       DatabaseEntityPersister persister) {
+                ResultSetContext.EntityProcessingState processingState,
+                EntityAliases entityAliases,
+                DatabaseEntityPersister persister) {
         this.context = context;
         this.processingState = processingState;
         this.entityAliases = entityAliases;
@@ -60,28 +82,28 @@ public class WriteEntity implements EntityMetadataVisitor {
 
                 foreignColumnType.assign(processingState.getEntityInstance(), proxy);
             } else {
-                    Object value = context.getEntry(
-                            foreignColumnType.getForeignFieldClass(),
-                            resultSetValue.getValue()
+                Object value = context.getEntry(
+                        foreignColumnType.getForeignFieldClass(),
+                        resultSetValue.getValue()
+                );
+
+                if (value == null) {
+                    String propertyName = foreignColumnType.getForeignDatabaseColumnType()
+                            .getField()
+                            .getName();
+
+                    SelectStatement<?> selectStatement = new SelectStatement<>(
+                            foreignColumnType.getForeignFieldClass()
                     );
 
-                    if (value == null) {
-                        String propertyName = foreignColumnType.getForeignDatabaseColumnType()
-                                .getField()
-                                .getName();
+                    selectStatement.where(new Criteria()
+                            .add(Restrictions.eq(propertyName, resultSetValue.getValue()))
+                    );
 
-                        SelectStatement<?> selectStatement = new SelectStatement<>(
-                                foreignColumnType.getForeignFieldClass()
-                        );
+                    value = context.getSession().uniqueResult(selectStatement);
+                }
 
-                        selectStatement.where(new Criteria()
-                                .add(Restrictions.eq(propertyName, resultSetValue.getValue()))
-                        );
-
-                        value = context.getSession().uniqueResult(selectStatement);
-                    }
-
-                    foreignColumnType.assign(processingState.getEntityInstance(), value);
+                foreignColumnType.assign(processingState.getEntityInstance(), value);
             }
         }
 

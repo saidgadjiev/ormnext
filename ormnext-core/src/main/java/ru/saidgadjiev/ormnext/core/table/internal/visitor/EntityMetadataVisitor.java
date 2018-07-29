@@ -19,14 +19,23 @@ public interface EntityMetadataVisitor {
      *
      * @param databaseEntityMetadata target metadata
      * @return true if need visit another visitor elements that contained in requested entity element else false
+     * @throws SQLException any SQL exceptions
      */
-    boolean start(DatabaseEntityMetadata<?> databaseEntityMetadata)  throws SQLException;
+    boolean start(DatabaseEntityMetadata<?> databaseEntityMetadata) throws SQLException;
+
+    /**
+     * Finish visit {@link DatabaseEntityMetadata} element.
+     *
+     * @param entityMetadata target column type
+     */
+    void finish(DatabaseEntityMetadata<?> entityMetadata);
 
     /**
      * Start visit {@link ForeignColumnTypeImpl} element.
      *
      * @param foreignColumnType target column type
      * @return true if need visit finish method
+     * @throws SQLException any SQL exceptions
      */
     boolean start(ForeignColumnTypeImpl foreignColumnType) throws SQLException;
 
@@ -35,6 +44,7 @@ public interface EntityMetadataVisitor {
      *
      * @param foreignCollectionColumnType target column type
      * @return true if need visit finish method
+     * @throws SQLException any SQL exceptions
      */
     boolean start(ForeignCollectionColumnTypeImpl foreignCollectionColumnType) throws SQLException;
 
@@ -52,9 +62,19 @@ public interface EntityMetadataVisitor {
      */
     void finish(ForeignCollectionColumnTypeImpl foreignCollectionColumnType);
 
-    boolean start(SimpleDatabaseColumnTypeImpl databaseColumnType)  throws SQLException;
+    /**
+     * Start visit {@link SimpleDatabaseColumnTypeImpl} element.
+     *
+     * @param databaseColumnType target column type
+     * @return true if need visit finish method
+     * @throws SQLException any SQL exceptions
+     */
+    boolean start(SimpleDatabaseColumnTypeImpl databaseColumnType) throws SQLException;
 
+    /**
+     * Finish visit {@link SimpleDatabaseColumnTypeImpl} element.
+     *
+     * @param databaseColumnType target column type
+     */
     void finish(SimpleDatabaseColumnTypeImpl databaseColumnType);
-
-    void finish(DatabaseEntityMetadata<?> entityMetadata);
 }

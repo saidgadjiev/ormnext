@@ -1,7 +1,6 @@
 package ru.saidgadjiev.ormnext.core.dao;
 
 import ru.saidgadjiev.ormnext.core.cache.Cache;
-import ru.saidgadjiev.ormnext.core.cache.CacheEvict;
 import ru.saidgadjiev.ormnext.core.cache.ObjectCache;
 import ru.saidgadjiev.ormnext.core.connection.DatabaseConnection;
 import ru.saidgadjiev.ormnext.core.connection.source.ConnectionSource;
@@ -18,7 +17,7 @@ import java.util.Map;
  *
  * @author Said Gadjiev
  */
-public class SessionManagerImpl implements CacheSessionManager {
+public class SessionManagerImpl implements SessionManager {
 
     /**
      * Connection source. Use for obtain new database connection.
@@ -49,8 +48,16 @@ public class SessionManagerImpl implements CacheSessionManager {
      */
     private DatabaseEngine<?> databaseEngine;
 
+    /**
+     * Current session context.
+     *
+     * @see CurrentSessionContext
+     */
     private CurrentSessionContext sessionContext;
 
+    /**
+     * Close flag.
+     */
     private boolean closed = false;
 
     /**
@@ -60,6 +67,7 @@ public class SessionManagerImpl implements CacheSessionManager {
      * @param connectionSource  target connection source
      * @param metaModel         target meta model
      * @param databaseEngine    target database engine
+     * @throws SQLException any exceptions
      */
     SessionManagerImpl(ConnectionSource<?> connectionSource,
                        Map<EntityLoader.Loader, EntityLoader> registeredLoaders,
@@ -133,8 +141,8 @@ public class SessionManagerImpl implements CacheSessionManager {
     }
 
     @Override
-    public CacheEvict getCacheEvictApi() {
-        return cache == null ? null : cache.evictApi();
+    public Cache getCache() {
+        return cache;
     }
 
     @Override
@@ -149,14 +157,5 @@ public class SessionManagerImpl implements CacheSessionManager {
         }
         dataSource.close();
         closed = true;
-    }
-
-
-
-    @Override
-    public void putToCache(Object id, Object data) {
-        if (cache != null) {
-            cache.putToCache(id, data);
-        }
     }
 }
