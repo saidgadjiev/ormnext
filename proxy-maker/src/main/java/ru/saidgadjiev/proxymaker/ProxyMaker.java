@@ -252,11 +252,37 @@ public class ProxyMaker {
         addHandlerSetter(classFile);
         overrideMethods(classFile);
 
-        Class<?> proxyClass = ProxyFactoryHelper.toClass(classFile);
+        Class<?> proxyClass = ProxyFactoryHelper.toClass(classFile, getClassLoader());
 
         PROXY_CACHE.put(getKey(), proxyClass);
 
         return createInstance(proxyClass, handler);
+    }
+
+    /**
+     * Get classloader.
+     *
+     * @return new class classloader
+     */
+    private ClassLoader getClassLoader() {
+        ClassLoader loader = null;
+
+        if (superClass != null && !superClass.getName().equals("java.lang.Object")) {
+            loader = superClass.getClassLoader();
+        }
+        if (loader == null) {
+            loader = getClass().getClassLoader();
+
+            if (loader == null) {
+                loader = Thread.currentThread().getContextClassLoader();
+
+                if (loader == null) {
+                    loader = ClassLoader.getSystemClassLoader();
+                }
+            }
+        }
+
+        return loader;
     }
 
     /**

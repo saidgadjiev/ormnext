@@ -159,9 +159,10 @@ public final class ProxyFactoryHelper {
      * Create a new class {@link Class} from requested classFile {@link ClassFile}.
      *
      * @param classFile target class file {@link ClassFile}
+     * @param cl        classloader
      * @return new class {@link Class}
      */
-    public static Class<?> toClass(ClassFile classFile) {
+    public static Class<?> toClass(ClassFile classFile, ClassLoader cl) {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
              DataOutputStream data = new DataOutputStream(outputStream)) {
             classFile.write(data);
@@ -170,7 +171,7 @@ public final class ProxyFactoryHelper {
             setAccessible(defineClass, true);
 
             Class<?> proxyClass = (Class<?>) defineClass.invoke(
-                    ClassLoader.getSystemClassLoader(), classFile.getClassName(), byteArray, 0, byteArray.length
+                    cl, classFile.getClassName(), byteArray, 0, byteArray.length
             );
 
             setAccessible(defineClass, false);
