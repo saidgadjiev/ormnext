@@ -32,9 +32,10 @@ public class SessionImpl implements Session, InternalTransaction {
     private final ConnectionSource<?> connectionSource;
 
     /**
-     * Registered loaders.
+     * Entity loader.
      */
-    private Map<EntityLoader.Loader, EntityLoader> loaders;
+    private EntityLoader entityLoader;
+
     /**
      * Session manager which create this session instance.
      */
@@ -53,46 +54,41 @@ public class SessionImpl implements Session, InternalTransaction {
     private TransactionState transactionState;
 
     /**
-     * Current loader type.
-     */
-    private EntityLoader.Loader loader = EntityLoader.Loader.DEFAULT_LOADER;
-
-    /**
      * Create new session instance.
      *
-     * @param loaders          target loaders
+     * @param entityLoader     target loader
      * @param connectionSource target connection source
      * @param connection       target database connection
      * @param sessionManager   session manager which create this instance
      */
     SessionImpl(ConnectionSource<?> connectionSource,
-                Map<EntityLoader.Loader, EntityLoader> loaders,
+                EntityLoader entityLoader,
                 DatabaseConnection<?> connection,
                 SessionManager sessionManager) {
         this.connectionSource = connectionSource;
-        this.loaders = loaders;
+        this.entityLoader = entityLoader;
         this.sessionManager = sessionManager;
         this.connection = connection;
     }
 
     @Override
     public CreateOrUpdateStatus createOrUpdate(Object object) throws SQLException {
-        return loaders.get(loader).createOrUpdate(this, object);
+        return entityLoader.createOrUpdate(this, object);
     }
 
     @Override
     public int create(Object object) throws SQLException {
-        return loaders.get(loader).create(this, object);
+        return entityLoader.create(this, object);
     }
 
     @Override
     public int create(Object... objects) throws SQLException {
-        return loaders.get(loader).create(this, objects);
+        return entityLoader.create(this, objects);
     }
 
     @Override
     public boolean createTable(Class<?> entityClass, boolean ifNotExist) throws SQLException {
-        return loaders.get(loader).createTable(this, entityClass, ifNotExist);
+        return entityLoader.createTable(this, entityClass, ifNotExist);
     }
 
     @Override
@@ -108,32 +104,32 @@ public class SessionImpl implements Session, InternalTransaction {
 
     @Override
     public <T> T queryForId(Class<T> tClass, Object id) throws SQLException {
-        return (T) loaders.get(loader).queryForId(this, tClass, id);
+        return (T) entityLoader.queryForId(this, tClass, id);
     }
 
     @Override
     public <T> List<T> queryForAll(Class<T> tClass) throws SQLException {
-        return (List<T>) loaders.get(loader).queryForAll(this, tClass);
+        return (List<T>) entityLoader.queryForAll(this, tClass);
     }
 
     @Override
     public int update(Object object) throws SQLException {
-        return loaders.get(loader).update(this, object);
+        return entityLoader.update(this, object);
     }
 
     @Override
     public int delete(Object object) throws SQLException {
-        return loaders.get(loader).delete(this, object);
+        return entityLoader.delete(this, object);
     }
 
     @Override
     public int deleteById(Class<?> tClass, Object id) throws SQLException {
-        return loaders.get(loader).deleteById(this, tClass, id);
+        return entityLoader.deleteById(this, tClass, id);
     }
 
     @Override
     public boolean refresh(Object object) throws SQLException {
-        return loaders.get(loader).refresh(this, object);
+        return entityLoader.refresh(this, object);
     }
 
     @Override
@@ -149,12 +145,12 @@ public class SessionImpl implements Session, InternalTransaction {
 
     @Override
     public boolean dropTable(Class<?> entityClass, boolean ifExist) throws SQLException {
-        return loaders.get(loader).dropTable(this, entityClass, ifExist);
+        return entityLoader.dropTable(this, entityClass, ifExist);
     }
 
     @Override
     public int clearTable(Class<?> entityClass) throws SQLException {
-        return loaders.get(loader).clearTable(this, entityClass);
+        return entityLoader.clearTable(this, entityClass);
     }
 
     @Override
@@ -170,17 +166,17 @@ public class SessionImpl implements Session, InternalTransaction {
 
     @Override
     public void createIndexes(Class<?> tClass) throws SQLException {
-        loaders.get(loader).createIndexes(this, tClass);
+        entityLoader.createIndexes(this, tClass);
     }
 
     @Override
     public void dropIndexes(Class<?> tClass) throws SQLException {
-        loaders.get(loader).dropIndexes(this, tClass);
+        entityLoader.dropIndexes(this, tClass);
     }
 
     @Override
     public long countOff(Class<?> tClass) throws SQLException {
-        return loaders.get(loader).countOff(this, tClass);
+        return entityLoader.countOff(this, tClass);
     }
 
     @Override
@@ -213,17 +209,17 @@ public class SessionImpl implements Session, InternalTransaction {
 
     @Override
     public <T> List<T> list(SelectStatement<T> criteria) throws SQLException {
-        return (List<T>) loaders.get(loader).list(this, criteria);
+        return (List<T>) entityLoader.list(this, criteria);
     }
 
     @Override
     public long queryForLong(SelectStatement<?> selectStatement) throws SQLException {
-        return loaders.get(loader).queryForLong(this, selectStatement);
+        return entityLoader.queryForLong(this, selectStatement);
     }
 
     @Override
     public DatabaseResults query(Query query) throws SQLException {
-        return loaders.get(loader).query(this, query.getQuery());
+        return entityLoader.query(this, query);
     }
 
     @Override
@@ -239,22 +235,22 @@ public class SessionImpl implements Session, InternalTransaction {
 
     @Override
     public boolean exist(Class<?> entityClass, Object id) throws SQLException {
-        return loaders.get(loader).exist(this, entityClass, id);
+        return entityLoader.exist(this, entityClass, id);
     }
 
     @Override
     public int delete(DeleteStatement deleteStatement) throws SQLException {
-        return loaders.get(loader).delete(this, deleteStatement);
+        return entityLoader.delete(this, deleteStatement);
     }
 
     @Override
     public int update(UpdateStatement updateStatement) throws SQLException {
-        return loaders.get(loader).update(this, updateStatement);
+        return entityLoader.update(this, updateStatement);
     }
 
     @Override
     public DatabaseResults query(SelectStatement<?> selectStatement) throws SQLException {
-        return loaders.get(loader).query(this, selectStatement);
+        return entityLoader.query(this, selectStatement);
     }
 
     @Override

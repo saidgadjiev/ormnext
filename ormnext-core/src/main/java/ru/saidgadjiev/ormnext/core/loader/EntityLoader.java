@@ -4,6 +4,7 @@ import ru.saidgadjiev.ormnext.core.connection.DatabaseResults;
 import ru.saidgadjiev.ormnext.core.dao.Dao;
 import ru.saidgadjiev.ormnext.core.dao.Session;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.DeleteStatement;
+import ru.saidgadjiev.ormnext.core.query.criteria.impl.Query;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.SelectStatement;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.UpdateStatement;
 
@@ -175,7 +176,7 @@ public interface EntityLoader {
      * @return database results
      * @throws SQLException any SQL exceptions
      */
-    DatabaseResults query(Session session, String query) throws SQLException;
+    DatabaseResults query(Session session, Query query) throws SQLException;
 
     /**
      * Clear table.

@@ -2,8 +2,6 @@ package ru.saidgadjiev.ormnext.core.dao;
 
 import ru.saidgadjiev.ormnext.core.connection.source.ConnectionSource;
 import ru.saidgadjiev.ormnext.core.dialect.Dialect;
-import ru.saidgadjiev.ormnext.core.loader.DefaultEntityLoader;
-import ru.saidgadjiev.ormnext.core.loader.EntityLoader;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.MetaModel;
 
 import java.sql.SQLException;
@@ -126,32 +124,15 @@ public class SessionManagerBuilder {
 
         SessionManager sessionManager = new SessionManagerImpl(
                 connectionSource,
-                createLoaders(engine, metaModel),
                 metaModel,
-                engine);
+                engine
+        );
 
         try (Session session = sessionManager.createSession()) {
             doTableOperations(entityClasses, session);
         }
 
         return sessionManager;
-    }
-
-
-    /**
-     * Create entity loaders.
-     *
-     * @param databaseEngine target database engine
-     * @param metaModel target meta model
-     * @return entity loaders
-     */
-    private Map<EntityLoader.Loader, EntityLoader> createLoaders(DatabaseEngine<?> databaseEngine,
-                                                                 MetaModel metaModel) {
-        Map<EntityLoader.Loader, EntityLoader> registeredLoaders = new HashMap<>();
-
-        registeredLoaders.put(EntityLoader.Loader.DEFAULT_LOADER, new DefaultEntityLoader(databaseEngine, metaModel));
-
-        return registeredLoaders;
     }
 
     /**

@@ -193,22 +193,6 @@ public interface Cache extends Closeable {
     Optional<Long> queryForLong(SelectStatement<?> selectStatement);
 
     /**
-     * Cache unique result.
-     *
-     * @param selectStatement target statement
-     * @param result          target result
-     */
-    void cacheUniqueResult(SelectStatement<?> selectStatement, Object result);
-
-    /**
-     * Retrieve object from cache by {@link SelectStatement}.
-     *
-     * @param selectStatement target statement
-     * @return unique result if it is present
-     */
-    Optional<Object> uniqueResult(SelectStatement<?> selectStatement);
-
-    /**
      * Retrieve cached query results.
      *
      * @param query target query

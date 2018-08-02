@@ -6,11 +6,11 @@ import ru.saidgadjiev.ormnext.core.connection.DatabaseConnection;
 import ru.saidgadjiev.ormnext.core.connection.source.ConnectionSource;
 import ru.saidgadjiev.ormnext.core.dao.context.CurrentSessionContext;
 import ru.saidgadjiev.ormnext.core.dao.context.ThreadLocalCurrentSessionContext;
-import ru.saidgadjiev.ormnext.core.loader.EntityLoader;
+import ru.saidgadjiev.ormnext.core.loader.CacheEntityLoader;
+import ru.saidgadjiev.ormnext.core.loader.DefaultEntityLoader;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.MetaModel;
 
 import java.sql.SQLException;
-import java.util.Map;
 
 /**
  * Implementation of {@link SessionManager}.
@@ -23,11 +23,6 @@ public class SessionManagerImpl implements SessionManager {
      * Connection source. Use for obtain new database connection.
      */
     private final ConnectionSource<?> dataSource;
-
-    /**
-     * Registered loaders.
-     */
-    private final Map<EntityLoader.Loader, EntityLoader> registeredLoaders;
 
     /**
      * Cache part.
@@ -63,20 +58,17 @@ public class SessionManagerImpl implements SessionManager {
     /**
      * Create new instance from requested options. It can be create only from {@link SessionManagerBuilder}.
      *
-     * @param registeredLoaders target registered loaders
      * @param connectionSource  target connection source
      * @param metaModel         target meta model
      * @param databaseEngine    target database engine
      * @throws SQLException any exceptions
      */
     SessionManagerImpl(ConnectionSource<?> connectionSource,
-                       Map<EntityLoader.Loader, EntityLoader> registeredLoaders,
                        MetaModel metaModel,
                        DatabaseEngine<?> databaseEngine) throws SQLException {
         this.dataSource = connectionSource;
         this.metaModel = metaModel;
         this.databaseEngine = databaseEngine;
-        this.registeredLoaders = registeredLoaders;
 
         sessionContext = new ThreadLocalCurrentSessionContext(this);
 
@@ -88,12 +80,19 @@ public class SessionManagerImpl implements SessionManager {
         DatabaseConnection<?> databaseConnection = dataSource.getConnection();
 
         if (cache != null) {
-            return new CacheSession(
-                    cache,
-                    new SessionImpl(dataSource, registeredLoaders, databaseConnection, this)
+            return new SessionImpl(
+                    dataSource,
+                    new CacheEntityLoader(cache, new DefaultEntityLoader(databaseEngine, metaModel)),
+                    databaseConnection,
+                    this
             );
         } else {
-            return new SessionImpl(dataSource, registeredLoaders, databaseConnection, this);
+            return new SessionImpl(
+                    dataSource,
+                    new DefaultEntityLoader(databaseEngine, metaModel),
+                    databaseConnection,
+                    this
+            );
         }
     }
 

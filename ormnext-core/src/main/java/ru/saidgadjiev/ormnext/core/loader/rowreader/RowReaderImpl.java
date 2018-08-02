@@ -130,7 +130,7 @@ public class RowReaderImpl implements RowReader {
                             collectionContext.getCollectionLoader()
                     );
 
-                    collectionContext.getMetadata().accept(writeCollection);
+                    collectionContext.getColumnType().accept(writeCollection);
                 }
             }
         }

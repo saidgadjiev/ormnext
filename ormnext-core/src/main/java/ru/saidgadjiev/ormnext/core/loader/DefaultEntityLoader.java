@@ -402,8 +402,14 @@ public class DefaultEntityLoader implements EntityLoader {
     }
 
     @Override
-    public DatabaseResults query(Session session, String query) throws SQLException {
-        return new UserDatabaseResultsImpl(null, databaseEngine.query(session.getConnection(), query));
+    public DatabaseResults query(Session session, Query query) throws SQLException {
+        return new UserDatabaseResultsImpl(
+                null,
+                databaseEngine.query(
+                        session.getConnection(),
+                        query.getQuery()
+                )
+        );
     }
 
     @Override
