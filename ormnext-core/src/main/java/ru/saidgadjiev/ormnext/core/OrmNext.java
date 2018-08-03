@@ -26,4 +26,19 @@ public final class OrmNext {
             ((Lazy) lazy).attach(session);
         }
     }
+
+    /**
+     * Return true if lzy initialized.
+     *
+     * @param lazy target lazy object
+     * @return true if lazy initialized
+     * @see Lazy
+     */
+    public static boolean isInitialized(Object lazy) {
+        if (lazy instanceof Lazy) {
+            return ((Lazy) lazy).isInitialized();
+        }
+
+        throw new IllegalArgumentException("Non lazy instance");
+    }
 }

@@ -272,6 +272,16 @@ public abstract class AbstractLazyCollection<T> implements Collection<T>, Lazy {
     }
 
     @Override
+    public boolean isInitialized() {
+        return initialized;
+    }
+
+    @Override
+    public void setNonInitialized() {
+        initialized = false;
+    }
+
+    @Override
     public String toString() {
         read();
 

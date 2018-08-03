@@ -4,15 +4,21 @@ import ru.saidgadjiev.ormnext.core.cache.Cache;
 import ru.saidgadjiev.ormnext.core.connection.DatabaseResults;
 import ru.saidgadjiev.ormnext.core.dao.Dao;
 import ru.saidgadjiev.ormnext.core.dao.Session;
+import ru.saidgadjiev.ormnext.core.field.FetchType;
+import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignColumnType;
+import ru.saidgadjiev.ormnext.core.loader.object.Lazy;
 import ru.saidgadjiev.ormnext.core.logger.Log;
 import ru.saidgadjiev.ormnext.core.logger.LoggerFactory;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.DeleteStatement;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.Query;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.SelectStatement;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.UpdateStatement;
+import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetadata;
+import ru.saidgadjiev.ormnext.core.table.internal.metamodel.MetaModel;
 
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,6 +40,11 @@ public class CacheEntityLoader implements EntityLoader {
     private final Cache cache;
 
     /**
+     * Meta model.
+     */
+    private MetaModel metaModel;
+
+    /**
      * Decorated entityLoader.
      */
     private final EntityLoader entityLoader;
@@ -41,11 +52,13 @@ public class CacheEntityLoader implements EntityLoader {
     /**
      * Create a new instance.
      *
-     * @param cache   target cache
+     * @param cache        target cache
+     * @param metaModel    meta model
      * @param entityLoader target decorated entityLoader.
      */
-    public CacheEntityLoader(Cache cache, EntityLoader entityLoader) {
+    public CacheEntityLoader(Cache cache, MetaModel metaModel, EntityLoader entityLoader) {
         this.cache = cache;
+        this.metaModel = metaModel;
         this.entityLoader = entityLoader;
     }
 
@@ -96,6 +109,8 @@ public class CacheEntityLoader implements EntityLoader {
         Optional<Object> resultOptional = cache.queryForId(tClass, id);
 
         if (resultOptional.isPresent()) {
+            setLazyNonInitialized(resultOptional.get());
+
             LOG.debug("Cache:queryForId(%s)", resultOptional.get());
 
             return resultOptional.get();
@@ -113,6 +128,7 @@ public class CacheEntityLoader implements EntityLoader {
         Optional<List<Object>> resultsOptional = cache.queryForAll(tClass);
 
         if (resultsOptional.isPresent()) {
+            setLazyNonInitialized(resultsOptional.get());
             LOG.debug("Cache:queryForAll(%s)", resultsOptional.get());
 
             return resultsOptional.get();
@@ -193,6 +209,7 @@ public class CacheEntityLoader implements EntityLoader {
         Optional<List<Object>> objects = cache.list(selectStatement);
 
         if (objects.isPresent()) {
+            setLazyNonInitialized(objects.get());
             LOG.debug("Cache:list(%s)", objects.get());
 
             return objects.get();
@@ -275,5 +292,38 @@ public class CacheEntityLoader implements EntityLoader {
     @Override
     public DatabaseResults query(Session session, SelectStatement selectStatement) throws SQLException {
         return entityLoader.query(session, selectStatement);
+    }
+
+    /**
+     * Set lazy non initialized for object.
+     *
+     * @param data target object
+     */
+    private void setLazyNonInitialized(Object data) {
+        DatabaseEntityMetadata<?> metadata = metaModel.getPersister(data.getClass()).getMetadata();
+
+        for (ForeignColumnType columnType : metadata.toForeignColumnTypes()) {
+            if (columnType.getFetchType().equals(FetchType.LAZY)) {
+                Object lazy = columnType.access(data);
+
+                ((Lazy) lazy).setNonInitialized();
+            }
+        }
+        for (ForeignColumnType columnType : metadata.toForeignCollectionColumnTypes()) {
+            if (columnType.getFetchType().equals(FetchType.LAZY)) {
+                Object lazy = columnType.access(data);
+
+                ((Lazy) lazy).setNonInitialized();
+            }
+        }
+    }
+
+    /**
+     * Set lazy non initialized for objects.
+     *
+     * @param data target objects
+     */
+    private void setLazyNonInitialized(Collection<Object> data) {
+        data.forEach(this::setLazyNonInitialized);
     }
 }

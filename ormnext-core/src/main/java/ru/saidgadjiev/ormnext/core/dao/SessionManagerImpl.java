@@ -82,7 +82,7 @@ public class SessionManagerImpl implements SessionManager {
         if (cache != null) {
             return new SessionImpl(
                     dataSource,
-                    new CacheEntityLoader(cache, new DefaultEntityLoader(databaseEngine, metaModel)),
+                    new CacheEntityLoader(cache, metaModel, new DefaultEntityLoader(databaseEngine, metaModel)),
                     databaseConnection,
                     this
             );

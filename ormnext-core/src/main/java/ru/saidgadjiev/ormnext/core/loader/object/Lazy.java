@@ -15,4 +15,16 @@ public interface Lazy {
      * @param session target session
      */
     void attach(Session session);
+
+    /**
+     * Return true if lazy initialized.
+     *
+     * @return true if lazy initialized
+     */
+    boolean isInitialized();
+
+    /**
+     * Set initialized false for lazy.
+     */
+    void setNonInitialized();
 }

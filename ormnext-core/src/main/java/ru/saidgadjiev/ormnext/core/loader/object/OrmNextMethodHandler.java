@@ -104,4 +104,14 @@ public class OrmNextMethodHandler implements MethodHandler, Lazy {
     public void attach(Session session) {
         this.session = session;
     }
+
+    @Override
+    public boolean isInitialized() {
+        return initialized;
+    }
+
+    @Override
+    public void setNonInitialized() {
+        initialized = false;
+    }
 }
