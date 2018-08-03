@@ -32,18 +32,6 @@ public interface CacheEvict {
     void evictQueryForLong();
 
     /**
-     * Evict unique results by entity type.
-     *
-     * @param entityType target entity type
-     */
-    void evictUniqueResult(Class<?> entityType);
-
-    /**
-     * Evict all unique results.
-     */
-    void evictUniqueResult();
-
-    /**
      * Evict countOff by entity type.
      *
      * @param entityType target entity type
