@@ -29,6 +29,13 @@ public interface ForeignColumnType extends DatabaseColumnType {
     FetchType getFetchType();
 
     /**
+     * Foreign field class.
+     *
+     * @return foreign field class
+     */
+    Class<?> getForeignFieldClass();
+
+    /**
      * Return foreign table name.
      *
      * @return foreign table name

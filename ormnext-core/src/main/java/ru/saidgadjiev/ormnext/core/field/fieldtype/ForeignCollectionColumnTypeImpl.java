@@ -148,6 +148,45 @@ public class ForeignCollectionColumnTypeImpl extends BaseDatabaseColumnType impl
     }
 
     /**
+     * Add all values to collection in requested object.
+     *
+     * @param object target object
+     * @param values  target values
+     */
+    public void addAll(Object object, Collection<Object> values) {
+        try {
+            if (!field.isAccessible()) {
+                field.setAccessible(true);
+                ((Collection<Object>) field.get(object)).addAll(values);
+                field.setAccessible(false);
+            } else {
+                ((Collection<Object>) field.get(object)).addAll(values);
+            }
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    /**
+     * Clear object collection.
+     *
+     * @param object target object
+     */
+    public void clear(Object object) {
+        try {
+            if (!field.isAccessible()) {
+                field.setAccessible(true);
+                ((Collection<Object>) field.get(object)).clear();
+                field.setAccessible(false);
+            } else {
+                ((Collection<Object>) field.get(object)).clear();
+            }
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    /**
      * Return collection object class.
      *
      * @return collection object class
@@ -159,6 +198,11 @@ public class ForeignCollectionColumnTypeImpl extends BaseDatabaseColumnType impl
     @Override
     public FetchType getFetchType() {
         return fetchType;
+    }
+
+    @Override
+    public Class<?> getForeignFieldClass() {
+        return collectionObjectClass;
     }
 
     /**

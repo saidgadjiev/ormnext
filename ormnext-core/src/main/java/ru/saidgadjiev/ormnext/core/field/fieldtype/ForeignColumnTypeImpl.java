@@ -107,6 +107,7 @@ public class ForeignColumnTypeImpl extends BaseDatabaseColumnType implements For
      *
      * @return foreign field class
      */
+    @Override
     public Class<?> getForeignFieldClass() {
         return foreignFieldClass;
     }

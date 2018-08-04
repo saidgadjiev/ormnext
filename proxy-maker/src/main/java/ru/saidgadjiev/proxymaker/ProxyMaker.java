@@ -46,6 +46,16 @@ public class ProxyMaker {
     private static final String HANDLER_SETTER_METHOD_TYPE = "(" + HANDLER_TYPE + ")V";
 
     /**
+     * Handler getter method name {@link Proxy#getHandler()}.
+     */
+    private static final String HANDLER_GETTER_METHOD_NAME = "getHandler";
+
+    /**
+     * Handler getter method type.
+     */
+    private static final String HANDLER_GETTER_METHOD_TYPE = "()" + HANDLER_TYPE;
+
+    /**
      * Proxied methods list holder field name.
      */
     private static final String HOLDER_FIELD_NAME = "methods";
@@ -77,6 +87,11 @@ public class ProxyMaker {
      * Super class.
      */
     private Class<?> superClass;
+
+    /**
+     * Interfaces.
+     */
+    private Class[] interfaces;
 
     /**
      * Fully qualified super class name.
@@ -126,7 +141,7 @@ public class ProxyMaker {
      * Provide dynamic proxy super class. If not provided it will be {@code OBJECT_CLASS}
      *
      * @param superClass target super class
-     * @return current instance.
+     * @return current instance
      */
     public ProxyMaker superClass(Class<?> superClass) {
         this.superClass = superClass;
@@ -140,6 +155,9 @@ public class ProxyMaker {
      * Class name make with concatenate {@code superClassName} and {@code uidGenerator} nextUID.
      */
     private void resolveSuperClassAndClassName() {
+        if (interfaces == null) {
+            interfaces = new Class[0];
+        }
         if (superClass == null) {
             superClass = OBJECT_CLASS;
             superClassName = OBJECT_CLASS.getName();
@@ -158,12 +176,29 @@ public class ProxyMaker {
      * Ignore methods @{code OVERRIDE_IGNORE_METHODS}
      */
     private void resolveMethods() {
+        this.methods = getMethods(superClass, interfaces);
+    }
+
+    /**
+     * Resolve override methods.
+     *
+     * @param superClass target super class
+     * @param interfaces target interfaces
+     * @return resolved methods
+     */
+    private List<Method> getMethods(Class<?> superClass,
+                                    Class<?>[] interfaces) {
+
         Map<String, Method> methods = new LinkedHashMap<>();
         Set<Class<?>> visitedClasses = new HashSet<>();
 
+        for (Class<?> targetClass : interfaces) {
+            getMethods(methods, targetClass, visitedClasses);
+        }
+
         getMethods(methods, superClass, visitedClasses);
 
-        this.methods = new ArrayList<>(methods.values());
+        return new ArrayList<>(methods.values());
     }
 
     /**
@@ -174,7 +209,9 @@ public class ProxyMaker {
      * @param visitedClasses visited classes. This both speeds up scanning by avoiding duplicate interfaces and
      *                       is needed to ensure that superinterfaces are always scanned before subinterfaces.
      */
-    private void getMethods(Map<String, Method> methods, Class<?> targetClass, Set<Class<?>> visitedClasses) {
+    private void getMethods(Map<String, Method> methods,
+                            Class<?> targetClass,
+                            Set<Class<?>> visitedClasses) {
         if (!visitedClasses.add(targetClass)) {
             return;
         }
@@ -234,22 +271,24 @@ public class ProxyMaker {
             IllegalAccessException,
             NoSuchMethodException,
             InstantiationException {
+        resolveSuperClassAndClassName();
+
         String key = getKey();
 
         if (PROXY_CACHE.containsKey(key)) {
             return createInstance(PROXY_CACHE.get(key), handler);
         }
 
-        resolveSuperClassAndClassName();
         resolveMethods();
         ClassFile classFile = new ClassFile(className, superClassName);
 
+        setInterfaces(classFile, interfaces, Proxy.class);
         classFile.setAccessFlags(AccessFlag.PUBLIC);
         addDefaultConstructor(classFile);
-        classFile.setInterfaces(Collections.singleton(Proxy.class.getName()));
         addDefaultClassFields(classFile);
         addClassInitializer(classFile);
         addHandlerSetter(classFile);
+        addHandlerGetter(classFile);
         overrideMethods(classFile);
 
         Class<?> proxyClass = ProxyFactoryHelper.toClass(classFile, getClassLoader());
@@ -315,7 +354,18 @@ public class ProxyMaker {
      * @return this dynamic proxy class cached ky
      */
     private String getKey() {
-        return superClass.getName();
+        StringBuilder builder = new StringBuilder();
+
+        builder.append(superClass.getName());
+
+        if (interfaces != null) {
+            builder.append(":");
+            for (Class<?> interfaceClass : interfaces) {
+                builder.append(interfaceClass.getName());
+            }
+        }
+
+        return builder.toString();
     }
 
     /**
@@ -357,6 +407,29 @@ public class ProxyMaker {
         codeAttribute.addPutField(className, HANDLER_FIELD_NAME, HANDLER_TYPE);
         codeAttribute.addOpcode(CodeAttribute.Opcode.RETURN);
         methodInfo.setCodeAttribute(codeAttribute);
+        classFile.addMethodInfo(methodInfo);
+    }
+
+    /**
+     * Add invocation handler getter method {@link Proxy#getHandler()}.
+     *
+     * @param classFile target class file
+     */
+    private void addHandlerGetter(ClassFile classFile) {
+        MethodInfo methodInfo = new MethodInfo(
+                classFile.getConstantPool(),
+                HANDLER_GETTER_METHOD_NAME, HANDLER_GETTER_METHOD_TYPE
+        );
+
+        methodInfo.setAccessFlags(AccessFlag.PUBLIC);
+        CodeAttribute code = new CodeAttribute(classFile.getConstantPool(), 1, 1);
+
+        code.addAload(0);
+        code.addGetField(className, HANDLER_FIELD_NAME, HANDLER_TYPE);
+
+        code.addOpcode(CodeAttribute.Opcode.ARETURN);
+        methodInfo.setCodeAttribute(code);
+
         classFile.addMethodInfo(methodInfo);
     }
 
@@ -604,6 +677,24 @@ public class ProxyMaker {
         } else {
             code.addOpcode(CodeAttribute.Opcode.ARETURN);
         }
+    }
+
+    /**
+     * Set interfaces.
+     *
+     * @param cf         target class file
+     * @param interfaces target interfaces
+     * @param proxyClass target proxy interface
+     */
+    private static void setInterfaces(ClassFile cf, Class[] interfaces, Class proxyClass) {
+        Collection<String> interfaceNames = new ArrayList<>();
+
+        for (Class<?> interfaceClass : interfaces) {
+            interfaceNames.add(interfaceClass.getName());
+        }
+        interfaceNames.add(proxyClass.getName());
+
+        cf.setInterfaces(interfaceNames);
     }
 
     /**

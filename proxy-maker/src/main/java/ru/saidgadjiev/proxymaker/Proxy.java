@@ -5,10 +5,17 @@ package ru.saidgadjiev.proxymaker;
  */
 public interface Proxy {
 
-
     /**
      * Provide proxy method handler {@link MethodHandler}.
+     *
      * @param handler target method handler
      */
     void setHandler(MethodHandler handler);
+
+    /**
+     * Return method handler.
+     *
+     * @return method handler
+     */
+    MethodHandler getHandler();
 }

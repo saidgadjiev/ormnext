@@ -277,8 +277,9 @@ public abstract class AbstractLazyCollection<T> implements Collection<T>, Lazy {
     }
 
     @Override
-    public void setNonInitialized() {
+    public synchronized void setNonInitialized() {
         initialized = false;
+        collection.clear();
     }
 
     @Override
