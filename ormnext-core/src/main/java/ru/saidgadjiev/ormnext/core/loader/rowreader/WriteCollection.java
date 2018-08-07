@@ -12,9 +12,7 @@ import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetada
 import ru.saidgadjiev.ormnext.core.table.internal.visitor.EntityMetadataVisitor;
 
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static ru.saidgadjiev.ormnext.core.loader.ResultSetContext.EntityProcessingState;
 
@@ -112,15 +110,20 @@ public class WriteCollection implements EntityMetadataVisitor {
         Optional<Set<Object>> collectionObjectIdsOptional = processingState.getCollectionObjectIds(
                 collectionColumnType.getCollectionObjectClass()
         );
-
         if (collectionObjectIdsOptional.isPresent()) {
+            List<Object> collectionObjects = new ArrayList<>();
+
             for (Object collectionObjectId : collectionObjectIdsOptional.get()) {
                 Object object = resultSetContext.getEntry(
                         collectionColumnType.getCollectionObjectClass(),
                         collectionObjectId
                 );
 
-                collectionColumnType.add(instance, object);
+                collectionObjects.add(object);
+            }
+            if (!collectionObjects.isEmpty()) {
+                collectionColumnType.addAll(instance, collectionObjects);
+                resultSetContext.putCollectionToCache(collectionLoader.getLoadCollectionQuery(), collectionObjects);
             }
         }
     }

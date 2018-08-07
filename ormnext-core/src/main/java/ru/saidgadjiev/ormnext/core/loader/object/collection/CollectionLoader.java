@@ -82,4 +82,13 @@ public class CollectionLoader {
     public ForeignCollectionColumnTypeImpl getForeignCollectionColumnType() {
         return foreignCollectionColumnType;
     }
+
+    /**
+     * Return collection load query.
+     *
+     * @return collection load query
+     */
+    public SelectStatement<?> getLoadCollectionQuery() {
+        return loadCollectionQuery;
+    }
 }
