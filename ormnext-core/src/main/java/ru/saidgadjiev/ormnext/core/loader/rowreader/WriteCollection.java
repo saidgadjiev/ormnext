@@ -8,6 +8,7 @@ import ru.saidgadjiev.ormnext.core.loader.ResultSetContext;
 import ru.saidgadjiev.ormnext.core.loader.object.collection.CollectionLoader;
 import ru.saidgadjiev.ormnext.core.loader.object.collection.LazyList;
 import ru.saidgadjiev.ormnext.core.loader.object.collection.LazySet;
+import ru.saidgadjiev.ormnext.core.query.criteria.impl.SelectStatement;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetadata;
 import ru.saidgadjiev.ormnext.core.table.internal.visitor.EntityMetadataVisitor;
 
@@ -123,7 +124,10 @@ public class WriteCollection implements EntityMetadataVisitor {
             }
             if (!collectionObjects.isEmpty()) {
                 collectionColumnType.addAll(instance, collectionObjects);
-                resultSetContext.putCollectionToCache(collectionLoader.getLoadCollectionQuery(), collectionObjects);
+                SelectStatement<?> loadCollectionStatement = collectionLoader.getLoadCollectionQuery();
+
+                loadCollectionStatement.setObject(1, processingState.getKey());
+                resultSetContext.putCollectionToCache(loadCollectionStatement, collectionObjects);
             }
         }
     }

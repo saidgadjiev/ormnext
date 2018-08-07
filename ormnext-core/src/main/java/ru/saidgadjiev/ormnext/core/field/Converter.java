@@ -28,9 +28,18 @@ public @interface Converter {
      */
     String[] args() default {};
 
+    /**
+     * Converter list.
+     */
     @Target(ElementType.FIELD)
     @Retention(RetentionPolicy.RUNTIME)
     @interface Converters {
+
+        /**
+         * Converters.
+         *
+         * @return converters
+         */
         Converter[] value();
     }
 }

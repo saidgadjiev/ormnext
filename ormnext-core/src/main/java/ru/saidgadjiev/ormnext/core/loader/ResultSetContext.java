@@ -186,6 +186,12 @@ public class ResultSetContext {
         }
     }
 
+    /**
+     * Put collection to cache.
+     *
+     * @param selectStatement target collection load statement
+     * @param objects collection objects
+     */
     public void putCollectionToCache(SelectStatement<?> selectStatement, List<Object> objects) {
         Cache cache = session.getSessionManager().getCache();
 
