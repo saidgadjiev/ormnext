@@ -1,4 +1,4 @@
-package ru.saidgadjiev.ormnext.core.loader.rowreader;
+package ru.saidgadjiev.ormnext.core.loader.rowreader.resultset;
 
 /**
  * Read database row result.

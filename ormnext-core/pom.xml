@@ -45,5 +45,18 @@
             <artifactId>proxy-maker</artifactId>
             <version>1.14-SNAPSHOT</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>4.3.11.Final</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ru.saidgadjiev.ormnext</groupId>
+            <artifactId>ormnext-cache</artifactId>
+            <version>1.3-SNAPSHOT</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>

@@ -4,24 +4,21 @@ import ru.saidgadjiev.ormnext.core.cache.Cache;
 import ru.saidgadjiev.ormnext.core.connection.DatabaseResults;
 import ru.saidgadjiev.ormnext.core.dao.Dao;
 import ru.saidgadjiev.ormnext.core.dao.Session;
-import ru.saidgadjiev.ormnext.core.field.FetchType;
-import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignCollectionColumnTypeImpl;
-import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignColumnType;
-import ru.saidgadjiev.ormnext.core.loader.object.Lazy;
+import ru.saidgadjiev.ormnext.core.loader.rowreader.cache.CacheObjectContext;
+import ru.saidgadjiev.ormnext.core.loader.rowreader.cache.CacheObjectInitializer;
 import ru.saidgadjiev.ormnext.core.logger.Log;
 import ru.saidgadjiev.ormnext.core.logger.LoggerFactory;
-import ru.saidgadjiev.ormnext.core.query.criteria.impl.*;
-import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetadata;
+import ru.saidgadjiev.ormnext.core.query.criteria.impl.DeleteStatement;
+import ru.saidgadjiev.ormnext.core.query.criteria.impl.Query;
+import ru.saidgadjiev.ormnext.core.query.criteria.impl.SelectStatement;
+import ru.saidgadjiev.ormnext.core.query.criteria.impl.UpdateStatement;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.MetaModel;
-import ru.saidgadjiev.proxymaker.Proxy;
 
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-
-import static ru.saidgadjiev.ormnext.core.query.criteria.impl.Restrictions.eq;
 
 /**
  * Cache entityLoader.
@@ -296,93 +293,14 @@ public class CacheEntityLoader implements EntityLoader {
     }
 
     /**
-     * Set lazy non initialized for object.
-     *
-     * @param data    target object
-     * @param session target session
-     */
-    private void setLazyNonInitialized(Session session, Object data) {
-        DatabaseEntityMetadata<?> metadata = metaModel.getPersister(data.getClass()).getMetadata();
-
-        for (ForeignColumnType columnType : metadata.toForeignColumnTypes()) {
-            if (columnType.getFetchType().equals(FetchType.LAZY)) {
-                Proxy proxy = (Proxy) columnType.access(data);
-                Lazy lazy = (Lazy) proxy.getHandler();
-
-                lazy.setNonInitialized();
-                lazy.attach(session);
-            }
-        }
-        for (ForeignColumnType columnType : metadata.toForeignCollectionColumnTypes()) {
-            if (columnType.getFetchType().equals(FetchType.LAZY)) {
-                Object lazy = columnType.access(data);
-
-                ((Lazy) lazy).setNonInitialized();
-                ((Lazy) lazy).attach(session);
-            }
-        }
-    }
-
-    /**
-     * Load foreign objects in cached object.
-     *
-     * @param session target session
-     * @param object target cached object
-     * @throws SQLException any SQL exceptions
-     */
-    private void loadForeigns(Session session, Object object) throws SQLException {
-        DatabaseEntityMetadata<?> metadata = metaModel.getPersister(object.getClass()).getMetadata();
-
-        for (ForeignColumnType foreignColumnType: metadata.toForeignColumnTypes()) {
-            if (foreignColumnType.getFetchType().equals(FetchType.EAGER)) {
-                Class<?> foreignObjectClass = foreignColumnType.getForeignFieldClass();
-                DatabaseEntityMetadata<?> foreignMetadata = metaModel.getPersister(foreignObjectClass).getMetadata();
-                Object cachedForeign = foreignColumnType.access(object);
-                Object cachedForeignKey = foreignMetadata.getPrimaryKeyColumnType().access(cachedForeign);
-
-                Object foreignResult = session.queryForId(foreignObjectClass, cachedForeignKey);
-
-                foreignColumnType.assign(object, foreignResult);
-            }
-        }
-    }
-
-    /**
-     * Load foreign collections in cached object.
-     *
-     * @param session target session
-     * @param object target cached object
-     * @throws SQLException any SQL exceptions
-     */
-    private void loadForeignEagerCollections(Session session, Object object) throws SQLException {
-        DatabaseEntityMetadata<?> metadata = metaModel.getPersister(object.getClass()).getMetadata();
-        Object key = metadata.getPrimaryKeyColumnType().access(object);
-
-        for (ForeignCollectionColumnTypeImpl foreignColumnType: metadata.toForeignCollectionColumnTypes()) {
-            if (foreignColumnType.getFetchType().equals(FetchType.EAGER)) {
-                SelectStatement selectStatement = new SelectStatement<>(foreignColumnType.getCollectionObjectClass())
-                                .where(new Criteria()
-                                        .add(eq(foreignColumnType.getForeignField().getName(), key)));
-
-                foreignColumnType.clear(object);
-                foreignColumnType.addAll(object, session.list(selectStatement));
-            }
-        }
-    }
-
-    /**
      * Initialize cached object.
      *
      * @param session target session
-     * @param object target cached object
+     * @param object  target cached object
      * @throws SQLException any SQL exceptions
      */
     private void loadFromCache(Session session, Object object) throws SQLException {
-        synchronized (object) {
-            setLazyNonInitialized(session, object);
-            loadForeigns(session, object);
-            loadForeignEagerCollections(session, object);
-        }
+        new CacheObjectInitializer().initialize(new CacheObjectContext(session, cache, metaModel), object);
     }
 
     /**
@@ -393,12 +311,8 @@ public class CacheEntityLoader implements EntityLoader {
      * @throws SQLException any SQL exceptions
      */
     private void loadFromCache(Session session, Collection<Object> objects) throws SQLException {
-        synchronized (objects) {
-            for (Object object : objects) {
-                setLazyNonInitialized(session, object);
-                loadForeigns(session, object);
-                loadForeignEagerCollections(session, object);
-            }
+        for (Object object : objects) {
+            new CacheObjectInitializer().initialize(new CacheObjectContext(session, cache, metaModel), object);
         }
     }
 }

@@ -12,7 +12,7 @@ import ru.saidgadjiev.ormnext.core.field.datapersister.DataPersister;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.DatabaseColumnType;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignCollectionColumnTypeImpl;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignColumnTypeImpl;
-import ru.saidgadjiev.ormnext.core.loader.rowreader.RowResult;
+import ru.saidgadjiev.ormnext.core.loader.rowreader.resultset.RowResult;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.*;
 import ru.saidgadjiev.ormnext.core.query.space.EntityQuerySpace;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.*;

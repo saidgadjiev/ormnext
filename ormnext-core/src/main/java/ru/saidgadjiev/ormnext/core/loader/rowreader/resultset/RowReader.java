@@ -1,4 +1,4 @@
-package ru.saidgadjiev.ormnext.core.loader.rowreader;
+package ru.saidgadjiev.ormnext.core.loader.rowreader.resultset;
 
 import ru.saidgadjiev.ormnext.core.loader.ResultSetContext;
 

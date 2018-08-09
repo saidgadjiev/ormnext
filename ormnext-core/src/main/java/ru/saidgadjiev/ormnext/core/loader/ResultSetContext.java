@@ -3,8 +3,8 @@ package ru.saidgadjiev.ormnext.core.loader;
 import ru.saidgadjiev.ormnext.core.cache.Cache;
 import ru.saidgadjiev.ormnext.core.connection.DatabaseResults;
 import ru.saidgadjiev.ormnext.core.dao.Session;
-import ru.saidgadjiev.ormnext.core.loader.rowreader.ResultSetRow;
-import ru.saidgadjiev.ormnext.core.loader.rowreader.ResultSetValue;
+import ru.saidgadjiev.ormnext.core.loader.rowreader.resultset.ResultSetRow;
+import ru.saidgadjiev.ormnext.core.loader.rowreader.resultset.ResultSetValue;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.SelectStatement;
 
 import java.sql.SQLException;

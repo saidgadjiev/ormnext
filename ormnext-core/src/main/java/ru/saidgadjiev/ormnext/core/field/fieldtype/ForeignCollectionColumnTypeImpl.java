@@ -83,8 +83,8 @@ public class ForeignCollectionColumnTypeImpl extends BaseDatabaseColumnType impl
     private ForeignColumnTypeImpl foreignColumnType;
 
     @Override
-    public Object access(Object object) {
-        return fieldAccessor.access(object);
+    public Collection<Object> access(Object object) {
+        return (Collection<Object>) fieldAccessor.access(object);
     }
 
     @Override
