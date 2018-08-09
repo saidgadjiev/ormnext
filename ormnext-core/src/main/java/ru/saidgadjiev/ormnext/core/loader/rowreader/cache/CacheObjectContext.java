@@ -61,6 +61,7 @@ public class CacheObjectContext {
     /**
      * Return meta data.
      *
+     * @param entityType target entity type
      * @return metadata
      */
     public DatabaseEntityMetadata<?> getMetadata(Class<?> entityType) {
