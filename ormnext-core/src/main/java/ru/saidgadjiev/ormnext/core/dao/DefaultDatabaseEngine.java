@@ -142,23 +142,6 @@ public class DefaultDatabaseEngine implements DatabaseEngine<Connection> {
         }
     }
 
-    @Override
-    public int[] executeBatch(DatabaseConnection<?> databaseConnection,
-                              List<SqlStatement> sqlStatements) throws SQLException {
-        Connection connection = (Connection) databaseConnection.getConnection();
-
-        try (Statement statement = connection.createStatement()) {
-            for (SqlStatement sqlStatement : sqlStatements) {
-                String query = getQuery(sqlStatement);
-
-                traceSql(query, null);
-                statement.addBatch(query);
-            }
-
-            return statement.executeBatch();
-        }
-    }
-
     /**
      * Read value by sql type. Use for read generated key.
      *
@@ -302,6 +285,15 @@ public class DefaultDatabaseEngine implements DatabaseEngine<Connection> {
         return getQuery(sqlStatement);
     }
 
+    @Override
+    public int executeUpdate(DatabaseConnection<Connection> databaseConnection, String query) throws SQLException {
+        Connection connection = databaseConnection.getConnection();
+
+        try (Statement statement = connection.createStatement()) {
+            return statement.executeUpdate(query);
+        }
+    }
+
     /**
      * Set args to requested prepared statement.
      *
@@ -320,10 +312,10 @@ public class DefaultDatabaseEngine implements DatabaseEngine<Connection> {
     }
 
     /**
-     * Make query by visitor. This engine use {@link DefaultVisitor}.
+     * Make executeQuery by visitor. This engine use {@link DefaultVisitor}.
      *
      * @param queryElement target visitor element
-     * @return sql query
+     * @return sql executeQuery
      */
     private String getQuery(QueryElement queryElement) {
         DefaultVisitor defaultVisitor = new DefaultVisitor(dialect);
@@ -336,7 +328,7 @@ public class DefaultDatabaseEngine implements DatabaseEngine<Connection> {
     /**
      * Trace sql.
      *
-     * @param query target query
+     * @param query target executeQuery
      * @param args target args
      */
     private void traceSql(String query, Object args) {

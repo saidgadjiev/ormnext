@@ -1,11 +1,5 @@
 package ru.saidgadjiev.ormnext.core.dao;
 
-import ru.saidgadjiev.ormnext.core.connection.DatabaseResults;
-import ru.saidgadjiev.ormnext.core.query.criteria.impl.DeleteStatement;
-import ru.saidgadjiev.ormnext.core.query.criteria.impl.Query;
-import ru.saidgadjiev.ormnext.core.query.criteria.impl.SelectStatement;
-import ru.saidgadjiev.ormnext.core.query.criteria.impl.UpdateStatement;
-
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
@@ -187,46 +181,6 @@ public interface Dao {
     long countOff(Class<?> tClass) throws SQLException;
 
     /**
-     * Query for the items in the object table which match the select query.
-     *
-     * @param selectStatement target criteria query
-     * @param <T>             object type
-     * @return a list of all of the objects in the table that match the query.
-     * @throws SQLException on any SQL problems
-     * @see SelectStatement
-     */
-    <T> List<T> list(SelectStatement<T> selectStatement) throws SQLException;
-
-    /**
-     * Query for aggregate functions which retrieve one long value.
-     *
-     * @param selectStatement target query
-     * @return long value which return query
-     * @throws SQLException on any SQL problems
-     * @see SelectStatement
-     */
-    long queryForLong(SelectStatement<?> selectStatement) throws SQLException;
-
-    /**
-     * Execute query and return results.
-     *
-     * @param query target query
-     * @return database results
-     * @throws SQLException any SQL exceptions
-     */
-    DatabaseResults query(Query query) throws SQLException;
-
-    /**
-     * Return query result object.
-     *
-     * @param selectStatement target query statement
-     * @param <T>             object type
-     * @return query result object
-     * @throws SQLException any SQL exceptions
-     */
-    <T> T uniqueResult(SelectStatement<T> selectStatement) throws SQLException;
-
-    /**
      * Check exist object with id.
      *
      * @param entityClass target entity class
@@ -235,33 +189,6 @@ public interface Dao {
      * @throws SQLException any SQL exceptions
      */
     boolean exist(Class<?> entityClass, Object id) throws SQLException;
-
-    /**
-     * Delete the database table rows by delete statement.
-     *
-     * @param deleteStatement target statement
-     * @return deleted rows count
-     * @throws SQLException any SQL exceptions
-     */
-    int delete(DeleteStatement deleteStatement) throws SQLException;
-
-    /**
-     * Update the database table rows by update statement.
-     *
-     * @param updateStatement target statement
-     * @return updated rows count
-     * @throws SQLException any SQL exceptions
-     */
-    int update(UpdateStatement updateStatement) throws SQLException;
-
-    /**
-     * Execute query statement and return results.
-     *
-     * @param selectStatement target statement
-     * @return query results
-     * @throws SQLException any SQL exceptions
-     */
-    DatabaseResults query(SelectStatement<?> selectStatement) throws SQLException;
 
     /**
      * Create or update object status.

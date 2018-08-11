@@ -26,8 +26,8 @@ public class TestList extends BaseCoreTest {
             testEntity1.setDesc("Test1");
             session.create(testEntity1);
 
-            SelectStatement<A> selectStatement = new SelectStatement<>(A.class);
-            List<A> testEntities = session.list(selectStatement);
+            SelectStatement<A> selectStatement = session.statementBuilder().createSelectStatement(A.class);
+            List<A> testEntities = selectStatement.list();
 
             Assert.assertEquals(2, testEntities.size());
             Assert.assertEquals(testEntity, testEntities.get(0));

@@ -7,7 +7,7 @@ import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 import java.util.List;
 
 /**
- * This class represent create index query.
+ * This class represent create index executeQuery.
  *
  * @author Said Gadjiev
  */

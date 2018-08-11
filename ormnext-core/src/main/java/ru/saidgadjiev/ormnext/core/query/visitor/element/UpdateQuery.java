@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This class represent UPDATE query.
+ * This class represent UPDATE executeQuery.
  *
  * @author Said Gadjiev
  */

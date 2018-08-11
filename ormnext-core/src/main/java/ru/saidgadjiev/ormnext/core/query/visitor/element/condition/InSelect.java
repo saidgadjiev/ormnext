@@ -18,14 +18,14 @@ public class InSelect implements Condition {
     private Operand operand;
 
     /**
-     * In sub query.
+     * In sub executeQuery.
      * @see SelectQuery
      */
     private SelectQuery selectQuery;
 
     /**
      * Create new in.
-     * @param selectQuery target sub query
+     * @param selectQuery target sub executeQuery
      * @param operand target checked operand
      */
     public InSelect(SelectQuery selectQuery, Operand operand) {
@@ -34,7 +34,7 @@ public class InSelect implements Condition {
     }
 
     /**
-     * Return current in sub query.
+     * Return current in sub executeQuery.
      * @return selectQuery
      */
     public SelectQuery getSelectQuery() {

@@ -18,14 +18,14 @@ public class Exists implements Condition {
     private final Operand operand;
 
     /**
-     * Exist sub query.
+     * Exist sub executeQuery.
      * @see SelectQuery
      */
     private final SelectQuery selectQuery;
 
     /**
      * Create new exists.
-     * @param selectQuery target sub query
+     * @param selectQuery target sub executeQuery
      * @param operand target checked operand
      */
     public Exists(SelectQuery selectQuery, Operand operand) {
@@ -34,7 +34,7 @@ public class Exists implements Condition {
     }
 
     /**
-     * Return current exist sub query.
+     * Return current exist sub executeQuery.
      * @return selectQuery
      */
     public SelectQuery getSelectQuery() {

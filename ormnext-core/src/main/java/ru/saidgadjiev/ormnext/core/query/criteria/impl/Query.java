@@ -1,5 +1,10 @@
 package ru.saidgadjiev.ormnext.core.query.criteria.impl;
 
+import ru.saidgadjiev.ormnext.core.connection.DatabaseResults;
+import ru.saidgadjiev.ormnext.core.dao.SessionCriteriaContract;
+
+import java.sql.SQLException;
+
 /**
  * Query wrapper.
  *
@@ -8,26 +13,35 @@ package ru.saidgadjiev.ormnext.core.query.criteria.impl;
 public class Query {
 
     /**
-     * Sql query.
+     * Sql executeQuery.
      */
     private final String query;
+    private SessionCriteriaContract session;
 
     /**
      * Create a new instance.
      *
-     * @param query target query
+     * @param query target executeQuery
      */
-    public Query(String query) {
+    public Query(String query, SessionCriteriaContract session) {
         this.query = query;
+        this.session = session;
     }
 
     /**
-     * Retrieve query.
+     * Retrieve executeQuery.
      *
-     * @return query
+     * @return executeQuery
      */
     public String getQuery() {
         return query;
     }
 
+    public DatabaseResults executeQuery() throws SQLException {
+        return session.executeQuery(this);
+    }
+
+    public int executeUpdate() throws SQLException {
+        return session.executeUpdate(this);
+    }
 }

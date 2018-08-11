@@ -50,7 +50,7 @@ public final class DefaultVisitor extends NoActionVisitor {
     private final String escapeEntity;
 
     /**
-     * Escape query literal.
+     * Escape executeQuery literal.
      */
     private final String escapeLiteral;
 
@@ -66,9 +66,9 @@ public final class DefaultVisitor extends NoActionVisitor {
     }
 
     /**
-     * Get builded sql query.
+     * Get builded sql executeQuery.
      *
-     * @return query
+     * @return executeQuery
      */
     public String getQuery() {
         return sql.toString();

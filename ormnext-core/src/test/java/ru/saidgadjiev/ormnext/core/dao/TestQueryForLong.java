@@ -26,10 +26,10 @@ public class TestQueryForLong extends BaseCoreTest {
             testEntity1.setDesc("Test1");
             session.create(testEntity1);
 
-            SelectStatement<A> selectStatement = new SelectStatement<>(A.class);
+            SelectStatement<A> selectStatement = session.statementBuilder().createSelectStatement(A.class);
 
             selectStatement.countOff();
-            long result = session.queryForLong(selectStatement);
+            long result = selectStatement.queryForLong();
 
             Assert.assertEquals(2, result);
         }

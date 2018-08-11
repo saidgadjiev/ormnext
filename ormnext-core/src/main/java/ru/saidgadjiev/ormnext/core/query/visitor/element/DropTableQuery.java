@@ -4,7 +4,7 @@ import ru.saidgadjiev.ormnext.core.query.visitor.QueryElement;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 
 /**
- * This class represent DROP TABLE sql query.
+ * This class represent DROP TABLE sql executeQuery.
  *
  * @author Said Gadjiev
  */

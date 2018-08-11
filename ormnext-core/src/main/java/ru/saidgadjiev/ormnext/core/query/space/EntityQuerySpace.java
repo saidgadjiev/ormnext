@@ -436,7 +436,7 @@ public class EntityQuerySpace {
     }
 
     /**
-     * Delete all query from table.
+     * Delete all executeQuery from table.
      *
      * @return delete all statement
      */
@@ -445,10 +445,10 @@ public class EntityQuerySpace {
     }
 
     /**
-     * Make and return compiled delete query.
+     * Make and return compiled delete executeQuery.
      *
      * @param id target object id which will be deleted
-     * @return compiled delete query
+     * @return compiled delete executeQuery
      */
     public DeleteQuery getDeleteByIdCompiledQuery(Argument id) {
         DeleteQuery deleteQuery = new DeleteQuery(rootEntityMetaData.getTableName());
@@ -508,7 +508,7 @@ public class EntityQuerySpace {
     /**
      * Make and return select statement.
      *
-     * @param selectStatement target select query
+     * @param selectStatement target select executeQuery
      * @return select statement
      */
     public SelectQuery getSelectQuery(SelectStatement<?> selectStatement) {
@@ -546,9 +546,9 @@ public class EntityQuerySpace {
     }
 
     /**
-     * Make and return exist row with id select query.
+     * Make and return exist row with id select executeQuery.
      *
-     * @return exist row with id select query
+     * @return exist row with id select executeQuery
      */
     public SelectQuery getExistSelect() {
         SelectQuery select = new SelectQuery();
@@ -578,10 +578,10 @@ public class EntityQuerySpace {
     }
 
     /**
-     * Create delete query from delete statement.
+     * Create delete executeQuery from delete statement.
      *
      * @param deleteStatement target delete statement
-     * @return return delete query
+     * @return return delete executeQuery
      */
     public DeleteQuery getDeleteQuery(DeleteStatement deleteStatement) {
         DeleteQuery deleteQuery = new DeleteQuery(rootEntityMetaData.getTableName());
@@ -594,10 +594,10 @@ public class EntityQuerySpace {
     }
 
     /**
-     * Create update query from update statement.
+     * Create update executeQuery from update statement.
      *
      * @param updateStatement target update statement
-     * @return return update query
+     * @return return update executeQuery
      */
     public UpdateQuery getUpdateQuery(UpdateStatement updateStatement) {
         UpdateQuery updateQuery = new UpdateQuery(rootEntityMetaData.getTableName());

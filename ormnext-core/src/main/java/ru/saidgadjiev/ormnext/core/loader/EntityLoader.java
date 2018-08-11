@@ -149,34 +149,34 @@ public interface EntityLoader {
     long countOff(Session session, Class<?> tClass) throws SQLException;
 
     /**
-     * Return all objects by select query.
+     * Return all objects by select executeQuery.
      *
      * @param session         target session
-     * @param selectStatement target query
+     * @param selectStatement target executeQuery
      * @return objects list
      * @throws SQLException any SQL exceptions
      */
     List<Object> list(Session session, SelectStatement<?> selectStatement) throws SQLException;
 
     /**
-     * Return long result by select query.
+     * Return long result by select executeQuery.
      *
      * @param session         target session
-     * @param selectStatement target query
+     * @param selectStatement target executeQuery
      * @return result long value
      * @throws SQLException any SQL exceptions
      */
     long queryForLong(Session session, SelectStatement<?> selectStatement) throws SQLException;
 
     /**
-     * Execute query by database engine and return results.
+     * Execute executeQuery by database engine and return results.
      *
      * @param session target session
-     * @param query   target query
+     * @param query   target executeQuery
      * @return database results
      * @throws SQLException any SQL exceptions
      */
-    DatabaseResults query(Session session, Query query) throws SQLException;
+    DatabaseResults executeQuery(Session session, Query query) throws SQLException;
 
     /**
      * Clear table.
@@ -238,6 +238,8 @@ public interface EntityLoader {
      * @throws SQLException any SQL exceptions
      */
     DatabaseResults query(Session session, SelectStatement<?> selectStatement) throws SQLException;
+
+    int executeUpdate(Session session, Query query) throws SQLException;
 
     /**
      * Entity loader types.

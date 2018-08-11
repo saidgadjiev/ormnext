@@ -31,14 +31,14 @@ public class TestListWithSelectColumns extends BaseCoreTest {
             a.setaForeignCollection(collectionTestEntity);
             session.create(a);
 
-            SelectStatement<A> selectStatement = new SelectStatement<>(A.class);
+            SelectStatement<A> selectStatement = session.statementBuilder().createSelectStatement(A.class);
 
             selectStatement.select("id").select("aForeignCollection");
             selectStatement.where(new Criteria()
                     .add(Restrictions.eq("desc", "Test"))
             );
 
-            List<A> entities = session.list(selectStatement);
+            List<A> entities = selectStatement.list();
 
             Assert.assertEquals(1, entities.size());
             A result = entities.get(0);

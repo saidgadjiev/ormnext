@@ -92,7 +92,7 @@ public class WriteEntity implements EntityMetadataVisitor {
                             .getField()
                             .getName();
 
-                    SelectStatement<?> selectStatement = new SelectStatement<>(
+                    SelectStatement<?> selectStatement = context.getSession().statementBuilder().createSelectStatement(
                             foreignColumnType.getForeignFieldClass()
                     );
 
@@ -100,7 +100,7 @@ public class WriteEntity implements EntityMetadataVisitor {
                             .add(Restrictions.eq(propertyName, resultSetValue.getValue()))
                     );
 
-                    value = context.getSession().uniqueResult(selectStatement);
+                    value = selectStatement.uniqueResult();
                 }
 
                 foreignColumnType.assign(processingState.getEntityInstance(), value);

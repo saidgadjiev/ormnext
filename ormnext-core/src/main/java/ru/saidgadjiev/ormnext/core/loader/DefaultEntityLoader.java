@@ -6,14 +6,17 @@ import ru.saidgadjiev.ormnext.core.dao.Dao;
 import ru.saidgadjiev.ormnext.core.dao.DatabaseEngine;
 import ru.saidgadjiev.ormnext.core.dao.Session;
 import ru.saidgadjiev.ormnext.core.exception.GeneratedValueNotFoundException;
-import ru.saidgadjiev.ormnext.core.exception.PropertyNotFoundException;
-import ru.saidgadjiev.ormnext.core.field.DataPersisterManager;
-import ru.saidgadjiev.ormnext.core.field.datapersister.DataPersister;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.DatabaseColumnType;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignCollectionColumnTypeImpl;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignColumnTypeImpl;
 import ru.saidgadjiev.ormnext.core.loader.rowreader.resultset.RowResult;
-import ru.saidgadjiev.ormnext.core.query.criteria.impl.*;
+import ru.saidgadjiev.ormnext.core.query.criteria.StatementCompiler;
+import ru.saidgadjiev.ormnext.core.query.criteria.StatementCompiler.DeleteStatementCompileResult;
+import ru.saidgadjiev.ormnext.core.query.criteria.StatementCompiler.UpdateStatementCompileResult;
+import ru.saidgadjiev.ormnext.core.query.criteria.impl.DeleteStatement;
+import ru.saidgadjiev.ormnext.core.query.criteria.impl.Query;
+import ru.saidgadjiev.ormnext.core.query.criteria.impl.SelectStatement;
+import ru.saidgadjiev.ormnext.core.query.criteria.impl.UpdateStatement;
 import ru.saidgadjiev.ormnext.core.query.space.EntityQuerySpace;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.*;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetadata;
@@ -25,6 +28,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import static ru.saidgadjiev.ormnext.core.query.criteria.StatementCompiler.SelectStatementCompileResult;
 import static ru.saidgadjiev.ormnext.core.utils.ArgumentUtils.*;
 
 /**
@@ -38,6 +42,7 @@ public class DefaultEntityLoader implements EntityLoader {
      * Current meta model.
      */
     private MetaModel metaModel;
+    private StatementCompiler statementCompiler;
 
     /**
      * Current database engine.
@@ -52,9 +57,12 @@ public class DefaultEntityLoader implements EntityLoader {
      * @param databaseEngine target database engine
      * @param metaModel      target meta model
      */
-    public DefaultEntityLoader(DatabaseEngine<?> databaseEngine, MetaModel metaModel) {
+    public DefaultEntityLoader(DatabaseEngine<?> databaseEngine,
+                               MetaModel metaModel,
+                               StatementCompiler statementCompiler) {
         this.databaseEngine = databaseEngine;
         this.metaModel = metaModel;
+        this.statementCompiler = statementCompiler;
     }
 
     @Override
@@ -369,12 +377,12 @@ public class DefaultEntityLoader implements EntityLoader {
     @Override
     public List<Object> list(Session session, SelectStatement selectStatement) throws SQLException {
         DatabaseEntityPersister entityPersister = metaModel.getPersister(selectStatement.getEntityClass());
-        SelectQuery selectQuery = entityPersister.getEntityQuerySpace().getSelectQuery(selectStatement);
+        SelectStatementCompileResult compileResult = statementCompiler.compile(selectStatement);
 
         try (DatabaseResults databaseResults = databaseEngine.select(
                 session.getConnection(),
-                selectQuery,
-                getArguments(entityPersister.getMetadata(), selectStatement)
+                compileResult.getSelectQuery(),
+                compileResult.getArguments()
         )) {
             List<RowResult> results = entityPersister.load(session, databaseResults);
 
@@ -385,13 +393,12 @@ public class DefaultEntityLoader implements EntityLoader {
     @Override
     public long queryForLong(Session session, SelectStatement selectStatement)
             throws SQLException {
-        DatabaseEntityPersister entityPersister = metaModel.getPersister(selectStatement.getEntityClass());
-        SelectQuery selectQuery = entityPersister.getEntityQuerySpace().getSelectQuery(selectStatement);
+        SelectStatementCompileResult compileResult = statementCompiler.compile(selectStatement);
 
         try (DatabaseResults databaseResults = databaseEngine.select(
                 session.getConnection(),
-                selectQuery,
-                getArguments(entityPersister.getMetadata(), selectStatement)
+                compileResult.getSelectQuery(),
+                compileResult.getArguments()
         )) {
             if (databaseResults.next()) {
                 return databaseResults.getLong(1);
@@ -402,7 +409,7 @@ public class DefaultEntityLoader implements EntityLoader {
     }
 
     @Override
-    public DatabaseResults query(Session session, Query query) throws SQLException {
+    public DatabaseResults executeQuery(Session session, Query query) throws SQLException {
         return new UserDatabaseResultsImpl(
                 null,
                 databaseEngine.query(
@@ -442,39 +449,42 @@ public class DefaultEntityLoader implements EntityLoader {
 
     @Override
     public int delete(Session session, DeleteStatement deleteStatement) throws SQLException {
-        DatabaseEntityPersister entityPersister = metaModel.getPersister(deleteStatement.getEntityClass());
-        DeleteQuery deleteQuery = entityPersister.getEntityQuerySpace().getDeleteQuery(deleteStatement);
+        DeleteStatementCompileResult compileResult = statementCompiler.compile(deleteStatement);
 
         return databaseEngine.delete(
                 session.getConnection(),
-                deleteQuery,
-                getArguments(entityPersister.getMetadata(), deleteStatement)
+                compileResult.getDeleteQuery(),
+                compileResult.getArguments()
         );
     }
 
     @Override
     public int update(Session session, UpdateStatement updateStatement) throws SQLException {
-        DatabaseEntityPersister entityPersister = metaModel.getPersister(updateStatement.getEntityClass());
-        UpdateQuery updateQuery = entityPersister.getEntityQuerySpace().getUpdateQuery(updateStatement);
+        UpdateStatementCompileResult compileResult = statementCompiler.compile(updateStatement);
 
         return databaseEngine.update(
                 session.getConnection(),
-                updateQuery,
-                getArguments(entityPersister.getMetadata(), updateStatement)
+                compileResult.getUpdateQuery(),
+                compileResult.getArguments()
         );
+    }
+
+    @Override
+    public int executeUpdate(Session session, Query query) throws SQLException {
+        return databaseEngine.executeUpdate(session.getConnection(), query.getQuery());
     }
 
     @Override
     public DatabaseResults query(Session session, SelectStatement selectStatement) throws SQLException {
         DatabaseEntityPersister entityPersister = metaModel.getPersister(selectStatement.getEntityClass());
-        SelectQuery selectQuery = entityPersister.getEntityQuerySpace().getSelectQuery(selectStatement);
+        SelectStatementCompileResult compileResult = statementCompiler.compile(selectStatement);
 
         return new UserDatabaseResultsImpl(
                 entityPersister.getAliases(),
                 databaseEngine.select(
                         session.getConnection(),
-                        selectQuery,
-                        getArguments(entityPersister.getMetadata(), selectStatement)
+                        compileResult.getSelectQuery(),
+                        compileResult.getArguments()
                 )
         );
     }
@@ -540,62 +550,6 @@ public class DefaultEntityLoader implements EntityLoader {
                 }
             }
         }
-    }
-
-    /**
-     * Obtain arguments {@link Argument} from criteria query.
-     *
-     * @param metadata          target table meta data
-     * @param criteriaStatement target criteria query
-     * @return argument index map
-     */
-    private Map<Integer, Argument> getArguments(DatabaseEntityMetadata<?> metadata,
-                                                CriteriaStatement criteriaStatement) {
-        Map<Integer, Argument> args = new HashMap<>();
-        AtomicInteger index = new AtomicInteger();
-
-        for (CriterionArgument criterionArgument : criteriaStatement.getArgs()) {
-            DatabaseColumnType columnType =
-                    getDataTypeByPropertyName(metadata.getColumnTypes(), criterionArgument.getProperty())
-                            .orElseThrow(() -> new PropertyNotFoundException(
-                                    metadata.getTableClass(),
-                                    criterionArgument.getProperty())
-                            );
-
-            for (Object arg : criterionArgument.getValues()) {
-                args.put(index.incrementAndGet(), new Argument(columnType.dataPersister(), arg));
-            }
-        }
-
-        for (Map.Entry<Integer, Object> entry : criteriaStatement.getUserProvidedArgs().entrySet()) {
-            DataPersister dataPersister = DataPersisterManager.lookup(entry.getValue().getClass());
-
-            args.put(entry.getKey(), new Argument(dataPersister, entry.getValue()));
-        }
-
-        return args;
-    }
-
-    /**
-     * Find column type by property name in requested column types.
-     *
-     * @param columnTypes  target column types
-     * @param propertyName target property name
-     * @return optional column type
-     */
-    private static Optional<DatabaseColumnType> getDataTypeByPropertyName(List<DatabaseColumnType> columnTypes,
-                                                                          String propertyName) {
-        for (DatabaseColumnType columnType : columnTypes) {
-            if (columnType.foreignCollectionColumnType()) {
-                continue;
-            }
-
-            if (columnType.getField().getName().equals(propertyName)) {
-                return Optional.of(columnType);
-            }
-        }
-
-        return Optional.empty();
     }
 
     /**

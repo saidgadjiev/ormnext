@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This class represent INSERT query.
+ * This class represent INSERT executeQuery.
  *
  * @author Said Gadjiev
  */

@@ -18,14 +18,14 @@ public class NotInSelect implements Condition {
     private Operand operand;
 
     /**
-     * Not in sub query.
+     * Not in sub executeQuery.
      * @see SelectQuery
      */
     private SelectQuery selectQuery;
 
     /**
      * Create new not in.
-     * @param selectQuery target sub query
+     * @param selectQuery target sub executeQuery
      * @param operand target checked operand
      */
     public NotInSelect(SelectQuery selectQuery, Operand operand) {
@@ -34,7 +34,7 @@ public class NotInSelect implements Condition {
     }
 
     /**
-     * Return current not in sub query.
+     * Return current not in sub executeQuery.
      * @return selectQuery
      */
     public SelectQuery getSelectQuery() {

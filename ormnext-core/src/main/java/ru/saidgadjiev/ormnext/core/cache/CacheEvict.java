@@ -20,14 +20,14 @@ public interface CacheEvict {
     void evictList();
 
     /**
-     * Evict query for long result by entity type.
+     * Evict executeQuery for long result by entity type.
      *
      * @param entityType target entity type
      */
     void evictQueryForLong(Class<?> entityType);
 
     /**
-     * Evict all query for long results.
+     * Evict all executeQuery for long results.
      */
     void evictQueryForLong();
 
@@ -56,14 +56,14 @@ public interface CacheEvict {
     void evictExist();
 
     /**
-     * Evict query for all results by entity type.
+     * Evict executeQuery for all results by entity type.
      *
      * @param entityType target entity type
      */
     void evictQueryForAll(Class<?> entityType);
 
     /**
-     * Evict all query for long results.
+     * Evict all executeQuery for long results.
      */
     void evictQueryForAll();
 

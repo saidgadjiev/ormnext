@@ -1,5 +1,8 @@
 package ru.saidgadjiev.ormnext.core.query.criteria.impl;
 
+import ru.saidgadjiev.ormnext.core.connection.DatabaseResults;
+import ru.saidgadjiev.ormnext.core.dao.Session;
+import ru.saidgadjiev.ormnext.core.dao.SessionCriteriaContract;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.Limit;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.Offset;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.clause.*;
@@ -12,10 +15,11 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.function.CountAll;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.function.CountColumn;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.function.Function;
 
+import java.sql.SQLException;
 import java.util.*;
 
 /**
- * This class represent select query.
+ * This class represent select executeQuery.
  *
  * @param <T> entity type
  * @author Said Gadjiev
@@ -26,6 +30,8 @@ public class SelectStatement<T> implements CriteriaStatement {
      * Target entity class.
      */
     private final Class<T> entityClass;
+
+    private SessionCriteriaContract session;
 
     /**
      * Where expression.
@@ -85,6 +91,16 @@ public class SelectStatement<T> implements CriteriaStatement {
      * Without joins if true.
      */
     private boolean withoutJoins = false;
+
+    /**
+     * Create a new instance.
+     *
+     * @param entityClass target entity class
+     */
+    public SelectStatement(Class<T> entityClass, SessionCriteriaContract session) {
+        this.entityClass = entityClass;
+        this.session = session;
+    }
 
     /**
      * Create a new instance.
@@ -320,6 +336,22 @@ public class SelectStatement<T> implements CriteriaStatement {
         return withoutJoins;
     }
 
+    public T uniqueResult() throws SQLException {
+        return session.uniqueResult(this);
+    }
+
+    public List<T> list() throws SQLException {
+        return session.list(this);
+    }
+
+    public Long queryForLong() throws SQLException {
+        return session.queryForLong(this);
+    }
+
+    public DatabaseResults executeQuery() throws SQLException {
+        return session.query(this);
+    }
+
     @Override
     public List<CriterionArgument> getArgs() {
         List<CriterionArgument> args = new LinkedList<>();
@@ -332,5 +364,10 @@ public class SelectStatement<T> implements CriteriaStatement {
         }
 
         return args;
+    }
+
+    @Override
+    public void attach(Session session) {
+        this.session = (SessionCriteriaContract) session;
     }
 }

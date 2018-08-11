@@ -1,5 +1,7 @@
 package ru.saidgadjiev.ormnext.core.query.criteria.impl;
 
+import ru.saidgadjiev.ormnext.core.dao.Session;
+
 import java.util.List;
 import java.util.Map;
 
@@ -23,4 +25,6 @@ public interface CriteriaStatement {
      * @return criterion args
      */
     List<CriterionArgument> getArgs();
+
+    void attach(Session session);
 }

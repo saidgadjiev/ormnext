@@ -1,9 +1,12 @@
 package ru.saidgadjiev.ormnext.core.query.criteria.impl;
 
+import ru.saidgadjiev.ormnext.core.dao.Session;
+import ru.saidgadjiev.ormnext.core.dao.SessionCriteriaContract;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryElement;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.condition.Expression;
 
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -20,6 +23,7 @@ public class DeleteStatement implements QueryElement, CriteriaStatement {
      * Entity class.
      */
     private final Class<?> entityClass;
+    private SessionCriteriaContract session;
 
     /**
      * Provided user args.
@@ -37,9 +41,11 @@ public class DeleteStatement implements QueryElement, CriteriaStatement {
      * Create a new instance.
      *
      * @param entityClass target entity class
+     * @param session
      */
-    public DeleteStatement(Class<?> entityClass) {
+    public DeleteStatement(Class<?> entityClass, SessionCriteriaContract session) {
         this.entityClass = entityClass;
+        this.session = session;
     }
 
     /**
@@ -66,6 +72,11 @@ public class DeleteStatement implements QueryElement, CriteriaStatement {
     }
 
     @Override
+    public void attach(Session session) {
+
+    }
+
+    @Override
     public Map<Integer, Object> getUserProvidedArgs() {
         return userProvidedArgs;
     }
@@ -86,6 +97,10 @@ public class DeleteStatement implements QueryElement, CriteriaStatement {
      */
     public Expression getWhere() {
         return where == null ? null : where.expression();
+    }
+
+    public int delete() throws SQLException {
+        return session.delete(this);
     }
 
     @Override

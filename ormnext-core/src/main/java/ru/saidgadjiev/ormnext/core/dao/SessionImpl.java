@@ -4,9 +4,10 @@ import ru.saidgadjiev.ormnext.core.connection.DatabaseConnection;
 import ru.saidgadjiev.ormnext.core.connection.DatabaseResults;
 import ru.saidgadjiev.ormnext.core.connection.source.ConnectionSource;
 import ru.saidgadjiev.ormnext.core.dao.transaction.state.BeginState;
-import ru.saidgadjiev.ormnext.core.dao.transaction.state.InternalTransaction;
+import ru.saidgadjiev.ormnext.core.dao.transaction.state.SessionTransactionContract;
 import ru.saidgadjiev.ormnext.core.dao.transaction.state.TransactionState;
 import ru.saidgadjiev.ormnext.core.loader.EntityLoader;
+import ru.saidgadjiev.ormnext.core.query.criteria.StatementBuilder;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.DeleteStatement;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.Query;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.SelectStatement;
@@ -22,7 +23,7 @@ import java.util.Map;
  *
  * @author Said Gadjiev
  */
-public class SessionImpl implements Session, InternalTransaction {
+public class SessionImpl implements Session, SessionTransactionContract, SessionCriteriaContract {
 
     /**
      * Connection source.
@@ -218,8 +219,13 @@ public class SessionImpl implements Session, InternalTransaction {
     }
 
     @Override
-    public DatabaseResults query(Query query) throws SQLException {
-        return entityLoader.query(this, query);
+    public DatabaseResults executeQuery(Query query) throws SQLException {
+        return entityLoader.executeQuery(this, query);
+    }
+
+    @Override
+    public int executeUpdate(Query query) throws SQLException {
+        return entityLoader.executeUpdate(this, query);
     }
 
     @Override
@@ -266,6 +272,11 @@ public class SessionImpl implements Session, InternalTransaction {
     @Override
     public <T> DatabaseConnection<T> getConnection() {
         return (DatabaseConnection<T>) connection;
+    }
+
+    @Override
+    public StatementBuilder statementBuilder() {
+        return new StatementBuilder(this);
     }
 
     @Override

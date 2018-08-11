@@ -7,7 +7,6 @@ import ru.saidgadjiev.ormnext.core.field.DatabaseColumn;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.Criteria;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.DeleteStatement;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.Restrictions;
-import ru.saidgadjiev.ormnext.core.query.criteria.impl.SelectStatement;
 
 import java.sql.SQLException;
 
@@ -24,12 +23,12 @@ public class TestDeleteStatement extends BaseCoreTest {
             session.create(new A());
 
             Assert.assertEquals(3, session.queryForAll(A.class).size());
-            DeleteStatement deleteStatement = new DeleteStatement(A.class);
+            DeleteStatement deleteStatement = session.statementBuilder().createDeleteStatement(A.class);
 
             deleteStatement.where(
                     new Criteria().add(Restrictions.eq("id", 2))
             );
-            Assert.assertEquals(session.delete(deleteStatement), 1);
+            Assert.assertEquals(deleteStatement.delete(), 1);
         }
     }
 

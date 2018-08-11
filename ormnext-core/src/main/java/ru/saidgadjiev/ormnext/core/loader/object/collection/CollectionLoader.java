@@ -1,6 +1,7 @@
 package ru.saidgadjiev.ormnext.core.loader.object.collection;
 
 import ru.saidgadjiev.ormnext.core.dao.Session;
+import ru.saidgadjiev.ormnext.core.dao.SessionCriteriaContract;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignCollectionColumnTypeImpl;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.Criteria;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.SelectStatement;
@@ -38,7 +39,6 @@ public class CollectionLoader {
      * @param foreignCollectionColumnType target collection column type
      */
     public CollectionLoader(ForeignCollectionColumnTypeImpl foreignCollectionColumnType) {
-
         this.loadCollectionQuery =
                 new SelectStatement<>(foreignCollectionColumnType.getCollectionObjectClass())
                         .where(new Criteria()
@@ -60,7 +60,9 @@ public class CollectionLoader {
      * @throws SQLException any SQL exceptions
      */
     public List<Object> loadCollection(Session session, Object id) throws SQLException {
-        return session.list(loadCollectionQuery.setObject(1, id));
+        loadCollectionQuery.attach(session);
+
+        return getSession(session).list(loadCollectionQuery.setObject(1, id));
     }
 
     /**
@@ -71,7 +73,9 @@ public class CollectionLoader {
      * @throws SQLException any SQL exceptions
      */
     public long loadSize(Session session, Object id) throws SQLException {
-        return session.queryForLong(countOffCriteria.setObject(1, id));
+        countOffCriteria.attach(session);
+
+        return getSession(session).queryForLong(countOffCriteria.setObject(1, id));
     }
 
     /**
@@ -84,11 +88,15 @@ public class CollectionLoader {
     }
 
     /**
-     * Return collection load query.
+     * Return collection load executeQuery.
      *
-     * @return collection load query
+     * @return collection load executeQuery
      */
     public SelectStatement<?> getLoadCollectionQuery() {
         return loadCollectionQuery;
+    }
+
+    private SessionCriteriaContract getSession(Session session) {
+        return (SessionCriteriaContract) session;
     }
 }

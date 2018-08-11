@@ -26,10 +26,10 @@ public class TestUniqueResult extends BaseCoreTest {
 
             session.create(testEntity1);
 
-            SelectStatement<A> selectStatement = new SelectStatement<>(A.class);
+            SelectStatement<A> selectStatement = session.statementBuilder().createSelectStatement(A.class);
 
             selectStatement.where(new Criteria().add(Restrictions.eq("id", testEntity.getId())));
-            Assert.assertEquals(session.uniqueResult(selectStatement), testEntity);
+            Assert.assertEquals(selectStatement.uniqueResult(), testEntity);
         }
     }
 

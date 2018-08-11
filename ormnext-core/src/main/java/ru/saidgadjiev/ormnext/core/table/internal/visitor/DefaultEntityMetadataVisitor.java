@@ -19,7 +19,7 @@ import java.sql.SQLException;
 import java.util.*;
 
 /**
- * This visitor implementation use for create entity query space.
+ * This visitor implementation use for create entity executeQuery space.
  *
  * @author Said Gadjiev
  */
@@ -73,7 +73,7 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
     private Stack<String> parentUidStack = new Stack<>();
 
     /**
-     * Entity query space.
+     * Entity executeQuery space.
      *
      * @see EntityQuerySpace
      */
@@ -212,9 +212,9 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
     }
 
     /**
-     * Return built entity query space.
+     * Return built entity executeQuery space.
      *
-     * @return built entity query space
+     * @return built entity executeQuery space
      */
     public EntityQuerySpace getEntityQuerySpace() {
         return entityQuerySpace;

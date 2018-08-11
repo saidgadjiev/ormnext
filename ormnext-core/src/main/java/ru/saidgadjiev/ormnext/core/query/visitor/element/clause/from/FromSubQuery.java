@@ -4,7 +4,7 @@ import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.SelectQuery;
 
 /**
- * This class represent from clause with sub query.
+ * This class represent from clause with sub executeQuery.
  *
  * @author Said Gadjiev
  */

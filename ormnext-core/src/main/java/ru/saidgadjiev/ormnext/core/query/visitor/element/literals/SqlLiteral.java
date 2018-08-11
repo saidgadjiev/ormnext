@@ -3,7 +3,7 @@ package ru.saidgadjiev.ormnext.core.query.visitor.element.literals;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 
 /**
- * Literal which value will be directly append to sql query.
+ * Literal which value will be directly append to sql executeQuery.
  *
  * @author Said Gadjiev
  */

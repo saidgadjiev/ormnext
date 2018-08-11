@@ -13,15 +13,15 @@ public class BeginState implements TransactionState {
 
     /**
      * Object which has transaction state.
-     * @see InternalTransaction
+     * @see SessionTransactionContract
      */
-    private InternalTransaction transaction;
+    private SessionTransactionContract transaction;
 
     /**
      * Create a new instance.
      * @param transaction target internal transaction
      */
-    public BeginState(InternalTransaction transaction) {
+    public BeginState(SessionTransactionContract transaction) {
         this.transaction = transaction;
     }
 

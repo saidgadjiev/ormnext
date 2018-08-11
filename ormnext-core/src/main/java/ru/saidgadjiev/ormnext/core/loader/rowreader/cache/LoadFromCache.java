@@ -134,9 +134,11 @@ public class LoadFromCache implements EntityMetadataVisitor {
 
             Object ownerKey = ownerMetadata.getPrimaryKeyColumnType().access(parent);
 
-            SelectStatement selectStatement = new SelectStatement<>(
-                    foreignCollectionColumnType.getCollectionObjectClass()
-            ).where(new Criteria()
+            SelectStatement selectStatement = cacheObjectContext
+                    .getSession()
+                    .statementBuilder()
+                    .createSelectStatement(foreignCollectionColumnType.getCollectionObjectClass())
+                    .where(new Criteria()
                     .add(eq(foreignCollectionColumnType.getForeignField().getName(), ownerKey)));
 
             Optional<List<Object>> cached = cache.list(selectStatement);
@@ -147,7 +149,7 @@ public class LoadFromCache implements EntityMetadataVisitor {
 
                 LOG.debug("Collection reference " + foreignCollectionColumnType.getField() + " loaded from cache");
             } else {
-                result = cacheObjectContext.getSession().list(selectStatement);
+                result = selectStatement.list();
 
                 LOG.debug(
                         "Collection reference " + foreignCollectionColumnType.getField() + " loaded from datasource"

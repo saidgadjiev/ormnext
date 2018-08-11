@@ -4,7 +4,7 @@ import ru.saidgadjiev.ormnext.core.query.visitor.QueryElement;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 
 /**
- * This class represent drop index query.
+ * This class represent drop index executeQuery.
  *
  * @author Said Gadjiev
  */

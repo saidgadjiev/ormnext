@@ -238,14 +238,14 @@ public class CacheEntityLoader implements EntityLoader {
     }
 
     @Override
-    public DatabaseResults query(Session session, Query query) throws SQLException {
+    public DatabaseResults executeQuery(Session session, Query query) throws SQLException {
         Optional<DatabaseResults> resultsOptional = cache.query(query);
 
         if (resultsOptional.isPresent()) {
             return resultsOptional.get();
         }
 
-        DatabaseResults results = entityLoader.query(session, query);
+        DatabaseResults results = entityLoader.executeQuery(session, query);
 
         cache.cacheQuery(query, results);
 
@@ -285,6 +285,11 @@ public class CacheEntityLoader implements EntityLoader {
         cache.update(updateStatement);
 
         return result;
+    }
+
+    @Override
+    public int executeUpdate(Session session, Query query) throws SQLException {
+        return entityLoader.executeUpdate(session, query);
     }
 
     @Override

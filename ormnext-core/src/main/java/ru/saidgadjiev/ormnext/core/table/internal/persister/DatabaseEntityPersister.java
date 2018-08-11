@@ -74,7 +74,7 @@ public class DatabaseEntityPersister {
     private ProxyMaker proxyMaker = new ProxyMaker();
 
     /**
-     * Entity query space.
+     * Entity executeQuery space.
      *
      * @see EntityQuerySpace
      */
@@ -195,9 +195,9 @@ public class DatabaseEntityPersister {
     }
 
     /**
-     * Return current entity query space.
+     * Return current entity executeQuery space.
      *
-     * @return entity query space
+     * @return entity executeQuery space
      */
     public EntityQuerySpace getEntityQuerySpace() {
         return entityQuerySpace;

@@ -25,12 +25,12 @@ public class TestUpdateStatement extends BaseCoreTest {
 
             session.create(a);
 
-            UpdateStatement updateStatement = new UpdateStatement(A.class);
+            UpdateStatement updateStatement = session.statementBuilder().createUpdateStatement(A.class);
 
             updateStatement
                     .set("desc", "Test1")
                     .where(new Criteria().add(Restrictions.eq("id", 1)));
-            Assert.assertEquals(session.update(updateStatement), 1);
+            Assert.assertEquals(updateStatement.update(), 1);
             Assert.assertEquals("Test1", session.queryForId(A.class, 1).getDesc());
         }
     }

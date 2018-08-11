@@ -1,11 +1,14 @@
 package ru.saidgadjiev.ormnext.core.query.criteria.impl;
 
+import ru.saidgadjiev.ormnext.core.dao.Session;
+import ru.saidgadjiev.ormnext.core.dao.SessionCriteriaContract;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryElement;
 import ru.saidgadjiev.ormnext.core.query.visitor.QueryVisitor;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.common.UpdateValue;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.condition.Expression;
 import ru.saidgadjiev.ormnext.core.query.visitor.element.literals.Param;
 
+import java.sql.SQLException;
 import java.util.*;
 
 /**
@@ -19,6 +22,7 @@ public class UpdateStatement implements QueryElement, CriteriaStatement {
      * Entity class.
      */
     private final Class<?> entityClass;
+    private SessionCriteriaContract session;
 
     /**
      * Update value args.
@@ -47,8 +51,9 @@ public class UpdateStatement implements QueryElement, CriteriaStatement {
      *
      * @param entityClass target entity class
      */
-    public UpdateStatement(Class<?> entityClass) {
+    public UpdateStatement(Class<?> entityClass, SessionCriteriaContract session) {
         this.entityClass = entityClass;
+        this.session = session;
     }
 
     /**
@@ -127,8 +132,17 @@ public class UpdateStatement implements QueryElement, CriteriaStatement {
     }
 
     @Override
+    public void attach(Session session) {
+        this.session = (SessionCriteriaContract) session;
+    }
+
+    @Override
     public Map<Integer, Object> getUserProvidedArgs() {
         return userProvidedArgs;
+    }
+
+    public int update() throws SQLException {
+        return session.update(this);
     }
 
     @Override

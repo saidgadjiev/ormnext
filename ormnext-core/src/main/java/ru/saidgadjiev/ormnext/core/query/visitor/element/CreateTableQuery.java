@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This class represent CREATE TABLE query.
+ * This class represent CREATE TABLE executeQuery.
  *
  * @author Said Gadjiev
  */
@@ -50,8 +50,8 @@ public class CreateTableQuery implements QueryElement {
     }
 
     /**
-     * Return is if not exist query.
-     * @return is if not exist query
+     * Return is if not exist executeQuery.
+     * @return is if not exist executeQuery
      */
     public boolean isIfNotExist() {
         return ifNotExist;

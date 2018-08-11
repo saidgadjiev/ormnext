@@ -11,7 +11,7 @@ import ru.saidgadjiev.ormnext.core.query.visitor.element.clause.select.SelectCol
 import ru.saidgadjiev.ormnext.core.query.visitor.element.condition.Expression;
 
 /**
- * This class represent select query. For example it will be visited
+ * This class represent select executeQuery. For example it will be visited
  * with {@link ru.saidgadjiev.ormnext.core.query.visitor.DefaultVisitor} for make sql.
  *
  * @author Said Gadjiev

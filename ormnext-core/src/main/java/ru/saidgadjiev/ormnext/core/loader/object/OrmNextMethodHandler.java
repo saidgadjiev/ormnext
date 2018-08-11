@@ -90,10 +90,10 @@ public class OrmNextMethodHandler implements MethodHandler, Lazy {
      */
     private void initialize(Session session) throws SQLException {
         if (!initialized) {
-            SelectStatement<?> selectStatement = new SelectStatement<>(entityClass);
+            SelectStatement<?> selectStatement = session.statementBuilder().createSelectStatement(entityClass);
 
             selectStatement.where(new Criteria().add(Restrictions.eq(keyPropertyName, key)));
-            target = session.uniqueResult(selectStatement);
+            target = selectStatement.uniqueResult();
             initialized = true;
             session.close();
             LOG.debug("Entity %s with key %s lazy initialized", entityClass.getName(), key);

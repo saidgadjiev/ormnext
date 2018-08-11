@@ -8,6 +8,7 @@ import ru.saidgadjiev.ormnext.core.dao.context.CurrentSessionContext;
 import ru.saidgadjiev.ormnext.core.dao.context.ThreadLocalCurrentSessionContext;
 import ru.saidgadjiev.ormnext.core.loader.CacheEntityLoader;
 import ru.saidgadjiev.ormnext.core.loader.DefaultEntityLoader;
+import ru.saidgadjiev.ormnext.core.query.criteria.StatementCompiler;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.MetaModel;
 
 import java.sql.SQLException;
@@ -43,6 +44,8 @@ public class SessionManagerImpl implements SessionManager {
      */
     private DatabaseEngine<?> databaseEngine;
 
+    private StatementCompiler statementCompiler;
+
     /**
      * Current session context.
      *
@@ -65,10 +68,12 @@ public class SessionManagerImpl implements SessionManager {
      */
     SessionManagerImpl(ConnectionSource<?> connectionSource,
                        MetaModel metaModel,
-                       DatabaseEngine<?> databaseEngine) throws SQLException {
+                       DatabaseEngine<?> databaseEngine,
+                       StatementCompiler statementCompiler) throws SQLException {
         this.dataSource = connectionSource;
         this.metaModel = metaModel;
         this.databaseEngine = databaseEngine;
+        this.statementCompiler = statementCompiler;
 
         sessionContext = new ThreadLocalCurrentSessionContext(this);
 
@@ -82,14 +87,22 @@ public class SessionManagerImpl implements SessionManager {
         if (cache != null) {
             return new SessionImpl(
                     dataSource,
-                    new CacheEntityLoader(cache, metaModel, new DefaultEntityLoader(databaseEngine, metaModel)),
+                    new CacheEntityLoader(
+                            cache,
+                            metaModel,
+                            new DefaultEntityLoader(
+                                    databaseEngine,
+                                    metaModel,
+                                    statementCompiler
+                            )
+                    ),
                     databaseConnection,
                     this
             );
         } else {
             return new SessionImpl(
                     dataSource,
-                    new DefaultEntityLoader(databaseEngine, metaModel),
+                    new DefaultEntityLoader(databaseEngine, metaModel, statementCompiler),
                     databaseConnection,
                     this
             );

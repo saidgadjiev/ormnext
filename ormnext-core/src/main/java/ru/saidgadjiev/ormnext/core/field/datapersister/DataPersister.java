@@ -73,7 +73,7 @@ public interface DataPersister {
     void setObject(PreparableObject preparedStatement, int index, Object value) throws SQLException;
 
     /**
-     * Create sql literal which will be directly append to sql query.
+     * Create sql literal which will be directly append to sql executeQuery.
      *
      * @param value target value
      * @return sql literal

@@ -5,7 +5,7 @@ package ru.saidgadjiev.ormnext.core.dao.transaction.state;
  *
  * @author Said Gadjiev
  */
-public interface InternalTransaction {
+public interface SessionTransactionContract {
 
     /**
      * Change state.

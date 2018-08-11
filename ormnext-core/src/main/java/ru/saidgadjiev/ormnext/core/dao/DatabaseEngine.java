@@ -70,17 +70,6 @@ public interface DatabaseEngine<T> {
                List<GeneratedKey> generatedKeys) throws SQLException;
 
     /**
-     * Execute batch queries.
-     *
-     * @param databaseConnection target connection
-     * @param sqlStatements      target sql statements
-     * @return batch results
-     * @throws SQLException any SQL exceptions
-     */
-    int[] executeBatch(DatabaseConnection<?> databaseConnection,
-                       List<SqlStatement> sqlStatements) throws SQLException;
-
-    /**
      * Execute delete statement.
      *
      * @param connection  target connection
@@ -147,10 +136,10 @@ public interface DatabaseEngine<T> {
             throws SQLException;
 
     /**
-     * Execute query and return results.
+     * Execute executeQuery and return results.
      *
      * @param databaseConnection target connection
-     * @param query              target query
+     * @param query              target executeQuery
      * @return database results
      * @throws SQLException any SQL exceptions
      */
@@ -163,11 +152,13 @@ public interface DatabaseEngine<T> {
     Dialect getDialect();
 
     /**
-     * Return prepared query by {@link SqlStatement}.
+     * Return prepared executeQuery by {@link SqlStatement}.
      *
      * @param sqlStatement target sql statement
-     * @return prepared query
+     * @return prepared executeQuery
      */
     String prepareQuery(SqlStatement sqlStatement);
+
+    int executeUpdate(DatabaseConnection<T> databaseConnection, String query) throws SQLException;
 }
 

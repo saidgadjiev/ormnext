@@ -51,7 +51,7 @@ public interface Cache extends Closeable {
     void putToCache(Object id, Object data);
 
     /**
-     * Cache query for id result.
+     * Cache executeQuery for id result.
      *
      * @param id   target id
      * @param data target data
@@ -68,7 +68,7 @@ public interface Cache extends Closeable {
     Optional<Object> queryForId(Class<?> tClass, Object id);
 
     /**
-     * Cache query for all results.
+     * Cache executeQuery for all results.
      *
      * @param objects target result
      */
@@ -176,7 +176,7 @@ public interface Cache extends Closeable {
     Optional<List<Object>> list(SelectStatement<?> selectStatement);
 
     /**
-     * Cache query for long result.
+     * Cache executeQuery for long result.
      *
      * @param selectStatement target statement
      * @param result          target result
@@ -184,27 +184,27 @@ public interface Cache extends Closeable {
     void cacheQueryForLong(SelectStatement<?> selectStatement, long result);
 
     /**
-     * Retrieve cached value for query for long.
+     * Retrieve cached value for executeQuery for long.
      *
-     * @param selectStatement target query
-     * @return long value which return query
+     * @param selectStatement target executeQuery
+     * @return long value which return executeQuery
      * @see SelectStatement
      */
     Optional<Long> queryForLong(SelectStatement<?> selectStatement);
 
     /**
-     * Retrieve cached query results.
+     * Retrieve cached executeQuery results.
      *
-     * @param query target query
-     * @return query results
+     * @param query target executeQuery
+     * @return executeQuery results
      */
     Optional<DatabaseResults> query(Query query);
 
     /**
-     * Cache query results.
+     * Cache executeQuery results.
      *
-     * @param query target query
-     * @param results target query results
+     * @param query target executeQuery
+     * @param results target executeQuery results
      */
     void cacheQuery(Query query, DatabaseResults results);
 
