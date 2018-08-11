@@ -32,7 +32,7 @@ public class DatabaseResultsMetadataImpl implements DatabaseResultsMetadata {
         Set<String> columns = new HashSet<>();
 
         for (int i = 1; i < resultSetMetaData.getColumnCount() + 1; ++i) {
-            columns.add(resultSetMetaData.getColumnName(i));
+            columns.add(resultSetMetaData.getColumnLabel(i).toLowerCase());
         }
 
         return columns;

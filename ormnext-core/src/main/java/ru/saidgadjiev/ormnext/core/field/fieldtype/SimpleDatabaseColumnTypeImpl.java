@@ -258,11 +258,11 @@ public final class SimpleDatabaseColumnTypeImpl extends BaseDatabaseColumnType {
                 columnType.defaultDefinition = defaultDefinition;
             }
         }
-        if (field.isAnnotationPresent(Converter.Converters.class)) {
-            Converter.Converters converterGroupAnnotation = field.getAnnotation(Converter.Converters.class);
+        if (field.isAnnotationPresent(Converter.class) || field.isAnnotationPresent(Converter.Converters.class)) {
+            Converter[] converterGroupAnnotation = field.getAnnotationsByType(Converter.class);
 
             columnType.columnConverters = new ArrayList<>();
-            for (Converter converter : converterGroupAnnotation.value()) {
+            for (Converter converter : converterGroupAnnotation) {
                 columnType.columnConverters.add(toConverter(converter));
             }
         }
