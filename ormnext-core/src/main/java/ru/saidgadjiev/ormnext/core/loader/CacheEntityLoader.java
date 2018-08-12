@@ -6,16 +6,17 @@ import ru.saidgadjiev.ormnext.core.dao.Dao;
 import ru.saidgadjiev.ormnext.core.dao.Session;
 import ru.saidgadjiev.ormnext.core.loader.rowreader.cache.CacheObjectContext;
 import ru.saidgadjiev.ormnext.core.loader.rowreader.cache.CacheObjectInitializer;
+import ru.saidgadjiev.ormnext.core.loader.rowreader.cache.PrepareForCache;
 import ru.saidgadjiev.ormnext.core.logger.Log;
 import ru.saidgadjiev.ormnext.core.logger.LoggerFactory;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.DeleteStatement;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.Query;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.SelectStatement;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.UpdateStatement;
+import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetadata;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.MetaModel;
 
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -64,7 +65,7 @@ public class CacheEntityLoader implements EntityLoader {
     public Dao.CreateOrUpdateStatus createOrUpdate(Session session, Object object) throws SQLException {
         Dao.CreateOrUpdateStatus createOrUpdateStatus = entityLoader.createOrUpdate(session, object);
 
-        cache.create(object);
+        putToCache(session, object);
 
         return createOrUpdateStatus;
     }
@@ -73,7 +74,7 @@ public class CacheEntityLoader implements EntityLoader {
     public int create(Session session, Object object) throws SQLException {
         int result = entityLoader.create(session, object);
 
-        cache.create(object);
+        putToCache(session, object);
 
         return result;
     }
@@ -82,7 +83,7 @@ public class CacheEntityLoader implements EntityLoader {
     public int create(Session session, Object... objects) throws SQLException {
         int result = entityLoader.create(session, objects);
 
-        cache.create(Arrays.asList(objects));
+        putToCache(session, objects);
 
         return result;
     }
@@ -318,6 +319,20 @@ public class CacheEntityLoader implements EntityLoader {
     private void loadFromCache(Session session, Collection<Object> objects) throws SQLException {
         for (Object object : objects) {
             new CacheObjectInitializer().initialize(new CacheObjectContext(session, cache, metaModel), object);
+        }
+    }
+
+    public void putToCache(Session session, Object object) throws SQLException {
+        DatabaseEntityMetadata<?> currentMetadata = metaModel.getPersister(object.getClass()).getMetadata();
+
+        currentMetadata.accept(new PrepareForCache(object, new CacheObjectContext(session, cache, metaModel)));
+
+        cache.create(object);
+    }
+
+    public void putToCache(Session session, Collection<Object> objects) throws SQLException {
+        for (Object o: objects) {
+            putToCache(session, o);
         }
     }
 }

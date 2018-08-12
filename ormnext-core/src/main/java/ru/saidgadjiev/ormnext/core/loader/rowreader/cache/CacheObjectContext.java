@@ -4,6 +4,7 @@ import ru.saidgadjiev.ormnext.core.cache.Cache;
 import ru.saidgadjiev.ormnext.core.dao.Session;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetadata;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.MetaModel;
+import ru.saidgadjiev.ormnext.core.table.internal.persister.DatabaseEntityPersister;
 
 /**
  * Context.
@@ -66,5 +67,9 @@ public class CacheObjectContext {
      */
     public DatabaseEntityMetadata<?> getMetadata(Class<?> entityType) {
         return metaModel.getPersister(entityType).getMetadata();
+    }
+
+    public DatabaseEntityPersister getPersister(Class<?> entityType) {
+        return metaModel.getPersister(entityType);
     }
 }
