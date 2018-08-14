@@ -183,7 +183,7 @@ public class SelectStatement<T> implements CriteriaStatement {
      * @param offset target offset
      * @return this for chain
      */
-    public SelectStatement<T> offset(int offset) {
+    public SelectStatement<T> offset(long offset) {
         this.offset = new Offset(offset);
 
         return this;

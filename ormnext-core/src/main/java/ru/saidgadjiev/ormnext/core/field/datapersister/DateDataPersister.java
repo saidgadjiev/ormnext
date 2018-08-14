@@ -6,6 +6,8 @@ import ru.saidgadjiev.ormnext.core.field.SqlType;
 
 import java.sql.SQLException;
 import java.sql.Types;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
@@ -19,7 +21,13 @@ public class DateDataPersister extends BaseDataPersister {
      * Create a new instance.
      */
     public DateDataPersister() {
-        super(new Class<?>[] {Date.class, java.sql.Date.class}, Types.DATE, SqlType.DATE);
+        super(
+                new Class<?>[]{
+                        Date.class, LocalDate.class, LocalDateTime.class, java.sql.Date.class
+                },
+                Types.DATE,
+                SqlType.DATE
+        );
     }
 
     @Override

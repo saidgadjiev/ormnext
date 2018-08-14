@@ -13,13 +13,13 @@ public class Offset implements QueryElement {
     /**
      * Offset.
      */
-    private final int offset;
+    private final long offset;
 
     /**
      * Create a new instance.
      * @param offset target offset value
      */
-    public Offset(int offset) {
+    public Offset(long offset) {
         this.offset = offset;
     }
 
@@ -27,7 +27,7 @@ public class Offset implements QueryElement {
      * Return current offset.
      * @return current offset
      */
-    public int getOffset() {
+    public long getOffset() {
         return offset;
     }
 
