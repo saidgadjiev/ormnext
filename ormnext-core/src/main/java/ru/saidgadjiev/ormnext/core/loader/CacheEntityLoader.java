@@ -117,7 +117,9 @@ public class CacheEntityLoader implements EntityLoader {
 
         Object result = entityLoader.queryForId(session, tClass, id);
 
-        cache.cacheQueryForId(id, result);
+        if (result != null) {
+            cache.cacheQueryForId(id, result);
+        }
 
         return result;
     }
@@ -322,17 +324,13 @@ public class CacheEntityLoader implements EntityLoader {
         }
     }
 
-    public void putToCache(Session session, Object object) throws SQLException {
-        DatabaseEntityMetadata<?> currentMetadata = metaModel.getPersister(object.getClass()).getMetadata();
+    private void putToCache(Session session, Object ... objects) throws SQLException {
+        for (Object object: objects) {
+            DatabaseEntityMetadata<?> currentMetadata = metaModel.getPersister(object.getClass()).getMetadata();
 
-        currentMetadata.accept(new PrepareForCache(object, new CacheObjectContext(session, cache, metaModel)));
+            currentMetadata.accept(new PrepareForCache(object, new CacheObjectContext(session, cache, metaModel)));
 
-        cache.create(object);
-    }
-
-    public void putToCache(Session session, Collection<Object> objects) throws SQLException {
-        for (Object o: objects) {
-            putToCache(session, o);
+            cache.create(object);
         }
     }
 }

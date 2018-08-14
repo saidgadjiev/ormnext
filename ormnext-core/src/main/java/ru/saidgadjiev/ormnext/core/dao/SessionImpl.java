@@ -17,6 +17,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Concrete session implementation {@link Session}.
@@ -74,16 +75,22 @@ public class SessionImpl implements Session, SessionTransactionContract, Session
 
     @Override
     public CreateOrUpdateStatus createOrUpdate(Object object) throws SQLException {
+        Objects.requireNonNull(object, "Object can't be null");
+
         return entityLoader.createOrUpdate(this, object);
     }
 
     @Override
     public int create(Object object) throws SQLException {
+        Objects.requireNonNull(object, "Object can't be null");
+
         return entityLoader.create(this, object);
     }
 
     @Override
     public int create(Object... objects) throws SQLException {
+        Objects.requireNonNull(objects, "Objects can't be null");
+
         return entityLoader.create(this, objects);
     }
 
@@ -105,6 +112,8 @@ public class SessionImpl implements Session, SessionTransactionContract, Session
 
     @Override
     public <T> T queryForId(Class<T> tClass, Object id) throws SQLException {
+        Objects.requireNonNull(id, "Id can't be null");
+
         return (T) entityLoader.queryForId(this, tClass, id);
     }
 
@@ -115,21 +124,29 @@ public class SessionImpl implements Session, SessionTransactionContract, Session
 
     @Override
     public int update(Object object) throws SQLException {
+        Objects.requireNonNull(object, "Object can't be null");
+
         return entityLoader.update(this, object);
     }
 
     @Override
     public int delete(Object object) throws SQLException {
+        Objects.requireNonNull(object, "Object can't be null");
+
         return entityLoader.delete(this, object);
     }
 
     @Override
     public int deleteById(Class<?> tClass, Object id) throws SQLException {
+        Objects.requireNonNull(id, "Id can't be null");
+
         return entityLoader.deleteById(this, tClass, id);
     }
 
     @Override
     public boolean refresh(Object object) throws SQLException {
+        Objects.requireNonNull(object, "Object can't be null");
+
         return entityLoader.refresh(this, object);
     }
 
@@ -241,6 +258,8 @@ public class SessionImpl implements Session, SessionTransactionContract, Session
 
     @Override
     public boolean exist(Class<?> entityClass, Object id) throws SQLException {
+        Objects.requireNonNull(id, "Id can't be null");
+
         return entityLoader.exist(this, entityClass, id);
     }
 
