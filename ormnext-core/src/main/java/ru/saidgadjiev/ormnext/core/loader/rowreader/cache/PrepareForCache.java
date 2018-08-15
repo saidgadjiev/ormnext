@@ -11,6 +11,7 @@ import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetada
 import ru.saidgadjiev.ormnext.core.table.internal.visitor.EntityMetadataVisitor;
 
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -41,15 +42,22 @@ public class PrepareForCache implements EntityMetadataVisitor {
     @Override
     public boolean start(ForeignColumnTypeImpl foreignColumnType) throws SQLException {
         if (foreignColumnType.getFetchType().equals(FetchType.LAZY)) {
-            DatabaseEntityMetadata<?> parentMetadata = cacheObjectContext.getMetadata(
-                    current.getClass()
+            DatabaseEntityMetadata<?> foreignMetaData = cacheObjectContext.getMetadata(
+                    foreignColumnType.getForeignFieldClass()
             );
+
+            Object foreignObject = foreignColumnType.access(current);
+
+            if (foreignObject == null) {
+                return false;
+            }
+            Object foreignKey = foreignMetaData.getPrimaryKeyColumnType().access(foreignObject);
 
             Object proxy = cacheObjectContext.getPersister(foreignColumnType.getForeignFieldClass()).createProxy(
                     cacheObjectContext.getSession(),
                     foreignColumnType.getForeignFieldClass(),
                     foreignColumnType.getForeignDatabaseColumnType().getField().getName(),
-                    parentMetadata.getPrimaryKeyColumnType().access(current)
+                    foreignKey
             );
 
             foreignColumnType.assign(current, proxy);
@@ -61,6 +69,11 @@ public class PrepareForCache implements EntityMetadataVisitor {
     @Override
     public boolean start(ForeignCollectionColumnTypeImpl foreignCollectionColumnType) throws SQLException {
         if (foreignCollectionColumnType.getFetchType().equals(FetchType.LAZY)) {
+            Collection<Object> collection = foreignCollectionColumnType.access(current);
+
+            if (collection == null) {
+                return false;
+            }
             DatabaseEntityMetadata<?> parentMetadata = cacheObjectContext.getMetadata(
                     current.getClass()
             );
@@ -72,16 +85,16 @@ public class PrepareForCache implements EntityMetadataVisitor {
                             collectionLoader,
                             cacheObjectContext.getSession(),
                             parentMetadata.getPrimaryKeyColumnType().access(current),
-                            (List) foreignCollectionColumnType.access(current))
-                    );
+                            (List) collection
+                    ));
                     break;
                 case SET:
                     foreignCollectionColumnType.assign(current, new LazySet(
                             collectionLoader,
                             cacheObjectContext.getSession(),
                             parentMetadata.getPrimaryKeyColumnType().access(current),
-                            (Set) foreignCollectionColumnType.access(current))
-                    );
+                            (Set) collection
+                    ));
                     break;
                 default:
                     throw new RuntimeException(

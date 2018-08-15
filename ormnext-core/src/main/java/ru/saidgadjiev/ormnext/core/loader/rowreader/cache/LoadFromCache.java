@@ -85,6 +85,10 @@ public class LoadFromCache implements EntityMetadataVisitor {
 
             Object foreignObject = foreignColumnType.access(parent);
 
+            if (foreignObject == null) {
+                return false;
+            }
+
             Object foreignObjectKey = foreignMetadata.getPrimaryKeyColumnType().access(foreignObject);
 
             Optional<Object> cached = cache.queryForId(foreignColumnType.getForeignFieldClass(), foreignObjectKey);
@@ -110,6 +114,10 @@ public class LoadFromCache implements EntityMetadataVisitor {
             return true;
         } else {
             Proxy proxy = (Proxy) foreignColumnType.access(parent);
+
+            if (proxy == null) {
+                return false;
+            }
             Lazy lazy = (Lazy) proxy.getHandler();
 
             lazy.setNonInitialized();
@@ -132,6 +140,9 @@ public class LoadFromCache implements EntityMetadataVisitor {
 
             Collection<Object> foreignCollection = foreignCollectionColumnType.access(parent);
 
+            if (foreignCollection == null) {
+                return false;
+            }
             Object ownerKey = ownerMetadata.getPrimaryKeyColumnType().access(parent);
 
             SelectStatement selectStatement = cacheObjectContext
@@ -160,6 +171,9 @@ public class LoadFromCache implements EntityMetadataVisitor {
         } else {
             Object lazy = foreignCollectionColumnType.access(parent);
 
+            if (lazy == null) {
+                return false;
+            }
             ((Lazy) lazy).setNonInitialized();
             ((Lazy) lazy).attach(cacheObjectContext.getSession());
 
