@@ -1,4 +1,4 @@
-package ru.saidgadjiev.ormnext.core.logger;
+package ru.saidgadjiev.logger;
 
 /**
  * Log interface. Custom logger class should implement this interface

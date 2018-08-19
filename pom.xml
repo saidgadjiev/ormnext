@@ -281,6 +281,7 @@
     <modules>
         <module>ormnext-core</module>
         <module>proxy-maker</module>
+        <module>logger</module>
     </modules>
 
 </project>

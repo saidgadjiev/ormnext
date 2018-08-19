@@ -1,4 +1,4 @@
-package ru.saidgadjiev.ormnext.core.logger;
+package ru.saidgadjiev.logger;
 
 /**
  * Dummy log.

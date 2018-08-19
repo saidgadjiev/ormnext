@@ -1,4 +1,4 @@
-package ru.saidgadjiev.ormnext.core.logger;
+package ru.saidgadjiev.logger;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
