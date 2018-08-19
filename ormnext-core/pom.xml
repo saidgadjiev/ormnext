@@ -37,7 +37,7 @@
         <dependency>
             <groupId>ru.saidgadjiev.ormnext</groupId>
             <artifactId>logger</artifactId>
-            <version>1.15-SNAPSHOT</version>
+            <version>1.16-SNAPSHOT</version>
         </dependency>
 
         <dependency>
