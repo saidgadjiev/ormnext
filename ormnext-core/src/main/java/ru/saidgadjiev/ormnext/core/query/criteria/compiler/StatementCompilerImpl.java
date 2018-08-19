@@ -1,4 +1,4 @@
-package ru.saidgadjiev.ormnext.core.query.criteria;
+package ru.saidgadjiev.ormnext.core.query.criteria.compiler;
 
 import ru.saidgadjiev.ormnext.core.exception.PropertyNotFoundException;
 import ru.saidgadjiev.ormnext.core.field.DataPersisterManager;
@@ -20,16 +20,27 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Created by said on 11.08.2018.
+ * Statement compiler impl.
+ *
+ * @author Said Gadjiev
  */
-public class StatementCompiler {
+public class StatementCompilerImpl implements StatementCompiler {
 
+    /**
+     * Meta model.
+     */
     private final MetaModel metaModel;
 
-    public StatementCompiler(MetaModel metaModel) {
+    /**
+     * Create a new instance.
+     *
+     * @param metaModel target meta model
+     */
+    public StatementCompilerImpl(MetaModel metaModel) {
         this.metaModel = metaModel;
     }
 
+    @Override
     public SelectStatementCompileResult compile(SelectStatement<?> selectStatement) {
         DatabaseEntityPersister entityPersister = metaModel.getPersister(selectStatement.getEntityClass());
         SelectQuery selectQuery = entityPersister.getEntityQuerySpace().getSelectQuery(selectStatement);
@@ -40,6 +51,7 @@ public class StatementCompiler {
         );
     }
 
+    @Override
     public DeleteStatementCompileResult compile(DeleteStatement deleteStatement) {
         DatabaseEntityPersister persister = metaModel.getPersister(deleteStatement.getEntityClass());
         DeleteQuery deleteQuery = persister.getEntityQuerySpace().getDeleteQuery(deleteStatement);
@@ -47,6 +59,7 @@ public class StatementCompiler {
         return new DeleteStatementCompileResult(deleteQuery, getArguments(persister.getMetadata(), deleteStatement));
     }
 
+    @Override
     public UpdateStatementCompileResult compile(UpdateStatement updateStatement) {
         DatabaseEntityPersister persister = metaModel.getPersister(updateStatement.getEntityClass());
         UpdateQuery updateQuery = persister.getEntityQuerySpace().getUpdateQuery(updateStatement);
@@ -110,61 +123,118 @@ public class StatementCompiler {
         return Optional.empty();
     }
 
-    public static class SelectStatementCompileResult {
+    /**
+     * Select statement compile result.
+     *
+     * @see SelectStatement
+     */
+    public static final class SelectStatementCompileResult implements StatementCompileResult<SelectQuery> {
 
+        /**
+         * Compiled query.
+         */
         private final SelectQuery selectQuery;
 
+        /**
+         * Query arguments.
+         */
         private final Map<Integer, Argument> arguments;
 
-        public SelectStatementCompileResult(SelectQuery selectQuery, Map<Integer, Argument> arguments) {
+        /**
+         * Create a new instance.
+         *
+         * @param selectQuery compiled query
+         * @param arguments query arguments
+         */
+        private SelectStatementCompileResult(SelectQuery selectQuery, Map<Integer, Argument> arguments) {
             this.selectQuery = selectQuery;
             this.arguments = arguments;
         }
 
-        public SelectQuery getSelectQuery() {
+        @Override
+        public SelectQuery getQuery() {
             return selectQuery;
         }
 
+        @Override
         public Map<Integer, Argument> getArguments() {
             return arguments;
         }
     }
 
-    public static class DeleteStatementCompileResult {
+    /**
+     * Delete statement compile result.
+     *
+     * @see DeleteStatement
+     */
+    public static final class DeleteStatementCompileResult implements StatementCompileResult<DeleteQuery> {
 
+        /**
+         * Compiled query.
+         */
         private final DeleteQuery deleteQuery;
 
+        /**
+         * Query arguments.
+         */
         private final Map<Integer, Argument> arguments;
 
-        public DeleteStatementCompileResult(DeleteQuery deleteQuery, Map<Integer, Argument> arguments) {
+        /**
+         * Create a new instance.
+         *
+         * @param deleteQuery compiled query
+         * @param arguments query arguments
+         */
+        private DeleteStatementCompileResult(DeleteQuery deleteQuery, Map<Integer, Argument> arguments) {
             this.deleteQuery = deleteQuery;
             this.arguments = arguments;
         }
 
-        public DeleteQuery getDeleteQuery() {
+        @Override
+        public DeleteQuery getQuery() {
             return deleteQuery;
         }
 
+        @Override
         public Map<Integer, Argument> getArguments() {
             return arguments;
         }
     }
 
-    public static class UpdateStatementCompileResult {
+    /**
+     * Update statement compile result.
+     *
+     * @see UpdateStatement
+     */
+    public static final class UpdateStatementCompileResult implements StatementCompileResult<UpdateQuery> {
 
+        /**
+         * Compiled query.
+         */
         private final UpdateQuery updateQuery;
 
+        /**
+         * Query arguments.
+         */
         private final Map<Integer, Argument> arguments;
 
-        public UpdateStatementCompileResult(UpdateQuery updateQuery, Map<Integer, Argument> arguments) {
+        /**
+         * Create a new instance.
+         *
+         * @param updateQuery compiled query
+         * @param arguments query arguments
+         */
+        private UpdateStatementCompileResult(UpdateQuery updateQuery, Map<Integer, Argument> arguments) {
             this.updateQuery = updateQuery;
             this.arguments = arguments;
         }
 
-        public UpdateQuery getUpdateQuery() {
+        @Override
+        public UpdateQuery getQuery() {
             return updateQuery;
         }
 
+        @Override
         public Map<Integer, Argument> getArguments() {
             return arguments;
         }

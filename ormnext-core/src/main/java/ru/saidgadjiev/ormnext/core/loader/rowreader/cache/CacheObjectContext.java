@@ -69,6 +69,12 @@ public class CacheObjectContext {
         return metaModel.getPersister(entityType).getMetadata();
     }
 
+    /**
+     * Retrieve persister by entity type.
+     *
+     * @param entityType target entity type
+     * @return persister
+     */
     public DatabaseEntityPersister getPersister(Class<?> entityType) {
         return metaModel.getPersister(entityType);
     }

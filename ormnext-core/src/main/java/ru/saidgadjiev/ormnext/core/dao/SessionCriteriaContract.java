@@ -10,7 +10,9 @@ import java.sql.SQLException;
 import java.util.List;
 
 /**
- * Created by said on 11.08.2018.
+ * Interface represent contract between criteria api and session.
+ *
+ * @author Said Gadjiev
  */
 public interface SessionCriteriaContract {
 
@@ -82,5 +84,12 @@ public interface SessionCriteriaContract {
      */
     DatabaseResults executeQuery(Query query) throws SQLException;
 
+    /**
+     * Execute query {@link java.sql.Statement#executeUpdate(String)}.
+     *
+     * @param query target query
+     * @return changed row count
+     * @throws SQLException any SQL exceptions
+     */
     int executeUpdate(Query query) throws SQLException;
 }

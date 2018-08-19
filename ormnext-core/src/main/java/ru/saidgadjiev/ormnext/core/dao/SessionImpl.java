@@ -7,7 +7,7 @@ import ru.saidgadjiev.ormnext.core.dao.transaction.state.BeginState;
 import ru.saidgadjiev.ormnext.core.dao.transaction.state.SessionTransactionContract;
 import ru.saidgadjiev.ormnext.core.dao.transaction.state.TransactionState;
 import ru.saidgadjiev.ormnext.core.loader.EntityLoader;
-import ru.saidgadjiev.ormnext.core.query.criteria.StatementBuilder;
+import ru.saidgadjiev.ormnext.core.query.criteria.compiler.StatementBuilder;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.DeleteStatement;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.Query;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.SelectStatement;

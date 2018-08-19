@@ -1,7 +1,7 @@
 package ru.saidgadjiev.ormnext.core.dao;
 
 import ru.saidgadjiev.ormnext.core.connection.DatabaseConnection;
-import ru.saidgadjiev.ormnext.core.query.criteria.StatementBuilder;
+import ru.saidgadjiev.ormnext.core.query.criteria.compiler.StatementBuilder;
 
 import java.sql.SQLException;
 
@@ -48,6 +48,12 @@ public interface Session extends AutoCloseable, Dao {
      */
     <T> DatabaseConnection<T> getConnection();
 
+    /**
+     * Retrieve statement builder.
+     *
+     * @return statement builder.
+     * @see StatementBuilder
+     */
     StatementBuilder statementBuilder();
 
     /**

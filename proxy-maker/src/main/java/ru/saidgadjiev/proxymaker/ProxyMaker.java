@@ -1,5 +1,6 @@
 package ru.saidgadjiev.proxymaker;
 
+import org.apache.log4j.Logger;
 import ru.saidgadjiev.proxymaker.bytecode.ByteCodeUtils;
 import ru.saidgadjiev.proxymaker.bytecode.CodeAttribute;
 import ru.saidgadjiev.proxymaker.bytecode.FieldInfo;
@@ -19,6 +20,11 @@ import static ru.saidgadjiev.proxymaker.ProxyFactoryHelper.*;
  * Class for create dynamic proxy classes.
  */
 public class ProxyMaker {
+
+    /**
+     * Logger.
+     */
+    private static final Logger LOGGER = Logger.getLogger(ProxyMaker.class);
 
     /**
      * Object class {@link Class}.
@@ -111,12 +117,13 @@ public class ProxyMaker {
     /**
      * Cached dynamic proxy classes.
      */
-    private static final WeakHashMap<String, Class<?>> PROXY_CACHE = new WeakHashMap<>();
+    private static final Map<ClassLoader, Map<String, Class<?>>> PROXY_CACHE = new WeakHashMap<>();
 
     /**
      * Unique integer index generator. Used for make dynamic proxy class name unique.
      */
-    private UIDGenerator uidGenerator = new UIDGenerator() {
+    private final UIDGenerator uidGenerator = new UIDGenerator() {
+
         private AtomicInteger uid = new AtomicInteger(0);
 
         @Override
@@ -260,7 +267,7 @@ public class ProxyMaker {
      * Create new dynamic proxy class instance.
      *
      * @param handler method handler for the proxy class
-     * @return new dynamic proxy class intance
+     * @return new dynamic proxy class instance
      * @throws InvocationTargetException throws in {@link Constructor#newInstance(Object...)}
      * @throws IllegalAccessException    throws in {@link Constructor#newInstance(Object...)}
      * @throws NoSuchMethodException     throws in {@link Class#getConstructor(Class[])}}
@@ -271,14 +278,41 @@ public class ProxyMaker {
             IllegalAccessException,
             NoSuchMethodException,
             InstantiationException {
-        resolveSuperClassAndClassName();
+        synchronized (PROXY_CACHE) {
+            ClassLoader classLoader = getClassLoader();
+            Map<String, Class<?>> cacheForTheLoader = PROXY_CACHE.computeIfAbsent(classLoader, k -> new HashMap<>());
+            String key = getKey();
 
-        String key = getKey();
+            if (cacheForTheLoader.containsKey(key)) {
+                Class<?> cachedClass = cacheForTheLoader.get(key);
 
-        if (PROXY_CACHE.containsKey(key)) {
-            return createInstance(PROXY_CACHE.get(key), handler);
+                Object proxy = createInstance(cachedClass, handler);
+
+                LOGGER.debug("Retrieve class " + cachedClass + " from cache " + key);
+
+                return proxy;
+            } else {
+                LOGGER.debug("Cache miss for " + key);
+            }
+
+            Class<?> proxyClass = createClass(classLoader);
+
+            cacheForTheLoader.put(key, proxyClass);
+
+            LOGGER.debug("Put to cache " + key + " class " + proxyClass);
+
+            return createInstance(proxyClass, handler);
         }
+    }
 
+    /**
+     * Create new dynamic proxy class instance.
+     *
+     * @param classLoader proxy class loader
+     * @return new dynamic proxy class
+     */
+    private Class<?> createClass(ClassLoader classLoader) {
+        resolveSuperClassAndClassName();
         resolveMethods();
         ClassFile classFile = new ClassFile(className, superClassName);
 
@@ -291,11 +325,7 @@ public class ProxyMaker {
         addHandlerGetter(classFile);
         overrideMethods(classFile);
 
-        Class<?> proxyClass = ProxyFactoryHelper.toClass(classFile, getClassLoader());
-
-        PROXY_CACHE.put(getKey(), proxyClass);
-
-        return createInstance(proxyClass, handler);
+        return ProxyFactoryHelper.toClass(classFile, classLoader);
     }
 
     /**
@@ -358,7 +388,7 @@ public class ProxyMaker {
 
         builder.append(superClass.getName());
 
-        if (interfaces != null) {
+        if (interfaces != null && interfaces.length > 0) {
             builder.append(":");
             for (Class<?> interfaceClass : interfaces) {
                 builder.append(interfaceClass.getName());

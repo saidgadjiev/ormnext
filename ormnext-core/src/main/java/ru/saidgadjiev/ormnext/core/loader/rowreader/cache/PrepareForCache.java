@@ -16,14 +16,28 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Created by said on 12.08.2018.
+ * Visitor for prepare object for put to cache.
+ *
+ * @author Said Gadjiev
  */
 public class PrepareForCache implements EntityMetadataVisitor {
 
+    /**
+     * Cache object context.
+     */
     private CacheObjectContext cacheObjectContext;
 
+    /**
+     * Current object.
+     */
     private Object current;
 
+    /**
+     * Create a new instance.
+     *
+     * @param current target object
+     * @param cacheObjectContext target object context
+     */
     public PrepareForCache(Object current, CacheObjectContext cacheObjectContext) {
         this.current = current;
         this.cacheObjectContext = cacheObjectContext;

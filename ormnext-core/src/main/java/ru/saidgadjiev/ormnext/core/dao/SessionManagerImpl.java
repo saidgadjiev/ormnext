@@ -8,7 +8,7 @@ import ru.saidgadjiev.ormnext.core.dao.context.CurrentSessionContext;
 import ru.saidgadjiev.ormnext.core.dao.context.ThreadLocalCurrentSessionContext;
 import ru.saidgadjiev.ormnext.core.loader.CacheEntityLoader;
 import ru.saidgadjiev.ormnext.core.loader.DefaultEntityLoader;
-import ru.saidgadjiev.ormnext.core.query.criteria.StatementCompiler;
+import ru.saidgadjiev.ormnext.core.query.criteria.compiler.StatementCompiler;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.MetaModel;
 
 import java.sql.SQLException;
@@ -44,6 +44,11 @@ public class SessionManagerImpl implements SessionManager {
      */
     private DatabaseEngine<?> databaseEngine;
 
+    /**
+     * Statement compiler.
+     *
+     * @see StatementCompiler
+     */
     private StatementCompiler statementCompiler;
 
     /**
@@ -64,6 +69,7 @@ public class SessionManagerImpl implements SessionManager {
      * @param connectionSource  target connection source
      * @param metaModel         target meta model
      * @param databaseEngine    target database engine
+     * @param statementCompiler target statement compiler
      * @throws SQLException any exceptions
      */
     SessionManagerImpl(ConnectionSource<?> connectionSource,

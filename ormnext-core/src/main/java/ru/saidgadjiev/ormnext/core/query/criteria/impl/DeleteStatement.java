@@ -23,6 +23,10 @@ public class DeleteStatement implements QueryElement, CriteriaStatement {
      * Entity class.
      */
     private final Class<?> entityClass;
+
+    /**
+     * Session.
+     */
     private SessionCriteriaContract session;
 
     /**
@@ -41,7 +45,7 @@ public class DeleteStatement implements QueryElement, CriteriaStatement {
      * Create a new instance.
      *
      * @param entityClass target entity class
-     * @param session
+     * @param session target session
      */
     public DeleteStatement(Class<?> entityClass, SessionCriteriaContract session) {
         this.entityClass = entityClass;
@@ -99,6 +103,12 @@ public class DeleteStatement implements QueryElement, CriteriaStatement {
         return where == null ? null : where.expression();
     }
 
+    /**
+     * Execute current statement.
+     *
+     * @return deleted count
+     * @throws SQLException any SQL exceptions
+     */
     public int delete() throws SQLException {
         return session.delete(this);
     }

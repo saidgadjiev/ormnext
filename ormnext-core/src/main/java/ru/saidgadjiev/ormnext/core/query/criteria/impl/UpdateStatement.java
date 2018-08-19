@@ -22,6 +22,10 @@ public class UpdateStatement implements QueryElement, CriteriaStatement {
      * Entity class.
      */
     private final Class<?> entityClass;
+
+    /**
+     * Session.
+     */
     private SessionCriteriaContract session;
 
     /**
@@ -50,6 +54,7 @@ public class UpdateStatement implements QueryElement, CriteriaStatement {
      * Create a new instance.
      *
      * @param entityClass target entity class
+     * @param session     target session
      */
     public UpdateStatement(Class<?> entityClass, SessionCriteriaContract session) {
         this.entityClass = entityClass;
@@ -60,7 +65,7 @@ public class UpdateStatement implements QueryElement, CriteriaStatement {
      * Provide update value.
      *
      * @param propertyName property name
-     * @param value value
+     * @param value        value
      * @return this instance for chain
      */
     public UpdateStatement set(String propertyName, Object value) {
@@ -113,7 +118,7 @@ public class UpdateStatement implements QueryElement, CriteriaStatement {
      * Provide user arg.
      *
      * @param index arg index
-     * @param arg arg value
+     * @param arg   arg value
      */
     public void setArg(Integer index, Object arg) {
         userProvidedArgs.put(index, arg);
@@ -141,6 +146,12 @@ public class UpdateStatement implements QueryElement, CriteriaStatement {
         return userProvidedArgs;
     }
 
+    /**
+     * Execute current statement.
+     *
+     * @return updated count
+     * @throws SQLException any SQL exceptions
+     */
     public int update() throws SQLException {
         return session.update(this);
     }

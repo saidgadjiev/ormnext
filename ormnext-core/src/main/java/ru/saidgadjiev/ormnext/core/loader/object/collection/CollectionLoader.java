@@ -96,6 +96,12 @@ public class CollectionLoader {
         return loadCollectionQuery;
     }
 
+    /**
+     * Cast session to {@link SessionCriteriaContract}.
+     *
+     * @param session target session
+     * @return casted session
+     */
     private SessionCriteriaContract getSession(Session session) {
         return (SessionCriteriaContract) session;
     }

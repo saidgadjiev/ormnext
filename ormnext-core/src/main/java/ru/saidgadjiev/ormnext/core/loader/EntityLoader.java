@@ -232,13 +232,21 @@ public interface EntityLoader {
     /**
      * Execute seelct statement by database engine and return results.
      *
-     * @param session target session
-     * @param selectStatement   target statement
+     * @param session         target session
+     * @param selectStatement target statement
      * @return database results
      * @throws SQLException any SQL exceptions
      */
     DatabaseResults query(Session session, SelectStatement<?> selectStatement) throws SQLException;
 
+    /**
+     * Execute query {@link java.sql.Statement#executeUpdate(String)}.
+     *
+     * @param session target session
+     * @param query   target query
+     * @return changed row count
+     * @throws SQLException any SQL exceptions
+     */
     int executeUpdate(Session session, Query query) throws SQLException;
 
     /**

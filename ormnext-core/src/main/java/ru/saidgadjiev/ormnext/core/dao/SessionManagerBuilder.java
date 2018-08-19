@@ -2,7 +2,7 @@ package ru.saidgadjiev.ormnext.core.dao;
 
 import ru.saidgadjiev.ormnext.core.connection.source.ConnectionSource;
 import ru.saidgadjiev.ormnext.core.dialect.Dialect;
-import ru.saidgadjiev.ormnext.core.query.criteria.StatementCompiler;
+import ru.saidgadjiev.ormnext.core.query.criteria.compiler.StatementCompilerImpl;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.MetaModel;
 
 import java.sql.SQLException;
@@ -127,7 +127,7 @@ public class SessionManagerBuilder {
                 connectionSource,
                 metaModel,
                 engine,
-                new StatementCompiler(metaModel)
+                new StatementCompilerImpl(metaModel)
         );
 
         try (Session session = sessionManager.createSession()) {

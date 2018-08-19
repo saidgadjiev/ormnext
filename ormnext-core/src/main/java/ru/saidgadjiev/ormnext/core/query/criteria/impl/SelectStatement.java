@@ -31,6 +31,9 @@ public class SelectStatement<T> implements CriteriaStatement {
      */
     private final Class<T> entityClass;
 
+    /**
+     * Session.
+     */
     private SessionCriteriaContract session;
 
     /**
@@ -96,6 +99,7 @@ public class SelectStatement<T> implements CriteriaStatement {
      * Create a new instance.
      *
      * @param entityClass target entity class
+     * @param session     target session
      */
     public SelectStatement(Class<T> entityClass, SessionCriteriaContract session) {
         this.entityClass = entityClass;
@@ -336,18 +340,42 @@ public class SelectStatement<T> implements CriteriaStatement {
         return withoutJoins;
     }
 
+    /**
+     * Execute for unique result.
+     *
+     * @return unique result
+     * @throws SQLException any SQL exceptions
+     */
     public T uniqueResult() throws SQLException {
         return session.uniqueResult(this);
     }
 
+    /**
+     * Retrieve beans list.
+     *
+     * @return beans list
+     * @throws SQLException any SQL exceptions
+     */
     public List<T> list() throws SQLException {
         return session.list(this);
     }
 
+    /**
+     * Query for long.
+     *
+     * @return long result
+     * @throws SQLException any SQL exceptions
+     */
     public Long queryForLong() throws SQLException {
         return session.queryForLong(this);
     }
 
+    /**
+     * Execute for results.
+     *
+     * @return query results
+     * @throws SQLException any SQL exceptions
+     */
     public DatabaseResults executeQuery() throws SQLException {
         return session.query(this);
     }

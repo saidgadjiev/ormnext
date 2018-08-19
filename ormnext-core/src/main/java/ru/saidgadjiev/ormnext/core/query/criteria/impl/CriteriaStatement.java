@@ -26,5 +26,10 @@ public interface CriteriaStatement {
      */
     List<CriterionArgument> getArgs();
 
+    /**
+     * Attach session to current statement.
+     *
+     * @param session target session
+     */
     void attach(Session session);
 }

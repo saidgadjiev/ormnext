@@ -324,6 +324,13 @@ public class CacheEntityLoader implements EntityLoader {
         }
     }
 
+    /**
+     * Put object to cache.
+     *
+     * @param session target session
+     * @param objects target objects
+     * @throws SQLException any SQL exceptions
+     */
     private void putToCache(Session session, Object ... objects) throws SQLException {
         for (Object object: objects) {
             DatabaseEntityMetadata<?> currentMetadata = metaModel.getPersister(object.getClass()).getMetadata();

@@ -16,12 +16,17 @@ public class Query {
      * Sql executeQuery.
      */
     private final String query;
+
+    /**
+     * Session.
+     */
     private SessionCriteriaContract session;
 
     /**
      * Create a new instance.
      *
-     * @param query target executeQuery
+     * @param query   target executeQuery
+     * @param session target session
      */
     public Query(String query, SessionCriteriaContract session) {
         this.query = query;
@@ -37,10 +42,22 @@ public class Query {
         return query;
     }
 
+    /**
+     * Execute query results.
+     *
+     * @return query results
+     * @throws SQLException any SQL exceptions
+     */
     public DatabaseResults executeQuery() throws SQLException {
         return session.executeQuery(this);
     }
 
+    /**
+     * Execute query {@link java.sql.Statement#executeUpdate(String)}.
+     *
+     * @return changed row count
+     * @throws SQLException any SQL exceptions
+     */
     public int executeUpdate() throws SQLException {
         return session.executeUpdate(this);
     }

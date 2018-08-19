@@ -159,6 +159,14 @@ public interface DatabaseEngine<T> {
      */
     String prepareQuery(SqlStatement sqlStatement);
 
+    /**
+     * Execute query {@link java.sql.Statement#executeUpdate(String)}.
+     *
+     * @param databaseConnection target connection
+     * @param query target query
+     * @return changed row count
+     * @throws SQLException any SQL exceptions
+     */
     int executeUpdate(DatabaseConnection<T> databaseConnection, String query) throws SQLException;
 }
 

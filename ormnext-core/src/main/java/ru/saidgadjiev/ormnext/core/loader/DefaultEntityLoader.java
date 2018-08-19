@@ -10,9 +10,8 @@ import ru.saidgadjiev.ormnext.core.field.fieldtype.DatabaseColumnType;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignCollectionColumnTypeImpl;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignColumnTypeImpl;
 import ru.saidgadjiev.ormnext.core.loader.rowreader.resultset.RowResult;
-import ru.saidgadjiev.ormnext.core.query.criteria.StatementCompiler;
-import ru.saidgadjiev.ormnext.core.query.criteria.StatementCompiler.DeleteStatementCompileResult;
-import ru.saidgadjiev.ormnext.core.query.criteria.StatementCompiler.UpdateStatementCompileResult;
+import ru.saidgadjiev.ormnext.core.query.criteria.compiler.StatementCompiler;
+import ru.saidgadjiev.ormnext.core.query.criteria.compiler.StatementCompiler.StatementCompileResult;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.DeleteStatement;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.Query;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.SelectStatement;
@@ -28,7 +27,6 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import static ru.saidgadjiev.ormnext.core.query.criteria.StatementCompiler.SelectStatementCompileResult;
 import static ru.saidgadjiev.ormnext.core.utils.ArgumentUtils.*;
 
 /**
@@ -42,6 +40,10 @@ public class DefaultEntityLoader implements EntityLoader {
      * Current meta model.
      */
     private MetaModel metaModel;
+
+    /**
+     * Statement compiler.
+     */
     private StatementCompiler statementCompiler;
 
     /**
@@ -54,8 +56,9 @@ public class DefaultEntityLoader implements EntityLoader {
     /**
      * Create a new instance.
      *
-     * @param databaseEngine target database engine
-     * @param metaModel      target meta model
+     * @param databaseEngine    target database engine
+     * @param metaModel         target meta model
+     * @param statementCompiler target statement compiler
      */
     public DefaultEntityLoader(DatabaseEngine<?> databaseEngine,
                                MetaModel metaModel,
@@ -377,11 +380,11 @@ public class DefaultEntityLoader implements EntityLoader {
     @Override
     public List<Object> list(Session session, SelectStatement selectStatement) throws SQLException {
         DatabaseEntityPersister entityPersister = metaModel.getPersister(selectStatement.getEntityClass());
-        SelectStatementCompileResult compileResult = statementCompiler.compile(selectStatement);
+        StatementCompileResult<SelectQuery> compileResult = statementCompiler.compile(selectStatement);
 
         try (DatabaseResults databaseResults = databaseEngine.select(
                 session.getConnection(),
-                compileResult.getSelectQuery(),
+                compileResult.getQuery(),
                 compileResult.getArguments()
         )) {
             List<RowResult> results = entityPersister.load(session, databaseResults);
@@ -393,11 +396,11 @@ public class DefaultEntityLoader implements EntityLoader {
     @Override
     public long queryForLong(Session session, SelectStatement selectStatement)
             throws SQLException {
-        SelectStatementCompileResult compileResult = statementCompiler.compile(selectStatement);
+        StatementCompileResult<SelectQuery> compileResult = statementCompiler.compile(selectStatement);
 
         try (DatabaseResults databaseResults = databaseEngine.select(
                 session.getConnection(),
-                compileResult.getSelectQuery(),
+                compileResult.getQuery(),
                 compileResult.getArguments()
         )) {
             if (databaseResults.next()) {
@@ -449,22 +452,22 @@ public class DefaultEntityLoader implements EntityLoader {
 
     @Override
     public int delete(Session session, DeleteStatement deleteStatement) throws SQLException {
-        DeleteStatementCompileResult compileResult = statementCompiler.compile(deleteStatement);
+        StatementCompileResult<DeleteQuery> compileResult = statementCompiler.compile(deleteStatement);
 
         return databaseEngine.delete(
                 session.getConnection(),
-                compileResult.getDeleteQuery(),
+                compileResult.getQuery(),
                 compileResult.getArguments()
         );
     }
 
     @Override
     public int update(Session session, UpdateStatement updateStatement) throws SQLException {
-        UpdateStatementCompileResult compileResult = statementCompiler.compile(updateStatement);
+        StatementCompileResult<UpdateQuery> compileResult = statementCompiler.compile(updateStatement);
 
         return databaseEngine.update(
                 session.getConnection(),
-                compileResult.getUpdateQuery(),
+                compileResult.getQuery(),
                 compileResult.getArguments()
         );
     }
@@ -477,13 +480,13 @@ public class DefaultEntityLoader implements EntityLoader {
     @Override
     public DatabaseResults query(Session session, SelectStatement selectStatement) throws SQLException {
         DatabaseEntityPersister entityPersister = metaModel.getPersister(selectStatement.getEntityClass());
-        SelectStatementCompileResult compileResult = statementCompiler.compile(selectStatement);
+        StatementCompileResult<SelectQuery> compileResult = statementCompiler.compile(selectStatement);
 
         return new UserDatabaseResultsImpl(
                 entityPersister.getAliases(),
                 databaseEngine.select(
                         session.getConnection(),
-                        compileResult.getSelectQuery(),
+                        compileResult.getQuery(),
                         compileResult.getArguments()
                 )
         );
@@ -543,7 +546,7 @@ public class DefaultEntityLoader implements EntityLoader {
         for (ForeignCollectionColumnTypeImpl foreignCollectionColumnType
                 : entityMetadata.toForeignCollectionColumnTypes()) {
             if (foreignCollectionColumnType.foreignAutoCreate()) {
-                for (Object foreignObject : (Collection) foreignCollectionColumnType.access(object)) {
+                for (Object foreignObject : foreignCollectionColumnType.access(object)) {
                     foreignCollectionColumnType.getForeignColumnType().assign(foreignObject, object);
 
                     session.create(foreignObject);
