@@ -1,6 +1,7 @@
 package ru.saidgadjiev.proxymaker;
 
-import org.apache.log4j.Logger;
+import ru.saidgadjiev.logger.Log;
+import ru.saidgadjiev.logger.LoggerFactory;
 import ru.saidgadjiev.proxymaker.bytecode.ByteCodeUtils;
 import ru.saidgadjiev.proxymaker.bytecode.CodeAttribute;
 import ru.saidgadjiev.proxymaker.bytecode.FieldInfo;
@@ -24,7 +25,7 @@ public class ProxyMaker {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(ProxyMaker.class);
+    private static final Log LOGGER = LoggerFactory.getLogger(ProxyMaker.class);
 
     /**
      * Object class {@link Class}.
