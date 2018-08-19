@@ -34,5 +34,11 @@
             <scope>provided</scope>
         </dependency>
 
+        <dependency>
+            <groupId>ru.saidgadjiev.ormnext</groupId>
+            <artifactId>proxy-maker</artifactId>
+            <version>1.15-SNAPSHOT</version>
+        </dependency>
+
     </dependencies>
 </project>
