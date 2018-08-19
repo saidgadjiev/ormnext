@@ -1,8 +1,8 @@
 package ru.saidgadjiev.ormnext.core.loader.object;
 
 import ru.saidgadjiev.ormnext.core.dao.Session;
-import ru.saidgadjiev.ormnext.core.logger.Log;
-import ru.saidgadjiev.ormnext.core.logger.LoggerFactory;
+import ru.saidgadjiev.logger.Log;
+import ru.saidgadjiev.logger.LoggerFactory;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.Criteria;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.Restrictions;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.SelectStatement;

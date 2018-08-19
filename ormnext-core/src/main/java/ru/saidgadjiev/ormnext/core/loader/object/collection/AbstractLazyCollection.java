@@ -2,8 +2,8 @@ package ru.saidgadjiev.ormnext.core.loader.object.collection;
 
 import ru.saidgadjiev.ormnext.core.dao.Session;
 import ru.saidgadjiev.ormnext.core.loader.object.Lazy;
-import ru.saidgadjiev.ormnext.core.logger.Log;
-import ru.saidgadjiev.ormnext.core.logger.LoggerFactory;
+import ru.saidgadjiev.logger.Log;
+import ru.saidgadjiev.logger.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.sql.SQLException;

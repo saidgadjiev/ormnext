@@ -3,7 +3,7 @@ package ru.saidgadjiev.ormnext.core.example.foreign;
 import org.junit.Assert;
 import ru.saidgadjiev.ormnext.core.dao.Session;
 import ru.saidgadjiev.ormnext.core.dao.SessionManager;
-import ru.saidgadjiev.ormnext.core.logger.LoggerFactory;
+import ru.saidgadjiev.logger.LoggerFactory;
 import ru.saidgadjiev.ormnext.core.util.TestUtils;
 
 import java.sql.SQLException;

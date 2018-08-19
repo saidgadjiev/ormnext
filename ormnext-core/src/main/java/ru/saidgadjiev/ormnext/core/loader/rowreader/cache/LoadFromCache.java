@@ -7,8 +7,8 @@ import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignCollectionColumnTypeIm
 import ru.saidgadjiev.ormnext.core.field.fieldtype.ForeignColumnTypeImpl;
 import ru.saidgadjiev.ormnext.core.field.fieldtype.SimpleDatabaseColumnTypeImpl;
 import ru.saidgadjiev.ormnext.core.loader.object.Lazy;
-import ru.saidgadjiev.ormnext.core.logger.Log;
-import ru.saidgadjiev.ormnext.core.logger.LoggerFactory;
+import ru.saidgadjiev.logger.Log;
+import ru.saidgadjiev.logger.LoggerFactory;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.Criteria;
 import ru.saidgadjiev.ormnext.core.query.criteria.impl.SelectStatement;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetadata;

@@ -1,8 +1,8 @@
 package ru.saidgadjiev.ormnext.core.field;
 
 import ru.saidgadjiev.ormnext.core.exception.FieldAccessException;
-import ru.saidgadjiev.ormnext.core.logger.Log;
-import ru.saidgadjiev.ormnext.core.logger.LoggerFactory;
+import ru.saidgadjiev.logger.Log;
+import ru.saidgadjiev.logger.LoggerFactory;
 
 import java.lang.invoke.LambdaMetafactory;
 import java.lang.invoke.MethodHandle;
