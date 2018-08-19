@@ -12,12 +12,6 @@
     <name>ormnext-core</name>
 
     <dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
-            <scope>test</scope>
-        </dependency>
 
         <dependency>
             <groupId>org.mockito</groupId>
@@ -38,18 +32,6 @@
             <artifactId>log4j</artifactId>
             <version>1.2.17</version>
             <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>ru.saidgadjiev.ormnext</groupId>
-            <artifactId>proxy-maker</artifactId>
-            <version>1.14-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-core</artifactId>
-            <version>5.3.4.Final</version>
         </dependency>
 
     </dependencies>
