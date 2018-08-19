@@ -3,7 +3,7 @@
     <parent>
         <groupId>ru.saidgadjiev</groupId>
         <artifactId>ormnext</artifactId>
-        <version>1.16-SNAPSHOT</version>
+        <version>1.16</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -37,13 +37,13 @@
         <dependency>
             <groupId>ru.saidgadjiev.ormnext</groupId>
             <artifactId>logger</artifactId>
-            <version>1.16-SNAPSHOT</version>
+            <version>1.16</version>
         </dependency>
 
         <dependency>
             <groupId>ru.saidgadjiev.ormnext</groupId>
             <artifactId>proxy-maker</artifactId>
-            <version>1.16-SNAPSHOT</version>
+            <version>1.16</version>
         </dependency>
 
     </dependencies>
