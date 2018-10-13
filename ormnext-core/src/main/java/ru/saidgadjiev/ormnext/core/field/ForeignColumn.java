@@ -23,13 +23,6 @@ public @interface ForeignColumn {
     boolean foreignAutoCreate() default false;
 
     /**
-     * Column name. Defaults to the property or field name.
-     *
-     * @return column name.
-     */
-    String columnName() default "";
-
-    /**
      * Fetch type. Default is {@link FetchType#EAGER}
      *
      * @return fetch type
@@ -53,9 +46,9 @@ public @interface ForeignColumn {
     ReferenceAction onDelete() default ReferenceAction.NO_ACTION;
 
     /**
-     * Foreign field name.
+     * Foreign field value.
      *
-     * @return foreign field name
+     * @return foreign field value
      */
     String foreignFieldName() default "";
 }

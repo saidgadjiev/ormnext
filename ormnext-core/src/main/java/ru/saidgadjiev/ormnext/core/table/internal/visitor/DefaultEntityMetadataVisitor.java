@@ -110,9 +110,9 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
         }
         EntityAliases ownerAliases = entityAliasResolverContext.getAliases(parentUidStack.peek());
 
-        DatabaseEntityMetadata<?> foreignMetaData = metaModel.getPersister(
+        DatabaseEntityMetadata<?> foreignMetaData = metaModel.getMetadata(
                 foreignColumnType.getForeignFieldClass()
-        ).getMetadata();
+        );
 
         String nextUID = uidGenerator.nextUID();
         EntityAliases foreignEntityAliases = entityAliasResolverContext.resolveAliases(nextUID, foreignMetaData);
@@ -228,9 +228,9 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
      * @throws SQLException any exceptions
      */
     private boolean startEagerCollection(ForeignCollectionColumnTypeImpl collectionColumnType) throws SQLException {
-        DatabaseEntityMetadata<?> ownerMetaData = metaModel.getPersister(
+        DatabaseEntityMetadata<?> ownerMetaData = metaModel.getMetadata(
                 collectionColumnType.getField().getDeclaringClass()
-        ).getMetadata();
+        );
         EntityAliases ownerAliases = entityAliasResolverContext.getAliases(parentUidStack.peek());
 
         DatabaseEntityMetadata<?> foreignMetaData = metaModel.getPersister(
@@ -278,9 +278,9 @@ public class DefaultEntityMetadataVisitor implements EntityMetadataVisitor {
      * @return true if handle success
      */
     private boolean startLazyCollection(ForeignCollectionColumnTypeImpl collectionColumnType) {
-        DatabaseEntityMetadata<?> ownerMetaData = metaModel.getPersister(
+        DatabaseEntityMetadata<?> ownerMetaData = metaModel.getMetadata(
                 collectionColumnType.getField().getDeclaringClass()
-        ).getMetadata();
+        );
         EntityAliases ownerAliases = entityAliasResolverContext.getAliases(parentUidStack.peek());
 
         CollectionLoader collectionLoader = new CollectionLoader(collectionColumnType);

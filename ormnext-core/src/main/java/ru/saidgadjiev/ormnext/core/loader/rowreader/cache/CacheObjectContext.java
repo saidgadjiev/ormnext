@@ -66,7 +66,7 @@ public class CacheObjectContext {
      * @return metadata
      */
     public DatabaseEntityMetadata<?> getMetadata(Class<?> entityType) {
-        return metaModel.getPersister(entityType).getMetadata();
+        return metaModel.getMetadata(entityType);
     }
 
     /**

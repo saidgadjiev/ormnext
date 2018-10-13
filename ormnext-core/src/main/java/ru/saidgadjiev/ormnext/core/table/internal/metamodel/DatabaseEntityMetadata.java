@@ -9,6 +9,7 @@ import ru.saidgadjiev.ormnext.core.table.Unique;
 import ru.saidgadjiev.ormnext.core.table.internal.visitor.EntityElement;
 import ru.saidgadjiev.ormnext.core.table.internal.visitor.EntityMetadataVisitor;
 import ru.saidgadjiev.ormnext.core.utils.FieldTypeUtils;
+import ru.saidgadjiev.ormnext.core.utils.NormalizeUtils;
 import ru.saidgadjiev.ormnext.core.validator.entity.EntityValidator;
 
 import java.lang.reflect.Field;
@@ -394,10 +395,10 @@ public final class DatabaseEntityMetadata<T> implements EntityElement {
         if (entityClass.isAnnotationPresent(DatabaseEntity.class)) {
             DatabaseEntity databaseEntity = entityClass.getAnnotation(DatabaseEntity.class);
 
-            tableName = databaseEntity.name();
+            tableName = databaseEntity.value();
         }
 
-        tableName = tableName.isEmpty() ? entityClass.getSimpleName().toLowerCase() : tableName;
+        tableName = tableName.isEmpty() ? NormalizeUtils.normalize(entityClass.getSimpleName()) : tableName;
         RESOLVED_TABLE_NAMES.put(entityClass, tableName);
 
         return tableName;

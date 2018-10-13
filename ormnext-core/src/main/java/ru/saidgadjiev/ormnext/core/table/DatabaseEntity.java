@@ -20,7 +20,7 @@ public @interface DatabaseEntity {
      * Table name. If not set then the name is taken from the class name lowercased.
      * @return table name
      */
-    String name() default "";
+    String value() default "";
 
     /**
      * Table indexes definition.

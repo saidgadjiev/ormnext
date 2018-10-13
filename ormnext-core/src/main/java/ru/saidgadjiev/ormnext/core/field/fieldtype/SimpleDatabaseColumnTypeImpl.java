@@ -7,6 +7,7 @@ import ru.saidgadjiev.ormnext.core.field.datapersister.ColumnConverter;
 import ru.saidgadjiev.ormnext.core.field.datapersister.DataPersister;
 import ru.saidgadjiev.ormnext.core.table.internal.metamodel.DatabaseEntityMetadata;
 import ru.saidgadjiev.ormnext.core.table.internal.visitor.EntityMetadataVisitor;
+import ru.saidgadjiev.ormnext.core.utils.FieldTypeUtils;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -228,8 +229,7 @@ public final class SimpleDatabaseColumnTypeImpl extends BaseDatabaseColumnType {
         SimpleDatabaseColumnTypeImpl columnType = new SimpleDatabaseColumnTypeImpl();
 
         columnType.field = field;
-        columnType.columnName = databaseColumn.columnName().isEmpty()
-                ? field.getName().toLowerCase() : databaseColumn.columnName();
+        columnType.columnName = FieldTypeUtils.resolveColumnName(field).get();
         columnType.length = databaseColumn.length();
         columnType.fieldAccessor = new FieldAccessor(field);
 

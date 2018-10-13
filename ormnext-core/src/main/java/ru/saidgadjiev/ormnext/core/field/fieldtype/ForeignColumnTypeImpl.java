@@ -163,11 +163,7 @@ public class ForeignColumnTypeImpl extends BaseDatabaseColumnType implements For
 
     @Override
     public String columnName() {
-        if (columnName.endsWith(ID_SUFFIX)) {
-            return columnName;
-        }
-
-        return columnName + ID_SUFFIX;
+        return columnName;
     }
 
     @Override
@@ -288,8 +284,8 @@ public class ForeignColumnTypeImpl extends BaseDatabaseColumnType implements For
         foreignColumnType.field = field;
         foreignColumnType.fetchType = foreignColumn.fetchType();
         foreignColumnType.fieldAccessor = new FieldAccessor(field);
-        foreignColumnType.columnName = foreignColumn.columnName().isEmpty()
-                ? field.getName().toLowerCase() : foreignColumn.columnName();
+
+        foreignColumnType.columnName = FieldTypeUtils.resolveColumnName(field).get();
         foreignColumnType.tableName = DatabaseEntityMetadata.resolveTableName(field.getDeclaringClass());
         foreignColumnType.databaseColumnType = SimpleDatabaseColumnTypeImpl.build(field);
         foreignColumnType.onDelete = foreignColumn.onDelete();

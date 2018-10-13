@@ -290,7 +290,7 @@ public class ForeignCollectionColumnTypeImpl extends BaseDatabaseColumnType impl
         }
         fieldType.tableName = DatabaseEntityMetadata.resolveTableName(field.getDeclaringClass());
         fieldType.foreignField = foreignField;
-        fieldType.foreignColumnName = FieldTypeUtils.resolveForeignColumnTypeName(foreignField);
+        fieldType.foreignColumnName = FieldTypeUtils.resolveColumnName(foreignField).get();
         fieldType.foreignTableName = DatabaseEntityMetadata.resolveTableName(foreignField.getDeclaringClass());
         fieldType.foreignAutoCreate = foreignCollectionField.foreignAutoCreate();
         fieldType.foreignColumnType = ForeignColumnTypeImpl.build(foreignField);

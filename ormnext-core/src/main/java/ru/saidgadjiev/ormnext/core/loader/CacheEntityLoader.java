@@ -333,7 +333,7 @@ public class CacheEntityLoader implements EntityLoader {
      */
     private void putToCache(Session session, Object ... objects) throws SQLException {
         for (Object object: objects) {
-            DatabaseEntityMetadata<?> currentMetadata = metaModel.getPersister(object.getClass()).getMetadata();
+            DatabaseEntityMetadata<?> currentMetadata = metaModel.getMetadata(object.getClass());
 
             currentMetadata.accept(new PrepareForCache(object, new CacheObjectContext(session, cache, metaModel)));
 

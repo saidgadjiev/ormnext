@@ -52,6 +52,16 @@ public class MetaModel {
     }
 
     /**
+     * Return database entity metadata.
+     *
+     * @param clazz target class
+     * @return metadata
+     */
+    public DatabaseEntityMetadata<?> getMetadata(Class<?> clazz) {
+        return metadataMap.get(clazz).getMetadata();
+    }
+
+    /**
      * Return entity persister by persister class.
      *
      * @param persisterClass target persister class

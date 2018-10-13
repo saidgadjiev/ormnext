@@ -82,20 +82,6 @@ public final class FieldTypeUtils {
     }
 
     /**
-     * Resolve foreign column name by field.
-     * @param field target field
-     * @return foreign field name
-     */
-    public static String resolveForeignColumnTypeName(Field field) {
-        ForeignColumn foreignColumn = field.getAnnotation(ForeignColumn.class);
-
-        String columnName = foreignColumn.columnName().isEmpty()
-                ? field.getName().toLowerCase() : foreignColumn.columnName();
-
-        return columnName + ForeignColumnTypeImpl.ID_SUFFIX;
-    }
-
-    /**
      * Resolve column name by field.
      *
      * @param field target field
@@ -105,22 +91,27 @@ public final class FieldTypeUtils {
         if (field.isAnnotationPresent(ForeignCollectionField.class)) {
             return Optional.empty();
         } else if (field.isAnnotationPresent(ForeignColumn.class)) {
+            if (field.isAnnotationPresent(DatabaseColumn.class)) {
+                DatabaseColumn databaseColumn = field.getAnnotation(DatabaseColumn.class);
+                String columnName = databaseColumn.columnName();
 
-            ForeignColumn foreignColumn = field.getAnnotation(ForeignColumn.class);
-
-            String columnName = foreignColumn.columnName().isEmpty()
-                    ? field.getName().toLowerCase() : foreignColumn.columnName();
-
-            if (columnName.endsWith(ForeignColumnTypeImpl.ID_SUFFIX)) {
-                return Optional.of(columnName);
+                if (!columnName.isEmpty()) {
+                    return Optional.of(columnName);
+                }
             }
 
-            return Optional.of(columnName + ForeignColumnTypeImpl.ID_SUFFIX);
+            String normal = NormalizeUtils.normalize(field.getName());
+
+            if (normal.endsWith(ForeignColumnTypeImpl.ID_SUFFIX)) {
+                return Optional.of(normal);
+            } else {
+                return Optional.of(normal + ForeignColumnTypeImpl.ID_SUFFIX);
+            }
         } else if (field.isAnnotationPresent(DatabaseColumn.class)) {
             DatabaseColumn databaseColumn = field.getAnnotation(DatabaseColumn.class);
 
             String columnName = databaseColumn.columnName().isEmpty()
-                    ? field.getName().toLowerCase() : databaseColumn.columnName();
+                    ? NormalizeUtils.normalize(field.getName()) : databaseColumn.columnName();
 
             return Optional.of(columnName);
         }
